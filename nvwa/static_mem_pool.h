@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.5, 2004/08/17
+ * @version 1.6, 2004/09/23
  * @author  Wu Yongwei
  *
  */
@@ -283,9 +283,9 @@ public: \
     } \
     static void operator delete(void* __ptr) \
     { \
-        if (__ptr != NULL) \
+        if (__ptr) \
             static_mem_pool<sizeof(_Cls)>:: \
-                           instance().deallocate(__ptr); \
+                           instance_known().deallocate(__ptr); \
     }
 
 #define DECLARE_STATIC_MEM_POOL__NOTHROW(_Cls) \
@@ -298,7 +298,7 @@ public: \
     } \
     static void operator delete(void* __ptr) \
     { \
-        if (__ptr != NULL) \
+        if (__ptr) \
             static_mem_pool<sizeof(_Cls)>:: \
                            instance_known().deallocate(__ptr); \
     }
@@ -318,9 +318,9 @@ public: \
     } \
     static void operator delete(void* __ptr) \
     { \
-        if (__ptr != NULL) \
+        if (__ptr) \
             static_mem_pool<sizeof(_Cls), (_Gid)>:: \
-                           instance().deallocate(__ptr); \
+                           instance_known().deallocate(__ptr); \
     }
 
 #define DECLARE_STATIC_MEM_POOL_GROUPED__NOTHROW(_Cls, _Gid) \
@@ -333,7 +333,7 @@ public: \
     } \
     static void operator delete(void* __ptr) \
     { \
-        if (__ptr != NULL) \
+        if (__ptr) \
             static_mem_pool<sizeof(_Cls), (_Gid)>:: \
                            instance_known().deallocate(__ptr); \
     }
