@@ -1,3 +1,8 @@
+2004-12-28  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/static_assert.h: New file.
+	* nvwa/debug_new.cpp: Use static_assert.
+
 2004-12-25  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (new_ptr_list_t): Add an anonymous union with a
