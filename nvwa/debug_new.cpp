@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage
  *
- * @version 2.3, 2004/04/20
+ * @version 2.4, 2004/06/01
  * @author  Wu Yongwei
  *
  */
@@ -97,6 +97,11 @@ static new_ptr_list_t* new_ptr_list[_DEBUG_NEW_HASHTABLESIZE];
  * lists of a hash value.
  */
 static fast_mutex new_ptr_lock[_DEBUG_NEW_HASHTABLESIZE];
+
+/**
+ * Total memory allocated in bytes.
+ */
+static size_t total_mem_alloc = 0;
 
 /**
  * Flag to control whether verbose messages are output.
@@ -174,6 +179,7 @@ void* operator new(size_t size, const char* file, int line)
                 "new:  allocated  %p (size %u, %s:%d)\n",
                 pointer, size, file, line);
     }
+    total_mem_alloc += size;
     return pointer;
 }
 
@@ -214,11 +220,13 @@ void operator delete(void* pointer) throw()
     {
         if ((char*)ptr + sizeof(new_ptr_list_t) == pointer)
         {
+            total_mem_alloc -= ptr->size;
             if (new_verbose_flag)
             {
                 fprintf(new_output_fp,
-                        "delete: freeing  %p (size %u)\n",
-                        pointer, ptr->size);
+                        "delete: freeing  %p (size %u"
+                        ", %u bytes still allocated)\n",
+                        pointer, ptr->size, total_mem_alloc);
             }
             if (ptr_last == NULL)
                 new_ptr_list[hash_index] = ptr->next;

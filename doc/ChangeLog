@@ -1,3 +1,10 @@
+2004-06-01  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (total_mem_alloc): New static variable.
+	(operator new): Add bytes of allocated memory to total_mem_alloc.
+	(operator delete): Subtract bytes of deallocated memory from
+	total_mem_alloc and display total_mem_alloc when verbose flag is on.
+
 2004-05-09  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/bool_array.h: New file.
