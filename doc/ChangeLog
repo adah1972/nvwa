@@ -1,6 +1,22 @@
 2004-04-15  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/cont_ptr_utils.h: New file.
+	* nvwa/static_mem_pool.h: Prefix an underline to macros
+	STATIC_MEM_POOL_DEBUG and STATIC_MEM_POOL_TRACE.
+	(static_mem_pool_set::add): Remove inline implementation.
+	(static_mem_pool_set::remove): Remove.
+	(static_mem_pool<>::static_mem_pool): Move out code to insert itself
+	into static_mem_pool_set.
+	(static_mem_pool<>::~static_mem_pool): Move out code to remove
+	itself from static_mem_pool_set.  Fix trace code for locking.
+	(static_mem_pool<>::_S_create_instance): Move in code to add the new
+	instance into static_mem_pool_set.
+	* nvwa/static_mem_pool.cpp: Prefix an underline to macro
+	STATIC_MEM_POOL_TRACE.
+	(static_mem_pool_set::~static_mem_pool_set): Use a more natural way
+	to remove all instances of static_mem_pool.
+	(static_mem_pool_set::add): Move implementation here.  Remove the
+	trace message of adding a static_mem_pool.
 
 2004-04-11  Wu Yongwei  <adah@sh163.net>
 

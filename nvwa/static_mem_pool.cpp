@@ -31,28 +31,27 @@
  *
  * Non-template and non-inline code for the `static' memory pool
  *
- * @version 1.1, 2004/04/03
+ * @version 1.2, 2004/04/15
  * @author  Wu Yongwei
  *
  */
 
+#include <algorithm>
 #include "static_mem_pool.h"
+#include "cont_ptr_utils.h"
 
 static_mem_pool_set::static_mem_pool_set()
 {
-    STATIC_MEM_POOL_TRACE(false, "The static_mem_pool_set is created");
+    _STATIC_MEM_POOL_TRACE(false, "The static_mem_pool_set is created");
 }
 
 static_mem_pool_set::~static_mem_pool_set()
 {
     lock __guard;
-    while (!_M_memory_pool_set.empty())
-    {
-        // The destructor of a static_mem_pool will remove itself from
-        // the static_mem_pool_set.
-        delete *_M_memory_pool_set.begin();
-    }
-    STATIC_MEM_POOL_TRACE(false, "The static_mem_pool_set is destroyed");
+    std::for_each(_M_memory_pool_set.begin(),
+                  _M_memory_pool_set.end(),
+                  delete_object());
+    _STATIC_MEM_POOL_TRACE(false, "The static_mem_pool_set is destroyed");
 }
 
 static_mem_pool_set& static_mem_pool_set::instance()
@@ -65,7 +64,7 @@ static_mem_pool_set& static_mem_pool_set::instance()
 void static_mem_pool_set::recycle()
 {
     lock __guard;
-    STATIC_MEM_POOL_TRACE(false, "Memory pools are being recycled");
+    _STATIC_MEM_POOL_TRACE(false, "Memory pools are being recycled");
     std::set<mem_pool_base*>::iterator __end = _M_memory_pool_set.end();
     for (std::set<mem_pool_base*>::iterator
             __i  = _M_memory_pool_set.begin();
@@ -73,4 +72,10 @@ void static_mem_pool_set::recycle()
     {
         (*__i)->recycle();
     }
+}
+
+void static_mem_pool_set::add(mem_pool_base* __memory_pool_p)
+{
+    lock __guard;
+    _M_memory_pool_set.insert(__memory_pool_p);
 }

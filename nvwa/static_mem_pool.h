@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool
  *
- * @version 1.2, 2004/04/11
+ * @version 1.3, 2004/04/15
  * @author  Wu Yongwei
  *
  */
@@ -57,9 +57,9 @@
 # endif
 
 /* Defines the macro for debugging output */
-# ifdef STATIC_MEM_POOL_DEBUG
+# ifdef _STATIC_MEM_POOL_DEBUG
 #   include <iostream>
-#   define STATIC_MEM_POOL_TRACE(_Lck, _Msg) \
+#   define _STATIC_MEM_POOL_TRACE(_Lck, _Msg) \
         { \
             if (_Lck) { \
                 static_mem_pool_set::lock __guard; \
@@ -69,7 +69,7 @@
             } \
         }
 # else
-#   define STATIC_MEM_POOL_TRACE(_Lck, _Msg) \
+#   define _STATIC_MEM_POOL_TRACE(_Lck, _Msg) \
         ((void)0)
 # endif
 
@@ -82,19 +82,7 @@ class static_mem_pool_set : public class_level_lock<static_mem_pool_set>
 public:
     static static_mem_pool_set& instance();
     void recycle();
-
-    void add(mem_pool_base* __memory_pool_p)
-    {
-        lock __guard;
-        _M_memory_pool_set.insert(__memory_pool_p);
-        STATIC_MEM_POOL_TRACE(false, "A static_mem_pool is added");
-    }
-    void remove(mem_pool_base* __memory_pool_p)
-    {
-        lock __guard;
-        _M_memory_pool_set.erase(__memory_pool_p);
-        STATIC_MEM_POOL_TRACE(false, "A static_mem_pool is removed");
-    }
+    void add(mem_pool_base* __memory_pool_p);
 
 __PRIVATE:
     ~static_mem_pool_set();
@@ -162,18 +150,8 @@ public:
 private:
     static_mem_pool()
     {
-        STATIC_MEM_POOL_TRACE(true, "static_mem_pool<" << _Sz << ','
-                                    << _Gid << "> is created");
-        try
-        {
-            static_mem_pool_set::instance().add(this);
-        }
-        catch (...)
-        {
-            STATIC_MEM_POOL_TRACE(true,
-                    "Exception occurs in static_mem_pool_set::add");
-            throw;
-        }
+        _STATIC_MEM_POOL_TRACE(true, "static_mem_pool<" << _Sz << ','
+                                     << _Gid << "> is created");
     }
     ~static_mem_pool()
     {
@@ -189,11 +167,10 @@ private:
         }
         _S_memory_block_p = NULL;
 #   endif
-        static_mem_pool_set::instance().remove(this);
         _S_instance_p = NULL;
         _S_destroyed = true;
-        STATIC_MEM_POOL_TRACE(true, "static_mem_pool<" << _Sz << ','
-                                    << _Gid << "> is destroyed");
+        _STATIC_MEM_POOL_TRACE(false, "static_mem_pool<" << _Sz << ','
+                                      << _Gid << "> is destroyed");
     }
     static void _S_on_dead_reference()
     {
@@ -241,8 +218,8 @@ void static_mem_pool<_Sz, _Gid>::recycle()
             break;
         }
     }
-    STATIC_MEM_POOL_TRACE(true, "static_mem_pool<" << _Sz << ','
-                                << _Gid << "> is recycled");
+    _STATIC_MEM_POOL_TRACE(true, "static_mem_pool<" << _Sz << ','
+                                 << _Gid << "> is recycled");
 }
 
 template <size_t _Sz, int _Gid>
@@ -271,6 +248,16 @@ void static_mem_pool<_Sz, _Gid>::_S_create_instance()
         {
             static_mem_pool_set::instance();  // Force its creation
             _S_instance_p = new static_mem_pool();
+            try
+            {
+                static_mem_pool_set::instance().add(_S_instance_p);
+            }
+            catch (...)
+            {
+                _STATIC_MEM_POOL_TRACE(true,
+                        "Exception occurs in static_mem_pool_set::add");
+                throw;
+            }
         }
     }
 }
