@@ -29,9 +29,12 @@
 /**
  * @file    object_level_lock.h
  *
- * In essence Loki ObjectLevelLockable re-engineered to use a fast_mutex class
+ * In essence Loki ObjectLevelLockable re-engineered to use a fast_mutex
+ * class.  Check also Andrei Alexandrescu's article <a
+ * href="http://www.awprofessional.com/articles/article.asp?p=25298">
+ * "Multithreading and the C++ Type System"</a> for the ideas behind.
  *
- * @version 1.3, 2004/03/19
+ * @version 1.4, 2004/05/09
  * @author  Wu Yongwei
  *
  */
