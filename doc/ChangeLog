@@ -1,3 +1,7 @@
+2004-07-10  Wu Yongwei  <adah@sh163.net>
+
+	* doc/README: Add note about GLIBCPP_FORCE_NEW/GLIBCXX_FORCE_NEW.
+
 2004-06-25  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (check_leaks): Change `cLeaked' to `leak_cnt'
