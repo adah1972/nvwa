@@ -1,3 +1,7 @@
+2004-04-15  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/cont_ptr_utils.h: New file.
+
 2004-04-11  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/class_level_lock.h (class_level_lock): Add parameter _RealLock.
