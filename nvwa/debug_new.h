@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @version 2.4, 2004/07/26
+ * @version 2.5, 2004/12/12
  * @author  Wu Yongwei
  *
  */
@@ -67,9 +67,10 @@ void operator delete[](void*) throw();  // MSVC 6 requires this declaration
 #endif // _DEBUG_NEW_EMULATE_MALLOC
 
 /* Control variables */
-extern bool new_verbose_flag;   // default to false: no verbose information
 extern bool new_autocheck_flag; // default to true: call check_leaks() on exit
-extern FILE *new_output_fp;     // default to stderr: output to console
+extern bool new_verbose_flag;   // default to false: no verbose information
+extern FILE* new_output_fp;     // default to stderr: output to console
+extern const char* new_progname;// default to NULL; should be assigned argv[0]
 
 /** Counter class for on-exit leakage check. */
 class __debug_new_counter

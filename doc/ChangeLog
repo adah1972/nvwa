@@ -1,3 +1,31 @@
+2004-12-12  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (_DEBUG_NEW_CALLER_ADDRESS): New macro.
+	(_DEBUG_NEW_PROGNAME): New macro.
+	(_DEBUG_NEW_USE_ADDR2LINE): New macro.
+	(new_progname): New global variable.
+	(print_position): New static function.
+	(free_pointer): Change the interface to pass the caller address (and
+	display caller information when needed).
+	(check_leaks): Call print_position to display caller information.
+	(operator new(size_t, const char*, int)): Ditto.
+	(operator delete(void*)): Ditto.
+	(operator delete[](void*)): Ditto.
+	(operator delete(size_t, const char*, int)): Ditto.
+	(operator delete[](size_t, const char*, int)): Ditto.
+	(operator new(size_t)): Take advantage of _DEBUG_NEW_CALLER_ADDRESS.
+	(operator new[](size_t)): Ditto.
+	(operator delete(void*)): Ditto.
+	(operator delete[](void*)): Ditto.
+	(operator delete(void*, const std::nothrow_t&)): Ditto.
+	(operator delete[](void*, const std::nothrow_t&)): Ditto.
+	(free_pointer): Call fflush before _DEBUG_NEW_ERROR_ACTION.
+	(operator new(size_t, const char*, int)): Ditto.
+	(operator delete(void*)): Ditto.
+	(operator delete[](void*)): Ditto.
+	* nvwa/debug_new.h: Add declaration of new_progname.
+	* misc/Doxyfile: Predefine __GNUC__ in doxygen documentation.
+
 2004-12-09  Wu Yongwei  <adah@sh163.net>
 
 	* doc/README: Make minor editorial changes.

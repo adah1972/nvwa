@@ -188,7 +188,8 @@ EXPAND_ONLY_PREDEF     = NO
 SEARCH_INCLUDES        = YES
 INCLUDE_PATH           = 
 INCLUDE_FILE_PATTERNS  = 
-PREDEFINED             = _PTHREADS \
+PREDEFINED             = __GNUC__ \
+                         _PTHREADS \
                          _DEBUG_NEW_NO_NEW_REDEFINITION
 EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
