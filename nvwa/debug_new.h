@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @version 3.0, 2004/12/20
+ * @version 3.1, 2004/12/24
  * @author  Wu Yongwei
  *
  */
@@ -50,7 +50,12 @@ void* operator new[](size_t size, const char* file, int line);
 void operator delete(void* pointer, const char* file, int line) throw();
 void operator delete[](void* pointer, const char* file, int line) throw();
 #endif // NO_PLACEMENT_DELETE
-void operator delete[](void*) throw();  // MSVC 6 requires this declaration
+#if defined(_MSC_VER) && _MSC_VER < 1300
+// MSVC 6 requires the following declarations; or the non-placement
+// new[]/delete[] will not compile.
+void* operator new[](size_t) throw(std::bad_alloc);
+void operator delete[](void*) throw();
+#endif // MSVC 6
 
 /* Macros */
 #ifndef _DEBUG_NEW_NO_NEW_REDEFINITION
