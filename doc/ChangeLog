@@ -1,5 +1,14 @@
 2004-12-09  Wu Yongwei  <adah@sh163.net>
 
+	* misc: New directory.
+	* misc/Doxyfile: New file.
+	* misc/doxit.sh: New file.
+	* misc/doxygen.css: New file.
+	* misc/release.bat: New file.
+	* misc/release.sh: New file.
+
+2004-12-09  Wu Yongwei  <adah@sh163.net>
+
 	* doc/README: Change the layout to make it easier to read.
 
 2004-12-08  Wu Yongwei  <adah@sh163.net>
