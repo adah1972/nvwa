@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage
  *
- * @version 2.4, 2004/06/01
+ * @version 2.5, 2004/06/25
  * @author  Wu Yongwei
  *
  */
@@ -45,10 +45,18 @@
 #error "_FAST_MUTEX_CHECK_INITIALIZATION not set: check_leaks may not work"
 #endif
 
-// The default behaviour now is to copy the file name, because we found
-// that the exit leakage check cannot access the address of the file
-// name sometimes (in our case, a core dump will occur when trying to
-// access the file name in a shared library after a SIGINT).
+/**
+ * @def _DEBUG_NEW_FILENAME_LEN
+ *
+ * The length of file name stored if greater than zero.  If it is zero,
+ * only a const char pointer will be stored.  Currently the default
+ * behaviour is to copy the file name, because I found that the exit
+ * leakage check cannot access the address of the file name sometimes
+ * (in my case, a core dump will occur when trying to access the file
+ * name in a shared library after a \c SIGINT).  If the default value is
+ * too small for you, try defining it to \c 52, which makes the size of
+ * new_ptr_list_t 64 (it is 32 by default).
+ */
 #ifndef _DEBUG_NEW_FILENAME_LEN
 #define _DEBUG_NEW_FILENAME_LEN  20
 #endif
@@ -56,10 +64,23 @@
 #include <string.h>
 #endif
 
+/**
+ * @def _DEBUG_NEW_HASHTABLESIZE
+ *
+ * The size of the hash bucket for the table to store pointers to
+ * allocated memory.  To ensure good performance, always make it a power
+ * of two.
+ */
 #ifndef _DEBUG_NEW_HASHTABLESIZE
 #define _DEBUG_NEW_HASHTABLESIZE 16384
 #endif
 
+/**
+ * @def _DEBUG_NEW_HASH
+ *
+ * The hash function for the pointers.  This one has good performance in
+ * test for me.
+ */
 #ifndef _DEBUG_NEW_HASH
 #define _DEBUG_NEW_HASH(p) (((unsigned)(p) >> 8) % _DEBUG_NEW_HASHTABLESIZE)
 #endif
@@ -69,6 +90,11 @@
 #pragma init_seg(lib)
 #endif
 
+/**
+ * This macro is defined when no redefinition of \c new is wanted.  This
+ * is to ensure that overloading and direct calling of <code>operator
+ * new</code> is possible.
+ */
 #define _DEBUG_NEW_NO_NEW_REDEFINITION
 #include "debug_new.h"
 
@@ -126,7 +152,7 @@ FILE* new_output_fp = stderr;
  */
 int check_leaks()
 {
-    int cLeaked = 0;
+    int leak_cnt = 0;
     for (int i = 0; i < _DEBUG_NEW_HASHTABLESIZE; ++i)
     {
         fast_mutex_autolock lock(new_ptr_lock[i]);
@@ -142,10 +168,10 @@ int check_leaks()
                     ptr->file,
                     ptr->line);
             ptr = ptr->next;
-            ++cLeaked;
+            ++leak_cnt;
         }
     }
-    return cLeaked;
+    return leak_cnt;
 }
 
 void* operator new(size_t size, const char* file, int line)

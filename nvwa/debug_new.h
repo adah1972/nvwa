@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete
  *
- * @version 2.2, 2004/04/20
+ * @version 2.3, 2004/06/25
  * @author  Wu Yongwei
  *
  */
@@ -79,7 +79,16 @@ public:
     __debug_new_counter();
     ~__debug_new_counter();
 };
-// Counting object for each file including debug_new.h
+/** Counting object for each file including debug_new.h. */
 static __debug_new_counter __debug_new_count;
+
+/**
+ * @def debug_new
+ *
+ * The always available macro to catch file/line information on
+ * allocation.  When #_DEBUG_NEW_NO_NEW_REDEFINITION is defined, \c
+ * new will not be defined as a macro.  At that time, you can only use
+ * the \c debug_new macro as a substitute.
+ */
 
 #endif // _DEBUG_NEW_H

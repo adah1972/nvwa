@@ -1,3 +1,10 @@
+2004-06-25  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (check_leaks): Change `cLeaked' to `leak_cnt'
+	for consistency.
+	* nvwa/debug_new.cpp: Add more documentation comment.
+	* nvwa/debug_new.h: Ditto.
+
 2004-06-15  Wu Yongwei  <adah@sh163.net>
 
 	* doc/README: New file.
