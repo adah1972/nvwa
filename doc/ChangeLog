@@ -1,3 +1,8 @@
+2004-12-22  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (_DEBUG_NEW_HASH): Eliminate cast warnings on
+	64-bit platforms.
+
 2004-12-20  Wu Yongwei  <adah@sh163.net>
 
 	* doc/README: Add a note about new features of debug_new.
