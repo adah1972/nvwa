@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete
  *
- * @version 2.0, 2004/03/23
+ * @version 2.1, 2004/04/15
  * @author  Wu Yongwei
  *
  */
@@ -53,18 +53,18 @@ void operator delete[](void* pointer, const char* file, int line);
 void operator delete[](void*);  // MSVC 6 requires this declaration
 
 /* Macros */
-#ifndef DEBUG_NEW_NO_NEW_REDEFINITION
+#ifndef _DEBUG_NEW_NO_NEW_REDEFINITION
 #define new DEBUG_NEW
 #define DEBUG_NEW new(__FILE__, __LINE__)
 #define debug_new new
 #else
 #define debug_new new(__FILE__, __LINE__)
-#endif // DEBUG_NEW_NO_NEW_REDEFINITION
-#ifdef DEBUG_NEW_EMULATE_MALLOC
+#endif // _DEBUG_NEW_NO_NEW_REDEFINITION
+#ifdef _DEBUG_NEW_EMULATE_MALLOC
 #include <stdlib.h>
 #define malloc(s) ((void*)(debug_new char[s]))
 #define free(p) delete[] (char*)(p)
-#endif // DEBUG_NEW_EMULATE_MALLOC
+#endif // _DEBUG_NEW_EMULATE_MALLOC
 
 /* Control variables */
 extern bool new_verbose_flag;   // default to false: no verbose information

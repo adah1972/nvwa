@@ -17,6 +17,9 @@
 	to remove all instances of static_mem_pool.
 	(static_mem_pool_set::add): Move implementation here.  Remove the
 	trace message of adding a static_mem_pool.
+	* nvwa/debug_new.h: Prefix an underline to file-specific macros.
+	* nvwa/debug_new.cpp: Ditto.
+	* nvwa/mem_pool_base.cpp: Ditto.
 
 2004-04-11  Wu Yongwei  <adah@sh163.net>
 
@@ -43,10 +46,12 @@
 
 2004-03-30  Wu Yongwei  <adah@sh163.net>
 
-	* nvwa/memory_pool.h, nvwa/memory_pool.cpp: Remove files (become
-	the following)
-	* nvwa/mem_pool_base.h, nvwa/mem_pool_base.cpp: New files.
-	* nvwa/static_mem_pool.h, nvwa/static_mem_pool.cpp: New files.
+	* nvwa/memory_pool.h: Remove (reorganized into the new files).
+	* nvwa/memory_pool.cpp: Ditto.
+	* nvwa/mem_pool_base.h: New file.
+	* nvwa/mem_pool_base.cpp: New file.
+	* nvwa/static_mem_pool.h: New file.
+	* nvwa/static_mem_pool.cpp: New file.
 
 2004-03-28  Wu Yongwei  <adah@sh163.net>
 
@@ -55,7 +60,8 @@
 
 2004-03-28  Wu Yongwei  <adah@sh163.net>
 
-	* nvwa/memory_pool.h, nvwa/memory_pool.cpp: New files.
+	* nvwa/memory_pool.h: New file.
+	* nvwa/memory_pool.cpp: New file.
 
 2004-03-26  Wu Yongwei  <adah@sh163.net>
 
@@ -67,7 +73,8 @@
 2004-03-23  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/fast_mutex.h: New file.
-	* nvwa/debug_new.h, nvwa/debug_new.cpp: New files.
+	* nvwa/debug_new.h: New file.
+	* nvwa/debug_new.cpp: New file.
 
 2004-03-23  Wu Yongwei  <adah@sh163.net>
 

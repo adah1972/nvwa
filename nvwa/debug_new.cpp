@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage
  *
- * @version 2.1, 2004/03/26
+ * @version 2.2, 2004/04/15
  * @author  Wu Yongwei
  *
  */
@@ -49,19 +49,19 @@
 // that the exit leakage check cannot access the address of the file
 // name sometimes (in our case, a core dump will occur when trying to
 // access the file name in a shared library after a SIGINT).
-#ifndef DEBUG_NEW_FILENAME_LEN
-#define DEBUG_NEW_FILENAME_LEN  20
+#ifndef _DEBUG_NEW_FILENAME_LEN
+#define _DEBUG_NEW_FILENAME_LEN 20
 #endif
-#if DEBUG_NEW_FILENAME_LEN > 0
+#if _DEBUG_NEW_FILENAME_LEN > 0
 #include <string.h>
 #endif
 
-#ifndef DEBUG_NEW_HASHTABLESIZE
-#define DEBUG_NEW_HASHTABLESIZE 16384
+#ifndef _DEBUG_NEW_HASHTABLESIZE
+#define _DEBUG_NEW_HASHTABLESIZE 16384
 #endif
 
-#ifndef DEBUG_NEW_HASH
-#define DEBUG_NEW_HASH(p) (((unsigned)(p) >> 8) % DEBUG_NEW_HASHTABLESIZE)
+#ifndef _DEBUG_NEW_HASH
+#define _DEBUG_NEW_HASH(p) (((unsigned)(p) >> 8) % _DEBUG_NEW_HASHTABLESIZE)
 #endif
 
 #ifdef _MSC_VER
@@ -69,7 +69,7 @@
 #pragma init_seg(lib)
 #endif
 
-#define DEBUG_NEW_NO_NEW_REDEFINITION
+#define _DEBUG_NEW_NO_NEW_REDEFINITION
 #include "debug_new.h"
 
 /**
@@ -78,10 +78,10 @@
 struct new_ptr_list_t
 {
     new_ptr_list_t*     next;
-#if DEBUG_NEW_FILENAME_LEN == 0
+#if _DEBUG_NEW_FILENAME_LEN == 0
     const char*         file;
 #else
-    char                file[DEBUG_NEW_FILENAME_LEN];
+    char                file[_DEBUG_NEW_FILENAME_LEN];
 #endif
     int                 line;
     size_t              size;
@@ -90,13 +90,13 @@ struct new_ptr_list_t
 /**
  * Array of pointer lists of a hash value.
  */
-static new_ptr_list_t* new_ptr_list[DEBUG_NEW_HASHTABLESIZE];
+static new_ptr_list_t* new_ptr_list[_DEBUG_NEW_HASHTABLESIZE];
 
 /**
  * Array of mutex guards to protect simultaneous access to the pointer
  * lists of a hash value.
  */
-static fast_mutex new_ptr_lock[DEBUG_NEW_HASHTABLESIZE];
+static fast_mutex new_ptr_lock[_DEBUG_NEW_HASHTABLESIZE];
 
 /**
  * Flag to control whether verbose messages are output.
@@ -122,7 +122,7 @@ FILE* new_output_fp = stderr;
 int check_leaks()
 {
     int cLeaked = 0;
-    for (int i = 0; i < DEBUG_NEW_HASHTABLESIZE; ++i)
+    for (int i = 0; i < _DEBUG_NEW_HASHTABLESIZE; ++i)
     {
         fast_mutex_autolock lock(new_ptr_lock[i]);
         new_ptr_list_t* ptr = new_ptr_list[i];
@@ -155,12 +155,12 @@ void* operator new(size_t size, const char* file, int line)
         abort();
     }
     void* pointer = (char*)ptr + sizeof(new_ptr_list_t);
-    size_t hash_index = DEBUG_NEW_HASH(pointer);
-#if DEBUG_NEW_FILENAME_LEN == 0
+    size_t hash_index = _DEBUG_NEW_HASH(pointer);
+#if _DEBUG_NEW_FILENAME_LEN == 0
     ptr->file = file;
 #else
-    strncpy(ptr->file, file, DEBUG_NEW_FILENAME_LEN - 1)
-            [DEBUG_NEW_FILENAME_LEN - 1] = '\0';
+    strncpy(ptr->file, file, _DEBUG_NEW_FILENAME_LEN - 1)
+            [_DEBUG_NEW_FILENAME_LEN - 1] = '\0';
 #endif
     ptr->line = line;
     ptr->size = size;
@@ -206,7 +206,7 @@ void operator delete(void* pointer)
 {
     if (pointer == NULL)
         return;
-    size_t hash_index = DEBUG_NEW_HASH(pointer);
+    size_t hash_index = _DEBUG_NEW_HASH(pointer);
     fast_mutex_autolock lock(new_ptr_lock[hash_index]);
     new_ptr_list_t* ptr = new_ptr_list[hash_index];
     new_ptr_list_t* ptr_last = NULL;

@@ -31,12 +31,12 @@
  *
  * Implementation for the memory pool base
  *
- * @version 1.0, 2004/03/29
+ * @version 1.1, 2004/04/15
  * @author  Wu Yongwei
  *
  */
 
-#if defined(MEM_POOL_USE_MALLOC)
+#if defined(_MEM_POOL_USE_MALLOC)
 #include <stdlib.h>
 #else
 #include <new>
@@ -45,12 +45,12 @@
 #include "mem_pool_base.h"
 
 /* Defines macros to abstract system memory routines */
-# ifdef MEM_POOL_USE_MALLOC
-#   define MEM_POOL_ALLOCATE(_Sz)    malloc(_Sz)
-#   define MEM_POOL_DEALLOCATE(_Ptr) free(_Ptr)
+# ifdef _MEM_POOL_USE_MALLOC
+#   define _MEM_POOL_ALLOCATE(_Sz)    malloc(_Sz)
+#   define _MEM_POOL_DEALLOCATE(_Ptr) free(_Ptr)
 # else
-#   define MEM_POOL_ALLOCATE(_Sz)    ::operator new((_Sz), std::nothrow)
-#   define MEM_POOL_DEALLOCATE(_Ptr) ::operator delete(_Ptr)
+#   define _MEM_POOL_ALLOCATE(_Sz)    ::operator new((_Sz), std::nothrow)
+#   define _MEM_POOL_DEALLOCATE(_Ptr) ::operator delete(_Ptr)
 # endif
 
 mem_pool_base::~mem_pool_base()
@@ -59,10 +59,10 @@ mem_pool_base::~mem_pool_base()
 
 void* mem_pool_base::alloc_sys(size_t __size)
 {
-    return MEM_POOL_ALLOCATE(__size);
+    return _MEM_POOL_ALLOCATE(__size);
 }
 
 void mem_pool_base::dealloc_sys(void* __ptr)
 {
-    MEM_POOL_DEALLOCATE(__ptr);
+    _MEM_POOL_DEALLOCATE(__ptr);
 }
