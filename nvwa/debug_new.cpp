@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage
  *
- * @version 2.0, 2004/03/23
+ * @version 2.1, 2004/03/26
  * @author  Wu Yongwei
  *
  */
@@ -40,6 +40,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "fast_mutex.h"
+
+#if !_FAST_MUTEX_CHECK_INITIALIZATION && !defined(_NOTHREADS)
+#error "_FAST_MUTEX_CHECK_INITIALIZATION not set: check_leaks may not work"
+#endif
 
 // The default behaviour now is to copy the file name, because we found
 // that the exit leakage check cannot access the address of the file
@@ -111,8 +115,7 @@ bool new_autocheck_flag = true;
 FILE* new_output_fp = stderr;
 
 /**
- * Checks for memory leaks.  N.B.  No \c new/delete operations are
- * allowed during the execution of #check_leaks.
+ * Checks for memory leaks.
  *
  * @return  zero if no leakage is found; the number of leaks otherwise
  */
@@ -121,6 +124,7 @@ int check_leaks()
     int cLeaked = 0;
     for (int i = 0; i < DEBUG_NEW_HASHTABLESIZE; ++i)
     {
+        fast_mutex_autolock lock(new_ptr_lock[i]);
         new_ptr_list_t* ptr = new_ptr_list[i];
         if (ptr == NULL)
             continue;
