@@ -1,3 +1,8 @@
+2004-03-29  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/class_level_lock.h: New file, required by memory_pool.h.
+	* nvwa/object_level_lock.h: New file.
+
 2004-03-28  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/memory_pool.h, nvwa/memory_pool.cpp: New files.
