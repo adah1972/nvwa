@@ -1,3 +1,10 @@
+2004-12-25  Wu Yongwei  <adah@sh163.net>
+
+	* misc/Doxyfile (EXPAND_ONLY_PREDEF): Set to `YES'.
+	(EXPAND_AS_DEFINED): Add `__PRIVATE'.
+	* misc/doxit.sh: Make refman.ps only when `ps' is specified on the
+	command line.
+
 2004-12-24  Wu Yongwei  <adah@sh163.net>
 	* nvwa/debug_new.h: Add the new[](size_t) declaration required by
 	MSVC 6 and enclose by macro conditionals.
