@@ -1,3 +1,10 @@
+2005-01-02  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp: Hard-remove and re-add the revisions since 20
+	December since I wrongly bumped the revision number.
+	* nvwa/debug_new.h: Ditto.
+	* nvwa/static_assert: Ditto.
+
 2004-12-28  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/static_assert.h: New file.
