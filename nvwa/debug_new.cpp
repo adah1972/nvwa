@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 2.12, 2004/12/18
+ * @version 2.13, 2004/12/19
  * @author  Wu Yongwei
  *
  */
@@ -367,7 +367,7 @@ static void free_pointer(new_ptr_list_t** raw_ptr, void* addr, bool array_mode)
 #if _DEBUG_NEW_FILENAME_LEN == 0
         print_position(ptr->file, ptr->line);
 #else
-        if (ptr->line != 0)
+        if ((ptr->line & ~INT_MIN) != 0)
             print_position(ptr->file, ptr->line);
         else
             print_position(*(void**)ptr->file, ptr->line);
@@ -414,7 +414,7 @@ int check_leaks()
 #if _DEBUG_NEW_FILENAME_LEN == 0
             print_position(ptr->file, ptr->line);
 #else
-            if (ptr->line != 0)
+            if ((ptr->line & ~INT_MIN) != 0)
                 print_position(ptr->file, ptr->line);
             else
                 print_position(*(void**)ptr->file, ptr->line);

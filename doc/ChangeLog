@@ -1,6 +1,11 @@
+2004-12-19  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (check_leaks, free_pointer): Fix the bug that
+	the address of a new[] caller cannot be converted correctly.
+
 2004-12-18  Wu Yongwei  <adah@sh163.net>
 
-	* nvwa/debug.new.cpp: Add more documentation comment about new usage.
+	* nvwa/debug_new.cpp: Add more documentation comment about new usage.
 	(print_position): Replace a strcat call with a strcpy call.
 	(operator new(size_t, const std::nothrow_t&),
 	operator new[](size_t, const std::nothrow_t&)): Do not define if a
