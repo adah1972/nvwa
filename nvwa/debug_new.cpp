@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.1, 2004/12/22
+ * @version 3.2, 2004/12/24
  * @author  Wu Yongwei
  *
  */
@@ -52,6 +52,16 @@
 
 #if !_FAST_MUTEX_CHECK_INITIALIZATION && !defined(_NOTHREADS)
 #error "_FAST_MUTEX_CHECK_INITIALIZATION not set: check_leaks may not work"
+#endif
+
+/**
+ * @def _DEBUG_NEW_ALIGNMENT
+ *
+ * The alignment requirement of allocated memory blocks.  It must be a
+ * power of two.
+ */
+#ifndef _DEBUG_NEW_ALIGNMENT
+#define _DEBUG_NEW_ALIGNMENT 16
 #endif
 
 /**
@@ -96,7 +106,7 @@
  * (in my case, a core dump will occur when trying to access the file
  * name in a shared library after a \c SIGINT).  If the default value is
  * too small for you, try defining it to \c 52, which makes the size of
- * new_ptr_list_t 64 (it is 32 by default).
+ * new_ptr_list_t 64 (it is 32 by default) on 32-bit platforms.
  */
 #ifndef _DEBUG_NEW_FILENAME_LEN
 #define _DEBUG_NEW_FILENAME_LEN  20
@@ -170,6 +180,14 @@
 #include "debug_new.h"
 
 /**
+ * @def align
+ *
+ * Gets the aligned value of memory block size.
+ */
+#define align(s) \
+        (((s) + _DEBUG_NEW_ALIGNMENT - 1) & ~(_DEBUG_NEW_ALIGNMENT - 1))
+
+/**
  * Structure to store the position information where \c new occurs.
  */
 struct new_ptr_list_t
@@ -183,6 +201,11 @@ struct new_ptr_list_t
     int                 line;
     size_t              size;
 };
+
+/**
+ * The extra memory allocated by <code>operator new</code>.
+ */
+const int aligned_list_item_size = align(sizeof(new_ptr_list_t));
 
 /**
  * Array of pointer lists of a hash value.
@@ -326,7 +349,7 @@ static new_ptr_list_t** search_pointer(void* pointer, size_t hash_index)
     new_ptr_list_t** raw_ptr = &new_ptr_list[hash_index];
     while (*raw_ptr)
     {
-        if ((char*)*raw_ptr + sizeof(new_ptr_list_t) == pointer)
+        if ((char*)*raw_ptr + aligned_list_item_size == pointer)
         {
             return raw_ptr;
         }
@@ -361,7 +384,7 @@ static void free_pointer(new_ptr_list_t** raw_ptr, void* addr, bool array_mode)
         fprintf(new_output_fp,
                 "%s: pointer %p (size %u)\n\tat ",
                 msg,
-                (char*)ptr + sizeof(new_ptr_list_t),
+                (char*)ptr + aligned_list_item_size,
                 ptr->size);
         print_position(addr, 0);
         fprintf(new_output_fp, "\n\toriginally allocated at ");
@@ -383,7 +406,7 @@ static void free_pointer(new_ptr_list_t** raw_ptr, void* addr, bool array_mode)
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "delete: freeing  %p (size %u, %u bytes still allocated)\n",
-                (char*)ptr + sizeof(new_ptr_list_t),
+                (char*)ptr + aligned_list_item_size,
                 ptr->size, total_mem_alloc);
     }
     *raw_ptr = ptr->next;
@@ -410,7 +433,7 @@ int check_leaks()
             fast_mutex_autolock lock(new_output_lock);
             fprintf(new_output_fp,
                     "Leaked object at %p (size %u, ",
-                    (char*)ptr + sizeof(new_ptr_list_t),
+                    (char*)ptr + aligned_list_item_size,
                     ptr->size);
 #if _DEBUG_NEW_FILENAME_LEN == 0
             print_position(ptr->file, ptr->line);
@@ -431,7 +454,8 @@ int check_leaks()
 void* operator new(size_t size, const char* file, int line)
 {
     assert((line & INT_MIN) == 0);
-    size_t s = size + sizeof(new_ptr_list_t);
+    assert((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0);
+    size_t s = size + aligned_list_item_size;
     new_ptr_list_t* ptr = (new_ptr_list_t*)malloc(s);
     if (ptr == NULL)
     {
@@ -442,7 +466,7 @@ void* operator new(size_t size, const char* file, int line)
         fflush(new_output_fp);
         _DEBUG_NEW_ERROR_ACTION;
     }
-    void* pointer = (char*)ptr + sizeof(new_ptr_list_t);
+    void* pointer = (char*)ptr + aligned_list_item_size;
     size_t hash_index = _DEBUG_NEW_HASH(pointer);
 #if _DEBUG_NEW_FILENAME_LEN == 0
     ptr->file = file;
@@ -483,7 +507,7 @@ void* operator new[](size_t size, const char* file, int line)
 {
     void* pointer = operator new(size, file, line);
     new_ptr_list_t* ptr =
-            (new_ptr_list_t*)((char*)pointer - sizeof(new_ptr_list_t));
+            (new_ptr_list_t*)((char*)pointer - aligned_list_item_size);
     assert((ptr->line & INT_MIN) == 0);
     ptr->line |= INT_MIN;   // Result from new[] if highest bit set
     return pointer;
