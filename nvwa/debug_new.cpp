@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 2.11, 2004/12/18
+ * @version 2.12, 2004/12/18
  * @author  Wu Yongwei
  *
  */
@@ -127,13 +127,13 @@
  * @def _DEBUG_NEW_PROGNAME
  *
  * The program (executable) name to be set at compile time.  It is
- * better to assign <code>argv[0]</code> to #new_progname in \e main
- * than to use this macro, but this serves well as a quick hack.  Note
- * also that double quotation marks should be used around the program
- * name, i.e., one should specify a command-line option like
- * <code>-D_DEBUG_NEW_PROGNAME='"a.out"'</code> in BASH, or
- * <code>-D_DEBUG_NEW_PROGNAME="""a.exe"""</code> in the Windows command
- * prompt.
+ * better to assign the full program path to #new_progname in \e main
+ * (at run time) than to use this (compile-time) macro, but this macro
+ * serves well as a quick hack.  Note also that double quotation marks
+ * need to be used around the program name, i.e., one should specify a
+ * command-line option like <code>-D_DEBUG_NEW_PROGNAME='"a.out"'</code>
+ * in bash, or <code>-D_DEBUG_NEW_PROGNAME="""a.exe"""</code> in the
+ * Windows command prompt.
  */
 #ifndef _DEBUG_NEW_PROGNAME
 #define _DEBUG_NEW_PROGNAME NULL
@@ -223,7 +223,12 @@ bool new_verbose_flag = false;
 FILE* new_output_fp = stderr;
 
 /**
- * Pointer to the program name.
+ * Pointer to the program name.  Its initial value is the macro
+ * #_DEBUG_NEW_PROGNAME.  You should try to assign the program path to
+ * it early in your application.  Assigning <code>argv[0]</code> to it
+ * in \e main is one way.  If you use bash or ksh (or similar), the
+ * following statement is probably what you want:
+ * `<code>new_progname = getenv("_");</code>'.
  */
 const char* new_progname = _DEBUG_NEW_PROGNAME;
 
@@ -265,7 +270,7 @@ static void print_position(const void* file, int line)
                                       + sizeof(void*) * 2
                                       + 4 /* SP + "0x" + null */);
             strcpy(cmd, addr2line_cmd);
-            strcat(cmd, new_progname);
+            strcpy(cmd + sizeof addr2line_cmd - 1, new_progname);
             size_t len = strlen(cmd);
 #if defined(_WIN32) || defined(__CYGWIN__)
             if (len <= 4
@@ -493,6 +498,7 @@ void* operator new[](size_t size) throw(std::bad_alloc)
     return operator new[](size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
 
+#if !defined(__BORLANDC__) || __BORLANDC__ > 0x551
 void* operator new(size_t size, const std::nothrow_t&) throw()
 {
     return operator new(size);
@@ -502,6 +508,7 @@ void* operator new[](size_t size, const std::nothrow_t&) throw()
 {
     return operator new[](size);
 }
+#endif
 
 void operator delete(void* pointer) throw()
 {

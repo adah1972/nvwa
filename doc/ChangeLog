@@ -1,5 +1,13 @@
 2004-12-18  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/debug.new.cpp: Add more documentation comment about new usage.
+	(print_position): Replace a strcat call with a strcpy call.
+	(operator new(size_t, const std::nothrow_t&),
+	operator new[](size_t, const std::nothrow_t&)): Do not define if a
+	Borland C++ compiler no later than 5.5.1 is detected.
+
+2004-12-18  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/debug_new.cpp (new_output_lock): New static variable.
 	(free_pointer): Use new_output_lock to synchronize output to
 	new_output_fp.
