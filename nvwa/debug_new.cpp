@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.6, 2005/01/16
+ * @version 3.7, 2005/03/20
  * @author  Wu Yongwei
  *
  */
@@ -142,8 +142,8 @@
  * (at run time) than to use this (compile-time) macro, but this macro
  * serves well as a quick hack.  Note also that double quotation marks
  * need to be used around the program name, i.e., one should specify a
- * command-line option like <code>-D_DEBUG_NEW_PROGNAME='"a.out"'</code>
- * in bash, or <code>-D_DEBUG_NEW_PROGNAME="""a.exe"""</code> in the
+ * command-line option like <code>-D_DEBUG_NEW_PROGNAME=\"a.out\"</code>
+ * in \e bash, or <code>-D_DEBUG_NEW_PROGNAME=\"a.exe\"</code> in the
  * Windows command prompt.
  */
 #ifndef _DEBUG_NEW_PROGNAME
@@ -255,8 +255,8 @@ FILE* new_output_fp = stderr;
  * Pointer to the program name.  Its initial value is the macro
  * #_DEBUG_NEW_PROGNAME.  You should try to assign the program path to
  * it early in your application.  Assigning <code>argv[0]</code> to it
- * in \e main is one way.  If you use bash or ksh (or similar), the
- * following statement is probably what you want:
+ * in \e main is one way.  If you use \e bash or \e ksh (or similar),
+ * the following statement is probably what you want:
  * `<code>new_progname = getenv("_");</code>'.
  */
 const char* new_progname = _DEBUG_NEW_PROGNAME;

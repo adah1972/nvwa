@@ -1,3 +1,9 @@
+2005-03-20  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp: Adjust the doc comment: unify the expression
+	of double-quote literals on the command line; and italicize the
+	words `bash' and `ksh'.
+
 2005-03-08  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/fast_mutex.h (_PTHREADS): Undef if _WIN32THREADS is also
