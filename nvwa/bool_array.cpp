@@ -31,7 +31,7 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @version 2.1, 2004/08/02
+ * @version 3.0, 2004/08/07
  * @author  Wu Yongwei
  *
  */
@@ -96,6 +96,15 @@ BYTE bool_array::_S_bit_count[256] =
     8  /* 255 */
 }; // End _S_bit_count
 
+/**
+ * Creates the packed boolean array with a specific size.
+ *
+ * @param __size    size of the array
+ * @return          \c false if \e __size equals \c 0 or is too big, or
+ *                  if memory is insufficient; \c true if \e __size has
+ *                  a suitable value and memory allocation is
+ *                  successful.
+ */
 bool bool_array::create(unsigned long __size)
 {
     if (__size == 0)
@@ -118,6 +127,11 @@ bool bool_array::create(unsigned long __size)
     return true;
 }
 
+/**
+ * Initializes all array elements to a specific value optimally.
+ *
+ * @param __value   the boolean value to assign to all elements
+ */
 void bool_array::initialize(bool __value)
 {
     assert(_M_byte_ptr);
@@ -130,6 +144,11 @@ void bool_array::initialize(bool __value)
     }
 }
 
+/**
+ * Counts elements with a \c true value.
+ *
+ * @return  the count of \c true elements
+ */
 unsigned long bool_array::count() const
 {
     assert(_M_byte_ptr);
@@ -140,36 +159,37 @@ unsigned long bool_array::count() const
     return __true_cnt;
 }
 
-unsigned long bool_array::count(unsigned long __i1, unsigned long __i2) const
+/**
+ * Counts elements with a \c true value in a specified range.
+ *
+ * @param __beg beginning of the range
+ * @param __end end of the range (exclusive)
+ * @return      the count of \c true elements
+ */
+unsigned long bool_array::count(unsigned long __beg, unsigned long __end) const
 {
     assert(_M_byte_ptr);
     unsigned long __true_cnt = 0;
     size_t __byte_idx_beg, __byte_idx_end;
     BYTE __byte_val;
 
-    if (__i1 > __i2)
-    {
-        unsigned long __tmp;
-        __tmp = __i1;
-        __i1  = __i2;
-        __i2  = __tmp;
-    }
-    if (__i2 >= _M_length)
+    if (__beg >= __end)
+        return 0;
+    if (__end > _M_length)
         throw std::out_of_range("invalid bool_array subscript");
-    if (__i1 == __i2)
-        return at(__i1) ? 1 : 0;
+    --__end;
 
-    __byte_idx_beg = (size_t)(__i1 / 8);
+    __byte_idx_beg = (size_t)(__beg / 8);
     __byte_val = _M_byte_ptr[__byte_idx_beg];
-    __byte_val &= ~0 << (__i1 % 8);
+    __byte_val &= ~0 << (__beg % 8);
 
-    __byte_idx_end = (size_t)(__i2 / 8);
+    __byte_idx_end = (size_t)(__end / 8);
     if (__byte_idx_beg < __byte_idx_end)
     {
         __true_cnt = _S_bit_count[__byte_val];
         __byte_val = _M_byte_ptr[__byte_idx_end];
     }
-    __byte_val &= ~(~0 << (__i2 % 8 + 1));
+    __byte_val &= ~(~0 << (__end % 8 + 1));
     __true_cnt += _S_bit_count[__byte_val];
 
     for (++__byte_idx_beg; __byte_idx_beg < __byte_idx_end; ++__byte_idx_beg)
@@ -177,6 +197,9 @@ unsigned long bool_array::count(unsigned long __i1, unsigned long __i2) const
     return __true_cnt;
 }
 
+/**
+ * Changes all \c true elements to \c false, and \c false ones to \c true.
+ */
 void bool_array::flip()
 {
     assert(_M_byte_ptr);

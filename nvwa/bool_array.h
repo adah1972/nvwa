@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @version 2.1, 2004/08/02
+ * @version 3.0, 2004/08/07
  * @author  Wu Yongwei
  *
  */
@@ -53,10 +53,10 @@ typedef unsigned char BYTE;
 /**
  * Class to represent a packed boolean array.
  *
- * This was first written in April 1995, before I knew any existing
- * implmentation of this kind of classes.  Of course, now the C++
- * Standard Template Library has a good implementation of packed boolean
- * array as `vector&lt;bool>',  but the code here should still be useful
+ * This was first written in April 1995, before I knew of any existing
+ * implementation of this kind of classes.  Of course, the C++ Standard
+ * Template Library now demands an implementation of packed boolean
+ * array as `vector&lt;bool>', but the code here should still be useful
  * for the following three reasons: (1) STL support of MSVC 6 did not
  * implement this specialization (nor did it have a `bit_vector'); (2) I
  * incorporated some useful member functions from the STL bitset into
@@ -95,7 +95,7 @@ public:
 
     unsigned long size() const { return _M_length; }
     unsigned long count() const;
-    unsigned long count(unsigned long __i1, unsigned long __i2) const;
+    unsigned long count(unsigned long __beg, unsigned long __end) const;
     void flip();
 
 private:
@@ -107,6 +107,12 @@ private:
 
 /* Inline functions */
 
+/**
+ * Constructs a reference to an array element.
+ *
+ * @param __ptr pointer to the interal boolean data
+ * @param __idx index of the array element to access
+ */
 inline bool_array::_Element::_Element(BYTE* __ptr, unsigned long __idx)
 {
     _M_byte_ptr = __ptr;
@@ -114,6 +120,12 @@ inline bool_array::_Element::_Element(BYTE* __ptr, unsigned long __idx)
     _M_bit_idx  = (size_t)(__idx % 8);
 }
 
+/**
+ * Assigns a new boolean value to an array element.
+ *
+ * @param __value   the new boolean value
+ * @return          the assigned boolean value
+ */
 inline bool bool_array::_Element::operator=(bool __value)
 {
     if (__value)
@@ -123,11 +135,23 @@ inline bool bool_array::_Element::operator=(bool __value)
     return __value;
 }
 
+/**
+ * Reads the boolean value from an array element.
+ *
+ * @return  the boolean value of the accessed array element
+ */
 inline bool_array::_Element::operator bool() const
 {
     return *(_M_byte_ptr + _M_byte_idx) & (1 << _M_bit_idx) ? true : false;
 }
 
+/**
+ * Constructs the packed boolean array with a specific size.
+ *
+ * @param __size            size of the array
+ * @throw std::out_of_range if \e __size equals \c 0
+ * @throw std::bad_alloc    if memory is insufficient
+ */
 inline bool_array::bool_array(unsigned long __size)
     : _M_byte_ptr(NULL), _M_length(0)
 {
@@ -138,6 +162,11 @@ inline bool_array::bool_array(unsigned long __size)
         throw std::bad_alloc();
 }
 
+/**
+ * Creates a reference to an array element.
+ *
+ * @param __idx index of the array element to access
+ */
 inline bool_array::_Element bool_array::operator[](unsigned long __idx)
 {
     assert(_M_byte_ptr);
@@ -145,6 +174,13 @@ inline bool_array::_Element bool_array::operator[](unsigned long __idx)
     return _Element(_M_byte_ptr, __idx);
 }
 
+/**
+ * Reads the boolean value of an array element via an index.
+ *
+ * @param __idx index of the array element to access
+ * @return      the boolean value of the accessed array element
+ * @throw std::out_of_range when the index is too big
+ */
 inline bool bool_array::at(unsigned long __idx) const
 {
     size_t __byte_idx, __bit_idx;
@@ -155,6 +191,12 @@ inline bool bool_array::at(unsigned long __idx) const
     return *(_M_byte_ptr + __byte_idx) & (1 << __bit_idx) ? true : false;
 }
 
+/**
+ * Resets an array element to \c false via an index.
+ *
+ * @param __idx index of the array element to access
+ * @throw std::out_of_range when the index is too big
+ */
 inline void bool_array::reset(unsigned long __idx)
 {
     size_t __byte_idx, __bit_idx;
@@ -165,6 +207,12 @@ inline void bool_array::reset(unsigned long __idx)
     *(_M_byte_ptr + __byte_idx) &= ~(1 << __bit_idx);
 }
 
+/**
+ * Sets an array element to \c true via an index.
+ *
+ * @param __idx index of the array element to access
+ * @throw std::out_of_range when the index is too big
+ */
 inline void bool_array::set(unsigned long __idx)
 {
     size_t __byte_idx, __bit_idx;

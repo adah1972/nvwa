@@ -1,3 +1,10 @@
+2004-08-07  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/bool_array.h: Add more documentation comment.
+	* nvwa/bool_array.cpp: Ditto.
+	(bool_array::count(unsigned long, unsigned long)): Change the call
+	interface to an STL-like range.
+
 2004-08-04  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (search_pointer): New static function.
