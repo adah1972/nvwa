@@ -29,9 +29,9 @@
 /**
  * @file    debug_new.cpp
  *
- * Implementation of debug versions of new and delete to check leakage
+ * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 2.5, 2004/06/25
+ * @version 2.6, 2004/07/26
  * @author  Wu Yongwei
  *
  */

@@ -29,9 +29,9 @@
 /**
  * @file    mem_pool_base.h
  *
- * Header file for the memory pool base
+ * Header file for the memory pool base.
  *
- * @version 1.0, 2004/03/29
+ * @version 1.1, 2004/07/26
  * @author  Wu Yongwei
  *
  */

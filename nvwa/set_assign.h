@@ -29,9 +29,9 @@
 /**
  * @file    set_assign.h
  *
- * Definition of template functions set_assign_union and set_assign_difference
+ * Definition of template functions set_assign_union and set_assign_difference.
  *
- * @version 1.4, 2004/04/06
+ * @version 1.5, 2004/07/26
  * @author  Wu Yongwei
  *
  */

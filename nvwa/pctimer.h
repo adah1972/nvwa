@@ -29,9 +29,9 @@
 /**
  * @file    pctimer.h
  *
- * Function to get a high-resolution timer for Win32/Cygwin/Unix
+ * Function to get a high-resolution timer for Win32/Cygwin/Unix.
  *
- * @version 1.4 2004/04/06
+ * @version 1.5 2004/07/26
  * @author  Wu Yongwei
  *
  */

@@ -29,9 +29,9 @@
 /**
  * @file    fast_mutex.h
  *
- * A fast mutex implementation for POSIX and Win32
+ * A fast mutex implementation for POSIX and Win32.
  *
- * @version 1.15, 2004/03/26
+ * @version 1.16, 2004/07/26
  * @author  Wu Yongwei
  *
  */

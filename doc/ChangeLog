@@ -1,3 +1,18 @@
+2004-07-26  Wu Yongwei  <adah@sh163.net>
+
+	* src/class_level_lock.h: Add a full stop after the file briefing to
+	make it work better with doxygen.
+	* src/cont_ptr_utils.h: Ditto.
+	* src/debug_new.cpp: Ditto.
+	* src/debug_new.h: Ditto.
+	* src/fast_mutex.h: Ditto.
+	* src/mem_pool_base.cpp: Ditto.
+	* src/mem_pool_base.h: Ditto.
+	* src/pctimer.h: Ditto.
+	* src/set_assign.h: Ditto.
+	* src/static_mem_pool.cpp: Ditto.
+	* src/static_mem_pool.h: Ditto.
+
 2004-07-10  Wu Yongwei  <adah@sh163.net>
 
 	* doc/README: Add note about GLIBCPP_FORCE_NEW/GLIBCXX_FORCE_NEW.

@@ -29,9 +29,9 @@
 /**
  * @file    static_mem_pool.cpp
  *
- * Non-template and non-inline code for the `static' memory pool
+ * Non-template and non-inline code for the `static' memory pool.
  *
- * @version 1.2, 2004/04/15
+ * @version 1.3, 2004/07/26
  * @author  Wu Yongwei
  *
  */

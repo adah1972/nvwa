@@ -29,9 +29,9 @@
 /**
  * @file    class_level_lock.h
  *
- * In essence Loki ClassLevelLockable re-engineered to use a fast_mutex class
+ * In essence Loki ClassLevelLockable re-engineered to use a fast_mutex class.
  *
- * @version 1.9, 2004/04/11
+ * @version 1.10, 2004/07/26
  * @author  Wu Yongwei
  *
  */

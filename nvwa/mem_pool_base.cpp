@@ -29,9 +29,9 @@
 /**
  * @file    mem_pool_base.cpp
  *
- * Implementation for the memory pool base
+ * Implementation for the memory pool base.
  *
- * @version 1.1, 2004/04/15
+ * @version 1.2, 2004/07/26
  * @author  Wu Yongwei
  *
  */

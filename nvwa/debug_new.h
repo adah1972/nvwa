@@ -29,9 +29,9 @@
 /**
  * @file    debug_new.h
  *
- * Header file for checking leaks caused by unmatched new/delete
+ * Header file for checking leaks caused by unmatched new/delete.
  *
- * @version 2.3, 2004/06/25
+ * @version 2.4, 2004/07/26
  * @author  Wu Yongwei
  *
  */
