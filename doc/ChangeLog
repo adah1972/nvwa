@@ -1,3 +1,9 @@
+2004-11-10  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/cont_ptr_utils.h (output_object<>): New functor template to
+	help output the objects pointed by a container of pointers to a
+	stream.
+
 2004-09-23  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/static_mem_pool.h: Remove " != NULL" in conditionals for

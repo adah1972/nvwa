@@ -32,7 +32,7 @@
  * Utility functors for containers of pointers (adapted from Scott
  * Meyers' Effective STL).
  *
- * @version 1.1, 2004/07/26
+ * @version 1.2, 2004/11/10
  * @author  Wu Yongwei
  *
  */
@@ -65,6 +65,24 @@ struct delete_object
     {
         delete __ptr;
     }
+};
+
+template <typename _OutputStrm, typename _StringType = const char*>
+struct output_object
+{
+    output_object(_OutputStrm& __outs, const _StringType& __sep)
+        : _M_outs(__outs), _M_sep(__sep)
+    {}
+
+    template <typename _Tp>
+    void operator()(const _Tp* __ptr) const
+    {
+        _M_outs << *__ptr << _M_sep;
+    }
+
+private:
+    _OutputStrm& _M_outs;
+    _StringType  _M_sep;
 };
 
 #endif // _CONT_PTR_UTILS_H
