@@ -31,7 +31,7 @@
  *
  * A fast mutex implementation for POSIX and Win32
  *
- * @version 1.14, 2004/03/20
+ * @version 1.15, 2004/03/26
  * @author  Wu Yongwei
  *
  */
@@ -61,9 +61,9 @@
 # if defined(_NOTHREADS)
 #   if defined(_PTHREADS) || defined(_WIN32THREADS)
 #       undef _NOTHREADS
-#       error Cannot define multi-threaded mode with -D_NOTHREADS
+#       error "Cannot define multi-threaded mode with -D_NOTHREADS"
 #       if defined(__MINGW32__) && defined(_WIN32THREADS) && !defined(_MT)
-#           error Be sure to specify "-mthreads" with -D_WIN32THREADS
+#           error "Be sure to specify -mthreads with -D_WIN32THREADS"
 #       endif
 #   endif
 # endif
@@ -77,7 +77,7 @@
  * will work (with lock/unlock operations ignored).  Defining it to zero
  * will disable to check.
  */
-#   define _FAST_MUTEX_CHECK_INITIALIZATION 0
+#   define _FAST_MUTEX_CHECK_INITIALIZATION 1
 # endif
 
 # ifdef _DEBUG

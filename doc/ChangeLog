@@ -1,5 +1,10 @@
 2004-03-23  Wu Yongwei  <adah@sh163.net>
 
+	* fast_mutex.h (_FAST_MUTEX_CHECK_INITIALIZATION): Set default to 1.
+	* fast_mutex.h: Wrap #error messages in quotes.
+
+2004-03-23  Wu Yongwei  <adah@sh163.net>
+
 	* fast_mutex.h: New file.
 	* debug_new.h, debug_new.cpp: New files.
 
