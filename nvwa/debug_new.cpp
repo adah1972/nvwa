@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.3, 2004/12/25
+ * @version 3.4, 2004/12/28
  * @author  Wu Yongwei
  *
  */
@@ -49,6 +49,7 @@
 #include <malloc.h>
 #endif
 #include "fast_mutex.h"
+#include "static_assert.h"
 
 #if !_FAST_MUTEX_CHECK_INITIALIZATION && !defined(_NOTHREADS)
 #error "_FAST_MUTEX_CHECK_INITIALIZATION not set: check_leaks may not work"
@@ -450,7 +451,8 @@ int check_leaks()
 void* operator new(size_t size, const char* file, int line)
 {
     assert((line & INT_MIN) == 0);
-    assert((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0);
+    static_assert((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0,
+                  Alignment_must_be_power_of_two);
     size_t s = size + aligned_list_item_size;
     new_ptr_list_t* ptr = (new_ptr_list_t*)malloc(s);
     if (ptr == NULL)
