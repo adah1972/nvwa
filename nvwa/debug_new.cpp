@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 2.10, 2004/12/12
+ * @version 2.11, 2004/12/18
  * @author  Wu Yongwei
  *
  */
@@ -197,6 +197,11 @@ static new_ptr_list_t* new_ptr_list[_DEBUG_NEW_HASHTABLESIZE];
 static fast_mutex new_ptr_lock[_DEBUG_NEW_HASHTABLESIZE];
 
 /**
+ * The mutex guard to protect simultaneous output to #new_output_fp.
+ */
+static fast_mutex new_output_lock;
+
+/**
  * Total memory allocated in bytes.
  */
 static size_t total_mem_alloc = 0;
@@ -346,6 +351,7 @@ static void free_pointer(new_ptr_list_t** raw_ptr, void* addr, bool array_mode)
             msg = "delete[] after new";
         else
             msg = "delete after new[]";
+        fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "%s: pointer %p (size %u)\n\tat ",
                 msg,
@@ -368,6 +374,7 @@ static void free_pointer(new_ptr_list_t** raw_ptr, void* addr, bool array_mode)
     total_mem_alloc -= ptr->size;
     if (new_verbose_flag)
     {
+        fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "delete: freeing  %p (size %u, %u bytes still allocated)\n",
                 (char*)ptr + sizeof(new_ptr_list_t),
@@ -394,6 +401,7 @@ int check_leaks()
             continue;
         while (ptr)
         {
+            fast_mutex_autolock lock(new_output_lock);
             fprintf(new_output_fp,
                     "Leaked object at %p (size %u, ",
                     (char*)ptr + sizeof(new_ptr_list_t),
@@ -421,6 +429,7 @@ void* operator new(size_t size, const char* file, int line)
     new_ptr_list_t* ptr = (new_ptr_list_t*)malloc(s);
     if (ptr == NULL)
     {
+        fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "new:  out of memory when allocating %u bytes\n",
                 size);
@@ -446,6 +455,7 @@ void* operator new(size_t size, const char* file, int line)
     new_ptr_lock[hash_index].unlock();
     if (new_verbose_flag)
     {
+        fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "new:  allocated  %p (size %u, ",
                 pointer, size);
@@ -502,6 +512,7 @@ void operator delete(void* pointer) throw()
     new_ptr_list_t** raw_ptr = search_pointer(pointer, hash_index);
     if (raw_ptr == NULL)
     {
+        fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp, "delete: invalid pointer %p at ", pointer);
         print_position(_DEBUG_NEW_CALLER_ADDRESS, 0);
         fprintf(new_output_fp, "\n");
@@ -520,6 +531,7 @@ void operator delete[](void* pointer) throw()
     new_ptr_list_t** raw_ptr = search_pointer(pointer, hash_index);
     if (raw_ptr == NULL)
     {
+        fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp, "delete[]: invalid pointer %p at ", pointer);
         print_position(_DEBUG_NEW_CALLER_ADDRESS, 0);
         fprintf(new_output_fp, "\n");
@@ -540,6 +552,7 @@ void operator delete(void* pointer, const char* file, int line) throw()
 {
     if (new_verbose_flag)
     {
+        fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "info: exception thrown on initializing object at %p (",
                 pointer);
@@ -553,6 +566,7 @@ void operator delete[](void* pointer, const char* file, int line) throw()
 {
     if (new_verbose_flag)
     {
+        fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "info: exception thrown on initializing objects at %p (",
                 pointer);

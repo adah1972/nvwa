@@ -1,3 +1,15 @@
+2004-12-18  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (new_output_lock): New static variable.
+	(free_pointer): Use new_output_lock to synchronize output to
+	new_output_fp.
+	(check_leaks): Ditto.
+	(operator new(size_t, const char*, int)): Ditto.
+	(operator delete(void*)): Ditto.
+	(operator delete[](void*)): Ditto.
+	(operator delete(size_t, const char*, int)): Ditto.
+	(operator delete[](size_t, const char*, int)): Ditto.
+
 2004-12-12  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (_DEBUG_NEW_CALLER_ADDRESS): New macro.
