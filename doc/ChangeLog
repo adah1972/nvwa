@@ -1,3 +1,7 @@
+2004-12-09  Wu Yongwei  <adah@sh163.net>
+
+	* doc/README: Change the layout to make it easier to read.
+
 2004-12-08  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (_DEBUG_NEW_ERROR_ACTION): New macro.
