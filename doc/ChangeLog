@@ -1,3 +1,9 @@
+2005-01-16  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (__debug_new_counter::~__debug_new_counter):
+	Print a warning if GCC 3 or later is detected but no appropriate
+	enviroment variable is set.
+
 2005-01-04  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (print_position_from_addr): New static function.

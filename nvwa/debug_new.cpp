@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.5, 2005/01/04
+ * @version 3.6, 2005/01/16
  * @author  Wu Yongwei
  *
  */
@@ -667,5 +667,15 @@ __debug_new_counter::~__debug_new_counter()
 {
     if (--_count == 0 && new_autocheck_flag)
         if (check_leaks())
+        {
             new_verbose_flag = true;
+#if defined(__GNUC__) && __GNUC__ >= 3
+            if (!getenv("GLIBCPP_FORCE_NEW") && !getenv("GLIBCXX_FORCE_NEW"))
+                fprintf(new_output_fp,
+"*** WARNING:  GCC 3 or later is detected, please make sure the\n"
+"    environment variable GLIBCPP_FORCE_NEW (GCC 3.2 and 3.3) or\n"
+"    GLIBCXX_FORCE_NEW (GCC 3.4 and later) is defined.  Check the\n"
+"    README file for details.\n");
+#endif
+        }
 }
