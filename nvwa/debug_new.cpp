@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage
  *
- * @version 2.2, 2004/04/15
+ * @version 2.3, 2004/04/20
  * @author  Wu Yongwei
  *
  */
@@ -50,7 +50,7 @@
 // name sometimes (in our case, a core dump will occur when trying to
 // access the file name in a shared library after a SIGINT).
 #ifndef _DEBUG_NEW_FILENAME_LEN
-#define _DEBUG_NEW_FILENAME_LEN 20
+#define _DEBUG_NEW_FILENAME_LEN  20
 #endif
 #if _DEBUG_NEW_FILENAME_LEN > 0
 #include <string.h>
@@ -182,12 +182,12 @@ void* operator new[](size_t size, const char* file, int line)
     return operator new(size, file, line);
 }
 
-void* operator new(size_t size)
+void* operator new(size_t size) throw(std::bad_alloc)
 {
     return operator new(size, "<Unknown>", 0);
 }
 
-void* operator new[](size_t size)
+void* operator new[](size_t size) throw(std::bad_alloc)
 {
     return operator new(size);
 }
@@ -202,7 +202,7 @@ void* operator new[](size_t size, const std::nothrow_t&) throw()
     return operator new[](size);
 }
 
-void operator delete(void* pointer)
+void operator delete(void* pointer) throw()
 {
     if (pointer == NULL)
         return;
@@ -234,7 +234,7 @@ void operator delete(void* pointer)
     abort();
 }
 
-void operator delete[](void* pointer)
+void operator delete[](void* pointer) throw()
 {
     operator delete(pointer);
 }
@@ -246,7 +246,7 @@ void operator delete[](void* pointer)
 // is thrown in the initialization (constructor) of a dynamically
 // created object.
 #ifndef NO_PLACEMENT_DELETE
-void operator delete(void* pointer, const char* file, int line)
+void operator delete(void* pointer, const char* file, int line) throw()
 {
     if (new_verbose_flag)
     {
@@ -258,17 +258,17 @@ void operator delete(void* pointer, const char* file, int line)
     operator delete(pointer);
 }
 
-void operator delete[](void* pointer, const char* file, int line)
+void operator delete[](void* pointer, const char* file, int line) throw()
 {
     operator delete(pointer, file, line);
 }
 
-void operator delete(void* pointer, const std::nothrow_t&)
+void operator delete(void* pointer, const std::nothrow_t&) throw()
 {
     operator delete(pointer, "<Unknown>", 0);
 }
 
-void operator delete[](void* pointer, const std::nothrow_t&)
+void operator delete[](void* pointer, const std::nothrow_t&) throw()
 {
     operator delete(pointer, std::nothrow);
 }
