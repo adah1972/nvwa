@@ -10,7 +10,7 @@ The Name
 
   I thought of the name Nvwa by analogy with Loki.  Since it is so small
   a project and it contains utilities instead of a complete framework, I
-  think "stones" is a good metaphor.
+  think "stones" a good metaphor.
 
 
 Code Organization
@@ -127,4 +127,4 @@ Contents
 
 $Id$
 
-vim:expandtab:formatoptions=tcqm:textwidth=72:
+vim:autoindent:expandtab:formatoptions=tcqlm:textwidth=72:

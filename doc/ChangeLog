@@ -1,5 +1,9 @@
 2004-12-09  Wu Yongwei  <adah@sh163.net>
 
+	* doc/README: Make minor editorial changes.
+
+2004-12-09  Wu Yongwei  <adah@sh163.net>
+
 	* misc: New directory.
 	* misc/Doxyfile: New file.
 	* misc/doxit.sh: New file.
