@@ -1,5 +1,10 @@
 2004-05-09  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/bool_array.h: New file.
+	* nvwa/bool_array.cpp: New file.
+
+2004-05-09  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/object_level_lock.h: Add some comments explaining its motive.
 
 2004-04-20  Wu Yongwei  <adah@sh163.net>
