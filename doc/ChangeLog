@@ -1,3 +1,7 @@
+2004-08-04  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp: Disable two warnings emitted by MSVC 7.1.
+
 2004-08-02  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp: Correct the wrong name in the doxygen file tag.

@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 2.6, 2004/07/26
+ * @version 2.7, 2004/08/04
  * @author  Wu Yongwei
  *
  */
@@ -86,7 +86,9 @@
 #endif
 
 #ifdef _MSC_VER
-#pragma warning(disable: 4073)
+#pragma warning(disable: 4073)  // #pragma init_seg(lib) used
+#pragma warning(disable: 4290)  // C++ exception specification ignored
+#pragma warning(disable: 4311)  // 64-bit porting warning for pointer cast
 #pragma init_seg(lib)
 #endif
 
