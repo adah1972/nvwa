@@ -70,6 +70,15 @@ Contents
    multi-threading when the appropriate option of a recognized compiler
    is specified.  Check fast_mutex.h for more threading details.
 
+   Special support for gcc/binutils has been added to debug_new lately.
+   Even if the header file debug_new.h is not included, or
+   _DEBUG_NEW_NO_NEW_REDEFINITION is defined when it is included,
+   file/line information can be displayed if debugging symbols are
+   present in the executable, since debug_new stores the caller
+   addresses of memory allocation/deallocation routines and they will be
+   converted with addr2line on the fly.  This makes memory tracing much
+   easier.
+
    NOTE for GCC 3.x users:  Most probably you would want to define the
    environment variable GLIBCPP_FORCE_NEW ("set GLIBCPP_FORCE_NEW=1" in
    Windows command prompt and "export GLIBCPP_FORCE_NEW=1" in BASH, for

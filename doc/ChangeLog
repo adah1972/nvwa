@@ -1,5 +1,9 @@
 2004-12-20  Wu Yongwei  <adah@sh163.net>
 
+	* doc/README: Add a note about new features of debug_new.
+
+2004-12-20  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/debug_new.h: Increase the version number to 3.0.
 	* nvwa/debug_new.cpp: Ditto.
 	Add a documentation comment.
