@@ -1,3 +1,7 @@
+2004-11-17  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/cont_ptr_utils.h: Add documentation comment.
+
 2004-11-10  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/cont_ptr_utils.h (output_object<>): New functor template to

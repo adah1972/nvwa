@@ -32,7 +32,7 @@
  * Utility functors for containers of pointers (adapted from Scott
  * Meyers' Effective STL).
  *
- * @version 1.2, 2004/11/10
+ * @version 1.3, 2004/11/17
  * @author  Wu Yongwei
  *
  */
@@ -40,6 +40,18 @@
 #ifndef _CONT_PTR_UTILS_H
 #define _CONT_PTR_UTILS_H
 
+/**
+ * Functor to return objects pointed by a container of pointers.
+ *
+ * A typical usage might be like:
+ * @code
+ * vector<Object*> v;
+ * ...
+ * transform(v.begin(), v.end(),
+ *           ostream_iterator<Object>(cout, " "),
+ *           dereference());
+ * @endcode
+ */
 struct dereference
 {
     template <typename _Tp>
@@ -49,6 +61,19 @@ struct dereference
     }
 };
 
+/**
+ * Functor to compare objects pointed by a container of pointers.
+ *
+ * @code
+ * vector<Object*> v;
+ * ...
+ * sort(v.begin(), v.end(), dereference_less());
+ * @endcode
+ * or
+ * @code
+ * set<Object*, dereference_less> s;
+ * @endcode
+ */
 struct dereference_less
 {
     template <typename _Pointer>
@@ -58,6 +83,16 @@ struct dereference_less
     }
 };
 
+/**
+ * Functor to delete objects pointed by a container of pointers.
+ *
+ * A typical usage might be like:
+ * @code
+ * list<Object*> l;
+ * ...
+ * for_each(l.begin(), l.end(), delete_object());
+ * @endcode
+ */
 struct delete_object
 {
     template <typename _Pointer>
@@ -67,6 +102,16 @@ struct delete_object
     }
 };
 
+/**
+ * Functor to output objects pointed by a container of pointers.
+ *
+ * A typical usage might be like:
+ * @code
+ * list<Object*> l;
+ * ...
+ * for_each(l.begin(), l.end(), output_object<ostream>(cout, " "));
+ * @endcode
+ */
 template <typename _OutputStrm, typename _StringType = const char*>
 struct output_object
 {
