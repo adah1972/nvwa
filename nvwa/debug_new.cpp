@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 2.8, 2004/08/04
+ * @version 2.9, 2004/12/08
  * @author  Wu Yongwei
  *
  */
@@ -45,6 +45,23 @@
 
 #if !_FAST_MUTEX_CHECK_INITIALIZATION && !defined(_NOTHREADS)
 #error "_FAST_MUTEX_CHECK_INITIALIZATION not set: check_leaks may not work"
+#endif
+
+/**
+ * @def _DEBUG_NEW_ERROR_ACTION
+ *
+ * The action to take when an error occurs.  The default behaviour is to
+ * call \e abort, unless \c _DEBUG_NEW_ERROR_CRASH is defined, in which
+ * case a segmentation fault will be triggered instead (which can be
+ * useful on platforms like Windows that do not generate a core dump
+ * when \e abort is called).
+ */
+#ifndef _DEBUG_NEW_ERROR_ACTION
+#ifndef _DEBUG_NEW_ERROR_CRASH
+#define _DEBUG_NEW_ERROR_ACTION abort()
+#else
+#define _DEBUG_NEW_ERROR_ACTION do { *((char*)0) = 0; abort(); } while (0)
+#endif
 #endif
 
 /**
@@ -134,15 +151,15 @@ static fast_mutex new_ptr_lock[_DEBUG_NEW_HASHTABLESIZE];
 static size_t total_mem_alloc = 0;
 
 /**
- * Flag to control whether verbose messages are output.
- */
-bool new_verbose_flag = false;
-
-/**
  * Flag to control whether #check_leaks will be automatically called on
  * program exit.
  */
 bool new_autocheck_flag = true;
+
+/**
+ * Flag to control whether verbose messages are output.
+ */
+bool new_verbose_flag = false;
 
 /**
  * Pointer to the output stream.
@@ -152,7 +169,7 @@ FILE* new_output_fp = stderr;
 /**
  * Searches for the raw pointer given a user pointer.  The term `raw
  * pointer' here refers to the pointer to the pointer to originally
- * <code>malloc</code>'d memory.
+ * <em>malloc</em>'d memory.
  *
  * @param pointer       user pointer to search for
  * @param hash_index    hash index of the user pointer
@@ -201,7 +218,7 @@ static void free_pointer(new_ptr_list_t** raw_ptr, bool array_mode)
                 ptr->size,
                 ptr->file,
                 ptr->line & ~INT_MIN);
-        abort();
+        _DEBUG_NEW_ERROR_ACTION;
     }
     total_mem_alloc -= ptr->size;
     if (new_verbose_flag)
@@ -255,7 +272,7 @@ void* operator new(size_t size, const char* file, int line)
         fprintf(new_output_fp,
                 "new:  out of memory when allocating %u bytes\n",
                 size);
-        abort();
+        _DEBUG_NEW_ERROR_ACTION;
     }
     void* pointer = (char*)ptr + sizeof(new_ptr_list_t);
     size_t hash_index = _DEBUG_NEW_HASH(pointer);
@@ -321,7 +338,7 @@ void operator delete(void* pointer) throw()
     if (raw_ptr == NULL)
     {
         fprintf(new_output_fp, "delete: invalid pointer %p\n", pointer);
-        abort();
+        _DEBUG_NEW_ERROR_ACTION;
     }
     free_pointer(raw_ptr, false);
 }
@@ -336,7 +353,7 @@ void operator delete[](void* pointer) throw()
     if (raw_ptr == NULL)
     {
         fprintf(new_output_fp, "delete[]: invalid pointer %p\n", pointer);
-        abort();
+        _DEBUG_NEW_ERROR_ACTION;
     }
     free_pointer(raw_ptr, true);
 }

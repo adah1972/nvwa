@@ -1,3 +1,11 @@
+2004-12-08  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (_DEBUG_NEW_ERROR_ACTION): New macro.
+	(free_pointer): Use the new macro when errors occur.
+	(operator new(size_t, const char*, int)): Ditto.
+	(operator delete(void*)): Ditto.
+	(operator delete[](void*)): Ditto.
+
 2004-11-17  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/cont_ptr_utils.h: Add documentation comment.
