@@ -1,3 +1,8 @@
+2004-04-06  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/pctimer.h: New file.
+	* nvwa/set_assign.h: New file.
+
 2004-04-03  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/static_mem_pool.cpp (static_mem_pool_set::~static_mem_pool_set):
