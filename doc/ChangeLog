@@ -1,3 +1,7 @@
+2005-01-28  Wu Yongwei  <adah@sh163.net>
+
+	* doc/README: Rephrase the paragraph about `GLIBCPP_FORCE_NEW'.
+
 2005-01-16  Wu Yongwei  <adah@sh163.net>
 
 	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.4.

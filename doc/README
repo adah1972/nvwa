@@ -79,13 +79,17 @@ Contents
    converted with addr2line on the fly.  This makes memory tracing much
    easier.
 
-   NOTE for GCC 3.x users:  Most probably you would want to define the
+   NOTE for GCC 3.x users:  Unless you are using a very old GCC 3.x
+   release (before 3.2.2), most probably you would want to define the
    environment variable GLIBCPP_FORCE_NEW ("set GLIBCPP_FORCE_NEW=1" in
    Windows command prompt and "export GLIBCPP_FORCE_NEW=1" in BASH, for
    example) to get precise results of leak reports; otherwise the memory
-   pooling in libstdc++-v3 could cause false positives.  As far as I
-   know, this method is supported in GCC 3.2.2 and later.  For GCC 3.4
-   and later releases, the variable name is changed to GLIBCXX_FORCE_NEW.
+   pooling in libstdc++-v3 could cause false positives.  I do not know
+   of the status of GCC 3.2.1, but I do know that 3.0.x, 3.1.x, and 3.2
+   do NOT support this method (but one is not supposed to be still using
+   those interim releases, right?  I personally test mostly on GCC
+   2.95.3, 3.2.3, and 3.4.2 now). -- For GCC 3.4 and later, the variable
+   name is changed to GLIBCXX_FORCE_NEW.
 
   * fast_mutex.h
 
