@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    memory_pool.cpp
+ * @file    mem_pool_base.cpp
  *
- * Non-template and non-inline code for the `static' memory pool
+ * Implementation for the memory pool base
  *
- * @version 2.2, 2004/03/28
+ * @version 1.0, 2004/03/29
  * @author  Wu Yongwei
  *
  */
@@ -42,7 +42,7 @@
 #include <new>
 #endif
 
-#include "memory_pool.h"
+#include "mem_pool_base.h"
 
 /* Defines macros to abstract system memory routines */
 # ifdef MEM_POOL_USE_MALLOC
@@ -53,68 +53,16 @@
 #   define MEM_POOL_DEALLOCATE(_Ptr) ::operator delete(_Ptr)
 # endif
 
-memory_pool_base::~memory_pool_base()
+mem_pool_base::~mem_pool_base()
 {
 }
 
-void* memory_pool_base::alloc_sys(size_t __size)
+void* mem_pool_base::alloc_sys(size_t __size)
 {
-    void* __result = MEM_POOL_ALLOCATE(__size);
-    if (!__result)
-    {
-        memory_pool_set::recycle_memory_pools();
-        __result = MEM_POOL_ALLOCATE(__size);
-    }
-    return __result;
+    return MEM_POOL_ALLOCATE(__size);
 }
 
-void memory_pool_base::dealloc_sys(void* __ptr)
+void mem_pool_base::dealloc_sys(void* __ptr)
 {
     MEM_POOL_DEALLOCATE(__ptr);
-}
-
-memory_pool_set::memory_pool_set()
-{
-    MEM_POOL_DEBUG_MSG(false, "The memory pool set is created");
-}
-
-memory_pool_set::~memory_pool_set()
-{
-    lock __guard;
-    while (!_M_memory_pool_set.empty())
-    {
-        __guard.release();
-
-        // The destructor of a memory_pool will remove itself from
-        // the memory_pool_set.
-        delete *_M_memory_pool_set.begin();
-
-        __guard.acquire();
-    }
-    MEM_POOL_DEBUG_MSG(false, "The memory pool set is destroyed");
-}
-
-memory_pool_set& memory_pool_set::instance()
-{
-    lock __guard;    
-    static memory_pool_set _S_instance;
-    return _S_instance;
-}
-
-void memory_pool_set::recycle_memory_pools()
-{
-    instance().recycle();
-}
-
-void memory_pool_set::recycle()
-{
-    lock __guard;
-    MEM_POOL_DEBUG_MSG(false, "Memory pools are being recycled");
-    std::set<memory_pool_base*>::iterator __end = _M_memory_pool_set.end();
-    for (std::set<memory_pool_base*>::iterator
-            __i  = _M_memory_pool_set.begin();
-            __i != __end; ++__i)
-    {
-        (*__i)->recycle();
-    }
 }

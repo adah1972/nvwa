@@ -1,4 +1,11 @@
-2004-03-29  Wu Yongwei  <adah@sh163.net>
+2004-03-30  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/memory_pool.h, nvwa/memory_pool.cpp: Remove files (become
+	the following)
+	* nvwa/mem_pool_base.h, nvwa/mem_pool_base.cpp: New files.
+	* nvwa/static_mem_pool.h, nvwa/static_mem_pool.cpp: New files.
+
+2004-03-28  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/class_level_lock.h: New file, required by memory_pool.h.
 	* nvwa/object_level_lock.h: New file.

@@ -27,17 +27,17 @@
  */
 
 /**
- * @file    memory_pool.h
+ * @file    static_mem_pool.h
  *
  * Header file for the `static' memory pool
  *
- * @version 2.4, 2004/03/28
+ * @version 1.0, 2004/03/29
  * @author  Wu Yongwei
  *
  */
 
-#ifndef _MEMORY_POOL_H
-#define _MEMORY_POOL_H
+#ifndef _STATIC_MEM_POOL_H
+#define _STATIC_MEM_POOL_H
 
 #include <new>
 #include <set>
@@ -45,6 +45,7 @@
 #include <string>
 #include <stddef.h>
 #include <assert.h>
+#include "mem_pool_base.h"
 #include "class_level_lock.h"
 
 /* Defines Work-around for Microsoft Visual C++ 6.0 and Borland C++ 5.5.1 */
@@ -56,92 +57,76 @@
 # endif
 
 /* Defines the macro for debugging output */
-# ifdef MEM_POOL_DEBUG
+# ifdef STATIC_MEM_POOL_DEBUG
 #   include <iostream>
-#   define MEM_POOL_DEBUG_MSG(_Lck, _Msg) \
+#   define STATIC_MEM_POOL_TRACE(_Lck, _Msg) \
         { \
-            memory_pool_set::lock __guard(_Lck); \
-            std::cerr << "memory_pool: " << _Msg << std::endl; \
+            static_mem_pool_set::lock __guard(_Lck); \
+            std::cerr << "static_mem_pool: " << _Msg << std::endl; \
         }
 # else
-#   define MEM_POOL_DEBUG_MSG(_Lck, _Msg) \
+#   define STATIC_MEM_POOL_TRACE(_Lck, _Msg) \
         ((void)0)
 # endif
 
 /**
- * Abstract base class for memory_pool to do the recycling operation.
- */
-class memory_pool_base
-{
-public:
-    virtual ~memory_pool_base();
-    virtual void recycle() = 0;
-    static void* alloc_sys(size_t __size);
-    static void dealloc_sys(void* __ptr);
-
-    /** Structure to store the next available memory block. */
-    struct _Block_list { _Block_list* _M_next; };
-};
-
-/**
  * Singleton class to maintain a set of existing instantiations of
- * memory_pool.
+ * static_mem_pool.
  */
-class memory_pool_set : public class_level_lock<memory_pool_set>
+class static_mem_pool_set : public class_level_lock<static_mem_pool_set>
 {
 public:
-    static memory_pool_set& instance();
-    static void recycle_memory_pools();
+    static static_mem_pool_set& instance();
+    void recycle();
 
-    void add(memory_pool_base* __memory_pool_p)
+    void add(mem_pool_base* __memory_pool_p)
     {
         lock __guard;
         _M_memory_pool_set.insert(__memory_pool_p);
-        MEM_POOL_DEBUG_MSG(false, "A memory pool is added");
+        STATIC_MEM_POOL_TRACE(false, "A static_mem_pool is added");
     }
-    void remove(memory_pool_base* __memory_pool_p)
+    void remove(mem_pool_base* __memory_pool_p)
     {
         lock __guard;
         _M_memory_pool_set.erase(__memory_pool_p);
-        MEM_POOL_DEBUG_MSG(false, "A memory pool is removed");
+        STATIC_MEM_POOL_TRACE(false, "A static_mem_pool is removed");
     }
 
 __PRIVATE:
-    ~memory_pool_set();
+    ~static_mem_pool_set();
 private:
-    memory_pool_set();
-    void recycle();
-    std::set<memory_pool_base*> _M_memory_pool_set;
+    static_mem_pool_set();
+    std::set<mem_pool_base*> _M_memory_pool_set;
 
     /* Forbid their use */
-    memory_pool_set(const memory_pool_set&);
-    const memory_pool_set& operator=(const memory_pool_set&);
+    static_mem_pool_set(const static_mem_pool_set&);
+    const static_mem_pool_set& operator=(const static_mem_pool_set&);
 };
 
 /**
  * Singleton class template to manage the allocation/deallocation of
  * memory blocks of one specific size.
  *
- * @param _Sz   size of elements in the memory pool
- * @param _Gid  group id of a memory pool: if it is negative, access
- *              to this memory pool will be protected from simultaneous
- *              access; otherwise no protection is given
+ * @param _Sz   size of elements in the static_mem_pool
+ * @param _Gid  group id of a static_mem_pool: if it is negative, access
+ *              to this static_mem_pool will be protected from
+ *              simultaneous access; otherwise no protection is given
  */
 template <size_t _Sz, int _Gid = -1>
-class memory_pool : public memory_pool_base
-                  , public class_level_lock<memory_pool<_Sz, _Gid> >
+class static_mem_pool : public mem_pool_base
+                      , public class_level_lock<static_mem_pool<_Sz, _Gid> >
 {
-    typedef typename class_level_lock<memory_pool<_Sz, _Gid> >::lock lock;
+    typedef typename class_level_lock<static_mem_pool<_Sz, _Gid> >::lock lock;
 public:
-    static memory_pool& instance()
+    static static_mem_pool& instance()
     {
         if (!_S_instance_p)
         {
-            create_instance();
+            _S_create_instance();
         }
         return *_S_instance_p;
     }
-    static memory_pool& instance_known()
+    static static_mem_pool& instance_known()
     {
         assert(_S_instance_p != NULL);
         return *_S_instance_p;
@@ -159,7 +144,7 @@ public:
         else
         {
             if (_Gid < 0) __guard.release();
-            __result = alloc_sys(align(_Sz));
+            __result = _S_alloc_sys(_S_align(_Sz));
         }
         return __result;
     }
@@ -174,21 +159,22 @@ public:
     virtual void recycle();
 
 private:
-    memory_pool()
+    static_mem_pool()
     {
-        MEM_POOL_DEBUG_MSG(true, "memory_pool<" << _Sz << ',' 
-                                 << _Gid << "> is created");
+        STATIC_MEM_POOL_TRACE(true, "static_mem_pool<" << _Sz << ','
+                                    << _Gid << "> is created");
         try
         {
-            memory_pool_set::instance().add(this);
+            static_mem_pool_set::instance().add(this);
         }
         catch (...)
         {
-            MEM_POOL_DEBUG_MSG(true, "Exception in memory_pool_set::add");
+            STATIC_MEM_POOL_TRACE(true,
+                    "Exception occurs in static_mem_pool_set::add");
             throw;
         }
     }
-    ~memory_pool()
+    ~static_mem_pool()
     {
 #   ifdef _DEBUG
         // Empty the pool to avoid false memory leakage alarms.  This is
@@ -202,40 +188,41 @@ private:
         }
         _S_memory_block_p = NULL;
 #   endif
-        memory_pool_set::instance().remove(this);
+        static_mem_pool_set::instance().remove(this);
         _S_instance_p = NULL;
         _S_destroyed = true;
-        MEM_POOL_DEBUG_MSG(true, "memory_pool<" << _Sz << ','
-                                 << _Gid << "> is destroyed");
+        STATIC_MEM_POOL_TRACE(true, "static_mem_pool<" << _Sz << ','
+                                    << _Gid << "> is destroyed");
     }
-    static void on_dead_reference()
+    static void _S_on_dead_reference()
     {
         throw std::runtime_error("dead reference detected");
     }
-    static size_t align(size_t __size)
+    static size_t _S_align(size_t __size)
     {
         return __size >= sizeof(_Block_list) ? __size : sizeof(_Block_list);
     }
-    static void create_instance();
+    static void* _S_alloc_sys(size_t __size);
+    static void _S_create_instance();
 
     static bool _S_destroyed;
-    static memory_pool* __VOLATILE _S_instance_p;
-    static memory_pool_base::_Block_list* __VOLATILE _S_memory_block_p;
+    static static_mem_pool* __VOLATILE _S_instance_p;
+    static mem_pool_base::_Block_list* __VOLATILE _S_memory_block_p;
 
     /* Forbid their use */
-    memory_pool(const memory_pool&);
-    const memory_pool& operator=(const memory_pool&);
+    static_mem_pool(const static_mem_pool&);
+    const static_mem_pool& operator=(const static_mem_pool&);
 };
 
 template <size_t _Sz, int _Gid> bool
-        memory_pool<_Sz, _Gid>::_S_destroyed = false;
-template <size_t _Sz, int _Gid> memory_pool<_Sz, _Gid>* __VOLATILE
-        memory_pool<_Sz, _Gid>::_S_instance_p = NULL;
-template <size_t _Sz, int _Gid> memory_pool_base::_Block_list* __VOLATILE
-        memory_pool<_Sz, _Gid>::_S_memory_block_p = NULL;
+        static_mem_pool<_Sz, _Gid>::_S_destroyed = false;
+template <size_t _Sz, int _Gid> static_mem_pool<_Sz, _Gid>* __VOLATILE
+        static_mem_pool<_Sz, _Gid>::_S_instance_p = NULL;
+template <size_t _Sz, int _Gid> mem_pool_base::_Block_list* __VOLATILE
+        static_mem_pool<_Sz, _Gid>::_S_memory_block_p = NULL;
 
 template <size_t _Sz, int _Gid>
-void memory_pool<_Sz, _Gid>::recycle()
+void static_mem_pool<_Sz, _Gid>::recycle()
 {
     lock __guard(_Gid < 0);
     _Block_list* __block = _S_memory_block_p;
@@ -253,35 +240,48 @@ void memory_pool<_Sz, _Gid>::recycle()
             break;
         }
     }
-    MEM_POOL_DEBUG_MSG(true, "memory_pool<" << _Sz << ','
-                             << _Gid << "> is recycled");
+    STATIC_MEM_POOL_TRACE(true, "static_mem_pool<" << _Sz << ','
+                                << _Gid << "> is recycled");
 }
 
 template <size_t _Sz, int _Gid>
-void memory_pool<_Sz, _Gid>::create_instance()
+void* static_mem_pool<_Sz, _Gid>::_S_alloc_sys(size_t __size)
+{
+    void* __result = mem_pool_base::alloc_sys(__size);
+    if (!__result)
+    {
+        static_mem_pool_set::instance().recycle();
+        __result = mem_pool_base::alloc_sys(__size);
+    }
+    return __result;
+}
+
+template <size_t _Sz, int _Gid>
+void static_mem_pool<_Sz, _Gid>::_S_create_instance()
 {
     if (_S_destroyed)
     {
-        on_dead_reference();
+        _S_on_dead_reference();
     }
     else
     {
         lock __guard(_Gid < 0);
         if (!_S_instance_p)
         {
-            memory_pool_set::instance();  // Force its creation
-            _S_instance_p = new memory_pool();
+            static_mem_pool_set::instance();  // Force its creation
+            _S_instance_p = new static_mem_pool();
         }
     }
 }
 
-#define DECLARE_MEMORY_POOL(_Cls) \
+#define DECLARE_STATIC_MEM_POOL(_Cls) \
 public: \
     static void* operator new(size_t __size) \
     { \
         assert(__size == sizeof(_Cls)); \
         void* __ptr; \
-        __ptr = memory_pool<sizeof(_Cls)>::instance().allocate(); \
+        __ptr = static_mem_pool<sizeof(_Cls)>:: \
+                               instance().allocate(); \
         if (__ptr) \
             return __ptr; \
         else \
@@ -290,29 +290,33 @@ public: \
     static void operator delete(void* __ptr) \
     { \
         if (__ptr != NULL) \
-            memory_pool<sizeof(_Cls)>::instance().deallocate(__ptr); \
+            static_mem_pool<sizeof(_Cls)>:: \
+                           instance().deallocate(__ptr); \
     }
 
-#define DECLARE_MEMORY_POOL__NOTHROW(_Cls) \
+#define DECLARE_STATIC_MEM_POOL__NOTHROW(_Cls) \
 public: \
     static void* operator new(size_t __size) throw() \
     { \
         assert(__size == sizeof(_Cls)); \
-        return memory_pool<sizeof(_Cls)>::instance_known().allocate(); \
+        return static_mem_pool<sizeof(_Cls)>:: \
+                              instance_known().allocate(); \
     } \
     static void operator delete(void* __ptr) \
     { \
         if (__ptr != NULL) \
-            memory_pool<sizeof(_Cls)>::instance_known().deallocate(__ptr); \
+            static_mem_pool<sizeof(_Cls)>:: \
+                           instance_known().deallocate(__ptr); \
     }
 
-#define DECLARE_MEMORY_POOL_GROUPED(_Cls, _Gid) \
+#define DECLARE_STATIC_MEM_POOL_GROUPED(_Cls, _Gid) \
 public: \
     static void* operator new(size_t __size) \
     { \
         assert(__size == sizeof(_Cls)); \
         void* __ptr; \
-        __ptr = memory_pool<sizeof(_Cls), (_Gid)>::instance().allocate(); \
+        __ptr = static_mem_pool<sizeof(_Cls), (_Gid)>:: \
+                               instance().allocate(); \
         if (__ptr) \
             return __ptr; \
         else \
@@ -321,30 +325,31 @@ public: \
     static void operator delete(void* __ptr) \
     { \
         if (__ptr != NULL) \
-            memory_pool<sizeof(_Cls), (_Gid)>::instance().deallocate(__ptr); \
+            static_mem_pool<sizeof(_Cls), (_Gid)>:: \
+                           instance().deallocate(__ptr); \
     }
 
-#define DECLARE_MEMORY_POOL_GROUPED__NOTHROW(_Cls, _Gid) \
+#define DECLARE_STATIC_MEM_POOL_GROUPED__NOTHROW(_Cls, _Gid) \
 public: \
     static void* operator new(size_t __size) throw() \
     { \
         assert(__size == sizeof(_Cls)); \
-        return memory_pool<sizeof(_Cls), (_Gid)>:: \
-                          instance_known().allocate(); \
+        return static_mem_pool<sizeof(_Cls), (_Gid)>:: \
+                              instance_known().allocate(); \
     } \
     static void operator delete(void* __ptr) \
     { \
         if (__ptr != NULL) \
-            memory_pool<sizeof(_Cls), (_Gid)>:: \
-                       instance_known().deallocate(__ptr); \
+            static_mem_pool<sizeof(_Cls), (_Gid)>:: \
+                           instance_known().deallocate(__ptr); \
     }
 
 #define PREPARE_MEMORY_POOL(_Cls) \
-    memory_pool<sizeof(_Cls)>::instance()
+    static_mem_pool<sizeof(_Cls)>::instance()
 
 #define PREPARE_MEMORY_POOL_GROUPED(_Cls, _Gid) \
-    memory_pool<sizeof(_Cls), (_Gid)>::instance()
+    static_mem_pool<sizeof(_Cls), (_Gid)>::instance()
 
 #undef __PRIVATE
 
-#endif // _MEMORY_POOL_H
+#endif // _STATIC_MEM_POOL_H
