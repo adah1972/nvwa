@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.4, 2004/12/28
+ * @version 3.5, 2005/01/04
  * @author  Wu Yongwei
  *
  */
@@ -261,81 +261,117 @@ FILE* new_output_fp = stderr;
  */
 const char* new_progname = _DEBUG_NEW_PROGNAME;
 
+#if _DEBUG_NEW_USE_ADDR2LINE
+/**
+ * Tries printing the position information from an instruction address.
+ * This is the version that uses \e addr2line.
+ *
+ * @param addr  the instruction address to convert and print
+ * @return      \c true if the address is converted successfully (and
+ *              the result is printed); \c false if no useful
+ *              information is got (and nothing is printed)
+ */
+static bool print_position_from_addr(const void* addr)
+{
+    if (new_progname)
+    {
+        const char addr2line_cmd[] = "addr2line -e ";
+#if   defined(__CYGWIN__) || defined(_WIN32)
+        const int  exeext_len = 4;
+#else
+        const int  exeext_len = 0;
+#endif
+#if  !defined(__CYGWIN__) && defined(__unix__)
+        const char ignore_err[] = " 2>/dev/null";
+#elif defined(__CYGWIN__) || \
+        (defined(_WIN32) && defined(WINVER) && WINVER >= 0x0500)
+        const char ignore_err[] = " 2>nul";
+#else
+        const char ignore_err[] = "";
+#endif
+        char* cmd = (char*)alloca(strlen(new_progname)
+                                  + exeext_len
+                                  + sizeof addr2line_cmd - 1
+                                  + sizeof ignore_err - 1
+                                  + sizeof(void*) * 2
+                                  + 4 /* SP + "0x" + null */);
+        strcpy(cmd, addr2line_cmd);
+        strcpy(cmd + sizeof addr2line_cmd - 1, new_progname);
+        size_t len = strlen(cmd);
+#if   defined(__CYGWIN__) || defined(_WIN32)
+        if (len <= 4
+                || (strcmp(cmd + len - 4, ".exe") != 0 &&
+                    strcmp(cmd + len - 4, ".EXE") != 0))
+        {
+            strcpy(cmd + len, ".exe");
+            len += 4;
+        }
+#endif
+        sprintf(cmd + len, " %p%s", addr, ignore_err);
+        FILE* fp = popen(cmd, "r");
+        if (fp)
+        {
+            char buffer[256] = "";
+            len = 0;
+            if (fgets(buffer, sizeof buffer, fp))
+            {
+                len = strlen(buffer);
+                if (buffer[len - 1] == '\n')
+                    buffer[--len] = '\0';
+            }
+            int res = pclose(fp);
+            // Display the file/line information only if the command
+            // is executed successfully and the output points to a
+            // valid position
+            if (res == 0 && len > 0 && !
+                    (buffer[len - 1] == '0' && buffer[len - 2] == ':'))
+            {
+                fprintf(new_output_fp, "%s", buffer);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+#else
+/**
+ * Tries printing the position information from an instruction address.
+ * This is the stub version that does nothing at all.
+ *
+ * @return      \c false always
+ */
+static bool print_position_from_addr(const void*)
+{
+    return false;
+}
+#endif // _DEBUG_NEW_USE_ADDR2LINE
+
 /**
  * Prints the position information of a memory operation point.  When \c
  * _DEBUG_NEW_USE_ADDR2LINE is defined to a non-zero value, this
  * function will try to convert a given caller address to file/line
  * information with \e addr2line.
  *
- * @param file  file name if \e line is non-zero; caller address otherwise
- * @param line  line number if non-zero
+ * @param ptr   source file name if \e line is non-zero; caller address
+ *              otherwise
+ * @param line  source line number if non-zero; indication that \e ptr
+ *              is the caller address otherwise
  */
-static void print_position(const void* file, int line)
+static void print_position(const void* ptr, int line)
 {
-    line &= ~INT_MIN;       // Result from new[] if highest bit set
-    if (line != 0)
-        fprintf(new_output_fp, "%s:%d", (const char*)file, line);
-    else if (file == NULL)
-        fprintf(new_output_fp, "<Unknown>");
-    else    // The `file' pointer really contains the caller address
+    line &= ~INT_MIN;       // Result from new[] if highest bit set: Ignore
+    if (line != 0)          // Is file/line information present?
     {
-#if _DEBUG_NEW_USE_ADDR2LINE
-        if (new_progname)
-        {
-            const int exeext_len = 4;
-            const char addr2line_cmd[] = "addr2line -e ";
-#if  !defined(__CYGWIN__) && defined(__unix__)
-            const char ignore_err[] = " 2>/dev/null";
-#elif defined(__CYGWIN__) || \
-            (defined(_WIN32) && defined(WINVER) && WINVER >= 0x0500)
-            const char ignore_err[] = " 2>nul";
-#else
-            const char ignore_err[] = "";
-#endif
-            char* cmd = (char*)alloca(strlen(new_progname)
-                                      + exeext_len
-                                      + sizeof addr2line_cmd - 1
-                                      + sizeof ignore_err - 1
-                                      + sizeof(void*) * 2
-                                      + 4 /* SP + "0x" + null */);
-            strcpy(cmd, addr2line_cmd);
-            strcpy(cmd + sizeof addr2line_cmd - 1, new_progname);
-            size_t len = strlen(cmd);
-#if defined(_WIN32) || defined(__CYGWIN__)
-            if (len <= 4
-                    || (strcmp(cmd + len - 4, ".exe") != 0 &&
-                        strcmp(cmd + len - 4, ".EXE") != 0))
-            {
-                strcpy(cmd + len, ".exe");
-                len += 4;
-            }
-#endif
-            sprintf(cmd + len, " %p%s", file, ignore_err);
-            FILE* fp = popen(cmd, "r");
-            if (fp)
-            {
-                char buffer[256] = "";
-                len = 0;
-                if (fgets(buffer, sizeof buffer, fp))
-                {
-                    len = strlen(buffer);
-                    if (buffer[len - 1] == '\n')
-                        buffer[--len] = '\0';
-                }
-                int res = pclose(fp);
-                // Display the file/line information only if the command
-                // is executed successfully and the output points to a
-                // valid position
-                if (res == 0 && len > 0 && !
-                        (buffer[len - 1] == '0' && buffer[len - 2] == ':'))
-                {
-                    fprintf(new_output_fp, "%s", buffer);
-                    return;
-                }
-            }
-        }
-#endif // _DEBUG_NEW_USE_ADDR2LINE
-        fprintf(new_output_fp, "%p", file);
+        fprintf(new_output_fp, "%s:%d", (const char*)ptr, line);
+    }
+    else if (ptr != NULL)   // Is caller address present?
+    {
+        if (!print_position_from_addr(ptr)) // Fail to get source position?
+            fprintf(new_output_fp, "%p", ptr);
+    }
+    else                    // No information is present
+    {
+        fprintf(new_output_fp, "<Unknown>");
     }
 }
 
@@ -503,7 +539,7 @@ void* operator new[](size_t size, const char* file, int line)
     new_ptr_list_t* ptr =
             (new_ptr_list_t*)((char*)pointer - aligned_list_item_size);
     assert((ptr->line & INT_MIN) == 0);
-    ptr->line |= INT_MIN;   // Result from new[] if highest bit set
+    ptr->line |= INT_MIN;   // Result from new[] if highest bit set: Set
     return pointer;
 }
 

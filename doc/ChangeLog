@@ -1,3 +1,8 @@
+2005-01-04  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (print_position_from_addr): New static function.
+	(print_position): Change the addr2line logic to a function call.
+
 2005-01-02  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp: Hard-remove and re-add the revisions since 20
