@@ -1,3 +1,7 @@
+2004-06-15  Wu Yongwei  <adah@sh163.net>
+
+	* doc/README: New file.
+
 2004-06-01  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (total_mem_alloc): New static variable.

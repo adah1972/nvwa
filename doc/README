@@ -1,0 +1,120 @@
+                         === Stones of Nvwa ===
+
+The Name
+
+Nvwa ("v" is pronounced like the French "u"), is one of the most ancient
+Chinese goddesses.  She was said to have created human beings, and, when
+the evil god Gong-gong crashed himself upon one of the pillars that
+support the sky and made a hole in it, she repaired the sky with
+five-coloured stones.
+
+I thought of the name Nvwa by analogy with Loki.  Since it is so small a
+project and it contains utilities instead of a complete framework, I
+think "stones" is a good metaphor.
+
+
+Code Organization
+
+Some may think that it is better to include like "#include <nvwa/...>".
+However, I have reasons to avoid that.  I would like to make the Nvwa
+files drop-ins for other projects.  One may simply copy them and use
+them.  It is not necessary to keep them in a separate directory -- of
+course, not doing so will make it difficult to cvs update.
+
+Some may also wonder why I do not put the contents in namespace nvwa
+instead of the global one.  Um, some stuff, say, debug_new, simply
+cannot be put in a namespace.  And the copy-and-use usage pattern also
+prevents me from doing that.  But this is not unchangeable.  Other
+opinions, especially those resulting from real usage, are welcome.
+
+
+Contents
+
+A brief introduction follows.  Check the Doxygen documentation for more
+(technical) details.
+
+* boolarray.cpp
+* boolarray.h
+
+A replacement of std::vector<bool>.  I wrote it before I knew of
+vector<bool>, or I might not have written it at all.  However, it is
+faster than any vector<bool> implementation I know, and it has
+members like at, set, reset, flip, and count.  I myself find "count"
+very useful.
+
+* class_level_lock.h
+
+The Loki ClassLevelLockable adapted to use the fast_mutex layer.  One
+minor divergence from Loki is that the template has an additional
+template parameter _RealLock to boost the performance in non-locking
+scenarios.  In that case, if you have a decent compiler, you probably
+want to define "HAS_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION" for even
+better optimization.  Cf. object_level_lock.h.
+
+* cont_ptr_utils.h
+
+Utility functors for containers of pointers adapted from Scott Meyers'
+Effective STL.
+
+* debug_new.cpp
+* debug_new.h
+
+A cross-platform, thread-safe memory leak detector.  It is a
+light-weight one designed only to catch unmatched pairs of new/delete.
+I know there are already many existing memory leak detectors, but as far
+as I know, free solutions are generally slow, memory-consuming, and
+quite complicated to use.  This solution is very easy to use, and has
+very low space/time overheads.  Just link in debug_new.cpp for leakage
+report, and include debug_new.h for additional file/line information.
+It will automatically switch on multi-threading when the appropriate
+option of a recognized compiler is specified.  Check fast_mutex.h for
+more threading details.
+
+* fast_mutex.h
+
+The threading transparent layer simulating a non-recursive mutex.  It
+supports POSIX threads and Win32 threads currently, as well as a
+no-threads mode.  Unlike Loki and some other libraries, threading mode
+is not to be specified in code, but detected from the environment.  It
+will automatically switch on multi-threading when the "-MT"/"-MD" option
+of MSVC, the "-mthreads" option of MinGW GCC, or the "-pthread" option
+of GCC under POSIX environments, is used.  One advantage of the current
+implementation is that the construction and destruction of a static
+object using a static fast_mutex not yet constructed or already
+destroyed are allowed to work (with lock/unlock operations ignored), and
+there are re-entry checks for lock/unlock operations when the
+preprocessing symbol "_DEBUG" is defined.
+
+* mem_pool_base.cpp
+* mem_pool_base.h
+
+A class solely to be inherited by memory pool implementations.  It is
+currently used by static_mem_pool.
+
+* object_level_lock.h
+
+The Loki ObjectLevelLockable adapted to use the fast_mutex layer.  The
+member function get_locked_object does not exist in Loki, but is also
+taken from Mr Alexandrescu's article.  Cf. class_level_lock.h.
+
+* pctimer.h
+
+A function to get a high-resolution timer for Win32/Cygwin/Unix.  It is
+quite useful for measurement and optimization.
+
+* set_assign.h
+
+Utility routines to make up for the fact that STL only has set_union (+)
+and set_difference (-) algorithms but no corresponding += and -=
+operations available.
+
+* static_mem_pool.cpp
+* static_mem_pool.h
+
+A memory pool implementation to pool memory blocks according to
+compile-time block sizes.  Macros are provided to easily make a class
+use pooled new/delete.
+
+$Id$
+
+vim:expandtab:formatoptions=tcqm:textwidth=72:
