@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @version 2.5, 2004/12/12
+ * @version 3.0, 2004/12/20
  * @author  Wu Yongwei
  *
  */

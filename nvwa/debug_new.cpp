@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 2.13, 2004/12/19
+ * @version 3.0, 2004/12/20
  * @author  Wu Yongwei
  *
  */
@@ -218,7 +218,9 @@ bool new_autocheck_flag = true;
 bool new_verbose_flag = false;
 
 /**
- * Pointer to the output stream.
+ * Pointer to the output stream.  The default output is \e stderr, and
+ * one may change it to a user stream if needed (say, #new_verbose_flag
+ * is \c true and there are a lot of (de)allocations).
  */
 FILE* new_output_fp = stderr;
 
