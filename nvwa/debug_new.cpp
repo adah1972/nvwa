@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.2, 2004/12/24
+ * @version 3.3, 2004/12/25
  * @author  Wu Yongwei
  *
  */
@@ -193,11 +193,15 @@
 struct new_ptr_list_t
 {
     new_ptr_list_t*     next;
+    union
+    {
 #if _DEBUG_NEW_FILENAME_LEN == 0
     const char*         file;
 #else
     char                file[_DEBUG_NEW_FILENAME_LEN];
 #endif
+    void*               addr;
+    };
     int                 line;
     size_t              size;
 };
@@ -388,14 +392,10 @@ static void free_pointer(new_ptr_list_t** raw_ptr, void* addr, bool array_mode)
                 ptr->size);
         print_position(addr, 0);
         fprintf(new_output_fp, "\n\toriginally allocated at ");
-#if _DEBUG_NEW_FILENAME_LEN == 0
-        print_position(ptr->file, ptr->line);
-#else
         if ((ptr->line & ~INT_MIN) != 0)
             print_position(ptr->file, ptr->line);
         else
-            print_position(*(void**)ptr->file, ptr->line);
-#endif
+            print_position(ptr->addr, ptr->line);
         fprintf(new_output_fp, "\n");
         fflush(new_output_fp);
         _DEBUG_NEW_ERROR_ACTION;
@@ -435,14 +435,10 @@ int check_leaks()
                     "Leaked object at %p (size %u, ",
                     (char*)ptr + aligned_list_item_size,
                     ptr->size);
-#if _DEBUG_NEW_FILENAME_LEN == 0
-            print_position(ptr->file, ptr->line);
-#else
             if ((ptr->line & ~INT_MIN) != 0)
                 print_position(ptr->file, ptr->line);
             else
-                print_position(*(void**)ptr->file, ptr->line);
-#endif
+                print_position(ptr->addr, ptr->line);
             fprintf(new_output_fp, ")\n");
             ptr = ptr->next;
             ++leak_cnt;
@@ -475,7 +471,7 @@ void* operator new(size_t size, const char* file, int line)
         strncpy(ptr->file, file, _DEBUG_NEW_FILENAME_LEN - 1)
                 [_DEBUG_NEW_FILENAME_LEN - 1] = '\0';
     else
-        *(void**)ptr->file = (void*)file;
+        ptr->addr = (void*)file;
 #endif
     ptr->line = line;
     ptr->size = size;
@@ -489,14 +485,10 @@ void* operator new(size_t size, const char* file, int line)
         fprintf(new_output_fp,
                 "new:  allocated  %p (size %u, ",
                 pointer, size);
-#if _DEBUG_NEW_FILENAME_LEN == 0
-        print_position(ptr->file, ptr->line);
-#else
         if (line != 0)
             print_position(ptr->file, ptr->line);
         else
-            print_position(*(void**)ptr->file, ptr->line);
-#endif
+            print_position(ptr->addr, ptr->line);
         fprintf(new_output_fp, ")\n");
     }
     total_mem_alloc += size;
