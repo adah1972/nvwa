@@ -1,3 +1,10 @@
+2004-04-03  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/static_mem_pool.cpp (static_mem_pool_set::~static_mem_pool_set):
+	Remove the use of manual mutex acquire/release.
+	* nvwa/static_mem_pool.h (static_mem_pool<>::allocate): Ditto
+	(static_mem_pool<>::_S_instance_p): Remove __VOLATILE.
+
 2004-03-30  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/memory_pool.h, nvwa/memory_pool.cpp: Remove files (become

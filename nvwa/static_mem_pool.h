@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool
  *
- * @version 1.0, 2004/03/29
+ * @version 1.1, 2004/04/03
  * @author  Wu Yongwei
  *
  */
@@ -133,20 +133,17 @@ public:
     }
     void* allocate()
     {
-        void* __result;
-        lock __guard(_Gid < 0);
-        if (_S_memory_block_p)
         {
-            __result = _S_memory_block_p;
-            _S_memory_block_p = _S_memory_block_p->_M_next;
-            if (_Gid < 0) __guard.release();
+            lock __guard(_Gid < 0);
+            if (_S_memory_block_p)
+            {
+                void* __result;
+                __result = _S_memory_block_p;
+                _S_memory_block_p = _S_memory_block_p->_M_next;
+                return __result;
+            }
         }
-        else
-        {
-            if (_Gid < 0) __guard.release();
-            __result = _S_alloc_sys(_S_align(_Sz));
-        }
-        return __result;
+        return alloc_sys(_S_align(_Sz));
     }
     void deallocate(void* __ptr)
     {
@@ -206,7 +203,7 @@ private:
     static void _S_create_instance();
 
     static bool _S_destroyed;
-    static static_mem_pool* __VOLATILE _S_instance_p;
+    static static_mem_pool* _S_instance_p;
     static mem_pool_base::_Block_list* __VOLATILE _S_memory_block_p;
 
     /* Forbid their use */
@@ -216,7 +213,7 @@ private:
 
 template <size_t _Sz, int _Gid> bool
         static_mem_pool<_Sz, _Gid>::_S_destroyed = false;
-template <size_t _Sz, int _Gid> static_mem_pool<_Sz, _Gid>* __VOLATILE
+template <size_t _Sz, int _Gid> static_mem_pool<_Sz, _Gid>*
         static_mem_pool<_Sz, _Gid>::_S_instance_p = NULL;
 template <size_t _Sz, int _Gid> mem_pool_base::_Block_list* __VOLATILE
         static_mem_pool<_Sz, _Gid>::_S_memory_block_p = NULL;

@@ -31,7 +31,7 @@
  *
  * Non-template and non-inline code for the `static' memory pool
  *
- * @version 1.0, 2004/03/29
+ * @version 1.1, 2004/04/03
  * @author  Wu Yongwei
  *
  */
@@ -48,13 +48,9 @@ static_mem_pool_set::~static_mem_pool_set()
     lock __guard;
     while (!_M_memory_pool_set.empty())
     {
-        __guard.release();
-
         // The destructor of a static_mem_pool will remove itself from
         // the static_mem_pool_set.
         delete *_M_memory_pool_set.begin();
-
-        __guard.acquire();
     }
     STATIC_MEM_POOL_TRACE(false, "The static_mem_pool_set is destroyed");
 }
