@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.6, 2004/09/23
+ * @version 1.7, 2005/03/08
  * @author  Wu Yongwei
  *
  */
@@ -276,10 +276,9 @@ public: \
         void* __ptr; \
         __ptr = static_mem_pool<sizeof(_Cls)>:: \
                                instance().allocate(); \
-        if (__ptr) \
-            return __ptr; \
-        else \
+        if (__ptr == NULL) \
             throw std::bad_alloc(); \
+        return __ptr; \
     } \
     static void operator delete(void* __ptr) \
     { \
@@ -311,10 +310,9 @@ public: \
         void* __ptr; \
         __ptr = static_mem_pool<sizeof(_Cls), (_Gid)>:: \
                                instance().allocate(); \
-        if (__ptr) \
-            return __ptr; \
-        else \
+        if (__ptr == NULL) \
             throw std::bad_alloc(); \
+        return __ptr; \
     } \
     static void operator delete(void* __ptr) \
     { \

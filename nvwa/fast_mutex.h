@@ -31,7 +31,7 @@
  *
  * A fast mutex implementation for POSIX and Win32.
  *
- * @version 1.16, 2004/07/26
+ * @version 1.17, 2005/03/07
  * @author  Wu Yongwei
  *
  */
@@ -78,6 +78,12 @@
  * will disable to check.
  */
 #   define _FAST_MUTEX_CHECK_INITIALIZATION 1
+# endif
+
+# if defined(_PTHREADS) && defined(_WIN32THREADS)
+//  Some C++ libraries have _PTHREADS defined even on Win32 platforms.
+//  Thus this hack.
+#   undef _PTHREADS
 # endif
 
 # ifdef _DEBUG

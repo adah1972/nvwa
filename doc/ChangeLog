@@ -1,3 +1,11 @@
+2005-03-08  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/fast_mutex.h (_PTHREADS): Undef if _WIN32THREADS is also
+	defined.
+	* nvwa/static_mem_pool.h (DECLARE_STATIC_MEM_POOL,
+	DECLARE_STATIC_MEM_POOL_GROUPED): Reorganize code to avoid a (false)
+	warning from some compilers.
+
 2005-01-28  Wu Yongwei  <adah@sh163.net>
 
 	* doc/README: Rephrase the paragraph about `GLIBCPP_FORCE_NEW'.
