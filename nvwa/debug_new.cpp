@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.0, 2004/12/20
+ * @version 3.1, 2004/12/22
  * @author  Wu Yongwei
  *
  */
@@ -120,7 +120,7 @@
  * test for me.
  */
 #ifndef _DEBUG_NEW_HASH
-#define _DEBUG_NEW_HASH(p) (((unsigned)(p) >> 8) % _DEBUG_NEW_HASHTABLESIZE)
+#define _DEBUG_NEW_HASH(p) (((size_t)(p) >> 8) % _DEBUG_NEW_HASHTABLESIZE)
 #endif
 
 /**
@@ -158,7 +158,6 @@
 #ifdef _MSC_VER
 #pragma warning(disable: 4073)  // #pragma init_seg(lib) used
 #pragma warning(disable: 4290)  // C++ exception specification ignored
-#pragma warning(disable: 4311)  // 64-bit porting warning for pointer cast
 #pragma init_seg(lib)
 #endif
 
