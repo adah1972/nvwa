@@ -1,3 +1,13 @@
+2004-12-24  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (_DEBUG_NEW_ALIGNMENT): New macro.
+	(align): New internal function-like macro.
+	(aligned_list_item_size): New constant.
+	(search_pointer): Use aligned_list_item_size.
+	(free_pointer): Ditto.
+	(check_leaks): Ditto.
+	(operator new(size_t, const char*, int)): Ditto.
+
 2004-12-22  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (_DEBUG_NEW_HASH): Eliminate cast warnings on
