@@ -1,5 +1,22 @@
 2004-08-04  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/debug_new.cpp (search_pointer): New static function.
+	(free_pointer): New static function.
+	(check_leaks): Leave out highest bit when displaying line number.
+	(operator new(size_t, const char*, int)): Add an assertion.
+	(operator new[](size_t, const char*, int)): Set highest bit of line
+	number.
+	(operator new[](size_t)): Implement with operator new[](size_t,
+	const char*, int).
+	(operator delete(void*)): Implement with search_pointer and
+	free_pointer.
+	(operator delete[](void*)): Ditto.
+	(operator delete[](void*, const char*, int)): Implement with
+	delete[](void*).
+	(operator delete[](void*, const std::nothrow_t&)): Ditto.
+
+2004-08-04  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/debug_new.cpp: Disable two warnings emitted by MSVC 7.1.
 
 2004-08-02  Wu Yongwei  <adah@sh163.net>
