@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @version 2.0, 2004/05/09
+ * @version 2.1, 2004/08/02
  * @author  Wu Yongwei
  *
  */
@@ -56,13 +56,13 @@ typedef unsigned char BYTE;
  * This was first written in April 1995, before I knew any existing
  * implmentation of this kind of classes.  Of course, now the C++
  * Standard Template Library has a good implementation of packed boolean
- * array as `vector<bool>',  but the code here should still be useful
+ * array as `vector&lt;bool>',  but the code here should still be useful
  * for the following three reasons: (1) STL support of MSVC 6 did not
  * implement this specialization (nor did it have a `bit_vector'); (2) I
  * incorporated some useful member functions from the STL bitset into
  * this `bool_array', including `reset', `set', `flip', and `count';
  * (3) In my tests under MSVC 6 and GCC 2.95.3/3.2.3 my code is really
- * FASTER than vector<bool> or the normal boolean array.
+ * FASTER than vector&lt;bool> or the normal boolean array.
  */
 class bool_array
 {

@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    bool_array.h
+ * @file    bool_array.cpp
  *
  * Code for class bool_array (packed boolean array).
  *
- * @version 2.0, 2004/05/09
+ * @version 2.1, 2004/08/02
  * @author  Wu Yongwei
  *
  */
