@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool
  *
- * @version 1.1, 2004/04/03
+ * @version 1.2, 2004/04/11
  * @author  Wu Yongwei
  *
  */
@@ -61,8 +61,12 @@
 #   include <iostream>
 #   define STATIC_MEM_POOL_TRACE(_Lck, _Msg) \
         { \
-            static_mem_pool_set::lock __guard(_Lck); \
-            std::cerr << "static_mem_pool: " << _Msg << std::endl; \
+            if (_Lck) { \
+                static_mem_pool_set::lock __guard; \
+                std::cerr << "static_mem_pool: " << _Msg << std::endl; \
+            } else { \
+                std::cerr << "static_mem_pool: " << _Msg << std::endl; \
+            } \
         }
 # else
 #   define STATIC_MEM_POOL_TRACE(_Lck, _Msg) \
@@ -114,9 +118,9 @@ private:
  */
 template <size_t _Sz, int _Gid = -1>
 class static_mem_pool : public mem_pool_base
-                      , public class_level_lock<static_mem_pool<_Sz, _Gid> >
 {
-    typedef typename class_level_lock<static_mem_pool<_Sz, _Gid> >::lock lock;
+    typedef typename class_level_lock<static_mem_pool<_Sz, _Gid>, (_Gid < 0)>
+            ::lock lock;
 public:
     static static_mem_pool& instance()
     {
@@ -134,7 +138,7 @@ public:
     void* allocate()
     {
         {
-            lock __guard(_Gid < 0);
+            lock __guard;
             if (_S_memory_block_p)
             {
                 void* __result;
@@ -148,7 +152,7 @@ public:
     void deallocate(void* __ptr)
     {
         assert(__ptr != NULL);
-        lock __guard(_Gid < 0);
+        lock __guard;
         _Block_list* __block = reinterpret_cast<_Block_list*>(__ptr);
         __block->_M_next = _S_memory_block_p;
         _S_memory_block_p = __block;
@@ -221,7 +225,7 @@ template <size_t _Sz, int _Gid> mem_pool_base::_Block_list* __VOLATILE
 template <size_t _Sz, int _Gid>
 void static_mem_pool<_Sz, _Gid>::recycle()
 {
-    lock __guard(_Gid < 0);
+    lock __guard;
     _Block_list* __block = _S_memory_block_p;
     while (__block)
     {
@@ -262,7 +266,7 @@ void static_mem_pool<_Sz, _Gid>::_S_create_instance()
     }
     else
     {
-        lock __guard(_Gid < 0);
+        lock __guard;
         if (!_S_instance_p)
         {
             static_mem_pool_set::instance();  // Force its creation

@@ -31,7 +31,7 @@
  *
  * In essence Loki ClassLevelLockable re-engineered to use a fast_mutex class
  *
- * @version 1.8, 2004/03/19
+ * @version 1.9, 2004/04/11
  * @author  Wu Yongwei
  *
  */
@@ -46,17 +46,13 @@
      * Helper class for class-level locking.  This is the
      * single-threaded implementation.
      */
-    template <class _Host>
+    template <class _Host, bool _RealLock = false>
     class class_level_lock
     {
     public:
         /** Type that provides locking/unlocking semantics. */
         class lock
         {
-        public:
-            explicit lock(bool __lock = true) {}
-            void acquire() {}
-            void release() {}
         };
 
         typedef _Host volatile_type;
@@ -64,9 +60,12 @@
 # else
     /**
      * Helper class for class-level locking.  This is the multi-threaded
-     * implementation.
+     * implementation.  The main departure from Loki ClassLevelLockable
+     * is that there is an additional template parameter which can make
+     * the lock not lock at all even in multi-threaded environments.
+     * See static_mem_pool.h for real usage.
      */
-    template <class _Host>
+    template <class _Host, bool _RealLock = true>
     class class_level_lock
     {
         static fast_mutex _S_mtx;
@@ -78,42 +77,41 @@
         /** Type that provides locking/unlocking semantics. */
         class lock
         {
-            bool _M_locked;
-
             lock(const lock&);
             lock& operator=(const lock&);
         public:
-            // Unlike Loki ClassLevelLockable, one may choose not to
-            // acquire the lock on initialization, and manually call
-            // acquire() and release() as the case need be.  This is for
-            // maximum flexibility.  See memory_pool.h for real usage.
-            explicit lock(bool __lock = true) : _M_locked(false)
+            lock()
             {
-                if (__lock)
-                    acquire();
+                if (_RealLock)
+                    _S_mtx.lock();
             }
             ~lock()
             {
-                if (_M_locked)
-                    release();
-            }
-            void acquire()
-            {
-                _S_mtx.lock();
-                _M_locked = true;
-            }
-            void release()
-            {
-                _S_mtx.unlock();
-                _M_locked = false;
+                if (_RealLock)
+                    _S_mtx.unlock();
             }
         };
 
         typedef volatile _Host volatile_type;
     };
 
+#   ifdef HAS_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION
+    /** Partial specialization that makes null locking. */
     template <class _Host>
-    fast_mutex class_level_lock<_Host>::_S_mtx;
+    class class_level_lock<_Host, false>
+    {
+    public:
+        /** Type that provides locking/unlocking semantics. */
+        class lock
+        {
+        };
+
+        typedef _Host volatile_type;
+    };
+#   endif // HAS_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION
+
+    template <class _Host, bool _RealLock>
+    fast_mutex class_level_lock<_Host, _RealLock>::_S_mtx;
 # endif // _NOTHREADS
 
 #endif // _CLASS_LEVEL_LOCK_H
