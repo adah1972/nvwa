@@ -1,5 +1,11 @@
 2005-01-16  Wu Yongwei  <adah@sh163.net>
 
+	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.4.
+	* misc/release.bat (VER): Increase to 0.4.
+	* misc/release.sh (VER): Increase to 0.4.
+
+2005-01-16  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/debug_new.cpp (__debug_new_counter::~__debug_new_counter):
 	Print a warning if GCC 3 or later is detected but no appropriate
 	enviroment variable is set.

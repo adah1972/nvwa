@@ -3,7 +3,7 @@
 
 # Shell script to create "nvwa-x.y.tar.gz"
 
-VER="0.3"
+VER="0.4"
 RELEASE="nvwa-$VER"
 rm -rf $RELEASE
 mkdir $RELEASE
