@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.4, 2004/07/26
+ * @version 1.5, 2004/08/17
  * @author  Wu Yongwei
  *
  */
@@ -112,6 +112,10 @@ class static_mem_pool : public mem_pool_base
 public:
     static static_mem_pool& instance()
     {
+        // NOTE: Double-Checked Locking Pattern (DCLP) is used here and
+        //   thus unsafe on some modern multiprocessor systems (e.g.
+        //   Alpha 21264, SPARC (in Relaxed Memory Order mode), and
+        //   IA-64).  Patches are welcome.
         if (!_S_instance_p)
         {
             _S_create_instance();
@@ -184,7 +188,7 @@ private:
     static void _S_create_instance();
 
     static bool _S_destroyed;
-    static static_mem_pool* _S_instance_p;
+    static static_mem_pool* __VOLATILE _S_instance_p;
     static mem_pool_base::_Block_list* __VOLATILE _S_memory_block_p;
 
     /* Forbid their use */
@@ -194,7 +198,7 @@ private:
 
 template <size_t _Sz, int _Gid> bool
         static_mem_pool<_Sz, _Gid>::_S_destroyed = false;
-template <size_t _Sz, int _Gid> static_mem_pool<_Sz, _Gid>*
+template <size_t _Sz, int _Gid> static_mem_pool<_Sz, _Gid>* __VOLATILE
         static_mem_pool<_Sz, _Gid>::_S_instance_p = NULL;
 template <size_t _Sz, int _Gid> mem_pool_base::_Block_list* __VOLATILE
         static_mem_pool<_Sz, _Gid>::_S_memory_block_p = NULL;
@@ -247,17 +251,19 @@ void static_mem_pool<_Sz, _Gid>::_S_create_instance()
         if (!_S_instance_p)
         {
             static_mem_pool_set::instance();  // Force its creation
-            _S_instance_p = new static_mem_pool();
+            static_mem_pool* __VOLATILE __inst_p = new static_mem_pool();
             try
             {
-                static_mem_pool_set::instance().add(_S_instance_p);
+                static_mem_pool_set::instance().add(__inst_p);
             }
             catch (...)
             {
                 _STATIC_MEM_POOL_TRACE(true,
                         "Exception occurs in static_mem_pool_set::add");
+                delete __inst_p;
                 throw;
             }
+            _S_instance_p = __inst_p;
         }
     }
 }
