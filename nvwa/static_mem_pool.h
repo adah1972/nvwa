@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.7, 2005/03/08
+ * @version 1.8, 2005/05/02
  * @author  Wu Yongwei
  *
  */
@@ -165,9 +165,9 @@ private:
         _Block_list* __block = _S_memory_block_p;
         while (__block)
         {
-            _Block_list* pBlockNext = __block->_M_next;
+            _Block_list* __next = __block->_M_next;
             dealloc_sys(__block);
-            __block = pBlockNext;
+            __block = __next;
         }
         _S_memory_block_p = NULL;
 #   endif
