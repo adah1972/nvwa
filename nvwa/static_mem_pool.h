@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2005 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.8, 2005/05/02
+ * @version 1.9, 2005/05/06
  * @author  Wu Yongwei
  *
  */

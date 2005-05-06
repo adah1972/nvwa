@@ -1,3 +1,11 @@
+2005-05-06  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp: Update copyright year.
+	* nvwa/debug_new.h: Ditto.
+	* nvwa/fast_mutex.h: Ditto.
+	* nvwa/fixed_mem_pool.h: Ditto.
+	* nvwa/static_mem_pool.h: Ditto.
+
 2005-05-03  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/fixed_mem_pool.h: New file.
