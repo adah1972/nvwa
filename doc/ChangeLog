@@ -1,3 +1,10 @@
+2005-06-08  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/static_mem_pool.h (PREPARE_MEMORY_POOL): Change to
+	PREPARE_STATIC_MEM_POOL.
+	(PREPARE_MEMORY_POOL_GROUPED): Change to
+	PREPARE_STATIC_MEM_POOL_GROUPED.
+
 2005-05-06  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp: Update copyright year.

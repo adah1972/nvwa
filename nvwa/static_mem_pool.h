@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.9, 2005/05/06
+ * @version 1.10, 2005/06/08
  * @author  Wu Yongwei
  *
  */
@@ -336,10 +336,10 @@ public: \
                            instance_known().deallocate(__ptr); \
     }
 
-#define PREPARE_MEMORY_POOL(_Cls) \
+#define PREPARE_STATIC_MEM_POOL(_Cls) \
     static_mem_pool<sizeof(_Cls)>::instance()
 
-#define PREPARE_MEMORY_POOL_GROUPED(_Cls, _Gid) \
+#define PREPARE_STATIC_MEM_POOL_GROUPED(_Cls, _Gid) \
     static_mem_pool<sizeof(_Cls), (_Gid)>::instance()
 
 #undef __PRIVATE
