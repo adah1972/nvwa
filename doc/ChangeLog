@@ -1,3 +1,7 @@
+2005-06-09  Wu Yongwei  <adah@sh163.net>
+
+	* doc/README: Add description of fixed_mem_pool.h.
+
 2005-06-08  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/static_mem_pool.h (PREPARE_MEMORY_POOL): Change to

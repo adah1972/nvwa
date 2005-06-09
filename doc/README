@@ -107,6 +107,14 @@ Contents
    lock/unlock operations when the preprocessing symbol "_DEBUG" is
    defined.
 
+  * fixed_mem_pool.h
+
+   A memory pool implementation that requires initialization (allocates
+   a fixed-size chunk) prior to its use.  It is simple and makes no
+   memory defragmentation, but the memory pool size cannot be changed
+   after initialization.  Macros are provided to easily make a class use
+   pooled new/delete.
+
   * mem_pool_base.cpp
   * mem_pool_base.h
 
