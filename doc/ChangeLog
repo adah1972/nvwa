@@ -1,3 +1,13 @@
+2005-06-10  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/fixed_mem_pool.h (fixed_mem_pool<>): Privately inherit from
+	class_level_lock to use the its nested type lock.
+	(fixed_mem_pool<>::_S_first_avail_ptr): Add the __VOLATILE modifier.
+	(fixed_mem_pool<>::_S_alloc_cnt): Ditto.
+	(fixed_mem_pool<>::allocate): Use type lock for synchronization.
+	(fixed_mem_pool<>::deallocate): Ditto.
+	(fixed_mem_pool<>::deinitialize): Add an assertion.
+
 2005-06-09  Wu Yongwei  <adah@sh163.net>
 
 	* doc/README: Add description of fixed_mem_pool.h.

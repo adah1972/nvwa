@@ -45,7 +45,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running
  *
- * @version 1.9, 2005/05/06
+ * @version 1.10, 2005/06/10
  * @author  Wu Yongwei
  *
  */
@@ -53,9 +53,10 @@
 #ifndef _FIXED_MEM_POOL_H
 #define _FIXED_MEM_POOL_H
 
+#include <new>
 #include <assert.h>
 #include <stdlib.h>
-#include <new>
+#include "class_level_lock.h"
 #include "mem_pool_base.h"
 
 /**
@@ -71,7 +72,7 @@
  * @param _Tp   class to use the fixed_mem_pool
  */
 template <class _Tp>
-class fixed_mem_pool
+class fixed_mem_pool : class_level_lock<fixed_mem_pool<_Tp> >
 {
 public:
     static void*  allocate();
@@ -83,19 +84,22 @@ protected:
     static bool   bad_alloc_handler();
 private:
     static size_t _S_align(size_t __size);
-    static int    _S_alloc_cnt;
     static void*  _S_mem_pool_ptr;
-    static void*  _S_first_avail_ptr;
+    static void*  __VOLATILE _S_first_avail_ptr;
+    static int    __VOLATILE _S_alloc_cnt;
 };
 
-/** Count of allocations. */
-template <class _Tp> int   fixed_mem_pool<_Tp>::_S_alloc_cnt = 0;
-
 /** Pointer to the allocated chunk of memory. */
-template <class _Tp> void* fixed_mem_pool<_Tp>::_S_mem_pool_ptr = NULL;
+template <class _Tp>
+void* fixed_mem_pool<_Tp>::_S_mem_pool_ptr = NULL;
 
 /** Pointer to the first available memory block. */
-template <class _Tp> void* fixed_mem_pool<_Tp>::_S_first_avail_ptr = NULL;
+template <class _Tp>
+void* __VOLATILE fixed_mem_pool<_Tp>::_S_first_avail_ptr = NULL;
+
+/** Count of allocations. */
+template <class _Tp>
+int   __VOLATILE fixed_mem_pool<_Tp>::_S_alloc_cnt = 0;
 
 /**
  * Allocates a memory block from the memory pool.
@@ -105,6 +109,7 @@ template <class _Tp> void* fixed_mem_pool<_Tp>::_S_first_avail_ptr = NULL;
 template <class _Tp>
 inline void* fixed_mem_pool<_Tp>::allocate()
 {
+    lock __guard;
     for (;;)
     {
         if (void* __result = _S_first_avail_ptr)
@@ -129,6 +134,7 @@ inline void fixed_mem_pool<_Tp>::deallocate(void* __block_ptr)
 {
     if (__block_ptr == NULL)
         return;
+    lock __guard;
     assert(_S_alloc_cnt != 0);
     --_S_alloc_cnt;
     *(void**)__block_ptr = _S_first_avail_ptr;
@@ -174,6 +180,7 @@ int fixed_mem_pool<_Tp>::deinitialize()
 {
     if (_S_alloc_cnt != 0)
         return _S_alloc_cnt;
+    assert(_S_mem_pool_ptr != NULL);
     mem_pool_base::dealloc_sys(_S_mem_pool_ptr);
     _S_mem_pool_ptr = NULL;
     _S_first_avail_ptr = NULL;
