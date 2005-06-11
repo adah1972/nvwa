@@ -1,3 +1,9 @@
+2005-06-11  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/fixed_mem_pool.h (fixed_mem_pool<>): Change the private
+	inheritance into a typedef to avoid warnings and errors under some
+	compilers.
+
 2005-06-10  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/fixed_mem_pool.h (fixed_mem_pool<>): Privately inherit from
@@ -343,10 +349,11 @@
 
 2004-04-11  Wu Yongwei  <adah@sh163.net>
 
-	* nvwa/class_level_lock.h (class_level_lock): Add parameter _RealLock.
-	(class_level_lock::lock::lock): Remove parameter __lock.
-	(class_level_lock::lock::acquire): Remove.
-	(class_level_lock::lock::release): Remove.
+	* nvwa/class_level_lock.h (class_level_lock<>): Add parameter
+	_RealLock.
+	(class_level_lock<>::lock::lock): Remove parameter __lock.
+	(class_level_lock<>::lock::acquire): Remove.
+	(class_level_lock<>::lock::release): Remove.
 	(class_level_lock<_Host, false>): Add optional partial specialization.
 	* nvwa/static_mem_pool.h: Synchronize with the above interface change.
 	(static_mem_pool): Remove the unnecessary inheritance from

@@ -45,7 +45,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running
  *
- * @version 1.10, 2005/06/10
+ * @version 1.11, 2005/06/11
  * @author  Wu Yongwei
  *
  */
@@ -72,8 +72,9 @@
  * @param _Tp   class to use the fixed_mem_pool
  */
 template <class _Tp>
-class fixed_mem_pool : class_level_lock<fixed_mem_pool<_Tp> >
+class fixed_mem_pool
 {
+    typedef typename class_level_lock<fixed_mem_pool<_Tp> >::lock lock;
 public:
     static void*  allocate();
     static void   deallocate(void*);
