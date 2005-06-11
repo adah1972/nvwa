@@ -1,5 +1,10 @@
 2005-06-11  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/class_level_lock.h (class_level_lock<>::lock): Add empty
+	default constructor to avoid errors/warnings under some compilers.
+
+2005-06-11  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/fixed_mem_pool.h (fixed_mem_pool<>): Change the private
 	inheritance into a typedef to avoid warnings and errors under some
 	compilers.
