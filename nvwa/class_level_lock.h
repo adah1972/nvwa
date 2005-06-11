@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2005 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * In essence Loki ClassLevelLockable re-engineered to use a fast_mutex class.
  *
- * @version 1.10, 2004/07/26
+ * @version 1.11, 2005/06/11
  * @author  Wu Yongwei
  *
  */
@@ -53,6 +53,8 @@
         /** Type that provides locking/unlocking semantics. */
         class lock
         {
+        public:
+            lock() {}
         };
 
         typedef _Host volatile_type;
@@ -104,6 +106,8 @@
         /** Type that provides locking/unlocking semantics. */
         class lock
         {
+        public:
+            lock() {}
         };
 
         typedef _Host volatile_type;
