@@ -1,7 +1,7 @@
 2005-06-11  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/class_level_lock.h (class_level_lock<>::lock): Add empty
-	default constructor to avoid errors/warnings under some compilers.
+	default constructor to avoid `unused' warnings under some compilers.
 
 2005-06-11  Wu Yongwei  <adah@sh163.net>
 
