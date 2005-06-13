@@ -4,7 +4,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = Nvwa
-PROJECT_NUMBER         = 0.4
+PROJECT_NUMBER         = 0.5
 OUTPUT_DIRECTORY       = ../doc
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
@@ -73,10 +73,11 @@ INPUT                  = ../nvwa/fast_mutex.h \
                          ../nvwa/object_level_lock.h \
                          ../nvwa/debug_new.cpp \
                          ../nvwa/debug_new.h \
-                         ../nvwa/static_mem_pool.cpp \
-                         ../nvwa/static_mem_pool.h \
                          ../nvwa/mem_pool_base.cpp \
                          ../nvwa/mem_pool_base.h \
+                         ../nvwa/static_mem_pool.cpp \
+                         ../nvwa/static_mem_pool.h \
+                         ../nvwa/fixed_mem_pool.h \
                          ../nvwa/set_assign.h \
                          ../nvwa/pctimer.h \
                          ../nvwa/cont_ptr_utils.h \

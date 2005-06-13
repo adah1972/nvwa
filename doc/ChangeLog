@@ -1,5 +1,12 @@
 2005-06-13  Wu Yongwei  <adah@sh163.net>
 
+	* misc/Doxyfile (INPUT): Add fixed_mem_pool.h.
+	(PROJECT_NUMBER): Increase to 0.5.
+	* misc/release.bat (VER): Ditto.
+	* misc/release.sh (VER): Ditto.
+
+2005-06-13  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/static_mem_pool.h: Trivially adjust the #include order.
 	(static_mem_pool_set): Change the public inheritance from
 	class_level_lock<static_mem_pool_set> into the default private
@@ -75,8 +82,8 @@
 2005-01-16  Wu Yongwei  <adah@sh163.net>
 
 	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.4.
-	* misc/release.bat (VER): Increase to 0.4.
-	* misc/release.sh (VER): Increase to 0.4.
+	* misc/release.bat (VER): Ditto.
+	* misc/release.sh (VER): Ditto.
 
 2005-01-16  Wu Yongwei  <adah@sh163.net>
 
