@@ -1,3 +1,10 @@
+2005-06-13  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/static_mem_pool.h: Trivially adjust the #include order.
+	(static_mem_pool_set): Change the public inheritance from
+	class_level_lock<static_mem_pool_set> into the default private
+	inheritance.
+
 2005-06-11  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/class_level_lock.h (class_level_lock<>::lock): Add empty

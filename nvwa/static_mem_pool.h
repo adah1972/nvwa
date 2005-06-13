@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.10, 2005/06/08
+ * @version 1.11, 2005/06/13
  * @author  Wu Yongwei
  *
  */
@@ -43,10 +43,10 @@
 #include <set>
 #include <stdexcept>
 #include <string>
-#include <stddef.h>
 #include <assert.h>
-#include "mem_pool_base.h"
+#include <stddef.h>
 #include "class_level_lock.h"
+#include "mem_pool_base.h"
 
 /* Defines Work-around for Microsoft Visual C++ 6.0 and Borland C++ 5.5.1 */
 # if (defined(_MSC_VER) && _MSC_VER < 1300) \
@@ -77,7 +77,7 @@
  * Singleton class to maintain a set of existing instantiations of
  * static_mem_pool.
  */
-class static_mem_pool_set : public class_level_lock<static_mem_pool_set>
+class static_mem_pool_set : class_level_lock<static_mem_pool_set>
 {
 public:
     static static_mem_pool_set& instance();
