@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.8, 2005/05/06
+ * @version 3.9, 2005/06/29
  * @author  Wu Yongwei
  *
  */
@@ -556,12 +556,12 @@ void* operator new[](size_t size) throw(std::bad_alloc)
 #if !defined(__BORLANDC__) || __BORLANDC__ > 0x551
 void* operator new(size_t size, const std::nothrow_t&) throw()
 {
-    return operator new(size);
+    return operator new(size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
 
 void* operator new[](size_t size, const std::nothrow_t&) throw()
 {
-    return operator new[](size);
+    return operator new[](size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
 #endif
 

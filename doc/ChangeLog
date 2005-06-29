@@ -1,5 +1,12 @@
 2005-06-29  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/debug_new.cpp (operator new(size_t, const std::nothrow_t&)):
+	Take advantage of _DEBUG_NEW_CALLER_ADDRESS (it should have been
+	done earlier but somehow I missed it).
+	(operator new[](size_t, const std::nothrow_t&)): Ditto.
+
+2005-06-29  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/static_mem_pool.cpp
 	(static_mem_pool_set::~static_mem_pool_set): Remove the unnecessary
 	mutex lock (which will require _FAST_MUTEX_CHECK_INITIALIZATION to
