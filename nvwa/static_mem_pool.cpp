@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2005 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,14 +31,14 @@
  *
  * Non-template and non-inline code for the `static' memory pool.
  *
- * @version 1.3, 2004/07/26
+ * @version 1.4, 2005/06/29
  * @author  Wu Yongwei
  *
  */
 
 #include <algorithm>
-#include "static_mem_pool.h"
 #include "cont_ptr_utils.h"
+#include "static_mem_pool.h"
 
 static_mem_pool_set::static_mem_pool_set()
 {
@@ -47,7 +47,6 @@ static_mem_pool_set::static_mem_pool_set()
 
 static_mem_pool_set::~static_mem_pool_set()
 {
-    lock __guard;
     std::for_each(_M_memory_pool_set.begin(),
                   _M_memory_pool_set.end(),
                   delete_object());
