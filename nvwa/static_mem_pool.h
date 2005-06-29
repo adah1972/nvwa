@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.11, 2005/06/13
+ * @version 1.12, 2005/06/29
  * @author  Wu Yongwei
  *
  */
@@ -77,9 +77,10 @@
  * Singleton class to maintain a set of existing instantiations of
  * static_mem_pool.
  */
-class static_mem_pool_set : class_level_lock<static_mem_pool_set>
+class static_mem_pool_set
 {
 public:
+    typedef class_level_lock<static_mem_pool_set>::lock lock;
     static static_mem_pool_set& instance();
     void recycle();
     void add(mem_pool_base* __memory_pool_p);
