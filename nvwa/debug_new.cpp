@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.9, 2005/06/29
+ * @version 3.10, 2005/06/30
  * @author  Wu Yongwei
  *
  */
@@ -273,6 +273,13 @@ const char* new_progname = _DEBUG_NEW_PROGNAME;
  */
 static bool print_position_from_addr(const void* addr)
 {
+    static const void* last_addr = NULL;
+    static char last_info[256] = "";
+    if (addr == last_addr)
+    {
+        fprintf(new_output_fp, "%s", last_info);
+        return true;
+    }
     if (new_progname)
     {
         const char addr2line_cmd[] = "addr2line -e ";
@@ -311,7 +318,7 @@ static bool print_position_from_addr(const void* addr)
         FILE* fp = popen(cmd, "r");
         if (fp)
         {
-            char buffer[256] = "";
+            char buffer[sizeof last_info] = "";
             len = 0;
             if (fgets(buffer, sizeof buffer, fp))
             {
@@ -327,6 +334,8 @@ static bool print_position_from_addr(const void* addr)
                     (buffer[len - 1] == '0' && buffer[len - 2] == ':'))
             {
                 fprintf(new_output_fp, "%s", buffer);
+                last_addr = addr;
+                strcpy(last_info, buffer);
                 return true;
             }
         }

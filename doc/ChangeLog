@@ -1,3 +1,9 @@
+2005-06-30  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (print_position_from_addr): Cache the last
+	result to reduce the times to execute addr2line (starting a new
+	process can be expensive, especially on Windows).
+
 2005-06-29  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (operator new(size_t, const std::nothrow_t&)):
