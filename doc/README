@@ -91,6 +91,10 @@ Contents
    2.95.3, 3.2.3, and 3.4.2 now). -- For GCC 3.4 and later, the variable
    name is changed to GLIBCXX_FORCE_NEW.
 
+   An article on its design and implementation is available at
+
+   http://nvwa.sourceforge.net/article/debug_new.htm
+
   * fast_mutex.h
 
    The threading transparent layer simulating a non-recursive mutex.  It
@@ -144,6 +148,10 @@ Contents
    A memory pool implementation to pool memory blocks according to
    compile-time block sizes.  Macros are provided to easily make a class
    use pooled new/delete.
+
+   An article on its design and implementation is available at
+
+   http://nvwa.sourceforge.net/article/static_mem_pool.htm
 
 
 $Id$
