@@ -1,3 +1,7 @@
+2005-07-07  Wu Yongwei  <adah@sh163.net>
+
+	* doc/README: Update information about mem_pool_base.
+
 2005-07-02  Wu Yongwei  <adah@sh163.net>
 
 	* doc/README: Add URLs for the articles on debug_new and

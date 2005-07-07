@@ -123,7 +123,7 @@ Contents
   * mem_pool_base.h
 
    A class solely to be inherited by memory pool implementations.  It is
-   currently used by static_mem_pool.
+   used by static_mem_pool and fixed_mem_pool.
 
   * object_level_lock.h
 
