@@ -1,3 +1,10 @@
+2005-07-09  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/static_mem_pool.h (static_mem_pool<>::instance): Adjust code
+	and add a comment where an acquire barrier should be inserted.
+	(static_mem_pool<>::_S_create_instance): Add a comment where a
+	release barrier should be inserted.
+
 2005-07-07  Wu Yongwei  <adah@sh163.net>
 
 	* doc/README: Update information about mem_pool_base.

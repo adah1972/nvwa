@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.12, 2005/06/29
+ * @version 1.13, 2005/07/09
  * @author  Wu Yongwei
  *
  */
@@ -117,7 +117,9 @@ public:
         //   thus unsafe on some modern multiprocessor systems (e.g.
         //   Alpha 21264, SPARC (in Relaxed Memory Order mode), and
         //   IA-64).  Patches are welcome.
-        if (!_S_instance_p)
+        static_mem_pool* __inst_p = _S_instance_p;
+        // AcquireBarrier();
+        if (!__inst_p)
         {
             _S_create_instance();
         }
@@ -264,6 +266,7 @@ void static_mem_pool<_Sz, _Gid>::_S_create_instance()
                 delete __inst_p;
                 throw;
             }
+            // ReleaseBarrier();
             _S_instance_p = __inst_p;
         }
     }
