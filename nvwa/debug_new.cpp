@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.10, 2005/06/30
+ * @version 3.11, 2005/07/11
  * @author  Wu Yongwei
  *
  */
@@ -181,8 +181,6 @@
 #include "debug_new.h"
 
 /**
- * @def align
- *
  * Gets the aligned value of memory block size.
  */
 #define align(s) \
