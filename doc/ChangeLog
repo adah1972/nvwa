@@ -1,3 +1,8 @@
+2005-07-13  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (operator new(size_t, const char*, int)):
+	Replace manual lock/unlock calls with scoped fast_mutex_autolock.
+
 2005-07-11  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp: Make trivial consistency adjustments.

@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.11, 2005/07/11
+ * @version 3.12, 2005/07/13
  * @author  Wu Yongwei
  *
  */
@@ -520,10 +520,11 @@ void* operator new(size_t size, const char* file, int line)
 #endif
     ptr->line = line;
     ptr->size = size;
-    new_ptr_lock[hash_index].lock();
-    ptr->next = new_ptr_list[hash_index];
-    new_ptr_list[hash_index] = ptr;
-    new_ptr_lock[hash_index].unlock();
+    {
+        fast_mutex_autolock lock(new_ptr_lock[hash_index]);
+        ptr->next = new_ptr_list[hash_index];
+        new_ptr_list[hash_index] = ptr;
+    }
     if (new_verbose_flag)
     {
         fast_mutex_autolock lock(new_output_lock);
