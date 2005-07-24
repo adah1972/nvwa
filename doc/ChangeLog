@@ -1,3 +1,15 @@
+2005-07-24  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/static_mem_pool.h: Rephrase a doc comment.
+	(static_mem_pool_set::_M_memory_pool_set): Change its type from
+	std::set<mem_pool_base*> to std::list<mem_pool_base*>.
+	* nvwa/static_mem_pool.cpp (static_mem_pool_set::add): Change the
+	member function call because of the _M_memory_pool_set type change.
+	(static_mem_pool_set::recycle): Change the iterator type because of
+	the _M_memory_pool_set type change.
+	(static_mem_pool_set::~static_mem_pool_set): Ensure the memory pools
+	are destroyed in reverse order of their constructions.
+
 2005-07-13  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (operator new(size_t, const char*, int)):

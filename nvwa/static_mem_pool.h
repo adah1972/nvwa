@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.13, 2005/07/09
+ * @version 1.14, 2005/07/24
  * @author  Wu Yongwei
  *
  */
@@ -39,8 +39,8 @@
 #ifndef _STATIC_MEM_POOL_H
 #define _STATIC_MEM_POOL_H
 
+#include <list>
 #include <new>
-#include <set>
 #include <stdexcept>
 #include <string>
 #include <assert.h>
@@ -89,7 +89,7 @@ __PRIVATE:
     ~static_mem_pool_set();
 private:
     static_mem_pool_set();
-    std::set<mem_pool_base*> _M_memory_pool_set;
+    std::list<mem_pool_base*> _M_memory_pool_set;
 
     /* Forbid their use */
     static_mem_pool_set(const static_mem_pool_set&);
@@ -101,9 +101,10 @@ private:
  * memory blocks of one specific size.
  *
  * @param _Sz   size of elements in the static_mem_pool
- * @param _Gid  group id of a static_mem_pool: if it is negative, access
- *              to this static_mem_pool will be protected from
- *              simultaneous access; otherwise no protection is given
+ * @param _Gid  group id of a static_mem_pool: if it is negative,
+ *              simultaneous accesses to this static_mem_pool will be
+ *              protected from each other; otherwise no protection is
+ *              given
  */
 template <size_t _Sz, int _Gid = -1>
 class static_mem_pool : public mem_pool_base

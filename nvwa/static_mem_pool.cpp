@@ -31,7 +31,7 @@
  *
  * Non-template and non-inline code for the `static' memory pool.
  *
- * @version 1.4, 2005/06/29
+ * @version 1.5, 2005/07/24
  * @author  Wu Yongwei
  *
  */
@@ -47,8 +47,8 @@ static_mem_pool_set::static_mem_pool_set()
 
 static_mem_pool_set::~static_mem_pool_set()
 {
-    std::for_each(_M_memory_pool_set.begin(),
-                  _M_memory_pool_set.end(),
+    std::for_each(_M_memory_pool_set.rbegin(),
+                  _M_memory_pool_set.rend(),
                   delete_object());
     _STATIC_MEM_POOL_TRACE(false, "The static_mem_pool_set is destroyed");
 }
@@ -64,8 +64,8 @@ void static_mem_pool_set::recycle()
 {
     lock __guard;
     _STATIC_MEM_POOL_TRACE(false, "Memory pools are being recycled");
-    std::set<mem_pool_base*>::iterator __end = _M_memory_pool_set.end();
-    for (std::set<mem_pool_base*>::iterator
+    std::list<mem_pool_base*>::iterator __end = _M_memory_pool_set.end();
+    for (std::list<mem_pool_base*>::iterator
             __i  = _M_memory_pool_set.begin();
             __i != __end; ++__i)
     {
@@ -76,5 +76,5 @@ void static_mem_pool_set::recycle()
 void static_mem_pool_set::add(mem_pool_base* __memory_pool_p)
 {
     lock __guard;
-    _M_memory_pool_set.insert(__memory_pool_p);
+    _M_memory_pool_set.push_back(__memory_pool_p);
 }
