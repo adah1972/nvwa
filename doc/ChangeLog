@@ -1,3 +1,11 @@
+2005-08-02  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/static_mem_pool.h (static_mem_pool_set::container_type): New
+	typedef.
+	(static_mem_pool_set::_M_memory_pool_set): Use container_type to
+	make the type of _M_memory_pool_set transparent.
+	* nvwa/static_mem_pool.cpp (static_mem_pool_set::recycle): Ditto.
+
 2005-07-24  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/static_mem_pool.h: Rephrase a doc comment.

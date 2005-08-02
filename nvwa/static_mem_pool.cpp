@@ -31,7 +31,7 @@
  *
  * Non-template and non-inline code for the `static' memory pool.
  *
- * @version 1.5, 2005/07/24
+ * @version 1.6, 2005/08/02
  * @author  Wu Yongwei
  *
  */
@@ -64,8 +64,8 @@ void static_mem_pool_set::recycle()
 {
     lock __guard;
     _STATIC_MEM_POOL_TRACE(false, "Memory pools are being recycled");
-    std::list<mem_pool_base*>::iterator __end = _M_memory_pool_set.end();
-    for (std::list<mem_pool_base*>::iterator
+    container_type::iterator __end = _M_memory_pool_set.end();
+    for (container_type::iterator
             __i  = _M_memory_pool_set.begin();
             __i != __end; ++__i)
     {

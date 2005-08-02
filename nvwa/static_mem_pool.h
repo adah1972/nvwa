@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.14, 2005/07/24
+ * @version 1.15, 2005/08/02
  * @author  Wu Yongwei
  *
  */
@@ -89,7 +89,9 @@ __PRIVATE:
     ~static_mem_pool_set();
 private:
     static_mem_pool_set();
-    std::list<mem_pool_base*> _M_memory_pool_set;
+
+    typedef std::list<mem_pool_base*> container_type;
+    container_type _M_memory_pool_set;
 
     /* Forbid their use */
     static_mem_pool_set(const static_mem_pool_set&);
