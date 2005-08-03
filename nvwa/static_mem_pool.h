@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.15, 2005/08/02
+ * @version 1.16, 2005/08/03
  * @author  Wu Yongwei
  *
  */
@@ -39,10 +39,10 @@
 #ifndef _STATIC_MEM_POOL_H
 #define _STATIC_MEM_POOL_H
 
-#include <list>
 #include <new>
 #include <stdexcept>
 #include <string>
+#include <vector>
 #include <assert.h>
 #include <stddef.h>
 #include "class_level_lock.h"
@@ -90,7 +90,7 @@ __PRIVATE:
 private:
     static_mem_pool_set();
 
-    typedef std::list<mem_pool_base*> container_type;
+    typedef std::vector<mem_pool_base*> container_type;
     container_type _M_memory_pool_set;
 
     /* Forbid their use */
