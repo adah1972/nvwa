@@ -1,5 +1,11 @@
 2005-08-06  Wu Yongwei  <adah@sh163.net>
 
+	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.6.
+	* misc/release.bat (VER): Ditto.
+	* misc/release.sh (VER): Ditto.
+
+2005-08-06  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/fixed_mem_pool.h (fixed_mem_pool<>::_S_first_avail_ptr):
 	Remove the __VOLATILE modifier since mutex locks should already
 	ensure the proper memory access visibility and order.
