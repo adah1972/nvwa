@@ -45,7 +45,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running
  *
- * @version 1.11, 2005/06/11
+ * @version 1.12, 2005/08/06
  * @author  Wu Yongwei
  *
  */
@@ -86,8 +86,8 @@ protected:
 private:
     static size_t _S_align(size_t __size);
     static void*  _S_mem_pool_ptr;
-    static void*  __VOLATILE _S_first_avail_ptr;
-    static int    __VOLATILE _S_alloc_cnt;
+    static void*  _S_first_avail_ptr;
+    static int    _S_alloc_cnt;
 };
 
 /** Pointer to the allocated chunk of memory. */
@@ -96,11 +96,11 @@ void* fixed_mem_pool<_Tp>::_S_mem_pool_ptr = NULL;
 
 /** Pointer to the first available memory block. */
 template <class _Tp>
-void* __VOLATILE fixed_mem_pool<_Tp>::_S_first_avail_ptr = NULL;
+void* fixed_mem_pool<_Tp>::_S_first_avail_ptr = NULL;
 
 /** Count of allocations. */
 template <class _Tp>
-int   __VOLATILE fixed_mem_pool<_Tp>::_S_alloc_cnt = 0;
+int   fixed_mem_pool<_Tp>::_S_alloc_cnt = 0;
 
 /**
  * Allocates a memory block from the memory pool.
