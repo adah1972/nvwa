@@ -1,3 +1,16 @@
+2005-08-22  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/static_mem_pool.h (static_mem_pool<>::instance): Remove the
+	use of Double-Checked Locking Pattern (DCLP).
+	(static_mem_pool<>::_S_on_dead_reference): Remove this indirection.
+	(static_mem_pool<>::_S_create_instance): Remove the use of DCLP and
+	change the return type from void* to pointer to the instance.
+	(static_mem_pool<>::_S_instance_p): Statically initialize the instance.
+	(DECLARE_STATIC_MEM_POOL): Use `instance_known' instead of `instance'.
+	(DECLARE_STATIC_MEM_POOL_GROUPED): Ditto.
+	(PREPARE_STATIC_MEM_POOL): Define to empty and mark as obsolete.
+	(PREPARE_STATIC_MEM_POOL_GROUPED): Ditto.
+
 2005-08-19  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/object_level_lock.h (object_level_lock<>::lock): Add the
