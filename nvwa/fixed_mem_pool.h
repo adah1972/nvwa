@@ -45,7 +45,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running
  *
- * @version 1.12, 2005/08/06
+ * @version 1.13, 2005/08/25
  * @author  Wu Yongwei
  *
  */
@@ -217,7 +217,7 @@ bool fixed_mem_pool<_Tp>::bad_alloc_handler()
  * Aligns the memory block size.
  *
  * @param __size    size to be aligned
- * @return          aligned value of \e __size
+ * @return          aligned value of \a __size
  */
 template <class _Tp>
 inline size_t fixed_mem_pool<_Tp>::_S_align(size_t __size)
