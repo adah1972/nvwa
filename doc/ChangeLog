@@ -1,3 +1,7 @@
+2005-09-02  Wu Yongwei  <adah@sh163.net>
+
+	* doc/README: Correct a typo.
+
 2005-08-25  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/bool_array.cpp: Change `\e' (emphasize) followed by a

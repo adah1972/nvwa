@@ -115,7 +115,7 @@ Contents
 
    A memory pool implementation that requires initialization (allocates
    a fixed-size chunk) prior to its use.  It is simple and makes no
-   memory defragmentation, but the memory pool size cannot be changed
+   memory fragmentation, but the memory pool size cannot be changed
    after initialization.  Macros are provided to easily make a class use
    pooled new/delete.
 
