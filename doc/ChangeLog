@@ -1,5 +1,10 @@
 2005-09-02  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/debug_new.cpp (print_position_from_addr): Cache the last
+	result also when addr2line does not return a `good' result.
+
+2005-09-02  Wu Yongwei  <adah@sh163.net>
+
 	* doc/README: Correct a typo.
 
 2005-08-25  Wu Yongwei  <adah@sh163.net>

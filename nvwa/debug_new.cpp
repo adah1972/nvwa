@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.12, 2005/07/13
+ * @version 3.13, 2005/09/02
  * @author  Wu Yongwei
  *
  */
@@ -275,6 +275,8 @@ static bool print_position_from_addr(const void* addr)
     static char last_info[256] = "";
     if (addr == last_addr)
     {
+        if (last_info[0] == '\0')
+            return false;
         fprintf(new_output_fp, "%s", last_info);
         return true;
     }
@@ -327,14 +329,19 @@ static bool print_position_from_addr(const void* addr)
             int res = pclose(fp);
             // Display the file/line information only if the command
             // is executed successfully and the output points to a
-            // valid position
-            if (res == 0 && len > 0 && !
-                    (buffer[len - 1] == '0' && buffer[len - 2] == ':'))
+            // valid position, but the result will be cached if only
+            // the command is executed successfully.
+            if (res == 0 && len > 0)
             {
-                fprintf(new_output_fp, "%s", buffer);
                 last_addr = addr;
-                strcpy(last_info, buffer);
-                return true;
+                if (buffer[len - 1] == '0' && buffer[len - 2] == ':')
+                    last_info[0] = '\0';
+                else
+                {
+                    fprintf(new_output_fp, "%s", buffer);
+                    strcpy(last_info, buffer);
+                    return true;
+                }
             }
         }
     }
