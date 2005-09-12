@@ -1,3 +1,26 @@
+2005-09-12  Wu Yongwei  <adah@sh163.net>
+
+	Clean up macro usage
+	* nvwa/class_level_lock (HAS_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION):
+	Allow setting of values 0 and 1.
+	* nvwa/debug_new.h (HAS_PLACEMENT_DELETE): New macro with a default
+	value of 1.
+	(_DEBUG_NEW_REDEFINE_NEW): New macro with a default value of 1.
+	(NO_PLACEMENT_DELETE): Remove its uses and use HAS_PLACEMENT_DELETE
+	instead.
+	(_DEBUG_NEW_NO_NEW_REDEFINITION): Remove its use and use
+	_DEBUG_NEW_REDEFINE_NEW instead.
+	(debug_new): Remove its definition (it is redundant with DEBUG_NEW
+	and global macros should not use lower case).
+	(_DEBUG_NEW_EMULATE_MALLOC): Adjust to remove the use of macro
+	debug_new.
+	* nvwa/debug_new.cpp (_DEBUG_NEW_EMULATE_MALLOC): Undef to ensure
+	proper calls to malloc/free.
+	(NO_PLACEMENT_DELETE): Remove its uses and use HAS_PLACEMENT_DELETE
+	instead.
+	(_DEBUG_NEW_NO_NEW_REDEFINITION): Remove its use and use
+	_DEBUG_NEW_REDEFINE_NEW instead.
+
 2005-09-02  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (print_position_from_addr): Cache the last

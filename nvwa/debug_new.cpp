@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.13, 2005/09/02
+ * @version 3.14, 2005/09/12
  * @author  Wu Yongwei
  *
  */
@@ -172,12 +172,8 @@
 #pragma init_seg(lib)
 #endif
 
-/**
- * This macro is defined when no redefinition of \c new is wanted.  This
- * is to ensure that overloading and direct calling of <code>operator
- * new</code> is possible.
- */
-#define _DEBUG_NEW_NO_NEW_REDEFINITION
+#undef  _DEBUG_NEW_EMULATE_MALLOC
+#define _DEBUG_NEW_REDEFINE_NEW 0
 #include "debug_new.h"
 
 /**
@@ -618,13 +614,7 @@ void operator delete[](void* pointer) throw()
     free_pointer(raw_ptr, _DEBUG_NEW_CALLER_ADDRESS, true);
 }
 
-// Some older compilers like Borland C++ Compiler 5.5.1 and Digital Mars
-// Compiler 8.29 do not support placement delete operators.
-// NO_PLACEMENT_DELETE needs to be defined when using such compilers.
-// Also note that in that case memory leakage will occur if an exception
-// is thrown in the initialization (constructor) of a dynamically
-// created object.
-#ifndef NO_PLACEMENT_DELETE
+#if HAS_PLACEMENT_DELETE
 void operator delete(void* pointer, const char* file, int line) throw()
 {
     if (new_verbose_flag)
@@ -662,7 +652,7 @@ void operator delete[](void* pointer, const std::nothrow_t&) throw()
 {
     operator delete[](pointer, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
-#endif // NO_PLACEMENT_DELETE
+#endif // HAS_PLACEMENT_DELETE
 
 int __debug_new_counter::_count = 0;
 
