@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @version 3.3, 2005/09/12
+ * @version 3.4, 2005/09/13
  * @author  Wu Yongwei
  *
  */
@@ -42,7 +42,6 @@
 #include <new>
 #include <stdio.h>
 
-# ifndef HAS_PLACEMENT_DELETE
 /**
  * @def HAS_PLACEMENT_DELETE
  *
@@ -54,38 +53,69 @@
  * thrown in the initialization (constructor) of a dynamically created
  * object.
  */
-#   define HAS_PLACEMENT_DELETE 1
-# endif
+#ifndef HAS_PLACEMENT_DELETE
+#define HAS_PLACEMENT_DELETE 1
+#endif
 
-# ifndef _DEBUG_NEW_REDEFINE_NEW
 /**
  * @def _DEBUG_NEW_REDEFINE_NEW
  *
  * Macro to indicate whether redefinition of \c new is wanted.  If one
  * wants to define one's own <code>operator new</code>, to call
  * <code>operator new</code> directly, or to call placement \c new, it
- * should be defined to \c 0 to alter the default behaviour.
+ * should be defined to \c 0 to alter the default behaviour.  Unless, of
+ * course, one is willing to take the trouble to write something like:
+ * @code
+ * # ifdef new
+ * #   define _NEW_REDEFINED
+ * #   undef new
+ * # endif
+ *
+ * // Code that uses new is here
+ *
+ * # ifdef _NEW_REDEFINED
+ * #   ifdef DEBUG_NEW
+ * #     define new DEBUG_NEW
+ * #   endif
+ * #   undef _NEW_REDEFINED
+ * # endif
+ * @endcode
  */
-#   define _DEBUG_NEW_REDEFINE_NEW 1
-# endif
+#ifndef _DEBUG_NEW_REDEFINE_NEW
+#define _DEBUG_NEW_REDEFINE_NEW 1
+#endif
 
 /* Prototypes */
 int check_leaks();
 void* operator new(size_t size, const char* file, int line);
 void* operator new[](size_t size, const char* file, int line);
-# if HAS_PLACEMENT_DELETE
+#if HAS_PLACEMENT_DELETE
 void operator delete(void* pointer, const char* file, int line) throw();
 void operator delete[](void* pointer, const char* file, int line) throw();
-# endif
-# if defined(_MSC_VER) && _MSC_VER < 1300
+#endif
+#if defined(_MSC_VER) && _MSC_VER < 1300
 // MSVC 6 requires the following declarations; or the non-placement
 // new[]/delete[] will not compile.
 void* operator new[](size_t) throw(std::bad_alloc);
 void operator delete[](void*) throw();
-# endif
+#endif
 
-/* Macros */
-# define DEBUG_NEW new(__FILE__, __LINE__)
+/* Control variables */
+extern bool new_autocheck_flag; // default to true: call check_leaks() on exit
+extern bool new_verbose_flag;   // default to false: no verbose information
+extern FILE* new_output_fp;     // default to stderr: output to console
+extern const char* new_progname;// default to NULL; should be assigned argv[0]
+
+/**
+ * @def DEBUG_NEW
+ *
+ * The macro to catch file/line information on allocation.  If
+ * #_DEBUG_NEW_REDEFINE_NEW is not defined, one can use this macro
+ * directly; otherwise \c new will be defined to it, and one must use
+ * \c new instead.
+ */
+#define DEBUG_NEW new(__FILE__, __LINE__)
+
 # if _DEBUG_NEW_REDEFINE_NEW
 #   define new DEBUG_NEW
 # endif
@@ -99,12 +129,6 @@ void operator delete[](void*) throw();
 #   define free(p) delete[] (char*)(p)
 # endif
 
-/* Control variables */
-extern bool new_autocheck_flag; // default to true: call check_leaks() on exit
-extern bool new_verbose_flag;   // default to false: no verbose information
-extern FILE* new_output_fp;     // default to stderr: output to console
-extern const char* new_progname;// default to NULL; should be assigned argv[0]
-
 /** Counter class for on-exit leakage check. */
 class __debug_new_counter
 {
@@ -115,14 +139,5 @@ public:
 };
 /** Counting object for each file including debug_new.h. */
 static __debug_new_counter __debug_new_count;
-
-/**
- * @def DEBUG_NEW
- *
- * The macro to catch file/line information on allocation.  If
- * #_DEBUG_NEW_REDEFINE_NEW is not defined, one can use this macro
- * directly; otherwise \c new will be defined to it, and one is not
- * allowed to use it directly.
- */
 
 #endif // _DEBUG_NEW_H

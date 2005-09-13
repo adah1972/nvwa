@@ -1,3 +1,10 @@
+2005-09-13  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.h: Make minor adjustments in documentation comments
+	and code format.
+	* nvwa/debug_new.cpp: Add a documentation comment.
+	(_DEBUG_NEW_REDEFINE_NEW): Undef before define.
+
 2005-09-12  Wu Yongwei  <adah@sh163.net>
 
 	Clean up macro usage

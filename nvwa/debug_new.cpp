@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.14, 2005/09/12
+ * @version 3.15, 2005/09/13
  * @author  Wu Yongwei
  *
  */
@@ -110,7 +110,7 @@
  * new_ptr_list_t 64 (it is 32 by default) on 32-bit platforms.
  */
 #ifndef _DEBUG_NEW_FILENAME_LEN
-#define _DEBUG_NEW_FILENAME_LEN  20
+#define _DEBUG_NEW_FILENAME_LEN 20
 #endif
 
 /**
@@ -173,6 +173,11 @@
 #endif
 
 #undef  _DEBUG_NEW_EMULATE_MALLOC
+#undef  _DEBUG_NEW_REDEFINE_NEW
+/**
+ * Macro to indicate whether redefinition of \c new is wanted.  Here it
+ * is defined to \c 0 to disable the redefinition of \c new.
+ */
 #define _DEBUG_NEW_REDEFINE_NEW 0
 #include "debug_new.h"
 
