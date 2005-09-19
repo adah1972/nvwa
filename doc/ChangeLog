@@ -1,3 +1,11 @@
+2005-09-19  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/fixed_mem_pool.h (fixed_mem_pool<>): Add a note about the
+	lock in the documentation comment.
+	(fixed_mem_pool<>::lock): Make it public.
+	(fixed_mem_pool<>::get_alloc_cnt): Add the `inline' keyword.
+	(fixed_mem_pool<>::is_initialized): New function.
+
 2005-09-13  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.h: Make minor adjustments in documentation comments
