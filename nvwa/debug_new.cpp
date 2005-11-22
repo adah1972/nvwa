@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.15, 2005/09/13
+ * @version 3.16, 2005/11/22
  * @author  Wu Yongwei
  *
  */
@@ -502,7 +502,7 @@ int check_leaks()
 void* operator new(size_t size, const char* file, int line)
 {
     assert((line & INT_MIN) == 0);
-    static_assert((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0,
+    STATIC_ASSERT((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0,
                   Alignment_must_be_power_of_two);
     size_t s = size + aligned_list_item_size;
     new_ptr_list_t* ptr = (new_ptr_list_t*)malloc(s);

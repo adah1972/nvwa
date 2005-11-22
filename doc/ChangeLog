@@ -1,3 +1,10 @@
+2005-11-22  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/static_assert.h (STATIC_ASSERT): Change from `static_assert'
+	to (as it will be a keyword in the new C++ standard).
+	* nvwa/debug_new.cpp (operator new(size_t, const char*, int)):
+	Change `static_assert' to `STATIC_ASSERT'.
+
 2005-09-19  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/fixed_mem_pool.h (fixed_mem_pool<>): Add a note about the
