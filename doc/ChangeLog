@@ -72,13 +72,6 @@
 	(PREPARE_STATIC_MEM_POOL): Define to empty and mark as obsolete.
 	(PREPARE_STATIC_MEM_POOL_GROUPED): Ditto.
 
-2005-08-19  Wu Yongwei  <adah@sh163.net>
-
-	* nvwa/object_level_lock.h (object_level_lock<>::lock): Add the
-	#ifndef's/#endif's for multi-threaded implementation similar to
-	those of the single-threaded implementation for consistency and
-	performance.
-
 2005-08-06  Wu Yongwei  <adah@sh163.net>
 
 	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.6.
