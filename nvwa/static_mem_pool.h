@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2005 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2006 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.17, 2005/08/22
+ * @version 1.18, 2006/08/26
  * @author  Wu Yongwei
  *
  */
@@ -114,6 +114,14 @@ class static_mem_pool : public mem_pool_base
     typedef typename class_level_lock<static_mem_pool<_Sz, _Gid>, (_Gid < 0)>
             ::lock lock;
 public:
+    /**
+     * Gets the instance of the static memory pool.  It will create the
+     * instance if it does not already exist.  Generally this function
+     * is now not needed.
+     *
+     * @return  reference to the instance of the static memory pool
+     * @see     instance_known
+     */
     static static_mem_pool& instance()
     {
         lock __guard;
@@ -123,11 +131,26 @@ public:
         }
         return *_S_instance_p;
     }
+    /**
+     * Gets the known instance of the static memory pool.  The instance
+     * must already exist.  Generally the static initializer of the
+     * template guarantees it.
+     *
+     * @return  reference to the instance of the static memory pool
+     */
     static static_mem_pool& instance_known()
     {
         assert(_S_instance_p != NULL);
         return *_S_instance_p;
     }
+    /**
+     * Allocates memory and returns its pointer.  The template will try
+     * to get it from the memory pool first, and request memory from the
+     * system if there is no free memory in the pool.
+     *
+     * @return  pointer to allocated memory if successful; \c NULL
+     *          otherwise
+     */
     void* allocate()
     {
         {
@@ -139,8 +162,13 @@ public:
                 return __result;
             }
         }
-        return alloc_sys(_S_align(_Sz));
+        return _S_alloc_sys(_S_align(_Sz));
     }
+    /**
+     * Deallocates memory by putting the memory block into the pool.
+     *
+     * @param __ptr pointer to memory to be deallocated
+     */
     void deallocate(void* __ptr)
     {
         assert(__ptr != NULL);
@@ -199,6 +227,11 @@ template <size_t _Sz, int _Gid> mem_pool_base::_Block_list*
 template <size_t _Sz, int _Gid> static_mem_pool<_Sz, _Gid>*
         static_mem_pool<_Sz, _Gid>::_S_instance_p = _S_create_instance();
 
+/**
+ * Recycles half of the free memory blocks in the memory pool to the
+ * system.  It is called when a memory request to the system (in other
+ * instances of the static memory pool) fails.
+ */
 template <size_t _Sz, int _Gid>
 void static_mem_pool<_Sz, _Gid>::recycle()
 {
@@ -225,6 +258,7 @@ void static_mem_pool<_Sz, _Gid>::recycle()
 template <size_t _Sz, int _Gid>
 void* static_mem_pool<_Sz, _Gid>::_S_alloc_sys(size_t __size)
 {
+    static_mem_pool_set::lock __guard;
     void* __result = mem_pool_base::alloc_sys(__size);
     if (!__result)
     {
