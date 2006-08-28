@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.18, 2006/08/26
+ * @version 1.19, 2006/08/28
  * @author  Wu Yongwei
  *
  */
@@ -235,6 +235,9 @@ template <size_t _Sz, int _Gid> static_mem_pool<_Sz, _Gid>*
 template <size_t _Sz, int _Gid>
 void static_mem_pool<_Sz, _Gid>::recycle()
 {
+    // Only here the global lock in static_mem_pool_set is obtained
+    // before the pool-specific lock.  However, no race conditions are
+    // found so far.
     lock __guard;
     _Block_list* __block = _S_memory_block_p;
     while (__block)
@@ -251,8 +254,8 @@ void static_mem_pool<_Sz, _Gid>::recycle()
             break;
         }
     }
-    _STATIC_MEM_POOL_TRACE(true, "static_mem_pool<" << _Sz << ','
-                                 << _Gid << "> is recycled");
+    _STATIC_MEM_POOL_TRACE(false, "static_mem_pool<" << _Sz << ','
+                                  << _Gid << "> is recycled");
 }
 
 template <size_t _Sz, int _Gid>

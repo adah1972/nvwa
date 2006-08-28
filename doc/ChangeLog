@@ -1,3 +1,9 @@
+2006-08-28  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/static_mem_pool.h (static_mem_pool<>::recycle): Do not lock
+	static_mem_pool_set to display trace messages, since it should be
+	locked already.
+
 2006-08-26  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/static_mem_pool.h: Add documentation comments on the public
