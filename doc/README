@@ -48,8 +48,8 @@ Contents
    minor divergence from Loki is that the template has an additional
    template parameter _RealLock to boost the performance in non-locking
    scenarios.  In that case, if you have a decent compiler, you probably
-   want to define "HAS_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION" for even
-   better optimization.  Cf. object_level_lock.h.
+   want to define HAS_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION to 1 for
+   even better optimization.  Cf. object_level_lock.h.
 
   * cont_ptr_utils.h
 
@@ -72,7 +72,7 @@ Contents
 
    Special support for gcc/binutils has been added to debug_new lately.
    Even if the header file debug_new.h is not included, or
-   _DEBUG_NEW_NO_NEW_REDEFINITION is defined when it is included,
+   _DEBUG_NEW_REDEFINE_NEW is defined to 0 when it is included,
    file/line information can be displayed if debugging symbols are
    present in the executable, since debug_new stores the caller
    addresses of memory allocation/deallocation routines and they will be
@@ -108,7 +108,7 @@ Contents
    and destruction of a static object using a static fast_mutex not yet
    constructed or already destroyed are allowed to work (with
    lock/unlock operations ignored), and there are re-entry checks for
-   lock/unlock operations when the preprocessing symbol "_DEBUG" is
+   lock/unlock operations when the preprocessing symbol _DEBUG is
    defined.
 
   * fixed_mem_pool.h
