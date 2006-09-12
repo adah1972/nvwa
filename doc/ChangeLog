@@ -1,5 +1,14 @@
 2006-09-12  Wu Yongwei  <adah@sh163.net>
 
+	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.7.
+	* misc/release.bat (VER): Ditto.
+	* misc/release.sh (VER): Ditto.
+	* misc/release.bat (CVSROOT): Change `cvs.sourceforge.net' to
+	`nvwa.cvs.sourceforge.net'.
+	* misc/release.sh (CVSROOT): Ditto.
+
+2006-09-12  Wu Yongwei  <adah@sh163.net>
+
 	* doc/README: Adjust descriptions of macros to make it up-to-date as
 	well as consistent.
 

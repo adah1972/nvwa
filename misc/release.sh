@@ -3,13 +3,13 @@
 
 # Shell script to create "nvwa-x.y.tar.gz"
 
-VER="0.6"
+VER="0.7"
 RELEASE="nvwa-$VER"
 rm -rf $RELEASE
 mkdir $RELEASE
 cd $RELEASE
 
-export CVSROOT=:pserver:anonymous@cvs.sourceforge.net:/cvsroot/nvwa
+export CVSROOT=:pserver:anonymous@nvwa.cvs.sourceforge.net:/cvsroot/nvwa
 echo | cvs login
 cvs -z9 co doc nvwa
 
