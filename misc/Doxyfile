@@ -71,6 +71,7 @@ WARN_LOGFILE           =
 INPUT                  = ../nvwa/fast_mutex.h \
                          ../nvwa/class_level_lock.h \
                          ../nvwa/object_level_lock.h \
+                         ../nvwa/static_assert.h \
                          ../nvwa/debug_new.cpp \
                          ../nvwa/debug_new.h \
                          ../nvwa/mem_pool_base.cpp \

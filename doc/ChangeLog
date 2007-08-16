@@ -1,3 +1,7 @@
+2007-08-16  Wu Yongwei  <adah@sh163.net>
+
+	* misc/Doxyfile (INPUT): Add the missing file `static_assert.h'.
+
 2006-09-12  Wu Yongwei  <adah@sh163.net>
 
 	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.7.
