@@ -30,9 +30,9 @@
  * @file    cont_ptr_utils.h
  *
  * Utility functors for containers of pointers (adapted from Scott
- * Meyers' Effective STL).
+ * Meyers' <em>Effective STL</em>).
  *
- * @version 1.3, 2004/11/17
+ * @version 1.4, 2007/09/12
  * @author  Wu Yongwei
  *
  */
