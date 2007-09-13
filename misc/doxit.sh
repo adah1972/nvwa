@@ -1,16 +1,106 @@
 #! /bin/sh
 
-# Work around an expression that will confuse doxygen
+# Intermediate Doxyfile
+DOXYFILE_TMP=nvwa.dox
+
+# Whether/how to generate LaTeX documents
+if [ "$1" = "latex" ]; then
+  GENERATE_LATEX=YES
+elif [ "$1" = "ps" ]; then
+  GENERATE_LATEX=YES
+  PDF_HYPERLINKS=NO
+  USE_PDFLATEX=NO
+elif [ "$1" = "pdf" ]; then
+  GENERATE_LATEX=YES
+  PDF_HYPERLINKS=YES
+  USE_PDFLATEX=YES
+elif [ "$1" = "pdf2" ]; then
+  GENERATE_LATEX=YES
+  PDF_HYPERLINKS=YES
+  USE_PDFLATEX=NO
+fi
+
+# Determine the Doxygen engine
+if [ "$DOXYGEN" = "" ]; then
+  DOXYGEN=doxygen
+fi
+
+# Determine Doxygen options
+if [ "$PDF_HYPERLINKS" = "" ]; then
+  PDF_HYPERLINKS=NO
+fi
+if [ "$USE_PDFLATEX" = "" ]; then
+  USE_PDFLATEX=NO
+fi
+if [ "$GENERATE_LATEX" = "" ]; then
+  if [ "$PDF_HYPERLINKS" = "YES" ]; then
+    GENERATE_LATEX=YES
+  elif [ "$USE_PDFLATEX" = "YES" ]; then
+    GENERATE_LATEX=YES
+  else
+    GENERATE_LATEX=NO
+  fi
+fi
+
+# Set the options in the intermediate Doxyfile
+cp -p Doxyfile $DOXYFILE_TMP
+if [ "$GENERATE_LATEX" = "YES" ]; then
+  sedfile 's/\(GENERATE_LATEX\s*=\).*/\1 YES/' $DOXYFILE_TMP
+  if [ "$PDF_HYPERLINKS" = "YES" ]; then
+    sedfile 's/\(PDF_HYPERLINKS\s*=\).*/\1 YES/' $DOXYFILE_TMP
+  else
+    sedfile 's/\(PDF_HYPERLINKS\s*=\).*/\1 NO/'  $DOXYFILE_TMP
+  fi
+  if [ "$USE_PDFLATEX" = "YES" ]; then
+    sedfile 's/\(USE_PDFLATEX\s*=\).*/\1 YES/' $DOXYFILE_TMP
+  else
+    sedfile 's/\(USE_PDFLATEX\s*=\).*/\1 NO/'  $DOXYFILE_TMP
+  fi
+else
+  sedfile 's/\(GENERATE_LATEX\s*=\).*/\1 NO/'  $DOXYFILE_TMP
+fi
+
+# Work around an expression that will confuse Doxygen
 mv ../nvwa/static_mem_pool.h ..
 sed 's/(_Gid < 0)/true/' ../static_mem_pool.h >../nvwa/static_mem_pool.h
-doxygen
+$DOXYGEN $DOXYFILE_TMP
 mv -f ../static_mem_pool.h ../nvwa/
 
-# Override the default style sheet of doxygen 1.3.9.1 (font too big!)
-cp -p doxygen.css ../doc/html/
+# Remove the intermediate Doxyfile
+rm $DOXYFILE_TMP
 
-# Make refman.ps if needed
-if [ "$1" = "ps" ]; then
+# Override the default style sheet of Doxygen 1.3.9.1 (font too big!)
+#cp -p doxygen.css ../doc/html/
+
+# Make LaTeX documents
+if [ "$GENERATE_LATEX" = "YES" ]; then
   cd ../doc/latex
-  make ps
+
+  # Remove the URIs in EPS files
+  for file in *.eps
+  do
+    ed -s <<!EOF "$file"
+      g/\[ \/Rect/.,.+4d
+      w
+      q
+!EOF
+  done
+
+  if [ "$PDF_HYPERLINKS" = "NO" -a "$USE_PDFLATEX" = "NO" ]; then
+    make clean ps pdf
+  else
+    if [ "$PDF_HYPERLINKS" = "YES" ]; then
+      # Work around a bug in Doxygen 1.5.1 when PDF_HYPERLINKS = YES
+      grepsedfile '\(subsubsection\[[^]]*\)\[\]' '\1[\\mbox{]}' *.tex
+    fi
+
+    # This is tested to work with MiKTeX 2.5, Doxygen 1.5.1 (Cygwin),
+    # and Graphviz 2.8 (Windows).  Newer versions of Graphviz do NOT
+    # work for me.
+    #
+    # USE_PDFLATEX=NO (option "pdf2") may not work the first time it is
+    # run.  To work around this issue, run the script with the option
+    # "pdf" first.
+    make
+  fi
 fi

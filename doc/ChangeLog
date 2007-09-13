@@ -1,3 +1,8 @@
+2007-09-13  Wu Yongwei  <adah@sh163.net>
+
+	* misc/doxit.sh: Update to generate PDF documents correctly in
+	different flavours.
+
 2007-09-12  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/cont_ptr_utils.h: Emphasize the book name `Effective STL'.
