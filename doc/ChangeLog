@@ -1,3 +1,11 @@
+2007-10-05  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (__debug_new_counter::_count): Rename to
+	_S_count for consistency.
+	* nvwa/debug_new.h (__debug_new_counter::_count): Ditto.
+	(DEBUG_NEW): Update documentation comment about
+	_DEBUG_NEW_REDEFINE_NEW.
+
 2007-09-13  Wu Yongwei  <adah@sh163.net>
 
 	* misc/doxit.sh: Update to generate PDF documents correctly in
