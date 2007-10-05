@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.16, 2005/11/22
+ * @version 3.17, 2007/10/05
  * @author  Wu Yongwei
  *
  */
@@ -659,14 +659,14 @@ void operator delete[](void* pointer, const std::nothrow_t&) throw()
 }
 #endif // HAS_PLACEMENT_DELETE
 
-int __debug_new_counter::_count = 0;
+int __debug_new_counter::_S_count = 0;
 
 /**
  * Constructor to increment the count.
  */
 __debug_new_counter::__debug_new_counter()
 {
-    ++_count;
+    ++_S_count;
 }
 
 /**
@@ -675,7 +675,7 @@ __debug_new_counter::__debug_new_counter()
  */
 __debug_new_counter::~__debug_new_counter()
 {
-    if (--_count == 0 && new_autocheck_flag)
+    if (--_S_count == 0 && new_autocheck_flag)
         if (check_leaks())
         {
             new_verbose_flag = true;
