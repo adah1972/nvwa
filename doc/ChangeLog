@@ -1,5 +1,10 @@
 2007-10-07  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/debug_new.cpp (aligned_list_item_size): Rename to
+	ALIGNED_LIST_ITEM_SIZE.
+
+2007-10-07  Wu Yongwei  <adah@sh163.net>
+
 	Make the macro redefinition of new support new(std::nothrow).
 	* nvwa/debug_new.h (DEBUG_NEW): Change the macro definition to use
 	__debug_new_recorder.

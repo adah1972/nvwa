@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.0, 2007/10/07
+ * @version 4.1, 2007/10/07
  * @author  Wu Yongwei
  *
  */
@@ -209,7 +209,7 @@ struct new_ptr_list_t
 /**
  * The extra memory allocated by <code>operator new</code>.
  */
-const int aligned_list_item_size = align(sizeof(new_ptr_list_t));
+const int ALIGNED_LIST_ITEM_SIZE = align(sizeof(new_ptr_list_t));
 
 /**
  * Array of pointer lists of a hash value.
@@ -405,7 +405,7 @@ static new_ptr_list_t** search_pointer(void* pointer, size_t hash_index)
     new_ptr_list_t** raw_ptr = &new_ptr_list[hash_index];
     while (*raw_ptr)
     {
-        if ((char*)*raw_ptr + aligned_list_item_size == pointer)
+        if ((char*)*raw_ptr + ALIGNED_LIST_ITEM_SIZE == pointer)
         {
             return raw_ptr;
         }
@@ -440,7 +440,7 @@ static void free_pointer(new_ptr_list_t** raw_ptr, void* addr, bool array_mode)
         fprintf(new_output_fp,
                 "%s: pointer %p (size %u)\n\tat ",
                 msg,
-                (char*)ptr + aligned_list_item_size,
+                (char*)ptr + ALIGNED_LIST_ITEM_SIZE,
                 ptr->size);
         print_position(addr, 0);
         fprintf(new_output_fp, "\n\toriginally allocated at ");
@@ -458,7 +458,7 @@ static void free_pointer(new_ptr_list_t** raw_ptr, void* addr, bool array_mode)
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "delete: freeing  %p (size %u, %u bytes still allocated)\n",
-                (char*)ptr + aligned_list_item_size,
+                (char*)ptr + ALIGNED_LIST_ITEM_SIZE,
                 ptr->size, total_mem_alloc);
     }
     *raw_ptr = ptr->next;
@@ -485,7 +485,7 @@ int check_leaks()
             fast_mutex_autolock lock(new_output_lock);
             fprintf(new_output_fp,
                     "Leaked object at %p (size %u, ",
-                    (char*)ptr + aligned_list_item_size,
+                    (char*)ptr + ALIGNED_LIST_ITEM_SIZE,
                     ptr->size);
             if ((ptr->line & ~INT_MIN) != 0)
                 print_position(ptr->file, ptr->line);
@@ -517,7 +517,7 @@ void* operator new(size_t size, const char* file, int line)
     assert((line & INT_MIN) == 0);
     STATIC_ASSERT((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0,
                   Alignment_must_be_power_of_two);
-    size_t s = size + aligned_list_item_size;
+    size_t s = size + ALIGNED_LIST_ITEM_SIZE;
     new_ptr_list_t* ptr = (new_ptr_list_t*)malloc(s);
     if (ptr == NULL)
     {
@@ -528,7 +528,7 @@ void* operator new(size_t size, const char* file, int line)
         fflush(new_output_fp);
         _DEBUG_NEW_ERROR_ACTION;
     }
-    void* pointer = (char*)ptr + aligned_list_item_size;
+    void* pointer = (char*)ptr + ALIGNED_LIST_ITEM_SIZE;
     size_t hash_index = _DEBUG_NEW_HASH(pointer);
 #if _DEBUG_NEW_FILENAME_LEN == 0
     ptr->file = file;
@@ -566,7 +566,7 @@ void* operator new[](size_t size, const char* file, int line)
 {
     void* pointer = operator new(size, file, line);
     new_ptr_list_t* ptr =
-            (new_ptr_list_t*)((char*)pointer - aligned_list_item_size);
+            (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
     assert((ptr->line & INT_MIN) == 0);
     ptr->line |= INT_MIN;   // Result from new[] if highest bit set: Set
     return pointer;
