@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 3.17, 2007/10/05
+ * @version 4.0, 2007/10/07
  * @author  Wu Yongwei
  *
  */
@@ -497,6 +497,19 @@ int check_leaks()
         }
     }
     return leak_cnt;
+}
+
+void __debug_new_recorder::_M_process(void* pointer)
+{
+    new_ptr_list_t* ptr = (new_ptr_list_t*)pointer - 1;
+    assert(ptr->line == 0);
+#if _DEBUG_NEW_FILENAME_LEN == 0
+    ptr->file = _M_file;
+#else
+    strncpy(ptr->file, _M_file, _DEBUG_NEW_FILENAME_LEN - 1)
+            [_DEBUG_NEW_FILENAME_LEN - 1] = '\0';
+#endif
+    ptr->line = _M_line;
 }
 
 void* operator new(size_t size, const char* file, int line)

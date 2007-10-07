@@ -1,3 +1,12 @@
+2007-10-07  Wu Yongwei  <adah@sh163.net>
+
+	Make the macro redefinition of new support new(std::nothrow).
+	* nvwa/debug_new.h (DEBUG_NEW): Change the macro definition to use
+	__debug_new_recorder.
+	(__debug_new_recorder): New class.
+	* nvwa/debug_new.cpp (__debug_new_counter::_M_process): New
+	function.
+
 2007-10-05  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (__debug_new_counter::_count): Rename to

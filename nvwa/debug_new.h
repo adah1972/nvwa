@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @version 3.5, 2007/10/05
+ * @version 4.0, 2007/10/07
  * @author  Wu Yongwei
  *
  */
@@ -114,7 +114,7 @@ extern const char* new_progname;// default to NULL; should be assigned argv[0]
  * otherwise \c new will be defined to it, and one must use \c new
  * instead.
  */
-#define DEBUG_NEW new(__FILE__, __LINE__)
+#define DEBUG_NEW __debug_new_recorder(__FILE__, __LINE__) ->* new
 
 # if _DEBUG_NEW_REDEFINE_NEW
 #   define new DEBUG_NEW
@@ -129,7 +129,38 @@ extern const char* new_progname;// default to NULL; should be assigned argv[0]
 #   define free(p) delete[] (char*)(p)
 # endif
 
-/** Counter class for on-exit leakage check. */
+/**
+ * Recorder class to remember the call context.
+ *
+ * The idea comes from <a href="http://groups.google.com/group/comp.lang.c++.moderated/browse_thread/thread/7089382e3bc1c489/85f9107a1dc79ee9?#85f9107a1dc79ee9">Greg Herlihy's post</a> in comp.lang.c++.moderated.
+ */
+class __debug_new_recorder
+{
+    const char* _M_file;
+    const int   _M_line;
+    void _M_process(void* pointer);
+public:
+    /**
+     * Constructor to remember the call context.  The information will
+     * be used in __debug_new_recorder::operator->*.
+     */
+    __debug_new_recorder(const char* file, int line)
+        : _M_file(file), _M_line(line) {}
+    /**
+     * Operator to write the context information to memory.
+     * <code>operator->*</code> is chosen because it has the right
+     * precedence, and it is rarely used.
+     */
+    template <class _Tp> _Tp* operator->*(_Tp* pointer)
+    { _M_process(pointer); return pointer; }
+};
+
+/**
+ * Counter class for on-exit leakage check.
+ *
+ * This technique is learnt from <em>The C++ Programming Language</em> by
+ * Bjarne Stroustup.
+ */
 class __debug_new_counter
 {
     static int _S_count;
