@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.1, 2007/10/07
+ * @version 4.2, 2007/10/08
  * @author  Wu Yongwei
  *
  */
@@ -105,12 +105,11 @@
  * behaviour is to copy the file name, because I found that the exit
  * leakage check cannot access the address of the file name sometimes
  * (in my case, a core dump will occur when trying to access the file
- * name in a shared library after a \c SIGINT).  If the default value is
- * too small for you, try defining it to \c 52, which makes the size of
- * new_ptr_list_t 64 (it is 32 by default) on 32-bit platforms.
+ * name in a shared library after a \c SIGINT).  The current default
+ * value makes the size of new_ptr_list_t 64 on 32-bit platforms.
  */
 #ifndef _DEBUG_NEW_FILENAME_LEN
-#define _DEBUG_NEW_FILENAME_LEN 20
+#define _DEBUG_NEW_FILENAME_LEN 48
 #endif
 
 /**
@@ -204,7 +203,13 @@ struct new_ptr_list_t
     };
     int                 line;
     size_t              size;
+    unsigned            magic;
 };
+
+/**
+ * Magic number for error detection.
+ */
+const unsigned MAGIC = 0x4442474E;
 
 /**
  * The extra memory allocated by <code>operator new</code>.
@@ -403,13 +408,28 @@ static void print_position(const void* ptr, int line)
 static new_ptr_list_t** search_pointer(void* pointer, size_t hash_index)
 {
     new_ptr_list_t** raw_ptr = &new_ptr_list[hash_index];
-    while (*raw_ptr)
+    while (new_ptr_list_t* ptr = *raw_ptr)
     {
-        if ((char*)*raw_ptr + ALIGNED_LIST_ITEM_SIZE == pointer)
+        if (ptr->magic != MAGIC)
+        {
+            fast_mutex_autolock lock(new_output_lock);
+            fprintf(new_output_fp,
+                    "error: heap data corrupt near %p\n"
+                    "\tpossibly allocated at ",
+                    (char*)ptr + ALIGNED_LIST_ITEM_SIZE);
+            if ((ptr->line & ~INT_MIN) != 0)
+                print_position(ptr->file, ptr->line);
+            else
+                print_position(ptr->addr, ptr->line);
+            fprintf(new_output_fp, "\n");
+            fflush(new_output_fp);
+            _DEBUG_NEW_ERROR_ACTION;
+        }
+        if ((char*)ptr + ALIGNED_LIST_ITEM_SIZE == pointer)
         {
             return raw_ptr;
         }
-        raw_ptr = &(*raw_ptr)->next;
+        raw_ptr = &ptr->next;
     }
     return NULL;
 }
@@ -461,6 +481,7 @@ static void free_pointer(new_ptr_list_t** raw_ptr, void* addr, bool array_mode)
                 (char*)ptr + ALIGNED_LIST_ITEM_SIZE,
                 ptr->size, total_mem_alloc);
     }
+    ptr->magic = 0;
     *raw_ptr = ptr->next;
     free(ptr);
     return;
@@ -492,6 +513,12 @@ int check_leaks()
             else
                 print_position(ptr->addr, ptr->line);
             fprintf(new_output_fp, ")\n");
+            if (ptr->magic != MAGIC)
+            {
+                fprintf(new_output_fp,
+                        "warning: heap data corrupt near %p\n",
+                        (char*)ptr + ALIGNED_LIST_ITEM_SIZE);
+            }
             ptr = ptr->next;
             ++leak_cnt;
         }
@@ -501,8 +528,16 @@ int check_leaks()
 
 void __debug_new_recorder::_M_process(void* pointer)
 {
-    new_ptr_list_t* ptr = (new_ptr_list_t*)pointer - 1;
-    assert(ptr->line == 0);
+    new_ptr_list_t* ptr =
+            (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
+    if (ptr->magic != MAGIC || ptr->line != 0)
+    {
+        fast_mutex_autolock lock(new_output_lock);
+        fprintf(new_output_fp,
+                "warning: debug_new used with placement new (%s:%d)\n",
+                _M_file, _M_line);
+        return;
+    }
 #if _DEBUG_NEW_FILENAME_LEN == 0
     ptr->file = _M_file;
 #else
@@ -541,6 +576,7 @@ void* operator new(size_t size, const char* file, int line)
 #endif
     ptr->line = line;
     ptr->size = size;
+    ptr->magic = MAGIC;
     {
         fast_mutex_autolock lock(new_ptr_lock[hash_index]);
         ptr->next = new_ptr_list[hash_index];
@@ -598,10 +634,13 @@ void operator delete(void* pointer) throw()
 {
     if (pointer == NULL)
         return;
+    new_ptr_list_t* ptr =
+            (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
     size_t hash_index = _DEBUG_NEW_HASH(pointer);
     fast_mutex_autolock lock(new_ptr_lock[hash_index]);
-    new_ptr_list_t** raw_ptr = search_pointer(pointer, hash_index);
-    if (raw_ptr == NULL)
+    new_ptr_list_t** raw_ptr;
+    if (ptr->magic != MAGIC
+            || (raw_ptr = search_pointer(pointer, hash_index)) == NULL)
     {
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp, "delete: invalid pointer %p at ", pointer);
@@ -617,10 +656,13 @@ void operator delete[](void* pointer) throw()
 {
     if (pointer == NULL)
         return;
+    new_ptr_list_t* ptr =
+            (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
     size_t hash_index = _DEBUG_NEW_HASH(pointer);
     fast_mutex_autolock lock(new_ptr_lock[hash_index]);
-    new_ptr_list_t** raw_ptr = search_pointer(pointer, hash_index);
-    if (raw_ptr == NULL)
+    new_ptr_list_t** raw_ptr;
+    if (ptr->magic != MAGIC
+            || (raw_ptr = search_pointer(pointer, hash_index)) == NULL)
     {
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp, "delete[]: invalid pointer %p at ", pointer);

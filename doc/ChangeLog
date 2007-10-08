@@ -1,3 +1,20 @@
+2007-10-08  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (_DEBUG_NEW_FILENAME_LEN): Change its default
+	value to 48.
+	(new_ptr_list_t): Add a new member magic.
+	(MAGIC): New constant.
+	(search_pointer): Detect heap corruption using `magic'.
+	(free_pointer): Reset the `magic' field before releasing the memory.
+	(check_leaks): Detect heap corruption using `magic'.
+	(__debug_new_recorder::_M_process): Fix the error in calculating the
+	pointer to new_ptr_list_t.
+	Detect the wrong mixed use of placement new using `magic'.
+	(operator new(size_t, const char*, int)): Set the `magic' field
+	after allocating the memory.
+	(operator delete(void*)): Detect invalid pointers using `magic'.
+	(operator delete[](void*)): Detect invalid pointers using `magic'.
+
 2007-10-07  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (aligned_list_item_size): Rename to
@@ -5,7 +22,7 @@
 
 2007-10-07  Wu Yongwei  <adah@sh163.net>
 
-	Make the macro redefinition of new support new(std::nothrow).
+	Make the macro redefinition of new support new(std::nothrow)
 	* nvwa/debug_new.h (DEBUG_NEW): Change the macro definition to use
 	__debug_new_recorder.
 	(__debug_new_recorder): New class.
