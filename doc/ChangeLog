@@ -1,5 +1,16 @@
 2007-10-15  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/debug_new.cpp (new_ptr_list_t): Split the member `line' into
+	two bit-fields: `line' and `is_array'.
+	(print_position): Remove the bit manipulation with `INT_MIN'.
+	(free_pointer): Ditto.
+	(__debug_new_recorder::_M_process): Ditto.
+	(operator new(size_t, const char*, int)): Reset `is_array' to 0.
+	(operator new[](size_t, const char*, int)): Remove the bit
+	manipulation with `INT_MIN', and set `is_array' to 1.
+
+2007-10-15  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/debug_new.cpp (__debug_new_recorder::_M_process): Fix the bug
 	that the highest bit of line for array mode are not correctly
 	checked and preserved (reported and fixed by Max Kuzkin).

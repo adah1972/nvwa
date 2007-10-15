@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.3, 2007/10/15
+ * @version 4.4, 2007/10/15
  * @author  Wu Yongwei
  *
  */
@@ -201,7 +201,8 @@ struct new_ptr_list_t
 #endif
     void*               addr;
     };
-    int                 line;
+    unsigned            line      :31;
+    unsigned            is_array  :1;
     size_t              size;
     unsigned            magic;
 };
@@ -379,7 +380,6 @@ static bool print_position_from_addr(const void*)
  */
 static void print_position(const void* ptr, int line)
 {
-    line &= ~INT_MIN;       // Result from new[] if highest bit set: Ignore
     if (line != 0)          // Is file/line information present?
     {
         fprintf(new_output_fp, "%s:%d", (const char*)ptr, line);
@@ -417,7 +417,7 @@ static new_ptr_list_t** search_pointer(void* pointer, size_t hash_index)
                     "error: heap data corrupt near %p\n"
                     "\tpossibly allocated at ",
                     (char*)ptr + ALIGNED_LIST_ITEM_SIZE);
-            if ((ptr->line & ~INT_MIN) != 0)
+            if (ptr->line != 0)
                 print_position(ptr->file, ptr->line);
             else
                 print_position(ptr->addr, ptr->line);
@@ -437,22 +437,21 @@ static new_ptr_list_t** search_pointer(void* pointer, size_t hash_index)
 /**
  * Frees memory and adjusts pointers relating to a raw pointer.  If the
  * highest bit of \c line (set from a previous <code>new[]</code> call)
- * does not agree with \c array_mode, program will abort with an error
+ * does not agree with \c is_array, program will abort with an error
  * message.
  *
- * @param raw_ptr       raw pointer to free
- * @param addr          pointer to the caller
- * @param array_mode    flag indicating whether it is invoked by a
- *                      <code>delete[]</code> call
+ * @param raw_ptr   raw pointer to free
+ * @param addr      pointer to the caller
+ * @param is_array  flag indicating whether it is invoked by a
+ *                  <code>delete[]</code> call
  */
-static void free_pointer(new_ptr_list_t** raw_ptr, void* addr, bool array_mode)
+static void free_pointer(new_ptr_list_t** raw_ptr, void* addr, bool is_array)
 {
     new_ptr_list_t* ptr = *raw_ptr;
-    int array_mode_mismatch = array_mode ^ ((ptr->line & INT_MIN) != 0);
-    if (array_mode_mismatch)
+    if (is_array != ptr->is_array)
     {
         const char* msg;
-        if (array_mode)
+        if (is_array)
             msg = "delete[] after new";
         else
             msg = "delete after new[]";
@@ -464,7 +463,7 @@ static void free_pointer(new_ptr_list_t** raw_ptr, void* addr, bool array_mode)
                 ptr->size);
         print_position(addr, 0);
         fprintf(new_output_fp, "\n\toriginally allocated at ");
-        if ((ptr->line & ~INT_MIN) != 0)
+        if (ptr->line != 0)
             print_position(ptr->file, ptr->line);
         else
             print_position(ptr->addr, ptr->line);
@@ -508,7 +507,7 @@ int check_leaks()
                     "Leaked object at %p (size %u, ",
                     (char*)ptr + ALIGNED_LIST_ITEM_SIZE,
                     ptr->size);
-            if ((ptr->line & ~INT_MIN) != 0)
+            if (ptr->line != 0)
                 print_position(ptr->file, ptr->line);
             else
                 print_position(ptr->addr, ptr->line);
@@ -530,7 +529,7 @@ void __debug_new_recorder::_M_process(void* pointer)
 {
     new_ptr_list_t* ptr =
             (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
-    if (ptr->magic != MAGIC || (ptr->line & ~INT_MIN) != 0)
+    if (ptr->magic != MAGIC || ptr->line != 0)
     {
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
@@ -544,12 +543,12 @@ void __debug_new_recorder::_M_process(void* pointer)
     strncpy(ptr->file, _M_file, _DEBUG_NEW_FILENAME_LEN - 1)
             [_DEBUG_NEW_FILENAME_LEN - 1] = '\0';
 #endif
-    ptr->line = _M_line | (ptr->line & INT_MIN);
+    ptr->line = _M_line;
 }
 
 void* operator new(size_t size, const char* file, int line)
 {
-    assert((line & INT_MIN) == 0);
+    assert(line >= 0);
     STATIC_ASSERT((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0,
                   Alignment_must_be_power_of_two);
     size_t s = size + ALIGNED_LIST_ITEM_SIZE;
@@ -575,6 +574,7 @@ void* operator new(size_t size, const char* file, int line)
         ptr->addr = (void*)file;
 #endif
     ptr->line = line;
+    ptr->is_array = 0;
     ptr->size = size;
     ptr->magic = MAGIC;
     {
@@ -603,8 +603,8 @@ void* operator new[](size_t size, const char* file, int line)
     void* pointer = operator new(size, file, line);
     new_ptr_list_t* ptr =
             (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
-    assert((ptr->line & INT_MIN) == 0);
-    ptr->line |= INT_MIN;   // Result from new[] if highest bit set: Set
+    assert(ptr->is_array == 0);
+    ptr->is_array = 1;
     return pointer;
 }
 
