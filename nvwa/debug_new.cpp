@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.2, 2007/10/08
+ * @version 4.3, 2007/10/15
  * @author  Wu Yongwei
  *
  */
@@ -530,7 +530,7 @@ void __debug_new_recorder::_M_process(void* pointer)
 {
     new_ptr_list_t* ptr =
             (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
-    if (ptr->magic != MAGIC || ptr->line != 0)
+    if (ptr->magic != MAGIC || (ptr->line & ~INT_MIN) != 0)
     {
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
@@ -544,7 +544,7 @@ void __debug_new_recorder::_M_process(void* pointer)
     strncpy(ptr->file, _M_file, _DEBUG_NEW_FILENAME_LEN - 1)
             [_DEBUG_NEW_FILENAME_LEN - 1] = '\0';
 #endif
-    ptr->line = _M_line;
+    ptr->line = _M_line | (ptr->line & INT_MIN);
 }
 
 void* operator new(size_t size, const char* file, int line)

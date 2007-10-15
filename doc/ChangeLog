@@ -1,3 +1,9 @@
+2007-10-15  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (__debug_new_recorder::_M_process): Fix the bug
+	that the highest bit of line for array mode are not correctly
+	checked and preserved (reported and fixed by Max Kuzkin).
+
 2007-10-08  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (_DEBUG_NEW_FILENAME_LEN): Change its default
