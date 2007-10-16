@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @version 4.0, 2007/10/07
+ * @version 4.1, 2007/10/16
  * @author  Wu Yongwei
  *
  */
@@ -149,10 +149,14 @@ public:
     /**
      * Operator to write the context information to memory.
      * <code>operator->*</code> is chosen because it has the right
-     * precedence, and it is rarely used.
+     * precedence, it is rarely used, and it looks good: so people can
+     * tell the special usage more quickly.
      */
     template <class _Tp> _Tp* operator->*(_Tp* pointer)
     { _M_process(pointer); return pointer; }
+private:
+    __debug_new_recorder(const __debug_new_recorder&);
+    __debug_new_recorder& operator=(const __debug_new_recorder&);
 };
 
 /**

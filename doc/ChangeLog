@@ -1,3 +1,9 @@
+2007-10-16  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.h (__debug_new_recorder): Modify a comment.
+	Prohibit the copy constructor and the copy assignment operator to
+	eliminate a warning.
+
 2007-10-15  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (new_ptr_list_t): Split the member `line' into
