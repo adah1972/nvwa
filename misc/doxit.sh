@@ -61,7 +61,7 @@ else
 fi
 
 # Work around an expression that will confuse Doxygen
-mv ../nvwa/static_mem_pool.h ..
+mv -i ../nvwa/static_mem_pool.h ..
 sed 's/(_Gid < 0)/true/' ../static_mem_pool.h >../nvwa/static_mem_pool.h
 $DOXYGEN $DOXYFILE_TMP
 mv -f ../static_mem_pool.h ../nvwa/
@@ -90,7 +90,9 @@ if [ "$GENERATE_LATEX" = "YES" ]; then
     make clean ps pdf
   else
     if [ "$PDF_HYPERLINKS" = "YES" ]; then
-      # Work around a bug in Doxygen 1.5.1 when PDF_HYPERLINKS = YES
+      # Work around a bug in Doxygen 1.5.1 when PDF_HYPERLINKS=YES.
+      # It is fixed in Doxygen 1.5.3, so the following line will be
+      # commented out or removed in the future.
       grepsedfile '\(subsubsection\[[^]]*\)\[\]' '\1[\\mbox{]}' *.tex
     fi
 
@@ -101,6 +103,13 @@ if [ "$GENERATE_LATEX" = "YES" ]; then
     # USE_PDFLATEX=NO (option "pdf2") may not work the first time it is
     # run.  To work around this issue, run the script with the option
     # "pdf" first.
+    rm -f refman.pdf
     make
+
+    # Doxygen 1.5.1 has problems with "make refman.pdf" when
+    # PDF_HYPERLINKS=YES and USE_PDFLATEX=NO, and must use the bare
+    # "make", as shown above.  It is fixed in Doxygen 1.5.3, and the
+    # following line is now necessary.
+    [ -f refman.pdf ] || make refman.pdf
   fi
 fi

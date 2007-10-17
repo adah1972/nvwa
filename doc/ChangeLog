@@ -1,3 +1,8 @@
+2007-10-17  Wu Yongwei  <adah@sh163.net>
+
+	* misc/doxit.sh: Update to make it work with Doxygen 1.5.3, and
+	document what is fixed between 1.5.1 and 1.5.3.
+
 2007-10-16  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/bool_array.cpp: Update copyright year and spelling.
