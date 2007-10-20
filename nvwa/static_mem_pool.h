@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.19, 2006/08/28
+ * @version 1.20, 2007/10/20
  * @author  Wu Yongwei
  *
  */
@@ -363,10 +363,12 @@ public: \
     }
 
 // OBSOLETE: no longer needed
-#define PREPARE_STATIC_MEM_POOL(_Cls)
+#define PREPARE_STATIC_MEM_POOL(_Cls) \
+    std::cerr << "PREPARE_STATIC_MEM_POOL is obsolete!\n";
 
 // OBSOLETE: no longer needed
-#define PREPARE_STATIC_MEM_POOL_GROUPED(_Cls, _Gid)
+#define PREPARE_STATIC_MEM_POOL_GROUPED(_Cls, _Gid) \
+    std::cerr << "PREPARE_STATIC_MEM_POOL_GROUPED is obsolete!\n";
 
 #undef __PRIVATE
 
