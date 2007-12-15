@@ -1,4 +1,19 @@
 2007-12-15  Wu Yongwei  <adah@sh163.net>
+
+	Refactor code to reduce code duplication.
+	* debug_new.cpp (alloc_mem): New static function to put the common
+	logic of new and new[];
+	(free_pointer): Change the semantics of the first parameter, and put
+	more common logic of delete and delete[] into it.
+	(operator new(size_t, const char*, int)): Reduce to a single call to
+	alloc_mem.
+	(operator new[](size_t, const char*, int)): Reduce to a single call
+	to alloc_mem.
+	(operator delete(void*)): Reduce to a single call to free_pointer.
+	(operator delete[](void*)): Reduce to a single call to free_pointer.
+
+2007-12-15  Wu Yongwei  <adah@sh163.net>
+
 	Use one doubly-linked list to chain the allocated pointers instead
 	of the hashed array of singly-linked lists.
 	* nvwa/debug_new.cpp (_DEBUG_NEW_FILENAME_LEN): Change the default
