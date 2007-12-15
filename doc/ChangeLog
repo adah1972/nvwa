@@ -1,3 +1,23 @@
+2007-12-15  Wu Yongwei  <adah@sh163.net>
+	Use one doubly-linked list to chain the allocated pointers instead
+	of the hashed array of singly-linked lists.
+	* nvwa/debug_new.cpp (_DEBUG_NEW_FILENAME_LEN): Change the default
+	value to make the size of new_ptr_list_t still 64.
+	(_DEBUG_NEW_HASHTABLESIZE): Remove.
+	(_DEBUG_NEW_HASH): Remove.
+	(new_ptr_list_t): Make it a doubly-linked list.
+	(new_ptr_list): Make it of type new_ptr_list_t instead of a pointer
+	array to new_ptr_list_t.
+	(new_ptr_lock): Make it non-array.
+	(search_pointer): Remove.
+	(free_pointer): Modify to use the  doubly-linked list.
+	(check_leaks): Ditto.
+	(check_mem_corruption): New function.
+	(operator new(size_t, const char*, int)): Modify to use the
+	doubly-linked list.
+	(operator delete(void*)): Ditto.
+	* nvwa/debug_new.h (check_mem_corruption): New declaration.
+
 2007-10-20  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/static_mem_pool.h (PREPARE_STATIC_MEM_POOL): Define to

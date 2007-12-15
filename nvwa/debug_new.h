@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @version 4.1, 2007/10/16
+ * @version 4.2, 2007/12/15
  * @author  Wu Yongwei
  *
  */
@@ -87,6 +87,7 @@
 
 /* Prototypes */
 int check_leaks();
+int check_mem_corruption();
 void* operator new(size_t size, const char* file, int line);
 void* operator new[](size_t size, const char* file, int line);
 #if HAS_PLACEMENT_DELETE
