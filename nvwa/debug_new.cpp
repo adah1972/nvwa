@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.7, 2007/12/22
+ * @version 4.8, 2007/12/22
  * @author  Wu Yongwei
  *
  */
@@ -126,6 +126,17 @@
  */
 #ifndef _DEBUG_NEW_PROGNAME
 #define _DEBUG_NEW_PROGNAME NULL
+#endif
+
+/**
+ * @def _DEBUG_NEW_STD_OPER_NEW
+ *
+ * Macro to indicate whether the standard-conformant behaviour of
+ * <code>operator new</code> is wanted.  It is on by default now, but
+ * the user may set it to \c 0 to revert to the old behaviour.
+ */
+#ifndef _DEBUG_NEW_STD_OPER_NEW
+#define _DEBUG_NEW_STD_OPER_NEW 1
 #endif
 
 /**
@@ -397,12 +408,16 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
     new_ptr_list_t* ptr = (new_ptr_list_t*)malloc(s);
     if (ptr == NULL)
     {
+#if _DEBUG_NEW_STD_OPER_NEW
+        return NULL;
+#else
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "Out of memory when allocating %u bytes\n",
                 size);
         fflush(new_output_fp);
         _DEBUG_NEW_ERROR_ACTION;
+#endif
     }
     void* pointer = (char*)ptr + ALIGNED_LIST_ITEM_SIZE;
 #if _DEBUG_NEW_FILENAME_LEN == 0
@@ -580,6 +595,8 @@ int check_mem_corruption()
 
 void __debug_new_recorder::_M_process(void* pointer)
 {
+    if (pointer == NULL)
+        return;
     new_ptr_list_t* ptr =
             (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
     if (ptr->magic != MAGIC || ptr->line != 0)
@@ -601,12 +618,28 @@ void __debug_new_recorder::_M_process(void* pointer)
 
 void* operator new(size_t size, const char* file, int line)
 {
-    return alloc_mem(size, file, line, false);
+    void* ptr = alloc_mem(size, file, line, false);
+#if _DEBUG_NEW_STD_OPER_NEW
+    if (ptr)
+        return ptr;
+    else
+        throw std::bad_alloc();
+#else
+    return ptr;
+#endif
 }
 
 void* operator new[](size_t size, const char* file, int line)
 {
-    return alloc_mem(size, file, line, true);
+    void* ptr = alloc_mem(size, file, line, true);
+#if _DEBUG_NEW_STD_OPER_NEW
+    if (ptr)
+        return ptr;
+    else
+        throw std::bad_alloc();
+#else
+    return ptr;
+#endif
 }
 
 void* operator new(size_t size) throw(std::bad_alloc)
@@ -622,12 +655,12 @@ void* operator new[](size_t size) throw(std::bad_alloc)
 #if !defined(__BORLANDC__) || __BORLANDC__ > 0x551
 void* operator new(size_t size, const std::nothrow_t&) throw()
 {
-    return operator new(size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
+    return alloc_mem(size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0, false);
 }
 
 void* operator new[](size_t size, const std::nothrow_t&) throw()
 {
-    return operator new[](size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
+    return alloc_mem(size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0, true);
 }
 #endif
 

@@ -1,5 +1,23 @@
 2007-12-22  Wu Yongwei  <adah@sh163.net>
 
+	Make the default behaviour of redefinitions of operator new
+	conformant to the C++ standard.
+	* debug_new.cpp (_DEBUG_NEW_STD_OPER_NEW): New macro.
+	(alloc_mem): Skip the old error action if _DEBUG_NEW_STD_OPER_NEW is
+	not zero.
+	(__debug_new_recorder::_M_process): Skip processing if the passed
+	pointer is null.
+	(operator new(size_t, const char*, int)): Throw std::bad_alloc when
+	the memory allocation is not successful, if _DEBUG_NEW_STD_OPER_NEW
+	is not zero.
+	(operator new[](size_t, const char*, int)): Ditto.
+	(operator new(size_t, const std::nothrow_t&)): Call alloc_mem
+	directly instead of operator new(size_t, const char*, int).
+	(operator new[](size_t, const std::nothrow_t&)): Call alloc_mem
+	directly instead of operator new[](size_t, const char*, int).
+
+2007-12-22  Wu Yongwei  <adah@sh163.net>
+
 	Make the leakage report order the same way as allocation.
 	* debug_new.cpp (alloc_mem): Chain the newly allocated memory block
 	at the end of the linked list instead of the beginning.
