@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.6, 2007/12/15
+ * @version 4.7, 2007/12/22
  * @author  Wu Yongwei
  *
  */
@@ -420,10 +420,10 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
     ptr->magic = MAGIC;
     {
         fast_mutex_autolock lock(new_ptr_lock);
-        ptr->next = new_ptr_list.next;
-        ptr->prev = &new_ptr_list;
-        new_ptr_list.next->prev = ptr;
-        new_ptr_list.next = ptr;
+        ptr->prev = new_ptr_list.prev;
+        ptr->next = &new_ptr_list;
+        new_ptr_list.prev->next = ptr;
+        new_ptr_list.prev = ptr;
     }
     if (new_verbose_flag)
     {
