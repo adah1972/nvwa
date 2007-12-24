@@ -1,5 +1,19 @@
 2007-12-24  Wu Yongwei  <adah@sh163.net>
 
+	Add the capability to check past-end memory overwriting.
+	* nvwa/debug_new.cpp (_DEBUG_NEW_TAILCHECK): New macro.
+	(_DEBUG_NEW_TAILCHECK_CHAR): New macro.
+	(check_tail): New static function.
+	(alloc_mem): Fill the padding bytes at the end of memory block when
+	_DEBUG_NEW_TAILCHECK is a positive number.
+	(free_pointer): Check memory corruption and perform the error action
+	if the past-end padding bytes are tampered with.
+	(check_leaks): Check the past-end padding bytes if
+	_DEBUG_NEW_TAILCHECK is a positive number.
+	(check_mem_corruption): Ditto.
+
+2007-12-24  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/debug_new.cpp (check_leaks): Perform magic number check
 	before outputting leak information; display leaks summary if
 	new_verbose_flag is true or leaks exist.

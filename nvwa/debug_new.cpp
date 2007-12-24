@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.9, 2007/12/24
+ * @version 4.10, 2007/12/24
  * @author  Wu Yongwei
  *
  */
@@ -137,6 +137,26 @@
  */
 #ifndef _DEBUG_NEW_STD_OPER_NEW
 #define _DEBUG_NEW_STD_OPER_NEW 1
+#endif
+
+/**
+ * @def _DEBUG_NEW_TAILCHECK
+ *
+ * Macro to indicate whether a writing-past-end check will be performed.
+ * Define it to a positive integer as the number of padding bytes at the
+ * end of a memory block for checking.
+ */
+#ifndef _DEBUG_NEW_TAILCHECK
+#define _DEBUG_NEW_TAILCHECK 0
+#endif
+
+/**
+ * @def _DEBUG_NEW_TAILCHECK_CHAR
+ *
+ * Value of the padding bytes at the end of a memory block.
+ */
+#ifndef _DEBUG_NEW_TAILCHECK_CHAR
+#define _DEBUG_NEW_TAILCHECK_CHAR 0xCC
 #endif
 
 /**
@@ -399,12 +419,23 @@ static void print_position(const void* ptr, int line)
     }
 }
 
+static bool check_tail(new_ptr_list_t* ptr)
+{
+    const unsigned char* const pointer = (unsigned char*)ptr +
+                            ALIGNED_LIST_ITEM_SIZE + ptr->size;
+    for (int i = 0; i < _DEBUG_NEW_TAILCHECK; ++i)
+        if (pointer[i] != _DEBUG_NEW_TAILCHECK_CHAR)
+            return false;
+    return true;
+}
+
 static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
 {
     assert(line >= 0);
     STATIC_ASSERT((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0,
                   Alignment_must_be_power_of_two);
-    size_t s = size + ALIGNED_LIST_ITEM_SIZE;
+    STATIC_ASSERT(_DEBUG_NEW_TAILCHECK >= 0, Invalid_tail_check_length);
+    size_t s = size + ALIGNED_LIST_ITEM_SIZE + _DEBUG_NEW_TAILCHECK;
     new_ptr_list_t* ptr = (new_ptr_list_t*)malloc(s);
     if (ptr == NULL)
     {
@@ -440,6 +471,10 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
         new_ptr_list.prev->next = ptr;
         new_ptr_list.prev = ptr;
     }
+#if _DEBUG_NEW_TAILCHECK
+    memset((char*)pointer + size, _DEBUG_NEW_TAILCHECK_CHAR,
+                                  _DEBUG_NEW_TAILCHECK);
+#endif
     if (new_verbose_flag)
     {
         fast_mutex_autolock lock(new_output_lock);
@@ -507,11 +542,21 @@ static void free_pointer(void* pointer, void* addr, bool is_array)
         fflush(new_output_fp);
         _DEBUG_NEW_ERROR_ACTION;
     }
-    fast_mutex_autolock lock(new_ptr_lock);
-    total_mem_alloc -= ptr->size;
-    ptr->magic = 0;
-    ptr->prev->next = ptr->next;
-    ptr->next->prev = ptr->prev;
+#if _DEBUG_NEW_TAILCHECK
+    if (!check_tail(ptr))
+    {
+        check_mem_corruption();
+        fflush(new_output_fp);
+        _DEBUG_NEW_ERROR_ACTION;
+    }
+#endif
+    {
+        fast_mutex_autolock lock(new_ptr_lock);
+        total_mem_alloc -= ptr->size;
+        ptr->magic = 0;
+        ptr->prev->next = ptr->next;
+        ptr->next->prev = ptr->prev;
+    }
     free(ptr);
     if (new_verbose_flag)
     {
@@ -538,15 +583,24 @@ int check_leaks()
     new_ptr_list_t* ptr = new_ptr_list.next;
     while (ptr != &new_ptr_list)
     {
+        const char* const pointer = (char*)ptr + ALIGNED_LIST_ITEM_SIZE;
         if (ptr->magic != MAGIC)
         {
             fprintf(new_output_fp,
                     "warning: heap data corrupt near %p\n",
-                    (char*)ptr + ALIGNED_LIST_ITEM_SIZE);
+                    pointer);
         }
+#if _DEBUG_NEW_TAILCHECK
+        if (!check_tail(ptr))
+        {
+            fprintf(new_output_fp,
+                    "warning: overwritten past end of object at %p\n",
+                    pointer);
+        }
+#endif
         fprintf(new_output_fp,
                 "Leaked object at %p (size %u, ",
-                (char*)ptr + ALIGNED_LIST_ITEM_SIZE,
+                pointer,
                 ptr->size);
         if (ptr->line != 0)
             print_position(ptr->file, ptr->line);
@@ -577,12 +631,31 @@ int check_mem_corruption()
             ptr != &new_ptr_list;
             ptr = ptr->next)
     {
-        if (ptr->magic == MAGIC)
+        const char* const pointer = (char*)ptr + ALIGNED_LIST_ITEM_SIZE;
+        if (ptr->magic == MAGIC
+#if _DEBUG_NEW_TAILCHECK
+                && check_tail(ptr)
+#endif
+                )
             continue;
-        fprintf(new_output_fp,
-                "Heap data corrupt near %p (size %u, ",
-                (char*)ptr + ALIGNED_LIST_ITEM_SIZE,
-                ptr->size);
+#if _DEBUG_NEW_TAILCHECK
+        if (ptr->magic != MAGIC)
+        {
+#endif
+            fprintf(new_output_fp,
+                    "Heap data corrupt near %p (size %u, ",
+                    pointer,
+                    ptr->size);
+#if _DEBUG_NEW_TAILCHECK
+        }
+        else
+        {
+            fprintf(new_output_fp,
+                    "Overwritten past end of object at %p (size %u, ",
+                    pointer,
+                    ptr->size);
+        }
+#endif
         if (ptr->line != 0)
             print_position(ptr->file, ptr->line);
         else
