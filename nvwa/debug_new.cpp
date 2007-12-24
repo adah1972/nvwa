@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.8, 2007/12/22
+ * @version 4.9, 2007/12/24
  * @author  Wu Yongwei
  *
  */
@@ -533,11 +533,17 @@ static void free_pointer(void* pointer, void* addr, bool is_array)
 int check_leaks()
 {
     int leak_cnt = 0;
-    fast_mutex_autolock lock(new_ptr_lock);
+    fast_mutex_autolock lock_ptr(new_ptr_lock);
+    fast_mutex_autolock lock_output(new_output_lock);
     new_ptr_list_t* ptr = new_ptr_list.next;
     while (ptr != &new_ptr_list)
     {
-        fast_mutex_autolock lock(new_output_lock);
+        if (ptr->magic != MAGIC)
+        {
+            fprintf(new_output_fp,
+                    "warning: heap data corrupt near %p\n",
+                    (char*)ptr + ALIGNED_LIST_ITEM_SIZE);
+        }
         fprintf(new_output_fp,
                 "Leaked object at %p (size %u, ",
                 (char*)ptr + ALIGNED_LIST_ITEM_SIZE,
@@ -547,15 +553,11 @@ int check_leaks()
         else
             print_position(ptr->addr, ptr->line);
         fprintf(new_output_fp, ")\n");
-        if (ptr->magic != MAGIC)
-        {
-            fprintf(new_output_fp,
-                    "warning: heap data corrupt near %p\n",
-                    (char*)ptr + ALIGNED_LIST_ITEM_SIZE);
-        }
         ptr = ptr->next;
         ++leak_cnt;
     }
+    if (new_verbose_flag || leak_cnt)
+        fprintf(new_output_fp, "*** %d leaks found\n", leak_cnt);
     return leak_cnt;
 }
 

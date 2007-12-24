@@ -1,3 +1,9 @@
+2007-12-24  Wu Yongwei  <adah@sh163.net>
+
+	* debug_new.cpp (check_leaks): Perform magic number check before
+	outputting leak information; display leaks summary if
+	new_verbose_flag is true or leaks exist.
+
 2007-12-22  Wu Yongwei  <adah@sh163.net>
 
 	Make the default behaviour of redefinitions of operator new
