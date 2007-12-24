@@ -1,14 +1,14 @@
 2007-12-24  Wu Yongwei  <adah@sh163.net>
 
-	* debug_new.cpp (check_leaks): Perform magic number check before
-	outputting leak information; display leaks summary if
+	* nvwa/debug_new.cpp (check_leaks): Perform magic number check
+	before outputting leak information; display leaks summary if
 	new_verbose_flag is true or leaks exist.
 
 2007-12-22  Wu Yongwei  <adah@sh163.net>
 
 	Make the default behaviour of redefinitions of operator new
 	conformant to the C++ standard.
-	* debug_new.cpp (_DEBUG_NEW_STD_OPER_NEW): New macro.
+	* nvwa/debug_new.cpp (_DEBUG_NEW_STD_OPER_NEW): New macro.
 	(alloc_mem): Skip the old error action if _DEBUG_NEW_STD_OPER_NEW is
 	not zero.
 	(__debug_new_recorder::_M_process): Skip processing if the passed
@@ -25,14 +25,14 @@
 2007-12-22  Wu Yongwei  <adah@sh163.net>
 
 	Make the leakage report order the same way as allocation.
-	* debug_new.cpp (alloc_mem): Chain the newly allocated memory block
-	at the end of the linked list instead of the beginning.
+	* nvwa/debug_new.cpp (alloc_mem): Chain the newly allocated memory
+	block at the end of the linked list instead of the beginning.
 
 2007-12-15  Wu Yongwei  <adah@sh163.net>
 
 	Refactor code to reduce code duplication.
-	* debug_new.cpp (alloc_mem): New static function to put the common
-	logic of new and new[];
+	* nvwa/debug_new.cpp (alloc_mem): New static function to put the
+	common logic of new and new[];
 	(free_pointer): Change the semantics of the first parameter, and put
 	more common logic of delete and delete[] into it.
 	(operator new(size_t, const char*, int)): Reduce to a single call to
