@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @version 4.2, 2007/12/15
+ * @version 4.3, 2007/12/30
  * @author  Wu Yongwei
  *
  */
@@ -43,7 +43,7 @@
 #include <stdio.h>
 
 /**
- * @def HAS_PLACEMENT_DELETE
+ * @def HAVE_PLACEMENT_DELETE
  *
  * Macro to indicate whether placement delete operators are supported on
  * a certain compiler.  Some compilers, like Borland C++ Compiler 5.5.1
@@ -53,8 +53,8 @@
  * thrown in the initialization (constructor) of a dynamically created
  * object.
  */
-#ifndef HAS_PLACEMENT_DELETE
-#define HAS_PLACEMENT_DELETE 1
+#ifndef HAVE_PLACEMENT_DELETE
+#define HAVE_PLACEMENT_DELETE 1
 #endif
 
 /**
@@ -90,7 +90,7 @@ int check_leaks();
 int check_mem_corruption();
 void* operator new(size_t size, const char* file, int line);
 void* operator new[](size_t size, const char* file, int line);
-#if HAS_PLACEMENT_DELETE
+#if HAVE_PLACEMENT_DELETE
 void operator delete(void* pointer, const char* file, int line) throw();
 void operator delete[](void* pointer, const char* file, int line) throw();
 #endif

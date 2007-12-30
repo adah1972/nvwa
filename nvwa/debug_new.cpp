@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.10, 2007/12/24
+ * @version 4.11, 2007/12/30
  * @author  Wu Yongwei
  *
  */
@@ -749,7 +749,7 @@ void operator delete[](void* pointer) throw()
     free_pointer(pointer, _DEBUG_NEW_CALLER_ADDRESS, true);
 }
 
-#if HAS_PLACEMENT_DELETE
+#if HAVE_PLACEMENT_DELETE
 void operator delete(void* pointer, const char* file, int line) throw()
 {
     if (new_verbose_flag)
@@ -787,7 +787,7 @@ void operator delete[](void* pointer, const std::nothrow_t&) throw()
 {
     operator delete[](pointer, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
-#endif // HAS_PLACEMENT_DELETE
+#endif // HAVE_PLACEMENT_DELETE
 
 int __debug_new_counter::_S_count = 0;
 

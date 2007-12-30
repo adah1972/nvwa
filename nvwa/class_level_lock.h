@@ -31,7 +31,7 @@
  *
  * In essence Loki ClassLevelLockable re-engineered to use a fast_mutex class.
  *
- * @version 1.12, 2005/09/12
+ * @version 1.13, 2007/12/30
  * @author  Wu Yongwei
  *
  */
@@ -97,7 +97,7 @@
         typedef volatile _Host volatile_type;
     };
 
-#   if HAS_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION
+#   if HAVE_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION
     /** Partial specialization that makes null locking. */
     template <class _Host>
     class class_level_lock<_Host, false>
@@ -112,7 +112,7 @@
 
         typedef _Host volatile_type;
     };
-#   endif // HAS_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION
+#   endif // HAVE_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION
 
     template <class _Host, bool _RealLock>
     fast_mutex class_level_lock<_Host, _RealLock>::_S_mtx;

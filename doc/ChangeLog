@@ -1,3 +1,12 @@
+2007-12-30  Wu Yongwei  <adah@sh163.net>
+
+	Change the HAS_* macros to HAVE_*.
+	* nvwa/class_level_lock.h (HAS_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION):
+	Change to HAVE_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION.
+	* nvwa/debug_new.h (HAS_PLACEMENT_DELETE): Change to
+	HAVE_PLACEMENT_DELETE.
+	* nvwa/debug_new.cpp (HAS_PLACEMENT_DELETE): Ditto.
+
 2007-12-24  Wu Yongwei  <adah@sh163.net>
 
 	Add the capability to check past-end memory overwriting.
