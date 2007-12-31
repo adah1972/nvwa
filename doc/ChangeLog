@@ -1,5 +1,11 @@
 2007-12-31  Wu Yongwei  <adah@sh163.net>
 
+	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.8.
+	* misc/release.bat (VER): Ditto.
+	* misc/release.sh (VER): Ditto.
+
+2007-12-31  Wu Yongwei  <adah@sh163.net>
+
 	Update documentation comments.
 	* nvwa/debug_new.h: Adjust one documentation comment for
 	consistency.
