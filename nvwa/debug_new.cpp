@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.11, 2007/12/30
+ * @version 4.12, 2007/12/31
  * @author  Wu Yongwei
  *
  */
@@ -419,6 +419,14 @@ static void print_position(const void* ptr, int line)
     }
 }
 
+/**
+ * Checks whether the padding bytes at the end of a memory block is
+ * tampered with.
+ *
+ * @param ptr   pointer to a new_ptr_list_t struct
+ * @return      \c true if the padding bytes are untouched; \c false
+ *              otherwise
+ */
 static bool check_tail(new_ptr_list_t* ptr)
 {
     const unsigned char* const pointer = (unsigned char*)ptr +
@@ -429,6 +437,16 @@ static bool check_tail(new_ptr_list_t* ptr)
     return true;
 }
 
+/**
+ * Allocates memory and initializes control data.
+ *
+ * @param size      size of the required memory block
+ * @param file      null-terminated string of the file name
+ * @param line      line number
+ * @param is_array  boolean value whether this is an array operation
+ * @return          pointer to the user-requested memory area; \c NULL
+ *                  if memory allocation is not successful
+ */
 static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
 {
     assert(line >= 0);
@@ -495,7 +513,7 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
 /**
  * Frees memory and adjusts pointers.
  *
- * @param pointer       pointer to delete
+ * @param pointer   pointer to delete
  * @param addr      pointer to the caller
  * @param is_array  flag indicating whether it is invoked by a
  *                  <code>delete[]</code> call

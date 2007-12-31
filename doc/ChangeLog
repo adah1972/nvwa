@@ -1,3 +1,11 @@
+2007-12-31  Wu Yongwei  <adah@sh163.net>
+
+	Update documentation comments.
+	* nvwa/debug_new.h: Adjust one documentation comment for
+	consistency.
+	* nvwa/debug_new.cpp (check_tail): Add the documentation comment.
+	(alloc_mem): Ditto.
+
 2007-12-30  Wu Yongwei  <adah@sh163.net>
 
 	Change the HAS_* macros to HAVE_*.

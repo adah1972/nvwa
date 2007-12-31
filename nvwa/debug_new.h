@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @version 4.3, 2007/12/30
+ * @version 4.4, 2007/12/31
  * @author  Wu Yongwei
  *
  */
@@ -110,7 +110,7 @@ extern const char* new_progname;// default to NULL; should be assigned argv[0]
 /**
  * @def DEBUG_NEW
  *
- * The macro to catch file/line information on allocation.  If
+ * Macro to catch file/line information on allocation.  If
  * #_DEBUG_NEW_REDEFINE_NEW is \c 0, one can use this macro directly;
  * otherwise \c new will be defined to it, and one must use \c new
  * instead.
