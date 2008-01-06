@@ -1,5 +1,12 @@
 2007-12-31  Wu Yongwei  <adah@sh163.net>
 
+	* misc/release.bat: Enable auto-login; check out doc and nvwa
+	together; copy the PDF file instead of the PS file to the release.
+	* misc/release.sh: Copy the PDF file instead of the PS file to the
+	release.
+
+2007-12-31  Wu Yongwei  <adah@sh163.net>
+
 	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.8.
 	* misc/release.bat (VER): Ditto.
 	* misc/release.sh (VER): Ditto.
