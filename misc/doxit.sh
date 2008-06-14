@@ -45,19 +45,19 @@ fi
 # Set the options in the intermediate Doxyfile
 cp -p Doxyfile $DOXYFILE_TMP
 if [ "$GENERATE_LATEX" = "YES" ]; then
-  sedfile 's/\(GENERATE_LATEX\s*=\).*/\1 YES/' $DOXYFILE_TMP
+  sedfile 's/\(GENERATE_LATEX *=\).*/\1 YES/' $DOXYFILE_TMP
   if [ "$PDF_HYPERLINKS" = "YES" ]; then
-    sedfile 's/\(PDF_HYPERLINKS\s*=\).*/\1 YES/' $DOXYFILE_TMP
+    sedfile 's/\(PDF_HYPERLINKS *=\).*/\1 YES/' $DOXYFILE_TMP
   else
-    sedfile 's/\(PDF_HYPERLINKS\s*=\).*/\1 NO/'  $DOXYFILE_TMP
+    sedfile 's/\(PDF_HYPERLINKS *=\).*/\1 NO/'  $DOXYFILE_TMP
   fi
   if [ "$USE_PDFLATEX" = "YES" ]; then
-    sedfile 's/\(USE_PDFLATEX\s*=\).*/\1 YES/' $DOXYFILE_TMP
+    sedfile 's/\(USE_PDFLATEX *=\).*/\1 YES/' $DOXYFILE_TMP
   else
-    sedfile 's/\(USE_PDFLATEX\s*=\).*/\1 NO/'  $DOXYFILE_TMP
+    sedfile 's/\(USE_PDFLATEX *=\).*/\1 NO/'  $DOXYFILE_TMP
   fi
 else
-  sedfile 's/\(GENERATE_LATEX\s*=\).*/\1 NO/'  $DOXYFILE_TMP
+  sedfile 's/\(GENERATE_LATEX *=\).*/\1 NO/'  $DOXYFILE_TMP
 fi
 
 # Work around an expression that will confuse Doxygen
