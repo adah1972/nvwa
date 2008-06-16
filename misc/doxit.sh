@@ -86,8 +86,14 @@ if [ "$GENERATE_LATEX" = "YES" ]; then
 !EOF
   done
 
+  # The LaTeX output automatically changes the operator "->" to
+  # "\rightarrow", which does not look right.
+  grepsedfile 'operator \$\\rightarrow\$ \+' 'operator->' *.tex
+  grepsedfile '\$\\rightarrow\$ \+' '->' *.tex
+
   if [ "$PDF_HYPERLINKS" = "NO" -a "$USE_PDFLATEX" = "NO" ]; then
-    make clean ps pdf
+    make clean ps
+    ps2pdf -sPAPERSIZE=a4 refman.ps refman.pdf
   else
     if [ "$PDF_HYPERLINKS" = "YES" ]; then
       # Work around a bug in Doxygen 1.5.1 when PDF_HYPERLINKS=YES.
