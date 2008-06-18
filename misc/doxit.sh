@@ -88,8 +88,8 @@ if [ "$GENERATE_LATEX" = "YES" ]; then
 
   # The LaTeX output automatically changes the operator "->" to
   # "\rightarrow", which does not look right.
-  grepsedfile 'operator \$\\rightarrow\$ \+' 'operator->' *.tex
-  grepsedfile '\$\\rightarrow\$ \+' '->' *.tex
+  grepsedfile 'operator \$\\rightarrow\$ *' 'operator->' *.tex
+  grepsedfile '\$\\rightarrow\$ *' '->' *.tex
 
   if [ "$PDF_HYPERLINKS" = "NO" -a "$USE_PDFLATEX" = "NO" ]; then
     make clean ps
