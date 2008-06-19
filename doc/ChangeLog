@@ -1,3 +1,18 @@
+2008-06-18  Wu Yongwei  <adah@sh163.net>
+
+	* misc/doxit.sh: Do not use `\+' in regexp to improve portability
+	and POSIX compliance.
+
+2008-06-16  Wu Yongwei  <adah@sh163.net>
+
+	* misc/doxit.sh: Replace the rightarrow in LaTeX output to plain
+	`->'; make sure the LaTeX PDF output size is A4.
+
+2008-06-14  Wu Yongwei  <adah@sh163.net>
+
+	* misc/doxit.sh: Do not use `\s' in sed to fix a sed compatibility
+	problem.
+
 2007-12-31  Wu Yongwei  <adah@sh163.net>
 
 	* misc/release.bat: Enable auto-login; check out doc and nvwa
