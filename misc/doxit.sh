@@ -69,16 +69,24 @@ mv -f ../static_mem_pool.h ../nvwa/
 # Remove the intermediate Doxyfile
 rm $DOXYFILE_TMP
 
+# Remove the space between -> and * in some older Doxygen versions
+cd ../doc/html
+echo "Postprocessing HTML files"
+grepsedfile 'operator-&gt; \*' 'operator-\&gt;*' *.html
+cd ../../misc
+
 # Override the default style sheet of Doxygen 1.3.9.1 (font too big!)
 #cp -p doxygen.css ../doc/html/
 
 # Make LaTeX documents
 if [ "$GENERATE_LATEX" = "YES" ]; then
   cd ../doc/latex
+  echo "Postprocessing LaTeX files"
 
   # Remove the URIs in EPS files
   for file in *.eps
   do
+    echo "$file"
     ed -s <<!EOF "$file"
       g/\[ \/Rect/.,.+4d
       w

@@ -1,3 +1,8 @@
+2008-06-19  Wu Yongwei  <adah@sh163.net>
+
+	* misc/doxit.sh: Postprocess HTML files too to remove the space
+	between -> and *; print more messages.
+
 2008-06-18  Wu Yongwei  <adah@sh163.net>
 
 	* misc/doxit.sh: Do not use `\+' in regexp to improve portability
