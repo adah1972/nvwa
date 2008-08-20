@@ -575,7 +575,6 @@ static void free_pointer(void* pointer, void* addr, bool is_array)
         ptr->prev->next = ptr->next;
         ptr->next->prev = ptr->prev;
     }
-    free(ptr);
     if (new_verbose_flag)
     {
         fast_mutex_autolock lock(new_output_lock);
@@ -585,6 +584,7 @@ static void free_pointer(void* pointer, void* addr, bool is_array)
                 (char*)ptr + ALIGNED_LIST_ITEM_SIZE,
                 ptr->size, total_mem_alloc);
     }
+    free(ptr);
     return;
 }
 

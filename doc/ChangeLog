@@ -1,3 +1,8 @@
+2008-08-20  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (free_pointer): Fix the use-after-free problem
+	that can cause core dumps (thanks to rudi).
+
 2008-06-19  Wu Yongwei  <adah@sh163.net>
 
 	* misc/doxit.sh: Postprocess HTML files too to remove the space
