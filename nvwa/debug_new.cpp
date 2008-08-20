@@ -419,6 +419,7 @@ static void print_position(const void* ptr, int line)
     }
 }
 
+#if _DEBUG_NEW_TAILCHECK
 /**
  * Checks whether the padding bytes at the end of a memory block is
  * tampered with.
@@ -436,6 +437,7 @@ static bool check_tail(new_ptr_list_t* ptr)
             return false;
     return true;
 }
+#endif
 
 /**
  * Allocates memory and initializes control data.

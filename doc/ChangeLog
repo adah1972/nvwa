@@ -1,5 +1,11 @@
 2008-08-20  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/debug_new.cpp (check_tail): Wrap in a _DEBUG_NEW_TAILCHECK
+	conditional compilation block to avoid a compiler warning as well as
+	unnecessary object code.
+
+2008-08-20  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/debug_new.cpp (free_pointer): Fix the use-after-free problem
 	that can cause core dumps (thanks to rudi).
 
