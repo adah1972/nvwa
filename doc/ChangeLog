@@ -1,5 +1,24 @@
 2008-08-23  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/bool_array.cpp: Update copyright information.
+	* nvwa/bool_array.h: Ditto.
+	* nvwa/class_level_lock.h: Ditto.
+	* nvwa/cont_ptr_utils.h: Ditto.
+	* nvwa/debug_new.cpp: Ditto.
+	* nvwa/debug_new.h: Ditto.
+	* nvwa/fast_mutex.h: Ditto.
+	* nvwa/fixed_mem_pool.h: Ditto.
+	* nvwa/mem_pool_base.cpp: Ditto.
+	* nvwa/mem_pool_base.h: Ditto.
+	* nvwa/object_level_lock.h: Ditto.
+	* nvwa/pctimer.h: Ditto.
+	* nvwa/set_assign.h: Ditto.
+	* nvwa/static_assert.h: Ditto.
+	* nvwa/static_mem_pool.cpp: Ditto.
+	* nvwa/static_mem_pool.h: Ditto.
+
+2008-08-23  Wu Yongwei  <adah@sh163.net>
+
 	* doc/README: Update information about the 2007 changes in
 	debug_new.
 
