@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.12, 2007/12/31
+ * @version 4.13, 2008/08/20
  * @author  Wu Yongwei
  *
  */
