@@ -1,3 +1,8 @@
+2008-08-23  Wu Yongwei  <adah@sh163.net>
+
+	* doc/README: Update information about the 2007 changes in
+	debug_new.
+
 2008-08-20  Wu Yongwei  <adah@sh163.net>
 
 	* misc/Doxyfile (USE_WINDOWS_ENCODING): Remove since it has become

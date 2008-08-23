@@ -79,6 +79,17 @@ Contents
    converted with addr2line on the fly.  This makes memory tracing much
    easier.
 
+   With an idea from Greg Herlihy’s post in comp.lang.c++.moderated, the
+   implementation was much improved in 2007.  The most significant
+   result is that placement new can be used with debug_new now!  Full
+   support for new(std::nothrow) is provided, with its null-returning
+   error semantics (by default).  Memory corruption will be checked on
+   freeing the pointers and checking the leaks, and a new function
+   check_mem_corruption is added for your on-demand use in debugging.
+   You may also want to define _DEBUG_NEW_TAILCHECK to something like 4
+   for past-end memory corruption check, which is off by default to
+   ensure performance is not affected.
+
    NOTE for GCC 3.x users:  Unless you are using a very old GCC 3.x
    release (before 3.2.2), most probably you would want to define the
    environment variable GLIBCPP_FORCE_NEW ("set GLIBCPP_FORCE_NEW=1" in
