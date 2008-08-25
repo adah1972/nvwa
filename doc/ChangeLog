@@ -1,3 +1,9 @@
+2008-08-25  Wu Yongwei  <adah@sh163.net>
+
+	* misc/release.sh: Remove the unnecessary cvs login; fix a minor
+	compatibility issue that loses the directory structure in copying;
+	remove OS control files (found under OS X) in doc/html.
+
 2008-08-23  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/bool_array.cpp: Update copyright information.
