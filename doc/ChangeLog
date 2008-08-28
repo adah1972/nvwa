@@ -1,3 +1,8 @@
+2008-08-28  Wu Yongwei  <adah@sh163.net>
+
+	* misc/release.bat: Mirror the cp command line change in release.sh
+	to avoid potential compatibility issues and make them consistent.
+
 2008-08-25  Wu Yongwei  <adah@sh163.net>
 
 	* misc/release.sh: Remove the unnecessary cvs login; fix a minor

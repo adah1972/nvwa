@@ -11,7 +11,7 @@ cd %RELEASE%
 set CVSROOT=:pserver:anonymous@nvwa.cvs.sourceforge.net:/cvsroot/nvwa
 echo.|cvs login
 cvs -z9 co doc nvwa
-cp -pr ..\..\doc\latex\refman.pdf ..\..\doc\html\ doc
+cp -pr ..\..\doc\latex\refman.pdf ..\..\doc\html doc
 cd doc\html
 rm -f *.dot *.map *.md5
 cd ..\..
