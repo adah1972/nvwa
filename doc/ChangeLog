@@ -1,3 +1,9 @@
+2008-09-10  Wu Yongwei  <adah@sh163.net>
+
+	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.8.1.
+	* misc/release.bat (VER): Ditto.
+	* misc/release.sh (VER): Ditto.
+
 2008-08-28  Wu Yongwei  <adah@sh163.net>
 
 	* misc/release.bat: Mirror the cp command line change in release.sh
