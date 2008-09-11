@@ -1,3 +1,8 @@
+2008-09-11  Wu Yongwei  <adah@sh163.net>
+
+	* doc/README: Change the right curly quote to the ASCII apostrophe
+	to avoid encoding problems.
+
 2008-09-10  Wu Yongwei  <adah@sh163.net>
 
 	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.8.1.

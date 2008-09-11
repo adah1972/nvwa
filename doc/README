@@ -79,7 +79,7 @@ Contents
    converted with addr2line on the fly.  This makes memory tracing much
    easier.
 
-   With an idea from Greg Herlihy’s post in comp.lang.c++.moderated, the
+   With an idea from Greg Herlihy's post in comp.lang.c++.moderated, the
    implementation was much improved in 2007.  The most significant
    result is that placement new can be used with debug_new now!  Full
    support for new(std::nothrow) is provided, with its null-returning
