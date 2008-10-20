@@ -1,3 +1,8 @@
+2008-10-20  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp (free_pointer): Fix the bug that the wrong
+	caller address is output when a memory corruption occurs.
+
 2008-09-11  Wu Yongwei  <adah@sh163.net>
 
 	* doc/README: Change the right curly quote to the ASCII apostrophe

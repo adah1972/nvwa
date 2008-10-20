@@ -532,7 +532,7 @@ static void free_pointer(void* pointer, void* addr, bool is_array)
             fast_mutex_autolock lock(new_output_lock);
             fprintf(new_output_fp, "delete%s: invalid pointer %p (",
                     is_array ? "[]" : "", pointer);
-            print_position(_DEBUG_NEW_CALLER_ADDRESS, 0);
+            print_position(addr, 0);
             fprintf(new_output_fp, ")\n");
         }
         check_mem_corruption();
