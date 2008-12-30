@@ -2,7 +2,7 @@
 
 REM Batch file to create "nvwa-x.y.zip"
 
-set VER=0.8.1
+set VER=0.8.2
 set RELEASE=nvwa-%VER%
 rm -rf %RELEASE% %RELEASE%.zip
 mkdir %RELEASE%

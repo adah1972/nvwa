@@ -1,3 +1,9 @@
+2008-12-30  Wu Yongwei  <adah@sh163.net>
+
+	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.8.2.
+	* misc/release.bat (VER): Ditto.
+	* misc/release.sh (VER): Ditto.
+
 2008-10-20  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/debug_new.cpp (free_pointer): Fix the bug that the wrong
