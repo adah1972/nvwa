@@ -84,8 +84,8 @@
     };
 # else
     /**
-     * Helper class for class-level locking.  This is the multi-threaded
-     * implementation.
+     * Helper class for object-level locking.  This is the
+     * multi-threaded implementation.
      */
     template <class _Host>
     class object_level_lock

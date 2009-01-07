@@ -1,3 +1,8 @@
+2009-01-07  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/object_level_lock.h: Correct a typo in the documentation
+	comment.
+
 2008-12-30  Wu Yongwei  <adah@sh163.net>
 
 	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.8.2.
