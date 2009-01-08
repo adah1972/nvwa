@@ -34,7 +34,7 @@
  * href="http://www.awprofessional.com/articles/article.asp?p=25298">
  * "Multithreading and the C++ Type System"</a> for the ideas behind.
  *
- * @version 1.4, 2004/05/09
+ * @version 1.5, 2009/01/07
  * @author  Wu Yongwei
  *
  */
