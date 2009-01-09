@@ -45,7 +45,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running
  *
- * @version 1.14, 2005/09/19
+ * @version 1.15, 2009/01/09
  * @author  Wu Yongwei
  *
  */
@@ -58,6 +58,7 @@
 #include <stdlib.h>
 #include "class_level_lock.h"
 #include "mem_pool_base.h"
+#include "static_assert.h"
 
 /**
  * Defines the alignment of memory blocks.
@@ -65,6 +66,14 @@
 #ifndef MEM_POOL_ALIGNMENT
 #define MEM_POOL_ALIGNMENT 4
 #endif
+
+/**
+ * Aligns the memory block size.
+ *
+ * @param __size    size to be aligned
+ */
+#define MEM_POOL_ALIGN(__size) ((size_t(__size) + MEM_POOL_ALIGNMENT - 1) \
+                                / MEM_POOL_ALIGNMENT * MEM_POOL_ALIGNMENT)
 
 /**
  * Class template to manipulate a fixed-size memory pool.  Please notice
@@ -86,7 +95,6 @@ public:
 protected:
     static bool   bad_alloc_handler();
 private:
-    static size_t _S_align(size_t __size);
     static void*  _S_mem_pool_ptr;
     static void*  _S_first_avail_ptr;
     static int    _S_alloc_cnt;
@@ -153,9 +161,10 @@ inline void fixed_mem_pool<_Tp>::deallocate(void* __block_ptr)
 template <class _Tp>
 bool fixed_mem_pool<_Tp>::initialize(size_t __size)
 {
-    size_t __block_size = _S_align(sizeof(_Tp));
+    const size_t __block_size = MEM_POOL_ALIGN(sizeof(_Tp));
+    STATIC_ASSERT(__block_size >= sizeof(void*), Alignment_too_small);
     assert(!is_initialized());
-    assert(__size > 0 && __block_size >= sizeof(void*));
+    assert(__size > 0);
     _S_mem_pool_ptr = mem_pool_base::alloc_sys(__size * __block_size);
     _S_first_avail_ptr = _S_mem_pool_ptr;
     if (_S_mem_pool_ptr == NULL)
@@ -224,19 +233,6 @@ template <class _Tp>
 bool fixed_mem_pool<_Tp>::bad_alloc_handler()
 {
     return false;
-}
-
-/**
- * Aligns the memory block size.
- *
- * @param __size    size to be aligned
- * @return          aligned value of \a __size
- */
-template <class _Tp>
-inline size_t fixed_mem_pool<_Tp>::_S_align(size_t __size)
-{
-    return (__size + MEM_POOL_ALIGNMENT - 1)
-           / MEM_POOL_ALIGNMENT * MEM_POOL_ALIGNMENT;
 }
 
 /**

@@ -1,3 +1,12 @@
+2009-01-09  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/fixed_mem_pool.h (MEM_POOL_ALIGN): New macro (to replace
+	fixed_mem_pool<>::_S_align).
+	(fixed_mem_pool<>::_S_align): Remove.
+	(fixed_mem_pool<>::initialize): Replace the inline function _S_align
+	with the macro MEM_POOL_ALIGN to allow the use of STATIC_ASSERT and
+	more compiler optimizations.
+
 2009-01-07  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/object_level_lock.h: Correct a typo in the documentation
