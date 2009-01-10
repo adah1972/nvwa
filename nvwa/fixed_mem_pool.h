@@ -73,7 +73,8 @@
  * @param _Sz   size to be aligned
  */
 #define MEM_POOL_ALIGN(_Sz) \
-        (((_Sz) + MEM_POOL_ALIGNMENT - 1) & ~(MEM_POOL_ALIGNMENT - 1))
+        (((_Sz) + MEM_POOL_ALIGNMENT - 1) \
+         & ~(MEM_POOL_ALIGNMENT - 1))
 
 /**
  * Class template to manipulate a fixed-size memory pool.  Please notice
