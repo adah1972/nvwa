@@ -1,3 +1,8 @@
+2009-01-10  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/fixed_mem_pool (MEM_POOL_ALIGN): Make the macro parameter in
+	header files consistent in case.
+
 2009-01-09  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/fixed_mem_pool.h (MEM_POOL_ALIGN): New macro (to replace

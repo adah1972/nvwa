@@ -45,7 +45,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running
  *
- * @version 1.15, 2009/01/09
+ * @version 1.16, 2009/01/10
  * @author  Wu Yongwei
  *
  */
@@ -70,10 +70,10 @@
 /**
  * Aligns the memory block size.
  *
- * @param __size    size to be aligned
+ * @param _Sz   size to be aligned
  */
-#define MEM_POOL_ALIGN(__size) ((size_t(__size) + MEM_POOL_ALIGNMENT - 1) \
-                                / MEM_POOL_ALIGNMENT * MEM_POOL_ALIGNMENT)
+#define MEM_POOL_ALIGN(_Sz) ((size_t(_Sz) + MEM_POOL_ALIGNMENT - 1) \
+                             / MEM_POOL_ALIGNMENT * MEM_POOL_ALIGNMENT)
 
 /**
  * Class template to manipulate a fixed-size memory pool.  Please notice
