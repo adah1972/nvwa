@@ -1,5 +1,12 @@
 2009-01-10  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/fixed_mem_pool (MEM_POOL_ALIGN): Change the definition to use
+	potentially more efficient bit operations.
+	(fixed_mem_pool<>::initialize): Allow the alignment to be smaller
+	than the size of a pointer, but require it to be a power of two.
+
+2009-01-10  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/fixed_mem_pool (MEM_POOL_ALIGN): Make the macro parameter in
 	header files consistent in case.
 

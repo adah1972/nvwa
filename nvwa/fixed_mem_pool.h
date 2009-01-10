@@ -45,7 +45,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running
  *
- * @version 1.16, 2009/01/10
+ * @version 1.17, 2009/01/10
  * @author  Wu Yongwei
  *
  */
@@ -72,8 +72,8 @@
  *
  * @param _Sz   size to be aligned
  */
-#define MEM_POOL_ALIGN(_Sz) ((size_t(_Sz) + MEM_POOL_ALIGNMENT - 1) \
-                             / MEM_POOL_ALIGNMENT * MEM_POOL_ALIGNMENT)
+#define MEM_POOL_ALIGN(_Sz) \
+        (((_Sz) + MEM_POOL_ALIGNMENT - 1) & ~(MEM_POOL_ALIGNMENT - 1))
 
 /**
  * Class template to manipulate a fixed-size memory pool.  Please notice
@@ -161,8 +161,12 @@ inline void fixed_mem_pool<_Tp>::deallocate(void* __block_ptr)
 template <class _Tp>
 bool fixed_mem_pool<_Tp>::initialize(size_t __size)
 {
-    const size_t __block_size = MEM_POOL_ALIGN(sizeof(_Tp));
-    STATIC_ASSERT(__block_size >= sizeof(void*), Alignment_too_small);
+    STATIC_ASSERT(MEM_POOL_ALIGNMENT > 0, Bad_alignment);
+    STATIC_ASSERT((MEM_POOL_ALIGNMENT & (MEM_POOL_ALIGNMENT - 1)) == 0,
+                  Alignment_must_be_power_of_two);
+    const size_t __aligned_size = MEM_POOL_ALIGN(sizeof(_Tp));
+    const size_t __block_size = (__aligned_size > sizeof(void*)
+                               ? __aligned_size : sizeof(void*));
     assert(!is_initialized());
     assert(__size > 0);
     _S_mem_pool_ptr = mem_pool_base::alloc_sys(__size * __block_size);
