@@ -1,3 +1,8 @@
+2009-01-11  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/fixed_mem_pool (fixed_mem_pool<>::initialize): Fix the issue
+	that pointers can be misaligned.
+
 2009-01-10  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/fixed_mem_pool (MEM_POOL_ALIGN): Split the definition to two
