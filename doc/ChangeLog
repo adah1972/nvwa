@@ -1,5 +1,13 @@
 2009-01-12  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/fixed_mem_pool (MEM_POOL_ALIGN): Remove.
+	(fixed_mem_pool<>::block_size): New struct to calculate the block
+	size at compile time.
+	(fixed_mem_pool<>::initialize): Replace the use of MEM_POOL_ALIGN
+	with blocksize::value.
+
+2009-01-12  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/fixed_mem_pool (MEM_POOL_ALIGN): Change to a two-parameter
 	definition.
 	(fixed_mem_pool<>::alignment): New struct to allow the

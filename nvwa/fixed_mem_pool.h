@@ -45,7 +45,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running
  *
- * @version 1.19, 2009/01/12
+ * @version 1.20, 2009/01/12
  * @author  Wu Yongwei
  *
  */
@@ -68,14 +68,6 @@
 #endif
 
 /**
- * Aligns the memory block size.
- *
- * @param _Sz   size to be aligned
- */
-#define MEM_POOL_ALIGN(_Sz, _Align) \
-        (((_Sz) + (_Align) - 1) & ~((_Align) - 1))
-
-/**
  * Class template to manipulate a fixed-size memory pool.  Please notice
  * that only allocate and deallocate are protected by a lock.
  *
@@ -89,6 +81,12 @@ public:
     struct alignment
     {
         static const size_t value = MEM_POOL_ALIGNMENT;
+    };
+    struct block_size
+    {
+        static const size_t value =
+            (sizeof(_Tp) + fixed_mem_pool<_Tp>::alignment::value - 1)
+                       & ~(fixed_mem_pool<_Tp>::alignment::value - 1);
     };
     static void*  allocate();
     static void   deallocate(void*);
@@ -169,18 +167,18 @@ bool fixed_mem_pool<_Tp>::initialize(size_t __size)
                   Bad_alignment);
     STATIC_ASSERT((alignment::value & (alignment::value - 1)) == 0,
                   Alignment_must_be_power_of_two);
-    const size_t __block_size = MEM_POOL_ALIGN(sizeof(_Tp), alignment::value);
-    STATIC_ASSERT(__block_size >= sizeof(void*), Alignment_too_small);
+    STATIC_ASSERT(block_size::value >= sizeof(void*),
+                  Alignment_too_small);
     assert(!is_initialized());
     assert(__size > 0);
-    _S_mem_pool_ptr = mem_pool_base::alloc_sys(__size * __block_size);
+    _S_mem_pool_ptr = mem_pool_base::alloc_sys(__size * block_size::value);
     _S_first_avail_ptr = _S_mem_pool_ptr;
     if (_S_mem_pool_ptr == NULL)
         return false;
     char* __block = (char*)_S_mem_pool_ptr;
     while (--__size != 0)
     {
-        char* __next = __block + __block_size;
+        char* __next = __block + block_size::value;
         *(void**)__block = __next;
         __block = __next;
     }
