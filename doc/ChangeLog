@@ -1,3 +1,12 @@
+2009-01-12  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/fixed_mem_pool (MEM_POOL_ALIGN): Change to a two-parameter
+	definition.
+	(fixed_mem_pool<>::alignment): New struct to allow the
+	specialization of alignment.
+	(fixed_mem_pool<>::initialize): Use the specializable const instead
+	of a macro for memory alignment.
+
 2009-01-11  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/fixed_mem_pool (fixed_mem_pool<>::initialize): Fix the issue
