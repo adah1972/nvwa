@@ -99,6 +99,9 @@ if [ "$GENERATE_LATEX" = "YES" ]; then
   grepsedfile 'operator \$\\rightarrow\$ *' 'operator->' *.tex
   grepsedfile '\$\\rightarrow\$ *' '->' *.tex
 
+  # Note for non-PDFLaTeX output: the package cm-super should be
+  # installed, which would make the PDF file contain only Type 1 and
+  # TrueType fonts.
   if [ "$PDF_HYPERLINKS" = "NO" -a "$USE_PDFLATEX" = "NO" ]; then
     make clean ps
     ps2pdf -sPAPERSIZE=a4 refman.ps refman.pdf
@@ -117,6 +120,10 @@ if [ "$GENERATE_LATEX" = "YES" ]; then
     # USE_PDFLATEX=NO (option "pdf2") may not work the first time it is
     # run.  To work around this issue, run the script with the option
     # "pdf" first.
+    #
+    # With MiKTeX 2.7, the issue above is not reproduced, but the font
+    # effect is worse: the smaller-than-usual "T" and "E" are quite
+    # obvious.
     rm -f refman.pdf
     make
 
