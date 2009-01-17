@@ -1,5 +1,9 @@
 2009-01-17  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/fixed_mem_pool.h: Add more documentation comments.
+
+2009-01-17  Wu Yongwei  <adah@sh163.net>
+
 	* misc/doxit.sh: Add more comments regarding Doxygen PDF output.
 
 2009-01-12  Wu Yongwei  <adah@sh163.net>

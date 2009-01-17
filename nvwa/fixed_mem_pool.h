@@ -32,20 +32,24 @@
  * Definition of a fixed-size memory pool template for structs/classes.
  * This is a easy-to-use class template for pre-allocated memory pools.
  * The client side needs to do the following things:
- * - Use one of the macros #DECLARE_FIXED_MEM_POOL,
- *   #DECLARE_FIXED_MEM_POOL__NOTHROW, and
- *   #DECLARE_FIXED_MEM_POOL__THROW_NOCHECK at the end of the class
- *   (say, \c class \e _Cls) definitions
+ * - Use one of the macros
+ *   - #DECLARE_FIXED_MEM_POOL,
+ *   - #DECLARE_FIXED_MEM_POOL__NOTHROW, and
+ *   - #DECLARE_FIXED_MEM_POOL__THROW_NOCHECK
+ *   .
+ *   at the end of the class (say, \c class \e _Cls) definitions
  * - Call fixed_mem_pool<_Cls>::initialize at the beginning of the
  *   program
- * - Optionally, specialize fixed_mem_pool<_Cls>::bad_alloc_handler to
- *   change the behaviour when all memory blocks are allocated
+ * - Optionally, specialize fixed_mem_pool::bad_alloc_handler to change
+ *   the behaviour when all memory blocks are allocated
+ * - Optionally, specialize fixed_mem_pool::alignment to change the
+ *   alignment value for this specific type.
  * - Optionally, call fixed_mem_pool<_Cls>::deinitialize at exit of the
  *   program to check for memory leaks
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running
  *
- * @version 1.20, 2009/01/12
+ * @version 1.21, 2009/01/17
  * @author  Wu Yongwei
  *
  */
@@ -78,10 +82,18 @@ class fixed_mem_pool
 {
 public:
     typedef typename class_level_lock<fixed_mem_pool<_Tp> >::lock lock;
+    /**
+     * Specializable struct to define the alignment of an object in the
+     * fixed_mem_pool.
+     */
     struct alignment
     {
         static const size_t value = MEM_POOL_ALIGNMENT;
     };
+    /**
+     * Struct to calculate the block size based on the (specializable)
+     * alignment value.
+     */
     struct block_size
     {
         static const size_t value =
