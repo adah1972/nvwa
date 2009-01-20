@@ -119,11 +119,8 @@ if [ "$GENERATE_LATEX" = "YES" ]; then
     #
     # USE_PDFLATEX=NO (option "pdf2") may not work the first time it is
     # run.  To work around this issue, run the script with the option
-    # "pdf" first.
-    #
-    # With MiKTeX 2.7, the issue above is not reproduced, but the font
-    # effect is worse: the smaller-than-usual "T" and "E" are quite
-    # obvious.
+    # "pdf" first. -- This problem does not occur with more recent LaTeX
+    # distributions like MiKTeX 2.7 or TeXLive 2008.
     rm -f refman.pdf
     make
 
