@@ -1,5 +1,9 @@
 2009-02-03  Wu Yongwei  <adah@sh163.net>
 
+	* misc/Doxyfile (MAX_DOT_GRAPH_DEPTH): Remove obsolete option.
+
+2009-02-03  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/fc_queue.h: New file.
 	* doc/README: Add description of fc_queue.h.
 	* misc/Doxyfile (INPUT): Add fc_queue.h.
