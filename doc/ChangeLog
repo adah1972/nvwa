@@ -1,5 +1,11 @@
 2009-02-03  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/fc_queue.h: New file.
+	* doc/README: Add description of fc_queue.h.
+	* misc/Doxyfile (INPUT): Add fc_queue.h.
+
+2009-02-03  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/fixed_mem_pool.h: Adjust documentation comments.
 
 2009-01-17  Wu Yongwei  <adah@sh163.net>

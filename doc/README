@@ -122,6 +122,15 @@ Contents
    lock/unlock operations when the preprocessing symbol _DEBUG is
    defined.
 
+  * fc_queue.h
+
+   A queue that has a fixed capacity (maximum number of allowed items).
+   All memory is pre-allocated when the queue is initialized, so memory
+   consumption is well controlled.  When the queue is full, inserting a
+   new item will discard the oldest item in the queue.  Care is taken to
+   ensure this class template provides the strong exception safety
+   guarantee.
+
   * fixed_mem_pool.h
 
    A memory pool implementation that requires initialization (allocates
