@@ -38,18 +38,18 @@
  *   - #DECLARE_FIXED_MEM_POOL__THROW_NOCHECK
  *   .
  *   at the end of the class (say, \c class \e _Cls) definitions
- * - Call fixed_mem_pool<_Cls>::initialize at the beginning of the
- *   program
- * - Optionally, specialize fixed_mem_pool::bad_alloc_handler to change
- *   the behaviour when all memory blocks are allocated
  * - Optionally, specialize fixed_mem_pool::alignment to change the
  *   alignment value for this specific type.
+ * - Optionally, specialize fixed_mem_pool::bad_alloc_handler to change
+ *   the behaviour when all memory blocks are allocated
+ * - Call fixed_mem_pool<_Cls>::initialize at the beginning of the
+ *   program
  * - Optionally, call fixed_mem_pool<_Cls>::deinitialize at exit of the
  *   program to check for memory leaks
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running
  *
- * @version 1.21, 2009/01/17
+ * @version 1.22, 2009/02/03
  * @author  Wu Yongwei
  *
  */
