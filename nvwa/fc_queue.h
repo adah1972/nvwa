@@ -280,24 +280,24 @@ protected:
 
 protected:
     void __initialize(size_type __max_size);
-    void __destroy(void* __pointer, __true_type)
+    void __destroy(void* __ptr, __true_type)
     {}
-    void __destroy(void* __pointer, __false_type)
+    void __destroy(void* __ptr, __false_type)
     {
-        ((_Tp*)__pointer)->~_Tp();
+        ((_Tp*)__ptr)->~_Tp();
     }
-    void destroy(void* __pointer)
+    void destroy(void* __ptr)
     {
 #if defined(BOOST_CONFIG_HPP) && !defined(_FC_QUEUE_NO_BOOST_TYPETRAITS)
-        __destroy(__pointer, boost::has_trivial_destructor<_Tp>());
+        __destroy(__ptr, boost::has_trivial_destructor<_Tp>());
 #else
-        __destroy(__pointer,
+        __destroy(__ptr,
                   typename __type_traits<_Tp>::has_trivial_destructor());
 #endif
     }
-    void construct(void* __pointer, const _Tp& __value)
+    void construct(void* __ptr, const _Tp& __val)
     {
-        new (__pointer) _Tp(__value);
+        new (__ptr) _Tp(__val);
     }
 
 private:

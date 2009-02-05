@@ -1,3 +1,12 @@
+2009-02-05  Wu Yongwei  <adah@sh163.net>
+
+	Avoid using `__value', which is reserved by newer versions of MSVC
+	for Managed Extensions.
+	* nvwa/bool_array.cpp: Change `__value' to `__val'.
+	* nvwa/bool_array.h: Ditto.
+	* nvwa/fc_queue.h: Ditto.  Also change `__pointer' to `__ptr' for
+	symmetry.
+
 2009-02-03  Wu Yongwei  <adah@sh163.net>
 
 	* misc/Doxyfile (MAX_DOT_GRAPH_DEPTH): Remove obsolete option.

@@ -71,7 +71,7 @@ class bool_array
     {
     public:
         _Element(BYTE* __ptr, unsigned long __idx);
-        bool operator=(bool __value);
+        bool operator=(bool __val);
         operator bool() const;
     private:
         BYTE*   _M_byte_ptr;
@@ -85,7 +85,7 @@ public:
     ~bool_array() { if (_M_byte_ptr != NULL) free(_M_byte_ptr); }
 
     bool create(unsigned long __size);
-    void initialize(bool __value);
+    void initialize(bool __val);
 
     // Using unsigned type here can increase performance!
     _Element operator[](unsigned long __idx);
@@ -123,16 +123,16 @@ inline bool_array::_Element::_Element(BYTE* __ptr, unsigned long __idx)
 /**
  * Assigns a new boolean value to an array element.
  *
- * @param __value   the new boolean value
- * @return          the assigned boolean value
+ * @param __val the new boolean value
+ * @return      the assigned boolean value
  */
-inline bool bool_array::_Element::operator=(bool __value)
+inline bool bool_array::_Element::operator=(bool __val)
 {
-    if (__value)
+    if (__val)
         *(_M_byte_ptr + _M_byte_idx) |= 1 << _M_bit_idx;
     else
         *(_M_byte_ptr + _M_byte_idx) &= ~(1 << _M_bit_idx);
-    return __value;
+    return __val;
 }
 
 /**

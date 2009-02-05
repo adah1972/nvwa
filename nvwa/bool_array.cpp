@@ -130,14 +130,14 @@ bool bool_array::create(unsigned long __size)
 /**
  * Initializes all array elements to a specific value optimally.
  *
- * @param __value   the boolean value to assign to all elements
+ * @param __val   the boolean value to assign to all elements
  */
-void bool_array::initialize(bool __value)
+void bool_array::initialize(bool __val)
 {
     assert(_M_byte_ptr);
     size_t __byte_cnt = (size_t)((_M_length - 1) / 8) + 1;
-    memset(_M_byte_ptr, __value ? ~0 : 0, __byte_cnt);
-    if (__value)
+    memset(_M_byte_ptr, __val ? ~0 : 0, __byte_cnt);
+    if (__val)
     {
         int __valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
         _M_byte_ptr[__byte_cnt - 1] &= ~(~0 << __valid_bits_in_last_byte);
