@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2009 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * A fast mutex implementation for POSIX and Win32.
  *
- * @version 1.18, 2005/05/06
+ * @version 1.19, 2009/02/09
  * @author  Wu Yongwei
  *
  */
@@ -176,6 +176,9 @@
 # endif // _PTHREADS
 
 # ifdef _WIN32THREADS
+#   ifndef WIN32_LEAN_AND_MEAN
+#     define WIN32_LEAN_AND_MEAN
+#   endif /* WIN32_LEAN_AND_MEAN */
 #   include <windows.h>
 /**
  * Macro alias to `volatile' semantics.  Here it is truly volatile since

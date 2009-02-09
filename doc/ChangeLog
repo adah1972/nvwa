@@ -1,3 +1,8 @@
+2009-02-09  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/fast_mutex.h (WIN32_LEAN_AND_MEAN): Define it before
+	including <windows.h>, if it is not defined.
+
 2009-02-05  Wu Yongwei  <adah@sh163.net>
 
 	Avoid using `__value', which is reserved by newer versions of MSVC
