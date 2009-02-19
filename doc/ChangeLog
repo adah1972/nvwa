@@ -1,3 +1,13 @@
+2009-02-19  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cppi (#pragma init_seg): Use the init_seg(compiler)
+	pragma instead of init_seg(lib) to delay the automatic check_leaks
+	call even later.
+	(#pragma warning): Disable the warning for using the above pragma.
+	(#pragma warning): Disable a warning on MSVC 8.0 or later for using
+	strncpy.
+	(ALIGN): New macro name to replace the function-like `align'.
+
 2009-02-09  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/fast_mutex.h (WIN32_LEAN_AND_MEAN): Define it before

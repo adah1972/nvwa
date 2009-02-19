@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2009 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.14, 2008/10/20
+ * @version 4.15, 2009/02/19
  * @author  Wu Yongwei
  *
  */
@@ -176,9 +176,12 @@
 #endif
 
 #ifdef _MSC_VER
-#pragma warning(disable: 4073)  // #pragma init_seg(lib) used
+#pragma warning(disable: 4074)  // #pragma init_seg(compiler) used
 #pragma warning(disable: 4290)  // C++ exception specification ignored
-#pragma init_seg(lib)
+#if _MSC_VER >= 1400            // Visual Studio 2005 or later
+#pragma warning(disable: 4996)  // Use the `unsafe' strncpy
+#endif
+#pragma init_seg(compiler)
 #endif
 
 #undef  _DEBUG_NEW_EMULATE_MALLOC
@@ -193,7 +196,7 @@
 /**
  * Gets the aligned value of memory block size.
  */
-#define align(s) \
+#define ALIGN(s) \
         (((s) + _DEBUG_NEW_ALIGNMENT - 1) & ~(_DEBUG_NEW_ALIGNMENT - 1))
 
 /**
@@ -226,7 +229,7 @@ const unsigned MAGIC = 0x4442474E;
 /**
  * The extra memory allocated by <code>operator new</code>.
  */
-const int ALIGNED_LIST_ITEM_SIZE = align(sizeof(new_ptr_list_t));
+const int ALIGNED_LIST_ITEM_SIZE = ALIGN(sizeof(new_ptr_list_t));
 
 /**
  * List of all new'd pointers.
