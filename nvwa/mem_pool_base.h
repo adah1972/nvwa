@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2009 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for the memory pool base.
  *
- * @version 1.1, 2004/07/26
+ * @version 1.2, 2009/02/21
  * @author  Wu Yongwei
  *
  */
@@ -53,7 +53,10 @@ public:
     static void dealloc_sys(void* __ptr);
 
     /** Structure to store the next available memory block. */
-    struct _Block_list { _Block_list* _M_next; };
+    struct _Block_list
+    {
+        _Block_list* _M_next;   ///< Pointer to the next memory block
+    };
 };
 
 #endif // _MEM_POOL_BASE_H

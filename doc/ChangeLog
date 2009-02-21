@@ -1,6 +1,11 @@
+2009-02-21  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/mem_pool_base.cpp: Add more documentation comments.
+	* nvwa/mem_pool_base.h: Ditto.
+
 2009-02-19  Wu Yongwei  <adah@sh163.net>
 
-	* nvwa/debug_new.cppi (#pragma init_seg): Use the init_seg(compiler)
+	* nvwa/debug_new.cpp (#pragma init_seg): Use the init_seg(compiler)
 	pragma instead of init_seg(lib) to delay the automatic check_leaks
 	call even later.
 	(#pragma warning): Disable the warning for using the above pragma.
