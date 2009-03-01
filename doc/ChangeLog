@@ -1,3 +1,8 @@
+2009-03-01  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.cpp: Add more documentation comments.
+	(_DEBUG_NEW_FILENAME_LEN): Change the default value to 0 on Windows.
+
 2009-02-21  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/mem_pool_base.cpp: Add more documentation comments.

@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.15, 2009/02/19
+ * @version 4.16, 2009/03/01
  * @author  Wu Yongwei
  *
  */
@@ -102,14 +102,19 @@
  *
  * The length of file name stored if greater than zero.  If it is zero,
  * only a const char pointer will be stored.  Currently the default
- * behaviour is to copy the file name, because I found that the exit
- * leakage check cannot access the address of the file name sometimes
- * (in my case, a core dump will occur when trying to access the file
- * name in a shared library after a \c SIGINT).  The current default
- * value makes the size of new_ptr_list_t 64 on 32-bit platforms.
+ * value is non-zero (thus to copy the file name) on non-Windows
+ * platforms, because I once found that the exit leakage check could not
+ * access the address of the file name on Linux (in my case, a core dump
+ * occurred when check_leaks tried to access the file name in a shared
+ * library after a \c SIGINT).  This value makes the size of
+ * new_ptr_list_t \c 64 on non-Windows 32-bit platforms.
  */
 #ifndef _DEBUG_NEW_FILENAME_LEN
+#ifdef _WIN32
+#define _DEBUG_NEW_FILENAME_LEN 0
+#else
 #define _DEBUG_NEW_FILENAME_LEN 44
+#endif
 #endif
 
 /**
@@ -204,25 +209,25 @@
  */
 struct new_ptr_list_t
 {
-    new_ptr_list_t*     next;
-    new_ptr_list_t*     prev;
-    size_t              size;
+    new_ptr_list_t* next;       ///< Pointer to the next memory block
+    new_ptr_list_t* prev;       ///< Pointer to the previous memory block
+    size_t          size;       ///< Size of the memory block
     union
     {
 #if _DEBUG_NEW_FILENAME_LEN == 0
-    const char*         file;
+    const char*     file;       ///< Pointer to the file name of the caller
 #else
-    char                file[_DEBUG_NEW_FILENAME_LEN];
+    char            file[_DEBUG_NEW_FILENAME_LEN]; ///< File name of the caller
 #endif
-    void*               addr;
+    void*           addr;       ///< Address of the caller to \e new
     };
-    unsigned            line      :31;
-    unsigned            is_array  :1;
-    unsigned            magic;
+    unsigned        line   :31; ///< Line number of the caller; or \c 0
+    unsigned        is_array:1; ///< Non-zero iff <em>new[]</em> is used
+    unsigned        magic;      ///< Magic number for error detection
 };
 
 /**
- * Magic number for error detection.
+ * Definition of the constant magic number used for error detection.
  */
 const unsigned MAGIC = 0x4442474E;
 
