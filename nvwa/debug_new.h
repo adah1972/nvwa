@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @version 4.4, 2007/12/31
+ * @version 4.5, 2009/03/06
  * @author  Wu Yongwei
  *
  */
@@ -61,10 +61,10 @@
  * @def _DEBUG_NEW_REDEFINE_NEW
  *
  * Macro to indicate whether redefinition of \c new is wanted.  If one
- * wants to define one's own <code>operator new</code>, to call
- * <code>operator new</code> directly, or to call placement \c new, it
- * should be defined to \c 0 to alter the default behaviour.  Unless, of
- * course, one is willing to take the trouble to write something like:
+ * wants to define one's own <code>operator new</code>, or to call
+ * <code>operator new</code> directly, it should be defined to \c 0 to
+ * alter the default behaviour.  Unless, of course, one is willing to
+ * take the trouble to write something like:
  * @code
  * # ifdef new
  * #   define _NEW_REDEFINED
