@@ -1,5 +1,14 @@
 2009-03-06  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/fc_queue.h (fc_queue<>::fc_queue()): Add more description in
+	the documentation comment.
+	(fc_queue<>::fc_queue(const fc_queue&)): Add copy-constructor.
+	(fc_queue<>::operator=(const fc_queue&)): Add assignment operator.
+	(fc_queue<>::swap(fc_queue&)): New function.
+	(fc_queue<>::capacity()): New function.
+
+2009-03-06  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/debug_new.h: Remove the now out-of-date mention of placement
 	new in documentation comment.
 

@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @version 1.13, 2009/02/03
+ * @version 1.14, 2009/03/06
  * @author  Wu Yongwei
  *
  */
@@ -41,6 +41,7 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include <algorithm>
 #include <new>
 
 #if defined(BOOST_CONFIG_HPP) && !defined(_FC_QUEUE_NO_BOOST_TYPETRAITS)
@@ -76,7 +77,9 @@ public:
 
     /**
      * Default constructor that creates a null queue.  The queue remains
-     * in an uninitialized state (capacity not set).
+     * in an uninitialized (capacity not set), though defined, state.
+     * The member functions empty(), full(), capacity(), and size() still
+     * return meaningful results.
      */
     fc_queue() : _M_nodes_array(NULL), _M_new(NULL), _M_front(NULL)
                , _M_size(0), _M_max_size(0) {}
@@ -92,6 +95,13 @@ public:
     }
 
     /**
+     * Copy-constructor that copies all items from another queue.
+     *
+     * @param __rhs the queue to copy
+     */
+    fc_queue(const fc_queue& __rhs);
+
+    /**
      * Destructor.  It erases all elements and frees memory.
      */
     ~fc_queue()
@@ -105,8 +115,20 @@ public:
     }
 
     /**
+     * Assignment operator that copies all items from another queue.
+     *
+     * @param __rhs the queue to copy
+     */
+    fc_queue& operator=(const fc_queue& __rhs)
+    {
+        fc_queue temp(__rhs);
+        swap(temp);
+        return *this;
+    }
+
+    /**
      * Initializes the queue with a maximum size (capacity).  The queue
-     * must be default-constructed, and this function has not yet been
+     * must be default-constructed, and this function must not have been
      * called.
      *
      * @param __max_size    the maximum size allowed
@@ -149,9 +171,19 @@ public:
     }
 
     /**
+     * Gets the maximum number of allowed items in the queue.
+     *
+     * @return  the maximum number of allowed items in the queue
+     */
+    size_type capacity() const
+    {
+        return _M_max_size;
+    }
+
+    /**
      * Gets the number of existing items in the queue.
      *
-     * @return  the number of existing items in the queue.
+     * @return  the number of existing items in the queue
      */
     size_type size() const
     {
@@ -263,6 +295,22 @@ public:
         return false;
     }
 
+    /**
+     * Exchanges the items of two queues.
+     *
+     * @param __rhs the queue to exchange
+     */
+    void swap(fc_queue& __rhs)
+    {
+        std::swap(_M_nodes_array,    __rhs._M_nodes_array);
+        std::swap(_M_free_nodes_end, __rhs._M_free_nodes_end);
+        std::swap(_M_new,            __rhs._M_new);
+        std::swap(_M_front,          __rhs._M_front);
+        std::swap(_M_back,           __rhs._M_back);
+        std::swap(_M_size,           __rhs._M_size);
+        std::swap(_M_max_size,       __rhs._M_max_size);
+    }
+
 protected:
     /** Struct to represent a node in the queue. */
     struct _Node
@@ -299,11 +347,22 @@ protected:
     {
         new (__ptr) _Tp(__val);
     }
-
-private:
-    fc_queue(const fc_queue&);
-    fc_queue& operator=(const fc_queue&);
 };
+
+template <class _Tp>
+fc_queue<_Tp>::fc_queue(const fc_queue& __rhs)
+    : _M_nodes_array(NULL), _M_front(NULL)
+{
+    fc_queue temp(__rhs._M_max_size);
+    _Node* __node = __rhs._M_front;
+    while (__node)
+    {
+        temp.push(*(pointer)(&__node->_M_data));
+        __node = __node->_M_next;
+    }
+    assert(temp.size() == __rhs.size());
+    swap(temp);
+}
 
 template <class _Tp>
 void fc_queue<_Tp>::__initialize(size_type __max_size)
