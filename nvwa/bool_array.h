@@ -66,11 +66,15 @@ typedef unsigned char BYTE;
  */
 class bool_array
 {
+public:
+    typedef unsigned long size_type;
+
+private:
     /** Class to represent a reference to an array element. */
     class _Element
     {
     public:
-        _Element(BYTE* __ptr, unsigned long __idx);
+        _Element(BYTE* __ptr, size_type __idx);
         bool operator=(bool __val);
         operator bool() const;
     private:
@@ -81,33 +85,31 @@ class bool_array
 
 public:
     bool_array() : _M_byte_ptr(NULL), _M_length(0) {}
-    explicit bool_array(unsigned long __size);
+    explicit bool_array(size_type __size);
     ~bool_array() { if (_M_byte_ptr != NULL) free(_M_byte_ptr); }
 
-    bool create(unsigned long __size);
+    bool create(size_type __size);
     void initialize(bool __val);
 
     // Using unsigned type here can increase performance!
-    _Element operator[](unsigned long __idx);
-    bool at(unsigned long __idx) const;
-    void reset(unsigned long __idx);
-    void set(unsigned long __idx);
+    _Element operator[](size_type __idx);
+    bool at(size_type __idx) const;
+    void reset(size_type __idx);
+    void set(size_type __idx);
 
-    unsigned long size() const { return _M_length; }
-    unsigned long count() const;
-    unsigned long count(unsigned long __beg, unsigned long __end) const;
-    unsigned long find(bool __val, unsigned long __off = 0) const;
-    unsigned long find(bool __val, unsigned long __off,
-                       unsigned long __cnt) const;
-    unsigned long find_until(bool __val, unsigned long __off,
-                       unsigned long __end) const;
+    size_type size() const { return _M_length; }
+    size_type count() const;
+    size_type count(size_type __beg, size_type __end) const;
+    size_type find(bool __val, size_type __off = 0) const;
+    size_type find(bool __val, size_type __off, size_type __cnt) const;
+    size_type find_until(bool __val, size_type __off, size_type __end) const;
     void flip();
 
-    static const unsigned long npos = (unsigned long)-1;
+    static const size_type npos = (size_type)-1;
 
 private:
     BYTE*           _M_byte_ptr;
-    unsigned long   _M_length;
+    size_type       _M_length;
     static BYTE     _S_bit_count[256];
     static BYTE     _S_bit_ordinal[256];
 };
@@ -121,7 +123,7 @@ private:
  * @param __ptr pointer to the interal boolean data
  * @param __idx index of the array element to access
  */
-inline bool_array::_Element::_Element(BYTE* __ptr, unsigned long __idx)
+inline bool_array::_Element::_Element(BYTE* __ptr, size_type __idx)
 {
     _M_byte_ptr = __ptr;
     _M_byte_idx = (size_t)(__idx / 8);
@@ -160,7 +162,7 @@ inline bool_array::_Element::operator bool() const
  * @throw std::out_of_range if \a __size equals \c 0
  * @throw std::bad_alloc    if memory is insufficient
  */
-inline bool_array::bool_array(unsigned long __size)
+inline bool_array::bool_array(size_type __size)
     : _M_byte_ptr(NULL), _M_length(0)
 {
     if (__size == 0)
@@ -175,7 +177,7 @@ inline bool_array::bool_array(unsigned long __size)
  *
  * @param __idx index of the array element to access
  */
-inline bool_array::_Element bool_array::operator[](unsigned long __idx)
+inline bool_array::_Element bool_array::operator[](size_type __idx)
 {
     assert(_M_byte_ptr);
     assert(__idx < _M_length);
@@ -189,7 +191,7 @@ inline bool_array::_Element bool_array::operator[](unsigned long __idx)
  * @return      the boolean value of the accessed array element
  * @throw std::out_of_range when the index is too big
  */
-inline bool bool_array::at(unsigned long __idx) const
+inline bool bool_array::at(size_type __idx) const
 {
     size_t __byte_idx, __bit_idx;
     if (__idx >= _M_length)
@@ -205,7 +207,7 @@ inline bool bool_array::at(unsigned long __idx) const
  * @param __idx index of the array element to access
  * @throw std::out_of_range when the index is too big
  */
-inline void bool_array::reset(unsigned long __idx)
+inline void bool_array::reset(size_type __idx)
 {
     size_t __byte_idx, __bit_idx;
     if (__idx >= _M_length)
@@ -221,7 +223,7 @@ inline void bool_array::reset(unsigned long __idx)
  * @param __idx index of the array element to access
  * @throw std::out_of_range when the index is too big
  */
-inline void bool_array::set(unsigned long __idx)
+inline void bool_array::set(size_type __idx)
 {
     size_t __byte_idx, __bit_idx;
     if (__idx >= _M_length)
@@ -239,7 +241,9 @@ inline void bool_array::set(unsigned long __idx)
  * @return      index of the first value found if successful; \c npos
  *              otherwise
  */
-inline unsigned long bool_array::find(bool __val, unsigned long __off) const
+inline bool_array::size_type bool_array::find(
+        bool __val,
+        size_type __off) const
 {
     return find_until(__val, __off, _M_length);
 }
@@ -253,10 +257,10 @@ inline unsigned long bool_array::find(bool __val, unsigned long __off) const
  * @return      index of the first value found if successful; \c npos
  *              otherwise
  */
-inline unsigned long bool_array::find(
+inline bool_array::size_type bool_array::find(
         bool __val,
-        unsigned long __off,
-        unsigned long __cnt) const
+        size_type __off,
+        size_type __cnt) const
 {
     return find_until(__val, __off, __off + __cnt);
 }

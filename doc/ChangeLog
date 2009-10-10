@@ -1,5 +1,29 @@
 2009-10-10  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/bool_array.h (bool_array::size_type): New typedef.
+	(bool_array::_Element::_Element(BYTE*, size_type)): Replace
+	`unsigned long' with `size_type'.
+	(bool_array::bool_array(size_type)): Ditto.
+	(bool_array::create(size_type)): Ditto.
+	(bool_array::operator[](size_type)): Ditto.
+	(bool_array::at(size_type)): Ditto.
+	(bool_array::reset(size_type)): Ditto.
+	(bool_array::set(size_type)): Ditto.
+	(bool_array::size()): Ditto.
+	(bool_array::count()): Ditto.
+	(bool_array::count(size_type, size_type)): Ditto.
+	(bool_array::find(bool, size_type)): Ditto.
+	(bool_array::find(bool, size_type, size_type)): Ditto.
+	(bool_array::find_until(bool, size_type, size_type)): Ditto.
+	(bool_array::npos): Ditto.
+	(bool_array::_M_length): Ditto.
+	* nvwa/bool_array.cpp (bool_array::create(size_type)): Ditto.
+	(bool_array::count()): Ditto.
+	(bool_array::count(size_type, size_type)): Ditto.
+	(bool_array::find_until(bool, size_type, size_type)): Ditto.
+
+2009-10-10  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/bool_array.h (bool_array::find(bool, unsigned long)): New
 	member function declaration and inline definition.
 	(bool_array::find(bool, unsigned long, unsigned long)): Ditto.

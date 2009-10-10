@@ -161,7 +161,7 @@ BYTE bool_array::_S_bit_ordinal[256] =
  *                  a suitable value and memory allocation is
  *                  successful.
  */
-bool bool_array::create(unsigned long __size)
+bool bool_array::create(size_type __size)
 {
     if (__size == 0)
         return false;
@@ -205,10 +205,10 @@ void bool_array::initialize(bool __val)
  *
  * @return  the count of \c true elements
  */
-unsigned long bool_array::count() const
+bool_array::size_type bool_array::count() const
 {
     assert(_M_byte_ptr);
-    unsigned long __true_cnt = 0;
+    size_type __true_cnt = 0;
     size_t __byte_cnt = (size_t)((_M_length - 1) / 8) + 1;
     for (size_t __i = 0; __i < __byte_cnt; ++__i)
         __true_cnt += _S_bit_count[_M_byte_ptr[__i]];
@@ -222,10 +222,10 @@ unsigned long bool_array::count() const
  * @param __end end of the range (exclusive)
  * @return      the count of \c true elements
  */
-unsigned long bool_array::count(unsigned long __beg, unsigned long __end) const
+bool_array::size_type bool_array::count(size_type __beg, size_type __end) const
 {
     assert(_M_byte_ptr);
-    unsigned long __true_cnt = 0;
+    size_type __true_cnt = 0;
     size_t __byte_idx_beg, __byte_idx_end;
     BYTE __byte_val;
 
@@ -262,10 +262,10 @@ unsigned long bool_array::count(unsigned long __beg, unsigned long __end) const
  * @return      index of the first value found if successful; \c npos
  *              otherwise
  */
-unsigned long bool_array::find_until(
+bool_array::size_type bool_array::find_until(
         bool __val,
-        unsigned long __off,
-        unsigned long __end) const
+        size_type __off,
+        size_type __end) const
 {
     assert(_M_byte_ptr);
 
