@@ -1,3 +1,18 @@
+2009-10-10  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/bool_array.h (bool_array::find(bool, unsigned long)): New
+	member function declaration and inline definition.
+	(bool_array::find(bool, unsigned long, unsigned long)): Ditto.
+	(bool_array::find_until(bool, unsigned long, unsigned long)): New
+	member function declaration.
+	(bool_array::npos): New constant.
+	(bool_array::_S_bit_ordinal): New static member variable
+	declaration.
+	* nvwa/bool_array.cpp (bool_array::_S_bit_ordinal): New static
+	member variable definition.
+	(bool_array::find_until(bool, unsigned long, unsigned long)): New
+	member function definition.
+
 2009-03-06  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/fc_queue.h (fc_queue<>::fc_queue()): Add more description in
