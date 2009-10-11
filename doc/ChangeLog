@@ -1,5 +1,19 @@
 2009-10-11  Wu Yongwei  <adah@sh163.net>
 
+	Make operator[] work for a const bool_array; add swap().
+	* nvwa/bool_array.h: Adjust documentation comments.
+	(bool_array::_Element<>): Make it a template class.
+	(bool_array::const_reference): New typedef.
+	(bool_array::reference): New typedef.
+	(bool_array::operator[](size_type)): Change to return a reference.
+	(bool_array::operator[](size_type) const): New member function
+	returning a const_reference.
+	(bool_array::swap(bool_array&)): New member function declaration.
+	* nvwa/bool_array.cpp: Adjust comments.
+	(bool_array::swap(bool_array&)): New member function definition.
+
+2009-10-11  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/bool_array.h: Adjust documentation comments.
 	(bool_array::find_until(bool, size_type, size_type)): Change the
 	name of the second parameter to `__beg'.

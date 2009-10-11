@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @version 3.3, 2009/10/11
+ * @version 3.4, 2009/10/11
  * @author  Wu Yongwei
  *
  */
@@ -63,7 +63,7 @@ typedef unsigned char BYTE;
  *     specialization (nor did they have a <code>bit_vector</code>);
  *  -# I included some additional member functions, like \e initialize,
  *     \e count, and \e find, which should be useful;
- *  -# In my tests under MSVC 6/8/9 and GCC versions till 4.3 my code
+ *  -# In my tests under MSVC 6/8/9 and GCC versions before 4.3 my code
  *     is significantly FASTER than <code>vector&lt;bool&gt;</code> or
  *     the normal boolean array (while MSVC 7.1 and GCC 4.3 have
  *     comparable performance in their <code>vector&lt;bool&gt;</code>
@@ -72,23 +72,28 @@ typedef unsigned char BYTE;
 class bool_array
 {
 public:
+    /** Type of indices. */
     typedef unsigned long size_type;
 
 private:
     /** Class to represent a reference to an array element. */
+    template <typename _Byte_type>
     class _Element
     {
     public:
-        _Element(BYTE* __ptr, size_type __idx);
+        _Element(_Byte_type* __ptr, size_type __idx);
         bool operator=(bool __val);
         operator bool() const;
     private:
-        BYTE*   _M_byte_ptr;
-        size_t  _M_byte_idx;
-        size_t  _M_bit_idx;
+        _Byte_type* _M_byte_ptr;
+        size_t      _M_byte_idx;
+        size_t      _M_bit_idx;
     };
 
 public:
+    typedef _Element<BYTE> reference;
+    typedef _Element<const BYTE> const_reference;
+
     bool_array() : _M_byte_ptr(NULL), _M_length(0) {}
     explicit bool_array(size_type __size);
     ~bool_array() { if (_M_byte_ptr != NULL) free(_M_byte_ptr); }
@@ -96,7 +101,9 @@ public:
     bool create(size_type __size);
     void initialize(bool __val);
 
-    _Element operator[](size_type __idx);
+    reference operator[](size_type __idx);
+    const_reference operator[](size_type __idx) const;
+
     bool at(size_type __idx) const;
     void reset(size_type __idx);
     void set(size_type __idx);
@@ -107,7 +114,9 @@ public:
     size_type find(bool __val, size_type __off = 0) const;
     size_type find(bool __val, size_type __off, size_type __cnt) const;
     size_type find_until(bool __val, size_type __beg, size_type __end) const;
+
     void flip();
+    void swap(bool_array& rhs);
 
     static const size_type npos = (size_type)-1;
 
@@ -127,7 +136,10 @@ private:
  * @param __ptr pointer to the interal boolean data
  * @param __idx index of the array element to access
  */
-inline bool_array::_Element::_Element(BYTE* __ptr, size_type __idx)
+template <typename _Byte_type>
+inline bool_array::_Element<_Byte_type>::_Element(
+        _Byte_type* __ptr,
+        size_type __idx)
 {
     _M_byte_ptr = __ptr;
     _M_byte_idx = (size_t)(__idx / 8);
@@ -140,7 +152,8 @@ inline bool_array::_Element::_Element(BYTE* __ptr, size_type __idx)
  * @param __val the new boolean value
  * @return      the assigned boolean value
  */
-inline bool bool_array::_Element::operator=(bool __val)
+template <typename _Byte_type>
+inline bool bool_array::_Element<_Byte_type>::operator=(bool __val)
 {
     if (__val)
         *(_M_byte_ptr + _M_byte_idx) |= 1 << _M_bit_idx;
@@ -154,7 +167,8 @@ inline bool bool_array::_Element::operator=(bool __val)
  *
  * @return  the boolean value of the accessed array element
  */
-inline bool_array::_Element::operator bool() const
+template <typename _Byte_type>
+inline bool_array::_Element<_Byte_type>::operator bool() const
 {
     return *(_M_byte_ptr + _M_byte_idx) & (1 << _M_bit_idx) ? true : false;
 }
@@ -180,12 +194,26 @@ inline bool_array::bool_array(size_type __size)
  * Creates a reference to an array element.
  *
  * @param __idx index of the array element to access
+ * @return      reference to the specified element
  */
-inline bool_array::_Element bool_array::operator[](size_type __idx)
+inline bool_array::reference bool_array::operator[](size_type __idx)
 {
     assert(_M_byte_ptr);
     assert(__idx < _M_length);
-    return _Element(_M_byte_ptr, __idx);
+    return reference(_M_byte_ptr, __idx);
+}
+
+/**
+ * Creates a const reference to an array element.
+ *
+ * @param __idx index of the array element to access
+ * @return      const reference to the specified element
+ */
+inline bool_array::const_reference bool_array::operator[](size_type __idx)const
+{
+    assert(_M_byte_ptr);
+    assert(__idx < _M_length);
+    return const_reference(_M_byte_ptr, __idx);
 }
 
 /**

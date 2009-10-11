@@ -31,15 +31,20 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @version 3.3, 2009/10/11
+ * @version 3.4, 2009/10/11
  * @author  Wu Yongwei
  *
  */
 
-#include <limits.h>
-#include <string.h>
-#include "bool_array.h"
+#include <limits.h>     // UINT_MAX, ULONG_MAX
+#include <string.h>     // memset
+#include <algorithm>    // std::swap
+#include "bool_array.h" // bool_array
 
+/**
+ * Array that contains pre-calculated values how many 1-bits there are
+ * in a given byte.
+ */
 BYTE bool_array::_S_bit_count[256] =
 {
     0, /*   0 */ 1, /*   1 */ 1, /*   2 */ 2, /*   3 */ 1, /*   4 */
@@ -96,6 +101,11 @@ BYTE bool_array::_S_bit_count[256] =
     8  /* 255 */
 }; // End _S_bit_count
 
+/**
+ * Array that contains pre-calculated values which the first 1-bit is
+ * for a given byte.  The first element indicates an invalid value
+ * (there are only 0-bits).
+ */
 BYTE bool_array::_S_bit_ordinal[256] =
 {
     9, /*   0 */
@@ -318,4 +328,15 @@ void bool_array::flip()
         _M_byte_ptr[__i] = ~_M_byte_ptr[__i];
     int __valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
     _M_byte_ptr[__byte_cnt - 1] &= ~(~0 << __valid_bits_in_last_byte);
+}
+
+/**
+ * Exchanges the content of this bool_array with another.
+ *
+ * @param rhs   another bool_array to exchange content with
+ */
+void bool_array::swap(bool_array& rhs)
+{
+    std::swap(_M_byte_ptr, rhs._M_byte_ptr);
+    std::swap(_M_length,   rhs._M_length);
 }
