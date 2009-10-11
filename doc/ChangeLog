@@ -1,3 +1,18 @@
+2009-10-11  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/bool_array.h: Adjust documentation comments.
+	(bool_array::find_until(bool, size_type, size_type)): Change the
+	name of the second parameter to `__beg'.
+	((bool_array::at(size_type)): Correct the English message in the
+	exception thrown.
+	(bool_array::reset(size_type)): Ditto.
+	(bool_array::set(size_type)): Ditto.
+	* nvwa/bool_array.cpp: Adjust documentation comments.
+	(bool_array::count(size_type, size_type)): Correct the English
+	message in the exception thrown.
+	(bool_array::find_until(bool, size_type, size_type)): Change the
+	name of the second parameter to `__beg'; add a range check.
+
 2009-10-10  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/bool_array.h (bool_array::size_type): New typedef.

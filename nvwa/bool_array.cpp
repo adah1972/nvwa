@@ -31,7 +31,7 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @version 3.2, 2009/10/10
+ * @version 3.3, 2009/10/11
  * @author  Wu Yongwei
  *
  */
@@ -232,7 +232,7 @@ bool_array::size_type bool_array::count(size_type __beg, size_type __end) const
     if (__beg >= __end)
         return 0;
     if (__end > _M_length)
-        throw std::out_of_range("invalid bool_array subscript");
+        throw std::out_of_range("invalid bool_array range");
     --__end;
 
     __byte_idx_beg = (size_t)(__beg / 8);
@@ -254,9 +254,10 @@ bool_array::size_type bool_array::count(size_type __beg, size_type __end) const
 }
 
 /**
- * Searches for the specified boolean value.
+ * Searches for the specified boolean value.  This function accepts a
+ * range expressed in [beginning, end).
  *
- * @param __off index of the position at which the search is to begin
+ * @param __beg index of the position at which the search is to begin
  * @param __end index of the end position (exclusive) to stop searching
  * @param __val the boolean value to find
  * @return      index of the first value found if successful; \c npos
@@ -264,19 +265,21 @@ bool_array::size_type bool_array::count(size_type __beg, size_type __end) const
  */
 bool_array::size_type bool_array::find_until(
         bool __val,
-        size_type __off,
+        size_type __beg,
         size_type __end) const
 {
     assert(_M_byte_ptr);
+    if (__beg >= __end || __end > _M_length)
+        throw std::out_of_range("invalid bool_array range");
 
     --__end;
-    size_t __byte_idx_beg = (size_t)(__off / 8);
+    size_t __byte_idx_beg = (size_t)(__beg / 8);
     size_t __byte_idx_end = (size_t)(__end / 8);
     BYTE __byte_val = _M_byte_ptr[__byte_idx_beg];
 
     if (__val)
     {
-        __byte_val &= ~0 << (__off % 8);
+        __byte_val &= ~0 << (__beg % 8);
         for (size_t __i = __byte_idx_beg; __i < __byte_idx_end;)
         {
             if (__byte_val != 0)
@@ -289,7 +292,7 @@ bool_array::size_type bool_array::find_until(
     }
     else
     {
-        __byte_val |= ~(~0 << (__off % 8));
+        __byte_val |= ~(~0 << (__beg % 8));
         for (size_t __i = __byte_idx_beg; __i < __byte_idx_end;)
         {
             if (__byte_val != 0xFF)

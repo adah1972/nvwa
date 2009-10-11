@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @version 3.2, 2009/10/10
+ * @version 3.3, 2009/10/11
  * @author  Wu Yongwei
  *
  */
@@ -56,13 +56,18 @@ typedef unsigned char BYTE;
  * This was first written in April 1995, before I knew of any existing
  * implementation of this kind of classes.  Of course, the C++ Standard
  * Template Library now demands an implementation of packed boolean
- * array as `vector&lt;bool>', but the code here should still be useful
- * for the following three reasons: (1) STL support of MSVC 6 did not
- * implement this specialization (nor did it have a `bit_vector'); (2) I
- * incorporated some useful member functions from the STL bitset into
- * this `bool_array', including `reset', `set', `flip', and `count';
- * (3) In my tests under MSVC 6 and GCC 2.95.3/3.2.3 my code is really
- * FASTER than vector&lt;bool> or the normal boolean array.
+ * array as <code>vector&lt;bool&gt;</code>, but the code here should
+ * still be useful for the following reasons:
+ *
+ *  -# Some compilers (like MSVC 6) did not implement this
+ *     specialization (nor did they have a <code>bit_vector</code>);
+ *  -# I included some additional member functions, like \e initialize,
+ *     \e count, and \e find, which should be useful;
+ *  -# In my tests under MSVC 6/8/9 and GCC versions till 4.3 my code
+ *     is significantly FASTER than <code>vector&lt;bool&gt;</code> or
+ *     the normal boolean array (while MSVC 7.1 and GCC 4.3 have
+ *     comparable performance in their <code>vector&lt;bool&gt;</code>
+ *     implementations).
  */
 class bool_array
 {
@@ -91,7 +96,6 @@ public:
     bool create(size_type __size);
     void initialize(bool __val);
 
-    // Using unsigned type here can increase performance!
     _Element operator[](size_type __idx);
     bool at(size_type __idx) const;
     void reset(size_type __idx);
@@ -102,7 +106,7 @@ public:
     size_type count(size_type __beg, size_type __end) const;
     size_type find(bool __val, size_type __off = 0) const;
     size_type find(bool __val, size_type __off, size_type __cnt) const;
-    size_type find_until(bool __val, size_type __off, size_type __end) const;
+    size_type find_until(bool __val, size_type __beg, size_type __end) const;
     void flip();
 
     static const size_type npos = (size_type)-1;
@@ -195,7 +199,7 @@ inline bool bool_array::at(size_type __idx) const
 {
     size_t __byte_idx, __bit_idx;
     if (__idx >= _M_length)
-        throw std::out_of_range("invalid bool_array subscript");
+        throw std::out_of_range("invalid bool_array index");
     __byte_idx = (size_t)(__idx / 8);
     __bit_idx  = (size_t)(__idx % 8);
     return *(_M_byte_ptr + __byte_idx) & (1 << __bit_idx) ? true : false;
@@ -211,7 +215,7 @@ inline void bool_array::reset(size_type __idx)
 {
     size_t __byte_idx, __bit_idx;
     if (__idx >= _M_length)
-        throw std::out_of_range("invalid bool_array subscript");
+        throw std::out_of_range("invalid bool_array index");
     __byte_idx = (size_t)(__idx / 8);
     __bit_idx  = (size_t)(__idx % 8);
     *(_M_byte_ptr + __byte_idx) &= ~(1 << __bit_idx);
@@ -227,14 +231,15 @@ inline void bool_array::set(size_type __idx)
 {
     size_t __byte_idx, __bit_idx;
     if (__idx >= _M_length)
-        throw std::out_of_range("invalid bool_array subscript");
+        throw std::out_of_range("invalid bool_array index");
     __byte_idx = (size_t)(__idx / 8);
     __bit_idx  = (size_t)(__idx % 8);
     *(_M_byte_ptr + __byte_idx) |= 1 << __bit_idx;
 }
 
 /**
- * Searches for the specified boolean value.
+ * Searches for the specified boolean value.  This function seaches from
+ * the specified position (default to beginning) to the end.
  *
  * @param __off index of the position at which the search is to begin
  * @param __val the boolean value to find
@@ -249,7 +254,8 @@ inline bool_array::size_type bool_array::find(
 }
 
 /**
- * Searches for the specified boolean value.
+ * Searches for the specified boolean value.  This function accepts a
+ * range expressed in {position, count}.
  *
  * @param __off index of the position at which the search is to begin
  * @param __cnt the number of bits to search
