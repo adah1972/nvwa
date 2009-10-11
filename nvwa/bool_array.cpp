@@ -31,15 +31,16 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @version 3.4, 2009/10/11
+ * @version 3.5, 2009/10/11
  * @author  Wu Yongwei
  *
  */
 
-#include <limits.h>     // UINT_MAX, ULONG_MAX
-#include <string.h>     // memset
-#include <algorithm>    // std::swap
-#include "bool_array.h" // bool_array
+#include <limits.h>         // UINT_MAX, ULONG_MAX
+#include <string.h>         // memset
+#include <algorithm>        // std::swap
+#include "bool_array.h"     // bool_array
+#include "static_assert.h"  // STATIC_ASSERT
 
 /**
  * Array that contains pre-calculated values how many 1-bits there are
@@ -163,6 +164,23 @@ BYTE bool_array::_S_bit_ordinal[256] =
 }; // End _S_bit_ordinal
 
 /**
+ * Constructs the packed boolean array with a specific size.
+ *
+ * @param __size            size of the array
+ * @throw std::out_of_range if \a __size equals \c 0
+ * @throw std::bad_alloc    if memory is insufficient
+ */
+bool_array::bool_array(size_type __size)
+    : _M_byte_ptr(NULL), _M_length(0)
+{
+    if (__size == 0)
+        throw std::out_of_range("invalid bool_array size");
+
+    if (!create(__size))
+        throw std::bad_alloc();
+}
+
+/**
  * Creates the packed boolean array with a specific size.
  *
  * @param __size    size of the array
@@ -175,20 +193,26 @@ bool bool_array::create(size_type __size)
 {
     if (__size == 0)
         return false;
+
+#if defined(__x86_64) || defined(_WIN64) || defined(_M_IA64)
+    STATIC_ASSERT(sizeof(size_t) == sizeof(size_type),  Wrong_size_type);
+#else
+    STATIC_ASSERT(sizeof(size_t) <= sizeof(size_type),  Wrong_size_type);
+    STATIC_ASSERT(sizeof(size_t)==sizeof(unsigned int), Wrong_size_assumption);
     // Will be optimized away by a decent compiler if ULONG_MAX == UINT_MAX
     if (ULONG_MAX > UINT_MAX && ((__size - 1) / 8 + 1) > UINT_MAX)
         return false;
+#endif
 
     size_t __byte_cnt = (size_t)((__size - 1) / 8 + 1);
-    if (_M_byte_ptr)
-        free(_M_byte_ptr);
-    _M_length = 0;
-
-    // Uses malloc/free instead of new/delete to avoid exception handling
-    // differences between compilers
-    if (!(_M_byte_ptr = (BYTE*)malloc(__byte_cnt)))
+    BYTE* __byte_ptr = (BYTE*)malloc(__byte_cnt);
+    if (__byte_ptr == NULL)
         return false;
 
+    if (_M_byte_ptr)
+        free(_M_byte_ptr);
+
+    _M_byte_ptr = __byte_ptr;
     _M_length = __size;
     return true;
 }

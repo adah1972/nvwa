@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @version 3.4, 2009/10/11
+ * @version 3.5, 2009/10/11
  * @author  Wu Yongwei
  *
  */
@@ -72,8 +72,13 @@ typedef unsigned char BYTE;
 class bool_array
 {
 public:
-    /** Type of indices. */
-    typedef unsigned long size_type;
+#if defined(__x86_64) || defined(_WIN64) || defined(_M_IA64)
+    /** Type of array indices. */
+    typedef unsigned long long  size_type;
+#else
+    /** Type of array indices. */
+    typedef unsigned long       size_type;
+#endif
 
 private:
     /** Class to represent a reference to an array element. */
@@ -171,23 +176,6 @@ template <typename _Byte_type>
 inline bool_array::_Element<_Byte_type>::operator bool() const
 {
     return *(_M_byte_ptr + _M_byte_idx) & (1 << _M_bit_idx) ? true : false;
-}
-
-/**
- * Constructs the packed boolean array with a specific size.
- *
- * @param __size            size of the array
- * @throw std::out_of_range if \a __size equals \c 0
- * @throw std::bad_alloc    if memory is insufficient
- */
-inline bool_array::bool_array(size_type __size)
-    : _M_byte_ptr(NULL), _M_length(0)
-{
-    if (__size == 0)
-        throw std::out_of_range("invalid bool_array size");
-
-    if (!create(__size))
-        throw std::bad_alloc();
 }
 
 /**
