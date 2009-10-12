@@ -31,18 +31,13 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @version 3.6, 2009/10/12
+ * @version 3.7, 2009/10/12
  * @author  Wu Yongwei
  *
  */
 
 #ifndef _BOOL_ARRAY_H
 #define _BOOL_ARRAY_H
-
-#ifndef _BYTE_DEFINED
-#define _BYTE_DEFINED
-typedef unsigned char BYTE;
-#endif // !_BYTE_DEFINED
 
 #include <assert.h>     // assert
 #include <stdlib.h>     // exit, free, and NULL
@@ -81,6 +76,9 @@ public:
 #endif
 
 private:
+    /** Private definition of byte to avoid polluting the global namespace. */
+    typedef unsigned char       byte;
+
     /** Class to represent a reference to an array element. */
     template <typename _Byte_type>
     class _Element
@@ -96,8 +94,8 @@ private:
     };
 
 public:
-    typedef _Element<BYTE> reference;
-    typedef _Element<const BYTE> const_reference;
+    typedef _Element<byte> reference;
+    typedef _Element<const byte> const_reference;
 
     bool_array() : _M_byte_ptr(NULL), _M_length(0) {}
     explicit bool_array(size_type __size);
@@ -131,10 +129,10 @@ public:
 #endif
 
 private:
-    BYTE*           _M_byte_ptr;
+    byte*           _M_byte_ptr;
     size_type       _M_length;
-    static BYTE     _S_bit_count[256];
-    static BYTE     _S_bit_ordinal[256];
+    static byte     _S_bit_count[256];
+    static byte     _S_bit_ordinal[256];
 };
 
 

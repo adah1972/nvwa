@@ -1,5 +1,16 @@
 2009-10-12  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/bool_array.h (BYTE): Remove.
+	(bool_array::byte): New typedef.
+	(bool_array): Replace `BYTE' with `byte'.
+	* nvwa/bool_array.cpp (bool_array::_S_bit_count): Ditto.
+	(bool_array::_S_bit_ordinal): Ditto.
+	(bool_array::create(size_type)): Ditto.
+	(bool_array::count(size_type, size_type)): Ditto.
+	(bool_array::find_until(bool, size_type, size_type)): Ditto.
+
+2009-10-12  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/bool_array.h: Improve the documentation comments.
 	(bool_array::npos): Add a workaround definition to make it work
 	under MSVC 6.

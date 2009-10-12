@@ -31,7 +31,7 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @version 3.6, 2009/10/12
+ * @version 3.7, 2009/10/12
  * @author  Wu Yongwei
  *
  */
@@ -46,7 +46,7 @@
  * Array that contains pre-calculated values how many 1-bits there are
  * in a given byte.
  */
-BYTE bool_array::_S_bit_count[256] =
+bool_array::byte bool_array::_S_bit_count[256] =
 {
     0, /*   0 */ 1, /*   1 */ 1, /*   2 */ 2, /*   3 */ 1, /*   4 */
     2, /*   5 */ 2, /*   6 */ 3, /*   7 */ 1, /*   8 */ 2, /*   9 */
@@ -107,7 +107,7 @@ BYTE bool_array::_S_bit_count[256] =
  * for a given byte.  The first element indicates an invalid value
  * (there are only 0-bits).
  */
-BYTE bool_array::_S_bit_ordinal[256] =
+bool_array::byte bool_array::_S_bit_ordinal[256] =
 {
     9, /*   0 */
     0, /*   1 */ 1, /*   2 */ 0, /*   3 */ 2, /*   4 */ 0, /*   5 */
@@ -205,7 +205,7 @@ bool bool_array::create(size_type __size)
 #endif
 
     size_t __byte_cnt = (size_t)((__size - 1) / 8 + 1);
-    BYTE* __byte_ptr = (BYTE*)malloc(__byte_cnt);
+    byte* __byte_ptr = (byte*)malloc(__byte_cnt);
     if (__byte_ptr == NULL)
         return false;
 
@@ -261,7 +261,7 @@ bool_array::size_type bool_array::count(size_type __beg, size_type __end) const
     assert(_M_byte_ptr);
     size_type __true_cnt = 0;
     size_t __byte_idx_beg, __byte_idx_end;
-    BYTE __byte_val;
+    byte __byte_val;
 
     if (__beg == __end)
         return 0;
@@ -312,7 +312,7 @@ bool_array::size_type bool_array::find_until(
 
     size_t __byte_idx_beg = (size_t)(__beg / 8);
     size_t __byte_idx_end = (size_t)(__end / 8);
-    BYTE __byte_val = _M_byte_ptr[__byte_idx_beg];
+    byte __byte_val = _M_byte_ptr[__byte_idx_beg];
 
     if (__val)
     {
@@ -333,12 +333,12 @@ bool_array::size_type bool_array::find_until(
         for (size_t __i = __byte_idx_beg; __i < __byte_idx_end;)
         {
             if (__byte_val != 0xFF)
-                return __i * 8 + _S_bit_ordinal[(BYTE)~__byte_val];
+                return __i * 8 + _S_bit_ordinal[(byte)~__byte_val];
             __byte_val = _M_byte_ptr[++__i];
         }
         __byte_val |= ~0 << (__end % 8 + 1);
         if (__byte_val != 0xFF)
-            return __byte_idx_end * 8 + _S_bit_ordinal[(BYTE)~__byte_val];
+            return __byte_idx_end * 8 + _S_bit_ordinal[(byte)~__byte_val];
     }
 
     return npos;
