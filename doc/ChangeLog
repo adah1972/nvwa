@@ -4,7 +4,7 @@
 	long if 64-bit OS is detected.
 	* nvwa/bool_array.cpp (bool_array::create(size_type)): Make static
 	checks to ensure the type sizes are correct; make it fail-safe.
-	(bool_array::bool_array): Un-inline to the .cpp file.
+	(bool_array::bool_array(size_type)): Un-inline to the .cpp file.
 
 2009-10-11  Wu Yongwei  <adah@sh163.net>
 
