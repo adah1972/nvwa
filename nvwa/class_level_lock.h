@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2009 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * In essence Loki ClassLevelLockable re-engineered to use a fast_mutex class.
  *
- * @version 1.13, 2007/12/30
+ * @version 1.14, 2009/10/12
  * @author  Wu Yongwei
  *
  */
@@ -64,7 +64,7 @@
      * Helper class for class-level locking.  This is the multi-threaded
      * implementation.  The main departure from Loki ClassLevelLockable
      * is that there is an additional template parameter which can make
-     * the lock not lock at all even in multi-threaded environments.
+     * the lock not %lock at all even in multi-threaded environments.
      * See static_mem_pool.h for real usage.
      */
     template <class _Host, bool _RealLock = true>

@@ -1,5 +1,10 @@
 2009-10-12  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/class_level_lock.h: Change a documentation comment to prevent
+	unwanted automatic link generation.
+
+2009-10-12  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/bool_array.h (BYTE): Remove.
 	(bool_array::byte): New typedef.
 	(bool_array): Replace `BYTE' with `byte'.
