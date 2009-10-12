@@ -1,5 +1,12 @@
 2009-10-12  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/bool_array.h: Improve the documentation comments.
+	(bool_array::npos): Add a workaround definition to make it work
+	under MSVC 6.
+	* nvwa/bool_array.cpp: Improve the documentation comment.
+
+2009-10-12  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/bool_array.cpp (bool_array::count(size_type, size_type)):
 	Allow the beginning position to be equal to the end position, but
 	not greater than.

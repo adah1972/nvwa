@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @version 3.5, 2009/10/11
+ * @version 3.6, 2009/10/12
  * @author  Wu Yongwei
  *
  */
@@ -56,18 +56,18 @@ typedef unsigned char BYTE;
  * This was first written in April 1995, before I knew of any existing
  * implementation of this kind of classes.  Of course, the C++ Standard
  * Template Library now demands an implementation of packed boolean
- * array as <code>vector&lt;bool&gt;</code>, but the code here should
- * still be useful for the following reasons:
+ * array as \c vector&lt;bool&gt;, but the code here should still be
+ * useful for the following reasons:
  *
  *  -# Some compilers (like MSVC 6) did not implement this
- *     specialization (nor did they have a <code>bit_vector</code>);
- *  -# I included some additional member functions, like \e initialize,
- *     \e count, and \e find, which should be useful;
- *  -# In my tests under MSVC 6/8/9 and GCC versions before 4.3 my code
- *     is significantly FASTER than <code>vector&lt;bool&gt;</code> or
- *     the normal boolean array (while MSVC 7.1 and GCC 4.3 have
- *     comparable performance in their <code>vector&lt;bool&gt;</code>
- *     implementations).
+ *     specialization (and they may not have a \c bit_vector either);
+ *  -# I included some additional member functions, like \e #initialize,
+ *     \e #count, and \e #find, which should be useful;
+ *  -# My tests show that the code here is significantly FASTER
+ *     than \c vector&lt;bool&gt; (and the normal boolean array)
+ *     under MSVC versions 6/8/9 and GCC versions before 4.3 (while
+ *     the \c vector&lt;bool&gt; implementations of MSVC 7.1 and
+ *     GCC 4.3 have performance similar to that of \c bool_array).
  */
 class bool_array
 {
@@ -123,7 +123,12 @@ public:
     void flip();
     void swap(bool_array& rhs);
 
+#if defined(_MSC_VER) && _MSC_VER < 1300
+    enum { npos = (size_type)-1  /**< Constant representing `not found' */ };
+#else
+    /** Constant representing `not found'. */
     static const size_type npos = (size_type)-1;
+#endif
 
 private:
     BYTE*           _M_byte_ptr;
@@ -259,7 +264,7 @@ inline void bool_array::set(size_type __idx)
  *
  * @param __off index of the position at which the search is to begin
  * @param __val the boolean value to find
- * @return      index of the first value found if successful; \c npos
+ * @return      index of the first value found if successful; \c #npos
  *              otherwise
  */
 inline bool_array::size_type bool_array::find(
@@ -276,7 +281,7 @@ inline bool_array::size_type bool_array::find(
  * @param __off index of the position at which the search is to begin
  * @param __cnt the number of bits to search
  * @param __val the boolean value to find
- * @return      index of the first value found if successful; \c npos
+ * @return      index of the first value found if successful; \c #npos
  *              otherwise
  */
 inline bool_array::size_type bool_array::find(

@@ -294,7 +294,7 @@ bool_array::size_type bool_array::count(size_type __beg, size_type __end) const
  * @param __beg index of the position at which the search is to begin
  * @param __end index of the end position (exclusive) to stop searching
  * @param __val the boolean value to find
- * @return      index of the first value found if successful; \c npos
+ * @return      index of the first value found if successful; \c #npos
  *              otherwise
  */
 bool_array::size_type bool_array::find_until(
