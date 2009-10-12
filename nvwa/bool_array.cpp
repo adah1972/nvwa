@@ -31,7 +31,7 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @version 3.5, 2009/10/11
+ * @version 3.6, 2009/10/12
  * @author  Wu Yongwei
  *
  */
@@ -263,9 +263,9 @@ bool_array::size_type bool_array::count(size_type __beg, size_type __end) const
     size_t __byte_idx_beg, __byte_idx_end;
     BYTE __byte_val;
 
-    if (__beg >= __end)
+    if (__beg == __end)
         return 0;
-    if (__end > _M_length)
+    if (__beg > __end || __end > _M_length)
         throw std::out_of_range("invalid bool_array range");
     --__end;
 
@@ -303,10 +303,13 @@ bool_array::size_type bool_array::find_until(
         size_type __end) const
 {
     assert(_M_byte_ptr);
-    if (__beg >= __end || __end > _M_length)
-        throw std::out_of_range("invalid bool_array range");
 
+    if (__beg == __end)
+        return npos;
+    if (__beg > __end || __end > _M_length)
+        throw std::out_of_range("invalid bool_array range");
     --__end;
+
     size_t __byte_idx_beg = (size_t)(__beg / 8);
     size_t __byte_idx_end = (size_t)(__end / 8);
     BYTE __byte_val = _M_byte_ptr[__byte_idx_beg];

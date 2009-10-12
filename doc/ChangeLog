@@ -1,3 +1,10 @@
+2009-10-12  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/bool_array.cpp (bool_array::count(size_type, size_type)):
+	Allow the beginning position to be equal to the end position, but
+	not greater than.
+	(bool_array::find_until(bool, size_type, size_type)): Ditto.
+
 2009-10-11  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/bool_array.h (bool_array::size_type): Define to unsigned long
