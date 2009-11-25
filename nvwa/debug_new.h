@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2009 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @version 4.5, 2009/03/06
+ * @version 4.6, 2009/11/25
  * @author  Wu Yongwei
  *
  */
@@ -85,6 +85,21 @@
 #define _DEBUG_NEW_REDEFINE_NEW 1
 #endif
 
+/**
+ * @def _DEBUG_NEW_TYPE
+ *
+ * Macro to indicate which variant of \c #DEBUG_NEW is wanted.  The
+ * default value \c 1 allows the use of placement new (like
+ * <code>%new(std::nothrow)</code>), but the verbose output (when
+ * \c #new_verbose_flag is \c true) looks worse than some older
+ * versions (no file/line information for allocations).  Define it
+ * to \c 2 to revert to the old behaviour that records file and line
+ * information directly on the call to <code>operator new</code>.
+ */
+#ifndef _DEBUG_NEW_TYPE
+#define _DEBUG_NEW_TYPE 1
+#endif
+
 /* Prototypes */
 int check_leaks();
 int check_mem_corruption();
@@ -115,7 +130,11 @@ extern const char* new_progname;// default to NULL; should be assigned argv[0]
  * otherwise \c new will be defined to it, and one must use \c new
  * instead.
  */
+#if _DEBUG_NEW_TYPE == 1
 #define DEBUG_NEW __debug_new_recorder(__FILE__, __LINE__) ->* new
+#else
+#define DEBUG_NEW new(__FILE__, __LINE__)
+#endif
 
 # if _DEBUG_NEW_REDEFINE_NEW
 #   define new DEBUG_NEW

@@ -1,3 +1,10 @@
+2009-11-25  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/debug_new.h (_DEBUG_NEW_TYPE): New macro to control the
+	definition of DEBUG_NEW.
+	(DEBUG_NEW): Revert to the pre-0.8 definition if _DEBUG_NEW_TYPE is
+	not 1.
+
 2009-10-12  Wu Yongwei  <adah@sh163.net>
 
 	* nvwa/class_level_lock.h: Change a documentation comment to prevent
