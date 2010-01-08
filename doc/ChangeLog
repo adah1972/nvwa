@@ -1,7 +1,13 @@
 2010-01-08  Wu Yongwei  <adah@sh163.net>
 
-	* class_level_lock: Add a comment about the use of `friend'.
-	* object_level_lock: Ditto.
+	Drop the already non-existent support for Digital Mars compiler.
+	* nvwa/debug_new.h (HAVE_PLACEMENT_DELETE): Remove its use.
+	* nvwa/debug_new.cpp (HAVE_PLACEMENT_DELETE): Ditto.
+
+2010-01-08  Wu Yongwei  <adah@sh163.net>
+
+	* nvwa/class_level_lock.h: Add a comment about the use of `friend'.
+	* nvwa/object_level_lock.h: Ditto.
 
 2009-11-25  Wu Yongwei  <adah@sh163.net>
 

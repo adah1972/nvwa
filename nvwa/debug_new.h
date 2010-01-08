@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2009 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @version 4.6, 2009/11/25
+ * @version 4.7, 2010/01/08
  * @author  Wu Yongwei
  *
  */
@@ -41,21 +41,6 @@
 
 #include <new>
 #include <stdio.h>
-
-/**
- * @def HAVE_PLACEMENT_DELETE
- *
- * Macro to indicate whether placement delete operators are supported on
- * a certain compiler.  Some compilers, like Borland C++ Compiler 5.5.1
- * and Digital Mars Compiler 8.42, do not support them, and the user
- * must define this macro to \c 0 to make the program compile.  Also
- * note that in that case memory leakage will occur if an exception is
- * thrown in the initialization (constructor) of a dynamically created
- * object.
- */
-#ifndef HAVE_PLACEMENT_DELETE
-#define HAVE_PLACEMENT_DELETE 1
-#endif
 
 /**
  * @def _DEBUG_NEW_REDEFINE_NEW
@@ -105,10 +90,8 @@ int check_leaks();
 int check_mem_corruption();
 void* operator new(size_t size, const char* file, int line);
 void* operator new[](size_t size, const char* file, int line);
-#if HAVE_PLACEMENT_DELETE
 void operator delete(void* pointer, const char* file, int line) throw();
 void operator delete[](void* pointer, const char* file, int line) throw();
-#endif
 #if defined(_MSC_VER) && _MSC_VER < 1300
 // MSVC 6 requires the following declarations; or the non-placement
 // new[]/delete[] will not compile.

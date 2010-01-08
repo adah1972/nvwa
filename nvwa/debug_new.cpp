@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2009 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.16, 2009/03/01
+ * @version 4.17, 2010/01/08
  * @author  Wu Yongwei
  *
  */
@@ -777,7 +777,6 @@ void operator delete[](void* pointer) throw()
     free_pointer(pointer, _DEBUG_NEW_CALLER_ADDRESS, true);
 }
 
-#if HAVE_PLACEMENT_DELETE
 void operator delete(void* pointer, const char* file, int line) throw()
 {
     if (new_verbose_flag)
@@ -815,7 +814,6 @@ void operator delete[](void* pointer, const std::nothrow_t&) throw()
 {
     operator delete[](pointer, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
-#endif // HAVE_PLACEMENT_DELETE
 
 int __debug_new_counter::_S_count = 0;
 
