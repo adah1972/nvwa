@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2009 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * In essence Loki ClassLevelLockable re-engineered to use a fast_mutex class.
  *
- * @version 1.14, 2009/10/12
+ * @version 1.15, 2010/01/08
  * @author  Wu Yongwei
  *
  */
@@ -73,6 +73,9 @@
         static fast_mutex _S_mtx;
 
     public:
+        // The C++ 1998 Standard requires the use of `friend' here, but
+        // it is considered a defect and subsequently changed.  It is
+        // used here for compatibility with old compilers.
         class lock;
         friend class lock;
 
