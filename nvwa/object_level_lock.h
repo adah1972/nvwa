@@ -93,9 +93,10 @@
         mutable fast_mutex _M_mtx;
 
     public:
-        // The C++ 1998 Standard requires the use of `friend' here, but
-        // it is considered a defect and subsequently changed.  It is
-        // used here for compatibility with old compilers.
+        // The C++ 1998 Standard required the use of `friend' here, but
+        // this requirement was considered a defect and subsequently
+        // changed.  It is still used here for compatibility with older
+        // compilers.
         class lock;
         friend class lock;
 
