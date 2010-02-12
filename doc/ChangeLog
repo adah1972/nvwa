@@ -1,5 +1,13 @@
 2010-01-08  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/debug_new.cpp (alloc_mem): Cast the size to unsigned long and
+	output it as unsigned long.
+	(free_pointer): Ditto.
+	(check_leaks): Ditto.
+	(check_mem_corruption): Ditto.
+
+2010-01-08  Wu Yongwei  <adah@sh163.net>
+
 	Drop the already non-existent support for Digital Mars compiler.
 	* nvwa/debug_new.h (HAVE_PLACEMENT_DELETE): Remove its use.
 	* nvwa/debug_new.cpp (HAVE_PLACEMENT_DELETE): Ditto.

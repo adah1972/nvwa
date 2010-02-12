@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.17, 2010/01/08
+ * @version 4.18, 2010/02/12
  * @author  Wu Yongwei
  *
  */
@@ -472,8 +472,8 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
 #else
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
-                "Out of memory when allocating %u bytes\n",
-                size);
+                "Out of memory when allocating %lu bytes\n",
+                (unsigned long)size);
         fflush(new_output_fp);
         _DEBUG_NEW_ERROR_ACTION;
 #endif
@@ -507,9 +507,9 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
     {
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
-                "new%s: allocated %p (size %u, ",
+                "new%s: allocated %p (size %lu, ",
                 is_array ? "[]" : "",
-                pointer, size);
+                pointer, (unsigned long)size);
         if (line != 0)
             print_position(ptr->file, ptr->line);
         else
@@ -556,10 +556,10 @@ static void free_pointer(void* pointer, void* addr, bool is_array)
             msg = "delete after new[]";
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
-                "%s: pointer %p (size %u)\n\tat ",
+                "%s: pointer %p (size %lu)\n\tat ",
                 msg,
                 (char*)ptr + ALIGNED_LIST_ITEM_SIZE,
-                ptr->size);
+                (unsigned long)ptr->size);
         print_position(addr, 0);
         fprintf(new_output_fp, "\n\toriginally allocated at ");
         if (ptr->line != 0)
@@ -589,10 +589,10 @@ static void free_pointer(void* pointer, void* addr, bool is_array)
     {
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
-                "delete%s: freed %p (size %u, %u bytes still allocated)\n",
+                "delete%s: freed %p (size %lu, %lu bytes still allocated)\n",
                 is_array ? "[]" : "",
                 (char*)ptr + ALIGNED_LIST_ITEM_SIZE,
-                ptr->size, total_mem_alloc);
+                (unsigned long)ptr->size, (unsigned long)total_mem_alloc);
     }
     free(ptr);
     return;
@@ -627,9 +627,9 @@ int check_leaks()
         }
 #endif
         fprintf(new_output_fp,
-                "Leaked object at %p (size %u, ",
+                "Leaked object at %p (size %lu, ",
                 pointer,
-                ptr->size);
+                (unsigned long)ptr->size);
         if (ptr->line != 0)
             print_position(ptr->file, ptr->line);
         else
@@ -671,17 +671,17 @@ int check_mem_corruption()
         {
 #endif
             fprintf(new_output_fp,
-                    "Heap data corrupt near %p (size %u, ",
+                    "Heap data corrupt near %p (size %lu, ",
                     pointer,
-                    ptr->size);
+                    (unsigned long)ptr->size);
 #if _DEBUG_NEW_TAILCHECK
         }
         else
         {
             fprintf(new_output_fp,
-                    "Overwritten past end of object at %p (size %u, ",
+                    "Overwritten past end of object at %p (size %lu, ",
                     pointer,
-                    ptr->size);
+                    (unsigned long)ptr->size);
         }
 #endif
         if (ptr->line != 0)
