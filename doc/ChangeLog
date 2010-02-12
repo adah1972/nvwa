@@ -1,5 +1,16 @@
-2010-01-08  Wu Yongwei  <adah@sh163.net>
+2010-02-12  Wu Yongwei  <adah@sh163.net>
 
+	Eliminate weird errors caused by the name `__block' (reported by
+	Paul Butcher).
+	* nvwa/fixed_mem_pool (fixed_mem_pool<>::initialize): Replace
+	`__block' with `__blk'.
+	* nvwa/static_mem_pool.h (static_mem_pool<>::deallocate): Ditto.
+	(static_mem_pool<>::~static_mem_pool): Ditto.
+	(static_mem_pool<>::recycle): Ditto.
+
+2010-02-12  Wu Yongwei  <adah@sh163.net>
+
+	Eliminate warning messages (reported by Paul Butcher).
 	* nvwa/debug_new.cpp (alloc_mem): Cast the size to unsigned long and
 	output it as unsigned long.
 	(free_pointer): Ditto.

@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -49,7 +49,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running
  *
- * @version 1.22, 2009/02/03
+ * @version 1.23, 2010/02/12
  * @author  Wu Yongwei
  *
  */
@@ -187,14 +187,14 @@ bool fixed_mem_pool<_Tp>::initialize(size_t __size)
     _S_first_avail_ptr = _S_mem_pool_ptr;
     if (_S_mem_pool_ptr == NULL)
         return false;
-    char* __block = (char*)_S_mem_pool_ptr;
+    char* __blk = (char*)_S_mem_pool_ptr;
     while (--__size != 0)
     {
-        char* __next = __block + block_size::value;
-        *(void**)__block = __next;
-        __block = __next;
+        char* __next = __blk + block_size::value;
+        *(void**)__blk = __next;
+        __blk = __next;
     }
-    *(void**)__block = NULL;
+    *(void**)__blk = NULL;
     return true;
 }
 

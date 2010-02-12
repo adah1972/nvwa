@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.20, 2007/10/20
+ * @version 1.21, 2010/02/12
  * @author  Wu Yongwei
  *
  */
@@ -173,9 +173,9 @@ public:
     {
         assert(__ptr != NULL);
         lock __guard;
-        _Block_list* __block = reinterpret_cast<_Block_list*>(__ptr);
-        __block->_M_next = _S_memory_block_p;
-        _S_memory_block_p = __block;
+        _Block_list* __blk = reinterpret_cast<_Block_list*>(__ptr);
+        __blk->_M_next = _S_memory_block_p;
+        _S_memory_block_p = __blk;
     }
     virtual void recycle();
 
@@ -190,12 +190,12 @@ private:
 #   ifdef _DEBUG
         // Empty the pool to avoid false memory leakage alarms.  This is
         // generally not necessary for release binaries.
-        _Block_list* __block = _S_memory_block_p;
-        while (__block)
+        _Block_list* __blk = _S_memory_block_p;
+        while (__blk)
         {
-            _Block_list* __next = __block->_M_next;
-            dealloc_sys(__block);
-            __block = __next;
+            _Block_list* __next = __blk->_M_next;
+            dealloc_sys(__blk);
+            __blk = __next;
         }
         _S_memory_block_p = NULL;
 #   endif
@@ -239,15 +239,15 @@ void static_mem_pool<_Sz, _Gid>::recycle()
     // before the pool-specific lock.  However, no race conditions are
     // found so far.
     lock __guard;
-    _Block_list* __block = _S_memory_block_p;
-    while (__block)
+    _Block_list* __blk = _S_memory_block_p;
+    while (__blk)
     {
-        if (_Block_list* __temp = __block->_M_next)
+        if (_Block_list* __temp = __blk->_M_next)
         {
             _Block_list* __next = __temp->_M_next;
-            __block->_M_next = __next;
+            __blk->_M_next = __next;
             dealloc_sys(__temp);
-            __block = __next;
+            __blk = __next;
         }
         else
         {
