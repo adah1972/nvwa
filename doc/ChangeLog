@@ -1,16 +1,16 @@
-2010-02-15  Wu Yongwei  <adah@sh163.net>
+2010-02-15  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/debug_new.cpp (__debug_new_recorder::_M_process): Output the
 	file/line information in verbose mode.
 
-2010-02-15  Wu Yongwei  <adah@sh163.net>
+2010-02-15  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Fix the wrong warning about placement new when one uses `new
 	NonPODType[size]' (thanks to Paul Butcher).
 	* nvwa/debug_new.cpp (__debug_new_recorder::_M_process): Adjust the
 	pointer by checking its alignment.
 
-2010-02-12  Wu Yongwei  <adah@sh163.net>
+2010-02-12  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Eliminate weird errors caused by the name `__block' (reported by
 	Paul Butcher).
@@ -20,7 +20,7 @@
 	(static_mem_pool<>::~static_mem_pool): Ditto.
 	(static_mem_pool<>::recycle): Ditto.
 
-2010-02-12  Wu Yongwei  <adah@sh163.net>
+2010-02-12  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Eliminate warning messages in compilation (reported by Paul Butcher).
 	* nvwa/debug_new.cpp (alloc_mem): Cast the size to unsigned long and
@@ -29,13 +29,13 @@
 	(check_leaks): Ditto.
 	(check_mem_corruption): Ditto.
 
-2010-01-08  Wu Yongwei  <adah@sh163.net>
+2010-01-08  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Drop the already non-existent support for Digital Mars compiler.
 	* nvwa/debug_new.h (HAVE_PLACEMENT_DELETE): Remove its use.
 	* nvwa/debug_new.cpp (HAVE_PLACEMENT_DELETE): Ditto.
 
-2010-01-08  Wu Yongwei  <adah@sh163.net>
+2010-01-08  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/class_level_lock.h: Add a comment about the use of `friend'.
 	* nvwa/object_level_lock.h: Ditto.
