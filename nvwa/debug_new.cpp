@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.18, 2010/02/12
+ * @version 4.19, 2010/02/15
  * @author  Wu Yongwei
  *
  */
@@ -463,6 +463,9 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
     STATIC_ASSERT((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0,
                   Alignment_must_be_power_of_two);
     STATIC_ASSERT(_DEBUG_NEW_TAILCHECK >= 0, Invalid_tail_check_length);
+#if _DEBUG_NEW_TYPE == 1
+    STATIC_ASSERT(_DEBUG_NEW_ALIGNMENT > sizeof(size_t), Alignment_too_small);
+#endif
     size_t s = size + ALIGNED_LIST_ITEM_SIZE + _DEBUG_NEW_TAILCHECK;
     new_ptr_list_t* ptr = (new_ptr_list_t*)malloc(s);
     if (ptr == NULL)
@@ -700,6 +703,14 @@ void __debug_new_recorder::_M_process(void* pointer)
 {
     if (pointer == NULL)
         return;
+    size_t offset = (char*)pointer - (char*)NULL;
+    if (offset != ALIGN(offset)) {
+        offset -= sizeof(size_t);
+        if (offset != ALIGN(offset)) {
+            return;
+        }
+        pointer = (char*)pointer - sizeof(size_t);
+    }
     new_ptr_list_t* ptr =
             (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
     if (ptr->magic != MAGIC || ptr->line != 0)

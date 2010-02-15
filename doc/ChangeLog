@@ -1,3 +1,10 @@
+2010-02-15  Wu Yongwei  <adah@sh163.net>
+
+	Fix the wrong warning about placement new when one uses `new
+	NonPODType[size]' (thanks to Paul Butcher).
+	* nvwa/debug_new.cpp (__debug_new_recorder::_M_process): Adjust the
+	pointer by checking its alignment.
+
 2010-02-12  Wu Yongwei  <adah@sh163.net>
 
 	Eliminate weird errors caused by the name `__block' (reported by
@@ -10,7 +17,7 @@
 
 2010-02-12  Wu Yongwei  <adah@sh163.net>
 
-	Eliminate warning messages (reported by Paul Butcher).
+	Eliminate warning messages in compilation (reported by Paul Butcher).
 	* nvwa/debug_new.cpp (alloc_mem): Cast the size to unsigned long and
 	output it as unsigned long.
 	(free_pointer): Ditto.
