@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.19, 2010/02/15
+ * @version 4.20, 2010/02/15
  * @author  Wu Yongwei
  *
  */
@@ -720,6 +720,12 @@ void __debug_new_recorder::_M_process(void* pointer)
                 "warning: debug_new used with placement new (%s:%d)\n",
                 _M_file, _M_line);
         return;
+    }
+    if (new_verbose_flag) {
+        fast_mutex_autolock lock(new_output_lock);
+        fprintf(new_output_fp,
+                "info: pointer %p allocated from %s:%d\n",
+                pointer, _M_file, _M_line);
     }
 #if _DEBUG_NEW_FILENAME_LEN == 0
     ptr->file = _M_file;

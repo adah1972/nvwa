@@ -1,5 +1,10 @@
 2010-02-15  Wu Yongwei  <adah@sh163.net>
 
+	* nvwa/debug_new.cpp (__debug_new_recorder::_M_process): Output the
+	file/line information in verbose mode.
+
+2010-02-15  Wu Yongwei  <adah@sh163.net>
+
 	Fix the wrong warning about placement new when one uses `new
 	NonPODType[size]' (thanks to Paul Butcher).
 	* nvwa/debug_new.cpp (__debug_new_recorder::_M_process): Adjust the
