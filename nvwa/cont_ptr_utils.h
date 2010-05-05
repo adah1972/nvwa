@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Utility functors for containers of pointers (adapted from Scott
  * Meyers' <em>Effective STL</em>).
  *
- * @version 1.4, 2007/09/12
+ * @version 1.5, 2010/05/05
  * @author  Wu Yongwei
  *
  */
@@ -77,7 +77,7 @@ struct dereference
 struct dereference_less
 {
     template <typename _Pointer>
-    bool operator()(_Pointer __ptr1, _Pointer __ptr2) const
+    bool operator()(const _Pointer& __ptr1, const _Pointer& __ptr2) const
     {
         return *__ptr1 < *__ptr2;
     }
@@ -95,8 +95,8 @@ struct dereference_less
  */
 struct delete_object
 {
-    template <typename _Pointer>
-    void operator()(_Pointer __ptr) const
+    template <typename _Tp>
+    void operator()(_Tp* __ptr) const
     {
         delete __ptr;
     }
@@ -119,8 +119,8 @@ struct output_object
         : _M_outs(__outs), _M_sep(__sep)
     {}
 
-    template <typename _Tp>
-    void operator()(const _Tp* __ptr) const
+    template <typename _Pointer>
+    void operator()(const _Pointer& __ptr) const
     {
         _M_outs << *__ptr << _M_sep;
     }

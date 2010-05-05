@@ -1,3 +1,12 @@
+2010-05-05  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/cont_ptr_utils.h (dereference_less::operator()): Use const
+	reference arguments to ensure it can be used with non-copyable
+	pointer-like types.
+	(output_object::operator()): Ditto.
+	(delete_object::operator()): Use pointer argument to ensure only
+	real pointers can be passed to delete.
+
 2010-02-15  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/debug_new.cpp (__debug_new_recorder::_M_process): Output the
