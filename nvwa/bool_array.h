@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @version 3.8, 2010/05/16
+ * @version 3.9, 2010/05/16
  * @author  Wu Yongwei
  *
  */
@@ -67,7 +67,9 @@
 class bool_array
 {
 public:
-#if defined(__x86_64) || defined(_WIN64) || defined(_M_IA64)
+#if (defined(__x86_64) || defined(__ia64) || defined(__ppc64__) || \
+     defined(_WIN64) || defined(_M_IA64)) && \
+    !(defined(_LP64) || defined(__lp64))
     /** Type of array indices. */
     typedef unsigned long long  size_type;
 #else
