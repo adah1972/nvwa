@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Definition of template functions set_assign_union and set_assign_difference.
  *
- * @version 1.5, 2004/07/26
+ * @version 1.6, 2010/05/16
  * @author  Wu Yongwei
  *
  */
@@ -42,103 +42,103 @@
 #include <algorithm>
 
 template <class _Container, class _InputIter>
-_Container& set_assign_union(_Container& __dest,
-                             _InputIter __first,
-                             _InputIter __last)
+_Container& set_assign_union(_Container& dest,
+                             _InputIter first,
+                             _InputIter last)
 {
-    typename _Container::iterator __first_dest = __dest.begin();
-    typename _Container::iterator  __last_dest = __dest.end();
-    while (__first_dest != __last_dest && __first != __last)
+    typename _Container::iterator first_dest = dest.begin();
+    typename _Container::iterator  last_dest = dest.end();
+    while (first_dest != last_dest && first != last)
     {
-        if (*__first_dest < *__first)
-            ++__first_dest;
-        else if (*__first < *__first_dest)
+        if (*first_dest < *first)
+            ++first_dest;
+        else if (*first < *first_dest)
         {
-            __dest.insert(__first_dest, *__first);
-            ++__first;
+            dest.insert(first_dest, *first);
+            ++first;
         }
-        else    // *__first_dest == *__first
+        else    // *first_dest == *first
         {
-            ++__first_dest;
-            ++__first;
+            ++first_dest;
+            ++first;
         }
     }
-    if (__first != __last)
-        std::copy(__first, __last, inserter(__dest, __last_dest));
-    return __dest;
+    if (first != last)
+        std::copy(first, last, inserter(dest, last_dest));
+    return dest;
 }
 
 template <class _Container, class _InputIter, class _Compare>
-_Container& set_assign_union(_Container& __dest,
-                             _InputIter __first,
-                             _InputIter __last,
-                             _Compare __comp)
+_Container& set_assign_union(_Container& dest,
+                             _InputIter first,
+                             _InputIter last,
+                             _Compare comp)
 {
-    typename _Container::iterator __first_dest = __dest.begin();
-    typename _Container::iterator  __last_dest = __dest.end();
-    while (__first_dest != __last_dest && __first != __last)
+    typename _Container::iterator first_dest = dest.begin();
+    typename _Container::iterator  last_dest = dest.end();
+    while (first_dest != last_dest && first != last)
     {
-        if (__comp(*__first_dest, *__first))
-            ++__first_dest;
-        else if (__comp(*__first, *__first_dest))
+        if (comp(*first_dest, *first))
+            ++first_dest;
+        else if (comp(*first, *first_dest))
         {
-            __dest.insert(__first_dest, *__first);
-            ++__first;
+            dest.insert(first_dest, *first);
+            ++first;
         }
-        else    // *__first_dest is equivalent to *__first
+        else    // *first_dest is equivalent to *first
         {
-            ++__first_dest;
-            ++__first;
+            ++first_dest;
+            ++first;
         }
     }
-    if (__first != __last)
-        std::copy(__first, __last, inserter(__dest, __last_dest));
-    return __dest;
+    if (first != last)
+        std::copy(first, last, inserter(dest, last_dest));
+    return dest;
 }
 
 template <class _Container, class _InputIter>
-_Container& set_assign_difference(_Container& __dest,
-                                  _InputIter __first,
-                                  _InputIter __last)
+_Container& set_assign_difference(_Container& dest,
+                                  _InputIter first,
+                                  _InputIter last)
 {
-    typename _Container::iterator __first_dest = __dest.begin();
-    typename _Container::iterator  __last_dest = __dest.end();
-    while (__first_dest != __last_dest && __first != __last)
+    typename _Container::iterator first_dest = dest.begin();
+    typename _Container::iterator  last_dest = dest.end();
+    while (first_dest != last_dest && first != last)
     {
-        if (*__first_dest < *__first)
-            ++__first_dest;
-        else if (*__first < *__first_dest)
-            ++__first;
-        else    // *__first_dest == *__first
+        if (*first_dest < *first)
+            ++first_dest;
+        else if (*first < *first_dest)
+            ++first;
+        else  // *first == *first_dest
         {
-            __dest.erase(__first_dest++);
-            ++__first;
+            dest.erase(first_dest++);
+            ++first;
         }
     }
-    return __dest;
+    return dest;
 }
 
 template <class _Container, class _InputIter, class _Compare>
-_Container& set_assign_difference(_Container& __dest,
-                                  _InputIter __first,
-                                  _InputIter __last,
-                                  _Compare __comp)
+_Container& set_assign_difference(_Container& dest,
+                                  _InputIter first,
+                                  _InputIter last,
+                                  _Compare comp)
 {
-    typename _Container::iterator __first_dest = __dest.begin();
-    typename _Container::iterator  __last_dest = __dest.end();
-    while (__first_dest != __last_dest && __first != __last)
+    typename _Container::iterator first_dest = dest.begin();
+    typename _Container::iterator  last_dest = dest.end();
+    while (first_dest != last_dest && first != last)
     {
-        if (__comp(*__first_dest, *__first))
-            ++__first_dest;
-        else if (__comp(*__first, *__first_dest))
-            ++__first;
-        else    // *__first_dest is equivalent to *__first
+        if (comp(*first_dest, *first))
+            ++first_dest;
+        else if (comp(*first, *first_dest))
+            ++first;
+        else    // *first_dest is equivalent to *first
         {
-            __dest.erase(__first_dest++);
-            ++__first;
+            dest.erase(first_dest++);
+            ++first;
         }
     }
-    return __dest;
+    return dest;
 }
 
 #endif // _SET_ASSIGN_H

@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2009 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @version 3.7, 2009/10/12
+ * @version 3.8, 2010/05/16
  * @author  Wu Yongwei
  *
  */
@@ -166,32 +166,31 @@ bool_array::byte bool_array::_S_bit_ordinal[256] =
 /**
  * Constructs the packed boolean array with a specific size.
  *
- * @param __size            size of the array
- * @throw std::out_of_range if \a __size equals \c 0
- * @throw std::bad_alloc    if memory is insufficient
+ * @param size               size of the array
+ * @throw std::out_of_range  if \a size equals \c 0
+ * @throw std::bad_alloc     if memory is insufficient
  */
-bool_array::bool_array(size_type __size)
+bool_array::bool_array(size_type size)
     : _M_byte_ptr(NULL), _M_length(0)
 {
-    if (__size == 0)
+    if (size == 0)
         throw std::out_of_range("invalid bool_array size");
 
-    if (!create(__size))
+    if (!create(size))
         throw std::bad_alloc();
 }
 
 /**
  * Creates the packed boolean array with a specific size.
  *
- * @param __size    size of the array
- * @return          \c false if \a __size equals \c 0 or is too big, or
- *                  if memory is insufficient; \c true if \a __size has
- *                  a suitable value and memory allocation is
- *                  successful.
+ * @param size  size of the array
+ * @return      \c false if \a size equals \c 0 or is too big, or if
+ *              memory is insufficient; \c true if \a size has a
+ *              suitable value and memory allocation is successful.
  */
-bool bool_array::create(size_type __size)
+bool bool_array::create(size_type size)
 {
-    if (__size == 0)
+    if (size == 0)
         return false;
 
 #if defined(__x86_64) || defined(_WIN64) || defined(_M_IA64)
@@ -200,37 +199,37 @@ bool bool_array::create(size_type __size)
     STATIC_ASSERT(sizeof(size_t) <= sizeof(size_type),  Wrong_size_type);
     STATIC_ASSERT(sizeof(size_t)==sizeof(unsigned int), Wrong_size_assumption);
     // Will be optimized away by a decent compiler if ULONG_MAX == UINT_MAX
-    if (ULONG_MAX > UINT_MAX && ((__size - 1) / 8 + 1) > UINT_MAX)
+    if (ULONG_MAX > UINT_MAX && ((size - 1) / 8 + 1) > UINT_MAX)
         return false;
 #endif
 
-    size_t __byte_cnt = (size_t)((__size - 1) / 8 + 1);
-    byte* __byte_ptr = (byte*)malloc(__byte_cnt);
-    if (__byte_ptr == NULL)
+    size_t byte_cnt = (size_t)((size - 1) / 8 + 1);
+    byte* byte_ptr = (byte*)malloc(byte_cnt);
+    if (byte_ptr == NULL)
         return false;
 
     if (_M_byte_ptr)
         free(_M_byte_ptr);
 
-    _M_byte_ptr = __byte_ptr;
-    _M_length = __size;
+    _M_byte_ptr = byte_ptr;
+    _M_length = size;
     return true;
 }
 
 /**
  * Initializes all array elements to a specific value optimally.
  *
- * @param __val   the boolean value to assign to all elements
+ * @param value  the boolean value to assign to all elements
  */
-void bool_array::initialize(bool __val)
+void bool_array::initialize(bool value)
 {
     assert(_M_byte_ptr);
-    size_t __byte_cnt = (size_t)((_M_length - 1) / 8) + 1;
-    memset(_M_byte_ptr, __val ? ~0 : 0, __byte_cnt);
-    if (__val)
+    size_t byte_cnt = (size_t)((_M_length - 1) / 8) + 1;
+    memset(_M_byte_ptr, value ? ~0 : 0, byte_cnt);
+    if (value)
     {
-        int __valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
-        _M_byte_ptr[__byte_cnt - 1] &= ~(~0 << __valid_bits_in_last_byte);
+        int valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
+        _M_byte_ptr[byte_cnt - 1] &= ~(~0 << valid_bits_in_last_byte);
     }
 }
 
@@ -242,103 +241,103 @@ void bool_array::initialize(bool __val)
 bool_array::size_type bool_array::count() const
 {
     assert(_M_byte_ptr);
-    size_type __true_cnt = 0;
-    size_t __byte_cnt = (size_t)((_M_length - 1) / 8) + 1;
-    for (size_t __i = 0; __i < __byte_cnt; ++__i)
-        __true_cnt += _S_bit_count[_M_byte_ptr[__i]];
-    return __true_cnt;
+    size_type true_cnt = 0;
+    size_t byte_cnt = (size_t)((_M_length - 1) / 8) + 1;
+    for (size_t i = 0; i < byte_cnt; ++i)
+        true_cnt += _S_bit_count[_M_byte_ptr[i]];
+    return true_cnt;
 }
 
 /**
  * Counts elements with a \c true value in a specified range.
  *
- * @param __beg beginning of the range
- * @param __end end of the range (exclusive)
- * @return      the count of \c true elements
+ * @param begin  beginning of the range
+ * @param end    end of the range (exclusive)
+ * @return       the count of \c true elements
  */
-bool_array::size_type bool_array::count(size_type __beg, size_type __end) const
+bool_array::size_type bool_array::count(size_type begin, size_type end) const
 {
     assert(_M_byte_ptr);
-    size_type __true_cnt = 0;
-    size_t __byte_idx_beg, __byte_idx_end;
-    byte __byte_val;
+    size_type true_cnt = 0;
+    size_t byte_idx_beg, byte_idx_end;
+    byte byte_val;
 
-    if (__beg == __end)
+    if (begin == end)
         return 0;
-    if (__beg > __end || __end > _M_length)
+    if (begin > end || end > _M_length)
         throw std::out_of_range("invalid bool_array range");
-    --__end;
+    --end;
 
-    __byte_idx_beg = (size_t)(__beg / 8);
-    __byte_val = _M_byte_ptr[__byte_idx_beg];
-    __byte_val &= ~0 << (__beg % 8);
+    byte_idx_beg = (size_t)(begin / 8);
+    byte_val = _M_byte_ptr[byte_idx_beg];
+    byte_val &= ~0 << (begin % 8);
 
-    __byte_idx_end = (size_t)(__end / 8);
-    if (__byte_idx_beg < __byte_idx_end)
+    byte_idx_end = (size_t)(end / 8);
+    if (byte_idx_beg < byte_idx_end)
     {
-        __true_cnt = _S_bit_count[__byte_val];
-        __byte_val = _M_byte_ptr[__byte_idx_end];
+        true_cnt = _S_bit_count[byte_val];
+        byte_val = _M_byte_ptr[byte_idx_end];
     }
-    __byte_val &= ~(~0 << (__end % 8 + 1));
-    __true_cnt += _S_bit_count[__byte_val];
+    byte_val &= ~(~0 << (end % 8 + 1));
+    true_cnt += _S_bit_count[byte_val];
 
-    for (++__byte_idx_beg; __byte_idx_beg < __byte_idx_end; ++__byte_idx_beg)
-        __true_cnt += _S_bit_count[_M_byte_ptr[__byte_idx_beg]];
-    return __true_cnt;
+    for (++byte_idx_beg; byte_idx_beg < byte_idx_end; ++byte_idx_beg)
+        true_cnt += _S_bit_count[_M_byte_ptr[byte_idx_beg]];
+    return true_cnt;
 }
 
 /**
  * Searches for the specified boolean value.  This function accepts a
  * range expressed in [beginning, end).
  *
- * @param __beg index of the position at which the search is to begin
- * @param __end index of the end position (exclusive) to stop searching
- * @param __val the boolean value to find
- * @return      index of the first value found if successful; \c #npos
- *              otherwise
+ * @param begin  index of the position at which the search is to begin
+ * @param end    index of the end position (exclusive) to stop searching
+ * @param value  the boolean value to find
+ * @return       index of the first value found if successful; \c #npos
+ *               otherwise
  */
 bool_array::size_type bool_array::find_until(
-        bool __val,
-        size_type __beg,
-        size_type __end) const
+        bool value,
+        size_type begin,
+        size_type end) const
 {
     assert(_M_byte_ptr);
 
-    if (__beg == __end)
+    if (begin == end)
         return npos;
-    if (__beg > __end || __end > _M_length)
+    if (begin > end || end > _M_length)
         throw std::out_of_range("invalid bool_array range");
-    --__end;
+    --end;
 
-    size_t __byte_idx_beg = (size_t)(__beg / 8);
-    size_t __byte_idx_end = (size_t)(__end / 8);
-    byte __byte_val = _M_byte_ptr[__byte_idx_beg];
+    size_t byte_idx_beg = (size_t)(begin / 8);
+    size_t byte_idx_end = (size_t)(end / 8);
+    byte byte_val = _M_byte_ptr[byte_idx_beg];
 
-    if (__val)
+    if (value)
     {
-        __byte_val &= ~0 << (__beg % 8);
-        for (size_t __i = __byte_idx_beg; __i < __byte_idx_end;)
+        byte_val &= ~0 << (begin % 8);
+        for (size_t i = byte_idx_beg; i < byte_idx_end;)
         {
-            if (__byte_val != 0)
-                return __i * 8 + _S_bit_ordinal[__byte_val];
-            __byte_val = _M_byte_ptr[++__i];
+            if (byte_val != 0)
+                return i * 8 + _S_bit_ordinal[byte_val];
+            byte_val = _M_byte_ptr[++i];
         }
-        __byte_val &= ~(~0 << (__end % 8 + 1));
-        if (__byte_val != 0)
-            return __byte_idx_end * 8 + _S_bit_ordinal[__byte_val];
+        byte_val &= ~(~0 << (end % 8 + 1));
+        if (byte_val != 0)
+            return byte_idx_end * 8 + _S_bit_ordinal[byte_val];
     }
     else
     {
-        __byte_val |= ~(~0 << (__beg % 8));
-        for (size_t __i = __byte_idx_beg; __i < __byte_idx_end;)
+        byte_val |= ~(~0 << (begin % 8));
+        for (size_t i = byte_idx_beg; i < byte_idx_end;)
         {
-            if (__byte_val != 0xFF)
-                return __i * 8 + _S_bit_ordinal[(byte)~__byte_val];
-            __byte_val = _M_byte_ptr[++__i];
+            if (byte_val != 0xFF)
+                return i * 8 + _S_bit_ordinal[(byte)~byte_val];
+            byte_val = _M_byte_ptr[++i];
         }
-        __byte_val |= ~0 << (__end % 8 + 1);
-        if (__byte_val != 0xFF)
-            return __byte_idx_end * 8 + _S_bit_ordinal[(byte)~__byte_val];
+        byte_val |= ~0 << (end % 8 + 1);
+        if (byte_val != 0xFF)
+            return byte_idx_end * 8 + _S_bit_ordinal[(byte)~byte_val];
     }
 
     return npos;
@@ -350,17 +349,17 @@ bool_array::size_type bool_array::find_until(
 void bool_array::flip()
 {
     assert(_M_byte_ptr);
-    size_t __byte_cnt = (size_t)((_M_length - 1) / 8) + 1;
-    for (size_t __i = 0; __i < __byte_cnt; ++__i)
-        _M_byte_ptr[__i] = ~_M_byte_ptr[__i];
-    int __valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
-    _M_byte_ptr[__byte_cnt - 1] &= ~(~0 << __valid_bits_in_last_byte);
+    size_t byte_cnt = (size_t)((_M_length - 1) / 8) + 1;
+    for (size_t i = 0; i < byte_cnt; ++i)
+        _M_byte_ptr[i] = ~_M_byte_ptr[i];
+    int valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
+    _M_byte_ptr[byte_cnt - 1] &= ~(~0 << valid_bits_in_last_byte);
 }
 
 /**
  * Exchanges the content of this bool_array with another.
  *
- * @param rhs   another bool_array to exchange content with
+ * @param rhs  another bool_array to exchange content with
  */
 void bool_array::swap(bool_array& rhs)
 {

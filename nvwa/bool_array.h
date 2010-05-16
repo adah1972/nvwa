@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2009 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @version 3.7, 2009/10/12
+ * @version 3.8, 2010/05/16
  * @author  Wu Yongwei
  *
  */
@@ -84,8 +84,8 @@ private:
     class _Element
     {
     public:
-        _Element(_Byte_type* __ptr, size_type __idx);
-        bool operator=(bool __val);
+        _Element(_Byte_type* pointer, size_type index);
+        bool operator=(bool value);
         operator bool() const;
     private:
         _Byte_type* _M_byte_ptr;
@@ -98,25 +98,25 @@ public:
     typedef _Element<const byte> const_reference;
 
     bool_array() : _M_byte_ptr(NULL), _M_length(0) {}
-    explicit bool_array(size_type __size);
+    explicit bool_array(size_type size);
     ~bool_array() { if (_M_byte_ptr != NULL) free(_M_byte_ptr); }
 
-    bool create(size_type __size);
-    void initialize(bool __val);
+    bool create(size_type size);
+    void initialize(bool value);
 
-    reference operator[](size_type __idx);
-    const_reference operator[](size_type __idx) const;
+    reference operator[](size_type index);
+    const_reference operator[](size_type index) const;
 
-    bool at(size_type __idx) const;
-    void reset(size_type __idx);
-    void set(size_type __idx);
+    bool at(size_type index) const;
+    void reset(size_type index);
+    void set(size_type index);
 
     size_type size() const { return _M_length; }
     size_type count() const;
-    size_type count(size_type __beg, size_type __end) const;
-    size_type find(bool __val, size_type __off = 0) const;
-    size_type find(bool __val, size_type __off, size_type __cnt) const;
-    size_type find_until(bool __val, size_type __beg, size_type __end) const;
+    size_type count(size_type begin, size_type end) const;
+    size_type find(bool value, size_type offset = 0) const;
+    size_type find(bool value, size_type offset, size_type count) const;
+    size_type find_until(bool value, size_type begin, size_type end) const;
 
     void flip();
     void swap(bool_array& rhs);
@@ -141,33 +141,33 @@ private:
 /**
  * Constructs a reference to an array element.
  *
- * @param __ptr pointer to the interal boolean data
- * @param __idx index of the array element to access
+ * @param pointer  pointer to the interal boolean data
+ * @param index    index of the array element to access
  */
 template <typename _Byte_type>
 inline bool_array::_Element<_Byte_type>::_Element(
-        _Byte_type* __ptr,
-        size_type __idx)
+        _Byte_type* pointer,
+        size_type index)
 {
-    _M_byte_ptr = __ptr;
-    _M_byte_idx = (size_t)(__idx / 8);
-    _M_bit_idx  = (size_t)(__idx % 8);
+    _M_byte_ptr = pointer;
+    _M_byte_idx = (size_t)(index / 8);
+    _M_bit_idx  = (size_t)(index % 8);
 }
 
 /**
  * Assigns a new boolean value to an array element.
  *
- * @param __val the new boolean value
- * @return      the assigned boolean value
+ * @param value  the new boolean value
+ * @return       the assigned boolean value
  */
 template <typename _Byte_type>
-inline bool bool_array::_Element<_Byte_type>::operator=(bool __val)
+inline bool bool_array::_Element<_Byte_type>::operator=(bool value)
 {
-    if (__val)
+    if (value)
         *(_M_byte_ptr + _M_byte_idx) |= 1 << _M_bit_idx;
     else
         *(_M_byte_ptr + _M_byte_idx) &= ~(1 << _M_bit_idx);
-    return __val;
+    return value;
 }
 
 /**
@@ -184,110 +184,110 @@ inline bool_array::_Element<_Byte_type>::operator bool() const
 /**
  * Creates a reference to an array element.
  *
- * @param __idx index of the array element to access
+ * @param index index of the array element to access
  * @return      reference to the specified element
  */
-inline bool_array::reference bool_array::operator[](size_type __idx)
+inline bool_array::reference bool_array::operator[](size_type index)
 {
     assert(_M_byte_ptr);
-    assert(__idx < _M_length);
-    return reference(_M_byte_ptr, __idx);
+    assert(index < _M_length);
+    return reference(_M_byte_ptr, index);
 }
 
 /**
  * Creates a const reference to an array element.
  *
- * @param __idx index of the array element to access
- * @return      const reference to the specified element
+ * @param index  index of the array element to access
+ * @return       const reference to the specified element
  */
-inline bool_array::const_reference bool_array::operator[](size_type __idx)const
+inline bool_array::const_reference bool_array::operator[](size_type index)const
 {
     assert(_M_byte_ptr);
-    assert(__idx < _M_length);
-    return const_reference(_M_byte_ptr, __idx);
+    assert(index < _M_length);
+    return const_reference(_M_byte_ptr, index);
 }
 
 /**
  * Reads the boolean value of an array element via an index.
  *
- * @param __idx index of the array element to access
- * @return      the boolean value of the accessed array element
- * @throw std::out_of_range when the index is too big
+ * @param index  index of the array element to access
+ * @return       the boolean value of the accessed array element
+ * @throw std::out_of_range  when the index is too big
  */
-inline bool bool_array::at(size_type __idx) const
+inline bool bool_array::at(size_type index) const
 {
-    size_t __byte_idx, __bit_idx;
-    if (__idx >= _M_length)
+    size_t byte_idx, bit_idx;
+    if (index >= _M_length)
         throw std::out_of_range("invalid bool_array index");
-    __byte_idx = (size_t)(__idx / 8);
-    __bit_idx  = (size_t)(__idx % 8);
-    return *(_M_byte_ptr + __byte_idx) & (1 << __bit_idx) ? true : false;
+    byte_idx = (size_t)(index / 8);
+    bit_idx  = (size_t)(index % 8);
+    return *(_M_byte_ptr + byte_idx) & (1 << bit_idx) ? true : false;
 }
 
 /**
  * Resets an array element to \c false via an index.
  *
- * @param __idx index of the array element to access
- * @throw std::out_of_range when the index is too big
+ * @param index  index of the array element to access
+ * @throw std::out_of_range  when the index is too big
  */
-inline void bool_array::reset(size_type __idx)
+inline void bool_array::reset(size_type index)
 {
-    size_t __byte_idx, __bit_idx;
-    if (__idx >= _M_length)
+    size_t byte_idx, bit_idx;
+    if (index >= _M_length)
         throw std::out_of_range("invalid bool_array index");
-    __byte_idx = (size_t)(__idx / 8);
-    __bit_idx  = (size_t)(__idx % 8);
-    *(_M_byte_ptr + __byte_idx) &= ~(1 << __bit_idx);
+    byte_idx = (size_t)(index / 8);
+    bit_idx  = (size_t)(index % 8);
+    *(_M_byte_ptr + byte_idx) &= ~(1 << bit_idx);
 }
 
 /**
  * Sets an array element to \c true via an index.
  *
- * @param __idx index of the array element to access
- * @throw std::out_of_range when the index is too big
+ * @param index  index of the array element to access
+ * @throw std::out_of_range  when the index is too big
  */
-inline void bool_array::set(size_type __idx)
+inline void bool_array::set(size_type index)
 {
-    size_t __byte_idx, __bit_idx;
-    if (__idx >= _M_length)
+    size_t byte_idx, bit_idx;
+    if (index >= _M_length)
         throw std::out_of_range("invalid bool_array index");
-    __byte_idx = (size_t)(__idx / 8);
-    __bit_idx  = (size_t)(__idx % 8);
-    *(_M_byte_ptr + __byte_idx) |= 1 << __bit_idx;
+    byte_idx = (size_t)(index / 8);
+    bit_idx  = (size_t)(index % 8);
+    *(_M_byte_ptr + byte_idx) |= 1 << bit_idx;
 }
 
 /**
  * Searches for the specified boolean value.  This function seaches from
  * the specified position (default to beginning) to the end.
  *
- * @param __off index of the position at which the search is to begin
- * @param __val the boolean value to find
- * @return      index of the first value found if successful; \c #npos
- *              otherwise
+ * @param offset  index of the position at which the search is to begin
+ * @param value   the boolean value to find
+ * @return        index of the first value found if successful; \c #npos
+ *                otherwise
  */
 inline bool_array::size_type bool_array::find(
-        bool __val,
-        size_type __off) const
+        bool value,
+        size_type offset) const
 {
-    return find_until(__val, __off, _M_length);
+    return find_until(value, offset, _M_length);
 }
 
 /**
  * Searches for the specified boolean value.  This function accepts a
  * range expressed in {position, count}.
  *
- * @param __off index of the position at which the search is to begin
- * @param __cnt the number of bits to search
- * @param __val the boolean value to find
- * @return      index of the first value found if successful; \c #npos
- *              otherwise
+ * @param offset  index of the position at which the search is to begin
+ * @param count   the number of bits to search
+ * @param value   the boolean value to find
+ * @return        index of the first value found if successful; \c #npos
+ *                otherwise
  */
 inline bool_array::size_type bool_array::find(
-        bool __val,
-        size_type __off,
-        size_type __cnt) const
+        bool value,
+        size_type offset,
+        size_type count) const
 {
-    return find_until(__val, __off, __off + __cnt);
+    return find_until(value, offset, offset + count);
 }
 
 #endif // _BOOL_ARRAY_H

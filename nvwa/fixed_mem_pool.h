@@ -49,7 +49,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running
  *
- * @version 1.23, 2010/02/12
+ * @version 1.24, 2010/05/16
  * @author  Wu Yongwei
  *
  */
@@ -75,7 +75,7 @@
  * Class template to manipulate a fixed-size memory pool.  Please notice
  * that only allocate and deallocate are protected by a lock.
  *
- * @param _Tp   class to use the fixed_mem_pool
+ * @param _Tp  class to use the fixed_mem_pool
  */
 template <class _Tp>
 class fixed_mem_pool
@@ -102,7 +102,7 @@ public:
     };
     static void*  allocate();
     static void   deallocate(void*);
-    static bool   initialize(size_t __size);
+    static bool   initialize(size_t size);
     static int    deinitialize();
     static int    get_alloc_count();
     static bool   is_initialized();
@@ -134,14 +134,14 @@ int   fixed_mem_pool<_Tp>::_S_alloc_cnt = 0;
 template <class _Tp>
 inline void* fixed_mem_pool<_Tp>::allocate()
 {
-    lock __guard;
+    lock guard;
     for (;;)
     {
-        if (void* __result = _S_first_avail_ptr)
+        if (void* result = _S_first_avail_ptr)
         {
             _S_first_avail_ptr = *(void**)_S_first_avail_ptr;
             ++_S_alloc_cnt;
-            return __result;
+            return result;
         }
         else
             if (!bad_alloc_handler())
@@ -152,28 +152,28 @@ inline void* fixed_mem_pool<_Tp>::allocate()
 /**
  * Deallocates a memory block and returns it to the memory pool.
  *
- * @param __block_ptr   pointer to the memory block to return
+ * @param block_ptr  pointer to the memory block to return
  */
 template <class _Tp>
-inline void fixed_mem_pool<_Tp>::deallocate(void* __block_ptr)
+inline void fixed_mem_pool<_Tp>::deallocate(void* block_ptr)
 {
-    if (__block_ptr == NULL)
+    if (block_ptr == NULL)
         return;
-    lock __guard;
+    lock guard;
     assert(_S_alloc_cnt != 0);
     --_S_alloc_cnt;
-    *(void**)__block_ptr = _S_first_avail_ptr;
-    _S_first_avail_ptr = __block_ptr;
+    *(void**)block_ptr = _S_first_avail_ptr;
+    _S_first_avail_ptr = block_ptr;
 }
 
 /**
  * Initializes the memory pool.
  *
- * @param __size number of memory blocks to put in the memory pool
- * @return       \c true if successful; \c false if memory insufficient
+ * @param size  number of memory blocks to put in the memory pool
+ * @return      \c true if successful; \c false if memory insufficient
  */
 template <class _Tp>
-bool fixed_mem_pool<_Tp>::initialize(size_t __size)
+bool fixed_mem_pool<_Tp>::initialize(size_t size)
 {
     STATIC_ASSERT(alignment::value > 0 && alignment::value <= 8192,
                   Bad_alignment);
@@ -182,19 +182,19 @@ bool fixed_mem_pool<_Tp>::initialize(size_t __size)
     STATIC_ASSERT(block_size::value >= sizeof(void*),
                   Alignment_too_small);
     assert(!is_initialized());
-    assert(__size > 0);
-    _S_mem_pool_ptr = mem_pool_base::alloc_sys(__size * block_size::value);
+    assert(size > 0);
+    _S_mem_pool_ptr = mem_pool_base::alloc_sys(size * block_size::value);
     _S_first_avail_ptr = _S_mem_pool_ptr;
     if (_S_mem_pool_ptr == NULL)
         return false;
-    char* __blk = (char*)_S_mem_pool_ptr;
-    while (--__size != 0)
+    char* block = (char*)_S_mem_pool_ptr;
+    while (--size != 0)
     {
-        char* __next = __blk + block_size::value;
-        *(void**)__blk = __next;
-        __blk = __next;
+        char* next = block + block_size::value;
+        *(void**)block = next;
+        block = next;
     }
-    *(void**)__blk = NULL;
+    *(void**)block = NULL;
     return true;
 }
 
@@ -265,18 +265,18 @@ bool fixed_mem_pool<_Tp>::bad_alloc_handler()
  */
 #define DECLARE_FIXED_MEM_POOL(_Cls) \
 public: \
-    static void* operator new(size_t __size) \
+    static void* operator new(size_t size) \
     { \
-        assert(__size == sizeof(_Cls)); \
-        if (void* __ptr = fixed_mem_pool<_Cls>::allocate()) \
-            return __ptr; \
+        assert(size == sizeof(_Cls)); \
+        if (void* pointer = fixed_mem_pool<_Cls>::allocate()) \
+            return pointer; \
         else \
             throw std::bad_alloc(); \
     } \
-    static void  operator delete(void* __ptr) \
+    static void  operator delete(void* pointer) \
     { \
-        if (__ptr != NULL) \
-            fixed_mem_pool<_Cls>::deallocate(__ptr); \
+        if (pointer != NULL) \
+            fixed_mem_pool<_Cls>::deallocate(pointer); \
     }
 
 /**
@@ -287,15 +287,15 @@ public: \
  */
 #define DECLARE_FIXED_MEM_POOL__NOTHROW(_Cls) \
 public: \
-    static void* operator new(size_t __size) throw() \
+    static void* operator new(size_t size) throw() \
     { \
-        assert(__size == sizeof(_Cls)); \
+        assert(size == sizeof(_Cls)); \
         return fixed_mem_pool<_Cls>::allocate(); \
     } \
-    static void  operator delete(void* __ptr) \
+    static void  operator delete(void* pointer) \
     { \
-        if (__ptr != NULL) \
-            fixed_mem_pool<_Cls>::deallocate(__ptr); \
+        if (pointer != NULL) \
+            fixed_mem_pool<_Cls>::deallocate(pointer); \
     }
 
 /**
@@ -312,15 +312,15 @@ public: \
  */
 #define DECLARE_FIXED_MEM_POOL__THROW_NOCHECK(_Cls) \
 public: \
-    static void* operator new(size_t __size) \
+    static void* operator new(size_t size) \
     { \
-        assert(__size == sizeof(_Cls)); \
+        assert(size == sizeof(_Cls)); \
         return fixed_mem_pool<_Cls>::allocate(); \
     } \
-    static void  operator delete(void* __ptr) \
+    static void  operator delete(void* pointer) \
     { \
-        if (__ptr != NULL) \
-            fixed_mem_pool<_Cls>::deallocate(__ptr); \
+        if (pointer != NULL) \
+            fixed_mem_pool<_Cls>::deallocate(pointer); \
     }
 
 #endif // _FIXED_MEM_POOL_H

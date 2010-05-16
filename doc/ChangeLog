@@ -1,3 +1,21 @@
+2010-05-16  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Remove the beginning `__' in names of local variables and function
+	parameters in order to avoid collision with reserved words (already
+	bitten twice recently).
+	* bool_array.cpp: Remove `__' in certain names.
+	* bool_array.h: Ditto.
+	* fast_mutex.h: Ditto.
+	* fc_queue.h: Ditto.
+	* fixed_mem_pool.h: Ditto.
+	* mem_pool_base.cpp: Ditto.
+	* mem_pool_base.h: Ditto.
+	* object_level_lock.h: Ditto.
+	* pctimer.h: Ditto.
+	* set_assign.h: Ditto.
+	* static_mem_pool.cpp: Ditto.
+	* static_mem_pool.h: Ditto.
+
 2010-05-05  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/cont_ptr_utils.h (dereference_less::operator()): Use const

@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Non-template and non-inline code for the `static' memory pool.
  *
- * @version 1.7, 2006/08/26
+ * @version 1.8, 2010/05/16
  * @author  Wu Yongwei
  *
  */
@@ -60,7 +60,7 @@ static_mem_pool_set::~static_mem_pool_set()
  */
 static_mem_pool_set& static_mem_pool_set::instance()
 {
-    lock __guard;
+    lock guard;
     static static_mem_pool_set _S_instance;
     return _S_instance;
 }
@@ -73,22 +73,22 @@ static_mem_pool_set& static_mem_pool_set::instance()
 void static_mem_pool_set::recycle()
 {
     _STATIC_MEM_POOL_TRACE(false, "Memory pools are being recycled");
-    container_type::iterator __end = _M_memory_pool_set.end();
+    container_type::iterator end = _M_memory_pool_set.end();
     for (container_type::iterator
-            __i  = _M_memory_pool_set.begin();
-            __i != __end; ++__i)
+            i  = _M_memory_pool_set.begin();
+            i != end; ++i)
     {
-        (*__i)->recycle();
+        (*i)->recycle();
     }
 }
 
 /**
  * Adds a new memory pool to #static_mem_pool_set.
  *
- * @param __memory_pool_p   pointer to the memory pool to add
+ * @param memory_pool_p  pointer to the memory pool to add
  */
-void static_mem_pool_set::add(mem_pool_base* __memory_pool_p)
+void static_mem_pool_set::add(mem_pool_base* memory_pool_p)
 {
-    lock __guard;
-    _M_memory_pool_set.push_back(__memory_pool_p);
+    lock guard;
+    _M_memory_pool_set.push_back(memory_pool_p);
 }

@@ -34,7 +34,7 @@
  * href="http://www.awprofessional.com/articles/article.asp?p=25298">
  * "Multithreading and the C++ Type System"</a> for the ideas behind.
  *
- * @version 1.6, 2010/01/08
+ * @version 1.7, 2010/05/16
  * @author  Wu Yongwei
  *
  */
@@ -63,9 +63,9 @@
             lock(const lock&);
             lock& operator=(const lock&);
         public:
-            explicit lock(const object_level_lock& __host)
+            explicit lock(const object_level_lock& host)
 #   ifndef NDEBUG
-                : _M_host(__host)
+                : _M_host(host)
 #   endif
             {}
 #   ifndef NDEBUG
@@ -108,7 +108,7 @@
             lock(const lock&);
             lock& operator=(const lock&);
         public:
-            explicit lock(const object_level_lock& __host) : _M_host(__host)
+            explicit lock(const object_level_lock& host) : _M_host(host)
             {
                 _M_host._M_mtx.lock();
             }

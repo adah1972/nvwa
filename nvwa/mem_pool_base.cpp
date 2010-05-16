@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2009 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Implementation for the memory pool base.
  *
- * @version 1.3, 2009/02/21
+ * @version 1.4, 2010/05/16
  * @author  Wu Yongwei
  *
  */
@@ -70,21 +70,21 @@ mem_pool_base::~mem_pool_base()
 /**
  * Allocates memory from the run-time system.
  *
- * @param __size    size of the memory to allocate in bytes
- * @return          pointer to allocated memory block if successful; or
- *                  \c NULL if memory allocation fails
+ * @param size  size of the memory to allocate in bytes
+ * @return      pointer to allocated memory block if successful; or
+ *              \c NULL if memory allocation fails
  */
-void* mem_pool_base::alloc_sys(size_t __size)
+void* mem_pool_base::alloc_sys(size_t size)
 {
-    return _MEM_POOL_ALLOCATE(__size);
+    return _MEM_POOL_ALLOCATE(size);
 }
 
 /**
  * Frees memory and returns it to the run-time system.
  *
- * @param __ptr     pointer to the memory block previously allocated
+ * @param pointer  pointer to the memory block previously allocated
  */
-void mem_pool_base::dealloc_sys(void* __ptr)
+void mem_pool_base::dealloc_sys(void* pointer)
 {
-    _MEM_POOL_DEALLOCATE(__ptr);
+    _MEM_POOL_DEALLOCATE(pointer);
 }

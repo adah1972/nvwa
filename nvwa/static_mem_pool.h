@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @version 1.21, 2010/02/12
+ * @version 1.22, 2010/05/16
  * @author  Wu Yongwei
  *
  */
@@ -62,7 +62,7 @@
 #   define _STATIC_MEM_POOL_TRACE(_Lck, _Msg) \
         { \
             if (_Lck) { \
-                static_mem_pool_set::lock __guard; \
+                static_mem_pool_set::lock guard; \
                 std::cerr << "static_mem_pool: " << _Msg << std::endl; \
             } else { \
                 std::cerr << "static_mem_pool: " << _Msg << std::endl; \
@@ -83,7 +83,7 @@ public:
     typedef class_level_lock<static_mem_pool_set>::lock lock;
     static static_mem_pool_set& instance();
     void recycle();
-    void add(mem_pool_base* __memory_pool_p);
+    void add(mem_pool_base* memory_pool_p);
 
 __PRIVATE:
     ~static_mem_pool_set();
@@ -124,7 +124,7 @@ public:
      */
     static static_mem_pool& instance()
     {
-        lock __guard;
+        lock guard;
         if (!_S_instance_p)
         {
             _S_instance_p = _S_create_instance();
@@ -154,12 +154,12 @@ public:
     void* allocate()
     {
         {
-            lock __guard;
+            lock guard;
             if (_S_memory_block_p)
             {
-                void* __result = _S_memory_block_p;
+                void* result = _S_memory_block_p;
                 _S_memory_block_p = _S_memory_block_p->_M_next;
-                return __result;
+                return result;
             }
         }
         return _S_alloc_sys(_S_align(_Sz));
@@ -167,15 +167,15 @@ public:
     /**
      * Deallocates memory by putting the memory block into the pool.
      *
-     * @param __ptr pointer to memory to be deallocated
+     * @param pointer  pointer to memory to be deallocated
      */
-    void deallocate(void* __ptr)
+    void deallocate(void* pointer)
     {
-        assert(__ptr != NULL);
-        lock __guard;
-        _Block_list* __blk = reinterpret_cast<_Block_list*>(__ptr);
-        __blk->_M_next = _S_memory_block_p;
-        _S_memory_block_p = __blk;
+        assert(pointer != NULL);
+        lock guard;
+        _Block_list* block = reinterpret_cast<_Block_list*>(pointer);
+        block->_M_next = _S_memory_block_p;
+        _S_memory_block_p = block;
     }
     virtual void recycle();
 
@@ -190,12 +190,12 @@ private:
 #   ifdef _DEBUG
         // Empty the pool to avoid false memory leakage alarms.  This is
         // generally not necessary for release binaries.
-        _Block_list* __blk = _S_memory_block_p;
-        while (__blk)
+        _Block_list* block = _S_memory_block_p;
+        while (block)
         {
-            _Block_list* __next = __blk->_M_next;
-            dealloc_sys(__blk);
-            __blk = __next;
+            _Block_list* next = block->_M_next;
+            dealloc_sys(block);
+            block = next;
         }
         _S_memory_block_p = NULL;
 #   endif
@@ -204,11 +204,11 @@ private:
         _STATIC_MEM_POOL_TRACE(false, "static_mem_pool<" << _Sz << ','
                                       << _Gid << "> is destroyed");
     }
-    static size_t _S_align(size_t __size)
+    static size_t _S_align(size_t size)
     {
-        return __size >= sizeof(_Block_list) ? __size : sizeof(_Block_list);
+        return size >= sizeof(_Block_list) ? size : sizeof(_Block_list);
     }
-    static void* _S_alloc_sys(size_t __size);
+    static void* _S_alloc_sys(size_t size);
     static static_mem_pool* _S_create_instance();
 
     static bool _S_destroyed;
@@ -238,16 +238,16 @@ void static_mem_pool<_Sz, _Gid>::recycle()
     // Only here the global lock in static_mem_pool_set is obtained
     // before the pool-specific lock.  However, no race conditions are
     // found so far.
-    lock __guard;
-    _Block_list* __blk = _S_memory_block_p;
-    while (__blk)
+    lock guard;
+    _Block_list* block = _S_memory_block_p;
+    while (block)
     {
-        if (_Block_list* __temp = __blk->_M_next)
+        if (_Block_list* temp = block->_M_next)
         {
-            _Block_list* __next = __temp->_M_next;
-            __blk->_M_next = __next;
-            dealloc_sys(__temp);
-            __blk = __next;
+            _Block_list* next = temp->_M_next;
+            block->_M_next = next;
+            dealloc_sys(temp);
+            block = next;
         }
         else
         {
@@ -259,16 +259,16 @@ void static_mem_pool<_Sz, _Gid>::recycle()
 }
 
 template <size_t _Sz, int _Gid>
-void* static_mem_pool<_Sz, _Gid>::_S_alloc_sys(size_t __size)
+void* static_mem_pool<_Sz, _Gid>::_S_alloc_sys(size_t size)
 {
-    static_mem_pool_set::lock __guard;
-    void* __result = mem_pool_base::alloc_sys(__size);
-    if (!__result)
+    static_mem_pool_set::lock guard;
+    void* result = mem_pool_base::alloc_sys(size);
+    if (!result)
     {
         static_mem_pool_set::instance().recycle();
-        __result = mem_pool_base::alloc_sys(__size);
+        result = mem_pool_base::alloc_sys(size);
     }
-    return __result;
+    return result;
 }
 
 template <size_t _Sz, int _Gid>
@@ -278,88 +278,88 @@ static_mem_pool<_Sz, _Gid>* static_mem_pool<_Sz, _Gid>::_S_create_instance()
         throw std::runtime_error("dead reference detected");
 
     static_mem_pool_set::instance();  // Force its creation
-    static_mem_pool* __inst_p = new static_mem_pool();
+    static_mem_pool* inst_p = new static_mem_pool();
     try
     {
-        static_mem_pool_set::instance().add(__inst_p);
+        static_mem_pool_set::instance().add(inst_p);
     }
     catch (...)
     {
         _STATIC_MEM_POOL_TRACE(true,
                 "Exception occurs in static_mem_pool_set::add");
         // The strange cast below is to work around a bug in GCC 2.95.3
-        delete static_cast<mem_pool_base*>(__inst_p);
+        delete static_cast<mem_pool_base*>(inst_p);
         throw;
     }
-    return __inst_p;
+    return inst_p;
 }
 
 #define DECLARE_STATIC_MEM_POOL(_Cls) \
 public: \
-    static void* operator new(size_t __size) \
+    static void* operator new(size_t size) \
     { \
-        assert(__size == sizeof(_Cls)); \
-        void* __ptr; \
-        __ptr = static_mem_pool<sizeof(_Cls)>:: \
+        assert(size == sizeof(_Cls)); \
+        void* pointer; \
+        pointer = static_mem_pool<sizeof(_Cls)>:: \
                                instance_known().allocate(); \
-        if (__ptr == NULL) \
+        if (pointer == NULL) \
             throw std::bad_alloc(); \
-        return __ptr; \
+        return pointer; \
     } \
-    static void operator delete(void* __ptr) \
+    static void operator delete(void* pointer) \
     { \
-        if (__ptr) \
+        if (pointer) \
             static_mem_pool<sizeof(_Cls)>:: \
-                           instance_known().deallocate(__ptr); \
+                           instance_known().deallocate(pointer); \
     }
 
 #define DECLARE_STATIC_MEM_POOL__NOTHROW(_Cls) \
 public: \
-    static void* operator new(size_t __size) throw() \
+    static void* operator new(size_t size) throw() \
     { \
-        assert(__size == sizeof(_Cls)); \
+        assert(size == sizeof(_Cls)); \
         return static_mem_pool<sizeof(_Cls)>:: \
                               instance_known().allocate(); \
     } \
-    static void operator delete(void* __ptr) \
+    static void operator delete(void* pointer) \
     { \
-        if (__ptr) \
+        if (pointer) \
             static_mem_pool<sizeof(_Cls)>:: \
-                           instance_known().deallocate(__ptr); \
+                           instance_known().deallocate(pointer); \
     }
 
 #define DECLARE_STATIC_MEM_POOL_GROUPED(_Cls, _Gid) \
 public: \
-    static void* operator new(size_t __size) \
+    static void* operator new(size_t size) \
     { \
-        assert(__size == sizeof(_Cls)); \
-        void* __ptr; \
-        __ptr = static_mem_pool<sizeof(_Cls), (_Gid)>:: \
+        assert(size == sizeof(_Cls)); \
+        void* pointer; \
+        pointer = static_mem_pool<sizeof(_Cls), (_Gid)>:: \
                                instance_known().allocate(); \
-        if (__ptr == NULL) \
+        if (pointer == NULL) \
             throw std::bad_alloc(); \
-        return __ptr; \
+        return pointer; \
     } \
-    static void operator delete(void* __ptr) \
+    static void operator delete(void* pointer) \
     { \
-        if (__ptr) \
+        if (pointer) \
             static_mem_pool<sizeof(_Cls), (_Gid)>:: \
-                           instance_known().deallocate(__ptr); \
+                           instance_known().deallocate(pointer); \
     }
 
 #define DECLARE_STATIC_MEM_POOL_GROUPED__NOTHROW(_Cls, _Gid) \
 public: \
-    static void* operator new(size_t __size) throw() \
+    static void* operator new(size_t size) throw() \
     { \
-        assert(__size == sizeof(_Cls)); \
+        assert(size == sizeof(_Cls)); \
         return static_mem_pool<sizeof(_Cls), (_Gid)>:: \
                               instance_known().allocate(); \
     } \
-    static void operator delete(void* __ptr) \
+    static void operator delete(void* pointer) \
     { \
-        if (__ptr) \
+        if (pointer) \
             static_mem_pool<sizeof(_Cls), (_Gid)>:: \
-                           instance_known().deallocate(__ptr); \
+                           instance_known().deallocate(pointer); \
     }
 
 // OBSOLETE: no longer needed

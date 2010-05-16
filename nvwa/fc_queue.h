@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2009 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @version 1.14, 2009/03/06
+ * @version 1.15, 2010/05/16
  * @author  Wu Yongwei
  *
  */
@@ -87,19 +87,19 @@ public:
     /**
      * Constructor that creates the queue with a maximum size (capacity).
      *
-     * @param __max_size    the maximum size allowed
+     * @param max_size  the maximum size allowed
      */
-    explicit fc_queue(size_type __max_size)
+    explicit fc_queue(size_type max_size)
     {
-        __initialize(__max_size);
+        __initialize(max_size);
     }
 
     /**
      * Copy-constructor that copies all items from another queue.
      *
-     * @param __rhs the queue to copy
+     * @param rhs  the queue to copy
      */
-    fc_queue(const fc_queue& __rhs);
+    fc_queue(const fc_queue& rhs);
 
     /**
      * Destructor.  It erases all elements and frees memory.
@@ -117,11 +117,11 @@ public:
     /**
      * Assignment operator that copies all items from another queue.
      *
-     * @param __rhs the queue to copy
+     * @param rhs  the queue to copy
      */
-    fc_queue& operator=(const fc_queue& __rhs)
+    fc_queue& operator=(const fc_queue& rhs)
     {
-        fc_queue temp(__rhs);
+        fc_queue temp(rhs);
         swap(temp);
         return *this;
     }
@@ -131,12 +131,12 @@ public:
      * must be default-constructed, and this function must not have been
      * called.
      *
-     * @param __max_size    the maximum size allowed
+     * @param max_size  the maximum size allowed
      */
-    void initialize(size_type __max_size)
+    void initialize(size_type max_size)
     {
         assert(uninitialized());
-        __initialize(__max_size);
+        __initialize(max_size);
     }
 
     /**
@@ -238,26 +238,26 @@ public:
      * Inserts a new item at the end of the queue.  The first item will
      * be discarded if the queue is full.
      *
-     * @param __x   the item to be inserted
+     * @param value  the item to be inserted
      */
-    void push(const value_type& __x)
+    void push(const value_type& value)
     {
         // Use the temporary (register) variable to eliminate
         // repeatedly loading the same value from memory
-        register _Node* __new_node = _M_new;
-        construct(&__new_node->_M_data, __x);
+        register _Node* new_node = _M_new;
+        construct(&new_node->_M_data, value);
         if (full())
             pop();
         if (empty())
-            _M_front = _M_back = __new_node;
+            _M_front = _M_back = new_node;
         else
         {
-            _M_back->_M_next = __new_node;
-            _M_back          = __new_node;
+            _M_back->_M_next = new_node;
+            _M_back          = new_node;
         }
         _M_new = _M_new->_M_next;
         assert(_M_new != NULL);
-        __new_node->_M_next = NULL;
+        new_node->_M_next = NULL;
         ++_M_size;
     }
 
@@ -268,29 +268,29 @@ public:
     {
         assert(!empty());
         destroy(&_M_front->_M_data);
-        _Node* __old_front = _M_front;
-        _M_front = __old_front->_M_next;
+        _Node* old_front = _M_front;
+        _M_front = old_front->_M_next;
         assert(_M_free_nodes_end->_M_next == NULL);
-        _M_free_nodes_end->_M_next = __old_front;
-        _M_free_nodes_end = __old_front;
-        __old_front->_M_next = NULL;
+        _M_free_nodes_end->_M_next = old_front;
+        _M_free_nodes_end = old_front;
+        old_front->_M_next = NULL;
         --_M_size;
     }
 
     /**
      * Checks whether the queue contains a specific item.
      *
-     * @param __x   the item to be compared
-     * @return      \c true if found; \c false otherwise
+     * @param value  the item to be compared
+     * @return       \c true if found; \c false otherwise
      */
-    bool contains(const value_type& __x) const
+    bool contains(const value_type& value) const
     {
-        register _Node* __node = _M_front;
-        while (__node)
+        register _Node* node = _M_front;
+        while (node)
         {
-            if (__x == *(const_pointer)(&__node->_M_data))
+            if (value == *(const_pointer)(&node->_M_data))
                 return true;
-            __node = __node->_M_next;
+            node = node->_M_next;
         }
         return false;
     }
@@ -298,17 +298,17 @@ public:
     /**
      * Exchanges the items of two queues.
      *
-     * @param __rhs the queue to exchange
+     * @param rhs  the queue to exchange
      */
-    void swap(fc_queue& __rhs)
+    void swap(fc_queue& rhs)
     {
-        std::swap(_M_nodes_array,    __rhs._M_nodes_array);
-        std::swap(_M_free_nodes_end, __rhs._M_free_nodes_end);
-        std::swap(_M_new,            __rhs._M_new);
-        std::swap(_M_front,          __rhs._M_front);
-        std::swap(_M_back,           __rhs._M_back);
-        std::swap(_M_size,           __rhs._M_size);
-        std::swap(_M_max_size,       __rhs._M_max_size);
+        std::swap(_M_nodes_array,    rhs._M_nodes_array);
+        std::swap(_M_free_nodes_end, rhs._M_free_nodes_end);
+        std::swap(_M_new,            rhs._M_new);
+        std::swap(_M_front,          rhs._M_front);
+        std::swap(_M_back,           rhs._M_back);
+        std::swap(_M_size,           rhs._M_size);
+        std::swap(_M_max_size,       rhs._M_max_size);
     }
 
 protected:
@@ -327,57 +327,57 @@ protected:
     size_type   _M_max_size;
 
 protected:
-    void __initialize(size_type __max_size);
-    void __destroy(void* __ptr, __true_type)
+    void __initialize(size_type max_size);
+    void __destroy(void* pointer, __true_type)
     {}
-    void __destroy(void* __ptr, __false_type)
+    void __destroy(void* pointer, __false_type)
     {
-        ((_Tp*)__ptr)->~_Tp();
+        ((_Tp*)pointer)->~_Tp();
     }
-    void destroy(void* __ptr)
+    void destroy(void* pointer)
     {
 #if defined(BOOST_CONFIG_HPP) && !defined(_FC_QUEUE_NO_BOOST_TYPETRAITS)
-        __destroy(__ptr, boost::has_trivial_destructor<_Tp>());
+        __destroy(pointer, boost::has_trivial_destructor<_Tp>());
 #else
-        __destroy(__ptr,
+        __destroy(pointer,
                   typename __type_traits<_Tp>::has_trivial_destructor());
 #endif
     }
-    void construct(void* __ptr, const _Tp& __val)
+    void construct(void* pointer, const _Tp& value)
     {
-        new (__ptr) _Tp(__val);
+        new (pointer) _Tp(value);
     }
 };
 
 template <class _Tp>
-fc_queue<_Tp>::fc_queue(const fc_queue& __rhs)
+fc_queue<_Tp>::fc_queue(const fc_queue& rhs)
     : _M_nodes_array(NULL), _M_front(NULL)
 {
-    fc_queue temp(__rhs._M_max_size);
-    _Node* __node = __rhs._M_front;
-    while (__node)
+    fc_queue temp(rhs._M_max_size);
+    _Node* node = rhs._M_front;
+    while (node)
     {
-        temp.push(*(pointer)(&__node->_M_data));
-        __node = __node->_M_next;
+        temp.push(*(pointer)(&node->_M_data));
+        node = node->_M_next;
     }
-    assert(temp.size() == __rhs.size());
+    assert(temp.size() == rhs.size());
     swap(temp);
 }
 
 template <class _Tp>
-void fc_queue<_Tp>::__initialize(size_type __max_size)
+void fc_queue<_Tp>::__initialize(size_type max_size)
 {
-    size_type __i;
-    _M_nodes_array = new _Node[__max_size + 1];
+    size_type i;
+    _M_nodes_array = new _Node[max_size + 1];
     _M_new = _M_nodes_array;
-    for (__i = 0; __i < __max_size; ++__i)
-        _M_nodes_array[__i]._M_next = _M_nodes_array + __i + 1;
-    _M_nodes_array[__i]._M_next = NULL;
-    _M_free_nodes_end = _M_nodes_array + __max_size;
+    for (i = 0; i < max_size; ++i)
+        _M_nodes_array[i]._M_next = _M_nodes_array + i + 1;
+    _M_nodes_array[i]._M_next = NULL;
+    _M_free_nodes_end = _M_nodes_array + max_size;
     _M_front = NULL;
     _M_back = NULL;
     _M_size = 0;
-    _M_max_size = __max_size;
+    _M_max_size = max_size;
 }
 
 #endif // _FC_QUEUE_H

@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2008 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Function to get a high-resolution timer for Win32/Cygwin/Unix.
  *
- * @version 1.6, 2004/08/02
+ * @version 1.7, 2010/05/16
  * @author  Wu Yongwei
  *
  */
@@ -58,17 +58,17 @@ typedef double pctimer_t;
 
 __inline pctimer_t pctimer(void)
 {
-    static LARGE_INTEGER __pcount, __pcfreq;
-    static int __initflag;
+    static LARGE_INTEGER pcount, pcfreq;
+    static int initflag;
 
-    if (!__initflag)
+    if (!initflag)
     {
-        QueryPerformanceFrequency(&__pcfreq);
-        __initflag++;
+        QueryPerformanceFrequency(&pcfreq);
+        initflag++;
     }
 
-    QueryPerformanceCounter(&__pcount);
-    return (double)__pcount.QuadPart / (double)__pcfreq.QuadPart;
+    QueryPerformanceCounter(&pcount);
+    return (double)pcount.QuadPart / (double)pcfreq.QuadPart;
 }
 
 #else /* Not Win32/Cygwin */
@@ -77,9 +77,9 @@ __inline pctimer_t pctimer(void)
 
 __inline pctimer_t pctimer(void)
 {
-    struct timeval __tv;
-    gettimeofday(&__tv, NULL);
-    return (double)__tv.tv_sec + (double)__tv.tv_usec / 1000000;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (double)tv.tv_sec + (double)tv.tv_usec / 1000000;
 }
 
 #endif /* Win32/Cygwin */
