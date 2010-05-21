@@ -1,8 +1,8 @@
 2010-05-16  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* bool_array.h (bool_array::size_type): Improve the definition
+	* nvwa/bool_array.h (bool_array::size_type): Improve the definition
 	condition for 64-bit platforms.
-	* bool_array.cpp (bool_array::create(size_type)): Improve the
+	* nvwa/bool_array.cpp (bool_array::create(size_type)): Improve the
 	detection of 64-bit platforms.
 
 2010-05-16  Wu Yongwei  <wuyongwei@gmail.com>
@@ -10,18 +10,18 @@
 	Remove the beginning `__' in names of local variables and function
 	parameters in order to avoid collision with reserved words (already
 	bitten twice recently).
-	* bool_array.cpp: Remove `__' in certain names.
-	* bool_array.h: Ditto.
-	* fast_mutex.h: Ditto.
-	* fc_queue.h: Ditto.
-	* fixed_mem_pool.h: Ditto.
-	* mem_pool_base.cpp: Ditto.
-	* mem_pool_base.h: Ditto.
-	* object_level_lock.h: Ditto.
-	* pctimer.h: Ditto.
-	* set_assign.h: Ditto.
-	* static_mem_pool.cpp: Ditto.
-	* static_mem_pool.h: Ditto.
+	* nvwa/bool_array.cpp: Remove `__' in certain names.
+	* nvwa/bool_array.h: Ditto.
+	* nvwa/fast_mutex.h: Ditto.
+	* nvwa/fc_queue.h: Ditto.
+	* nvwa/fixed_mem_pool.h: Ditto.
+	* nvwa/mem_pool_base.cpp: Ditto.
+	* nvwa/mem_pool_base.h: Ditto.
+	* nvwa/object_level_lock.h: Ditto.
+	* nvwa/pctimer.h: Ditto.
+	* nvwa/set_assign.h: Ditto.
+	* nvwa/static_mem_pool.cpp: Ditto.
+	* nvwa/static_mem_pool.h: Ditto.
 
 2010-05-05  Wu Yongwei  <wuyongwei@gmail.com>
 
