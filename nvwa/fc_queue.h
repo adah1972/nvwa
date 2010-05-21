@@ -91,7 +91,7 @@ public:
      */
     explicit fc_queue(size_type max_size)
     {
-        __initialize(max_size);
+        _M_initialize(max_size);
     }
 
     /**
@@ -136,7 +136,7 @@ public:
     void initialize(size_type max_size)
     {
         assert(uninitialized());
-        __initialize(max_size);
+        _M_initialize(max_size);
     }
 
     /**
@@ -327,19 +327,19 @@ protected:
     size_type   _M_max_size;
 
 protected:
-    void __initialize(size_type max_size);
-    void __destroy(void* pointer, __true_type)
+    void _M_initialize(size_type max_size);
+    void _M_destroy(void* pointer, __true_type)
     {}
-    void __destroy(void* pointer, __false_type)
+    void _M_destroy(void* pointer, __false_type)
     {
         ((_Tp*)pointer)->~_Tp();
     }
     void destroy(void* pointer)
     {
 #if defined(BOOST_CONFIG_HPP) && !defined(_FC_QUEUE_NO_BOOST_TYPETRAITS)
-        __destroy(pointer, boost::has_trivial_destructor<_Tp>());
+        _M_destroy(pointer, boost::has_trivial_destructor<_Tp>());
 #else
-        __destroy(pointer,
+        _M_destroy(pointer,
                   typename __type_traits<_Tp>::has_trivial_destructor());
 #endif
     }
@@ -365,7 +365,7 @@ fc_queue<_Tp>::fc_queue(const fc_queue& rhs)
 }
 
 template <class _Tp>
-void fc_queue<_Tp>::__initialize(size_type max_size)
+void fc_queue<_Tp>::_M_initialize(size_type max_size)
 {
     size_type i;
     _M_nodes_array = new _Node[max_size + 1];
