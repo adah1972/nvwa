@@ -1,3 +1,7 @@
+2010-05-22  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/static_assert.h: Update copyright year.
+
 2010-05-21  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Remove the beginning `__' in names of non-public member functions.
