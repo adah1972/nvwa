@@ -1,5 +1,10 @@
 2010-05-22  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/cont_ptr_utils.h: Remove `__' in certain names (missed this
+	file last time).
+
+2010-05-22  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/static_assert.h: Update copyright year.
 
 2010-05-21  Wu Yongwei  <wuyongwei@gmail.com>

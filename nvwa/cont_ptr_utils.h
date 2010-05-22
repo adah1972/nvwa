@@ -32,7 +32,7 @@
  * Utility functors for containers of pointers (adapted from Scott
  * Meyers' <em>Effective STL</em>).
  *
- * @version 1.5, 2010/05/05
+ * @version 1.6, 2010/05/22
  * @author  Wu Yongwei
  *
  */
@@ -55,9 +55,9 @@
 struct dereference
 {
     template <typename _Tp>
-    const _Tp& operator()(const _Tp* __ptr) const
+    const _Tp& operator()(const _Tp* pointer) const
     {
-        return *__ptr;
+        return *pointer;
     }
 };
 
@@ -77,9 +77,9 @@ struct dereference
 struct dereference_less
 {
     template <typename _Pointer>
-    bool operator()(const _Pointer& __ptr1, const _Pointer& __ptr2) const
+    bool operator()(const _Pointer& pointer1, const _Pointer& pointer2) const
     {
-        return *__ptr1 < *__ptr2;
+        return *pointer1 < *pointer2;
     }
 };
 
@@ -96,9 +96,9 @@ struct dereference_less
 struct delete_object
 {
     template <typename _Tp>
-    void operator()(_Tp* __ptr) const
+    void operator()(_Tp* pointer) const
     {
-        delete __ptr;
+        delete pointer;
     }
 };
 
@@ -115,14 +115,14 @@ struct delete_object
 template <typename _OutputStrm, typename _StringType = const char*>
 struct output_object
 {
-    output_object(_OutputStrm& __outs, const _StringType& __sep)
-        : _M_outs(__outs), _M_sep(__sep)
+    output_object(_OutputStrm& outs, const _StringType& sep)
+        : _M_outs(outs), _M_sep(sep)
     {}
 
     template <typename _Pointer>
-    void operator()(const _Pointer& __ptr) const
+    void operator()(const _Pointer& pointer) const
     {
-        _M_outs << *__ptr << _M_sep;
+        _M_outs << *pointer << _M_sep;
     }
 
 private:
