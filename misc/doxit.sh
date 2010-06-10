@@ -1,5 +1,21 @@
 #! /bin/sh
 
+# Recommended tool versions and notes:
+#
+#   * Graphviz 2.8
+#
+#     Newer versions do NOT work for me
+#
+#   * Doxygen 1.5.1/1.5.2 for LaTeX output
+#
+#     1.5.3+ have wrong output in some diagrams
+#
+#   * Doxygen 1.5.8 for HTML output 
+#
+#     1.5.9 has broken link on "More..."
+#     1.6.0/1/2/3 cannot generate documentation for certain macros
+#
+
 # Intermediate Doxyfile
 DOXYFILE_TMP=nvwa.dox
 
@@ -69,14 +85,11 @@ mv -f ../static_mem_pool.h ../nvwa/
 # Remove the intermediate Doxyfile
 rm $DOXYFILE_TMP
 
-# Remove the space between -> and * in some older Doxygen versions
+# Remove the space between -> and * in Doxygen pre-1.5.5 versions
 cd ../doc/html
 echo "Postprocessing HTML files"
 grepsedfile 'operator-&gt; \*' 'operator-\&gt;*' *.html
 cd ../../misc
-
-# Override the default style sheet of Doxygen 1.3.9.1 (font too big!)
-#cp -p doxygen.css ../doc/html/
 
 # Make LaTeX documents
 if [ "$GENERATE_LATEX" = "YES" ]; then
@@ -113,10 +126,6 @@ if [ "$GENERATE_LATEX" = "YES" ]; then
       grepsedfile '\(subsubsection\[[^]]*\)\[\]' '\1[\\mbox{]}' *.tex
     fi
 
-    # This is tested to work with MiKTeX 2.5, Doxygen 1.5.1 (Cygwin),
-    # and Graphviz 2.8 (Windows).  Newer versions of Graphviz do NOT
-    # work for me.
-    #
     # USE_PDFLATEX=NO (option "pdf2") may not work the first time it is
     # run.  To work around this issue, run the script with the option
     # "pdf" first. -- This problem does not occur with more recent LaTeX

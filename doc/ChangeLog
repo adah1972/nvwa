@@ -1,3 +1,9 @@
+2010-06-10  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* misc/doxit.sh: Add notes about Doxygen versions and remove
+	obsolete lines.
+	* misc/doxygen.css: Remove obsolete file.
+
 2010-05-22  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/cont_ptr_utils.h: Remove `__' in certain names (missed this
