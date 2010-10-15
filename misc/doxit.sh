@@ -10,10 +10,11 @@
 #
 #     1.5.3+ have wrong output in some diagrams
 #
-#   * Doxygen 1.5.8 for HTML output 
+#   * Doxygen 1.5.8/1.6.2 for HTML output 
 #
 #     1.5.9 has broken link on "More..."
-#     1.6.0/1/2/3 cannot generate documentation for certain macros
+#     1.6.0/1 left-aligns the project name
+#     1.6.3 has issues with included-by graphs
 #
 
 # Intermediate Doxyfile

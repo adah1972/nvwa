@@ -1,3 +1,9 @@
+2010-10-15  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* misc/Doxyfile (DETAILS_AT_TOP): Remove to make Doxygen 1.6 happy.
+	(INPUT): Adjust the order of files to make Doxygen 1.6.2 happy.
+	* misc/doxit.sh: Update notes about Doxygen versions.
+
 2010-06-10  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* misc/doxit.sh: Add notes about Doxygen versions and remove
@@ -970,6 +976,7 @@
 	command line.
 
 2004-12-24  Wu Yongwei  <adah@sh163.net>
+
 	* nvwa/debug_new.h: Add the new[](size_t) declaration required by
 	MSVC 6 and enclose by macro conditionals.
 
