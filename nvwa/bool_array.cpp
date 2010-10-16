@@ -301,24 +301,24 @@ bool_array::size_type bool_array::count(size_type begin, size_type end) const
     --end;
 
     size_type true_cnt = 0;
-    size_t byte_idx_beg, byte_idx_end;
+    size_t byte_pos_beg, byte_pos_end;
     byte byte_val;
 
-    byte_idx_beg = (size_t)(begin / 8);
-    byte_val = _M_byte_ptr[byte_idx_beg];
+    byte_pos_beg = (size_t)(begin / 8);
+    byte_val = _M_byte_ptr[byte_pos_beg];
     byte_val &= ~0 << (begin % 8);
 
-    byte_idx_end = (size_t)(end / 8);
-    if (byte_idx_beg < byte_idx_end)
+    byte_pos_end = (size_t)(end / 8);
+    if (byte_pos_beg < byte_pos_end)
     {
         true_cnt = _S_bit_count[byte_val];
-        byte_val = _M_byte_ptr[byte_idx_end];
+        byte_val = _M_byte_ptr[byte_pos_end];
     }
     byte_val &= ~(~0 << (end % 8 + 1));
     true_cnt += _S_bit_count[byte_val];
 
-    for (++byte_idx_beg; byte_idx_beg < byte_idx_end; ++byte_idx_beg)
-        true_cnt += _S_bit_count[_M_byte_ptr[byte_idx_beg]];
+    for (++byte_pos_beg; byte_pos_beg < byte_pos_end; ++byte_pos_beg)
+        true_cnt += _S_bit_count[_M_byte_ptr[byte_pos_beg]];
     return true_cnt;
 }
 
@@ -326,11 +326,11 @@ bool_array::size_type bool_array::count(size_type begin, size_type end) const
  * Searches for the specified boolean value.  This function accepts a
  * range expressed in [begin, end).
  *
- * @param begin         index of the position at which the search is to begin
- * @param end           index of the end position (exclusive) to stop searching
+ * @param begin         the position at which the search is to begin
+ * @param end           the end position (exclusive) to stop searching
  * @param value         the boolean value to find
- * @return              index of the first value found if successful; \c #npos
- *                      otherwise
+ * @return              position of the first value found if successful;
+ *                      \c #npos otherwise
  * @throw out_of_range  bad range for for [begin, end)
  */
 bool_array::size_type bool_array::find_until(
@@ -347,14 +347,14 @@ bool_array::size_type bool_array::find_until(
         throw std::out_of_range("invalid bool_array range");
     --end;
 
-    size_t byte_idx_beg = (size_t)(begin / 8);
-    size_t byte_idx_end = (size_t)(end / 8);
-    byte byte_val = _M_byte_ptr[byte_idx_beg];
+    size_t byte_pos_beg = (size_t)(begin / 8);
+    size_t byte_pos_end = (size_t)(end / 8);
+    byte byte_val = _M_byte_ptr[byte_pos_beg];
 
     if (value)
     {
         byte_val &= ~0 << (begin % 8);
-        for (size_t i = byte_idx_beg; i < byte_idx_end;)
+        for (size_t i = byte_pos_beg; i < byte_pos_end;)
         {
             if (byte_val != 0)
                 return i * 8 + _S_bit_ordinal[byte_val];
@@ -362,12 +362,12 @@ bool_array::size_type bool_array::find_until(
         }
         byte_val &= ~(~0 << (end % 8 + 1));
         if (byte_val != 0)
-            return byte_idx_end * 8 + _S_bit_ordinal[byte_val];
+            return byte_pos_end * 8 + _S_bit_ordinal[byte_val];
     }
     else
     {
         byte_val |= ~(~0 << (begin % 8));
-        for (size_t i = byte_idx_beg; i < byte_idx_end;)
+        for (size_t i = byte_pos_beg; i < byte_pos_end;)
         {
             if (byte_val != 0xFF)
                 return i * 8 + _S_bit_ordinal[(byte)~byte_val];
@@ -375,7 +375,7 @@ bool_array::size_type bool_array::find_until(
         }
         byte_val |= ~0 << (end % 8 + 1);
         if (byte_val != 0xFF)
-            return byte_idx_end * 8 + _S_bit_ordinal[(byte)~byte_val];
+            return byte_pos_end * 8 + _S_bit_ordinal[(byte)~byte_val];
     }
 
     return npos;

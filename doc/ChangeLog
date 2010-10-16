@@ -1,5 +1,11 @@
 2010-10-16  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/bool_array.h: Rename some variables (external behaviour
+	should not change).
+	* nvwa/bool_array.cpp: Ditto.
+
+2010-10-16  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/bool_array.h: Update documentation comments.
 	(bool_array::bool_array(const bool_array&)): Add declaration of
 	copy-constructor.
