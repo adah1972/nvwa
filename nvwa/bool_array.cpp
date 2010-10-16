@@ -31,7 +31,7 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @version 3.11, 2010/10/16
+ * @version 4.0, 2010/10/16
  * @author  Wu Yongwei
  *
  */
@@ -164,7 +164,7 @@ bool_array::byte bool_array::_S_bit_ordinal[256] =
 }; // End _S_bit_ordinal
 
 /**
- * Constructs the packed boolean array with a specific size.
+ * Constructs a packed boolean array with a specific size.
  *
  * @param size          size of the array
  * @throw out_of_range  \a size equals \c 0
@@ -287,7 +287,7 @@ bool_array::size_type bool_array::count() const
  * @param begin         beginning of the range
  * @param end           end of the range (exclusive)
  * @return              the count of \c true elements
- * @throw out_of_range  bad range for for [begin, end)
+ * @throw out_of_range  the range [begin, end) is invalid
  */
 bool_array::size_type bool_array::count(size_type begin, size_type end) const
 {
@@ -331,7 +331,7 @@ bool_array::size_type bool_array::count(size_type begin, size_type end) const
  * @param value         the boolean value to find
  * @return              position of the first value found if successful;
  *                      \c #npos otherwise
- * @throw out_of_range  bad range for for [begin, end)
+ * @throw out_of_range  the range [begin, end) is invalid
  */
 bool_array::size_type bool_array::find_until(
         bool value,

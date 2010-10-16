@@ -1,5 +1,10 @@
 2010-10-16  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/bool_array.h: Clean up code and documentation comments.
+	* nvwa/bool_array.cpp: Adjust documentation comments.
+
+2010-10-16  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/bool_array.h: Rename some variables (external behaviour
 	should not change).
 	* nvwa/bool_array.cpp: Ditto.

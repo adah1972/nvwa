@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @version 3.11, 2010/10/16
+ * @version 4.0, 2010/10/16
  * @author  Wu Yongwei
  *
  */
@@ -106,9 +106,9 @@ public:
     static const size_type npos = (size_type)-1;
 #endif
 
-    bool_array() : _M_byte_ptr(NULL), _M_length(0) {}
+    bool_array();
     explicit bool_array(size_type size);
-    ~bool_array() { if (_M_byte_ptr != NULL) free(_M_byte_ptr); }
+    ~bool_array();
 
     bool_array(const bool_array& rhs);
     bool_array& operator=(const bool_array& rhs);
@@ -197,6 +197,22 @@ inline bool_array::_Element<_Byte_type>::operator bool() const
 }
 
 /**
+ * Constructs an empty packed boolean array.
+ */
+inline bool_array::bool_array() : _M_byte_ptr(NULL), _M_length(0)
+{
+}
+
+/**
+ * Destroys the packed boolean array and releases memory.
+ */
+inline bool_array::~bool_array()
+{
+    if (_M_byte_ptr != NULL)
+        free(_M_byte_ptr);
+}
+
+/**
  * Creates a reference to an array element.
  *
  * @param pos  position of the array element to access
@@ -227,13 +243,13 @@ inline bool_array::const_reference bool_array::operator[](size_type pos) const
  *
  * @param pos           position of the array element to access
  * @return              the boolean value of the accessed array element
- * @throw out_of_range  when \a pos is greater than the size of the array
+ * @throw out_of_range  \a pos is greater than the size of the array
  */
 inline bool bool_array::at(size_type pos) const
 {
     size_t byte_pos, bit_pos;
     if (pos >= _M_length)
-        throw std::out_of_range("invalid bool_array pos");
+        throw std::out_of_range("invalid bool_array position");
     byte_pos = (size_t)(pos / 8);
     bit_pos  = (size_t)(pos % 8);
     return *(_M_byte_ptr + byte_pos) & (1 << bit_pos) ? true : false;
@@ -243,13 +259,13 @@ inline bool bool_array::at(size_type pos) const
  * Resets an array element to \c false at a specified position.
  *
  * @param pos           position of the array element to access
- * @throw out_of_range  when \a pos is too big
+ * @throw out_of_range  \a pos is greater than the size of the array
  */
 inline void bool_array::reset(size_type pos)
 {
     size_t byte_pos, bit_pos;
     if (pos >= _M_length)
-        throw std::out_of_range("invalid bool_array pos");
+        throw std::out_of_range("invalid bool_array position");
     byte_pos = (size_t)(pos / 8);
     bit_pos  = (size_t)(pos % 8);
     *(_M_byte_ptr + byte_pos) &= ~(1 << bit_pos);
@@ -259,13 +275,13 @@ inline void bool_array::reset(size_type pos)
  * Sets an array element to \c true at a specified position.
  *
  * @param pos           position of the array element to access
- * @throw out_of_range  when the pos is too big
+ * @throw out_of_range  \a pos is greater than the size of the array
  */
 inline void bool_array::set(size_type pos)
 {
     size_t byte_pos, bit_pos;
     if (pos >= _M_length)
-        throw std::out_of_range("invalid bool_array pos");
+        throw std::out_of_range("invalid bool_array position");
     byte_pos = (size_t)(pos / 8);
     bit_pos  = (size_t)(pos % 8);
     *(_M_byte_ptr + byte_pos) |= 1 << bit_pos;
