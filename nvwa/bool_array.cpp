@@ -31,7 +31,7 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @version 3.9, 2010/05/16
+ * @version 3.10, 2010/10/16
  * @author  Wu Yongwei
  *
  */
@@ -367,4 +367,131 @@ void bool_array::swap(bool_array& rhs)
 {
     std::swap(_M_byte_ptr, rhs._M_byte_ptr);
     std::swap(_M_length,   rhs._M_length);
+}
+
+/**
+ * Merges elements of another bool_array with a logical AND.
+ *
+ * @param rhs     another bool_array to merge
+ * @param begin   beginning of the range in \a rhs
+ * @param end     end of the range (exclusive) in \a rhs
+ * @param offset  position to merge in this bool_array
+ */
+void bool_array::merge_and(
+        const bool_array& rhs,
+        size_type begin,
+        size_type end,
+        size_type offset)
+{
+    assert(_M_byte_ptr);
+
+    if (begin == end)
+        return;
+    if (end == npos)
+        end = rhs._M_length;
+    if (begin > end || end > rhs._M_length)
+        throw std::out_of_range("invalid bool_array range");
+    if (offset + (end - begin) > _M_length)
+        throw std::out_of_range("destination overflown");
+
+    size_t byte_offset = (size_t)(offset / 8);
+    size_t bit_offset = (size_t)(offset % 8);
+    byte value;
+    if (bit_offset != 0 && begin + 8 - bit_offset <= end)
+    {   // Merge the first byte (in destination), if it is partial and
+        // there are remaining bits
+        value = rhs.get_8bits(begin, end);
+        value = ~(~value << bit_offset);
+        _M_byte_ptr[byte_offset] &= value;
+        begin += 8 - bit_offset;
+        byte_offset++;
+        bit_offset = 0;
+    }
+    while (begin + 8 <= end)
+    {   // Merge all the full bytes
+        value = rhs.get_8bits(begin, end);
+        _M_byte_ptr[byte_offset++] &= value;
+        begin += 8;
+    }
+    if (begin < end)
+    {   // Merge the remaining bits
+        assert(end - begin < 8);
+        value = rhs.get_8bits(begin, end);
+        value |= ~0 << (end - begin);
+        if (bit_offset != 0)
+            value = ~(~value << bit_offset);
+        _M_byte_ptr[byte_offset] &= value;
+    }
+}
+
+/**
+ * Merges elements of another bool_array with a logical OR.
+ *
+ * @param rhs     another bool_array to merge
+ * @param begin   beginning of the range in \a rhs
+ * @param end     end of the range (exclusive) in \a rhs
+ * @param offset  position to merge in this bool_array
+ */
+void bool_array::merge_or(
+        const bool_array& rhs,
+        size_type begin,
+        size_type end,
+        size_type offset)
+{
+    assert(_M_byte_ptr);
+
+    if (begin == end)
+        return;
+    if (end == npos)
+        end = rhs._M_length;
+    if (begin > end || end > rhs._M_length)
+        throw std::out_of_range("invalid bool_array range");
+    if (offset + (end - begin) > _M_length)
+        throw std::out_of_range("destination overflown");
+
+    size_t byte_offset = (size_t)(offset / 8);
+    size_t bit_offset = (size_t)(offset % 8);
+    byte value;
+    if (bit_offset != 0 && begin + 8 - bit_offset <= end)
+    {   // Merge the first byte (in destination), if it is partial and
+        // there are remaining bits
+        value = rhs.get_8bits(begin, end);
+        value = value << bit_offset;
+        _M_byte_ptr[byte_offset] |= value;
+        begin += 8 - bit_offset;
+        byte_offset++;
+        bit_offset = 0;
+    }
+    while (begin + 8 <= end)
+    {   // Merge all the full bytes
+        value = rhs.get_8bits(begin, end);
+        _M_byte_ptr[byte_offset++] |= value;
+        begin += 8;
+    }
+    if (begin < end)
+    {   // Merge the remaining bits
+        assert(end - begin < 8);
+        value = rhs.get_8bits(begin, end);
+        value &= ~(~0 << (end - begin));
+        if (bit_offset != 0)
+            value = value << bit_offset;
+        _M_byte_ptr[byte_offset] |= value;
+    }
+}
+
+/**
+ * Retreive contiguous 8 bits from the bool_array.  If fewer than 8 bits
+ * are available, the extra bits are undefined.
+ *
+ * @param offset  beginning position to retrieve the bits
+ * @param end     end position beyond whose byte no bits will be taken
+ */
+bool_array::byte bool_array::get_8bits(size_type offset, size_type end) const
+{
+    size_t byte_offset = offset / 8;
+    size_t bit_offset = offset % 8;
+    byte retval = _M_byte_ptr[byte_offset] >> bit_offset;
+    if (bit_offset != 0 && byte_offset < (end - 1) / 8)
+        retval |= _M_byte_ptr[byte_offset + 1] << (8 - bit_offset);
+    return retval;
 }

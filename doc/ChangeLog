@@ -1,3 +1,14 @@
+2010-10-16  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/bool_array.h (bool_array::merge_and): New member function
+	declaration.
+	(bool_array::merge_or): Ditto.
+	(bool_array::get_8bits): Ditto.
+	* nvwa/bool_array.cpp (bool_array::merge_and): New member function
+	definition.
+	(bool_array::merge_or): Ditto.
+	(bool_array::get_8bits): Ditto.
+
 2010-10-15  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* misc/Doxyfile (DETAILS_AT_TOP): Remove to make Doxygen 1.6 happy.

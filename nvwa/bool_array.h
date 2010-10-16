@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @version 3.9, 2010/05/16
+ * @version 3.10, 2010/10/16
  * @author  Wu Yongwei
  *
  */
@@ -99,6 +99,13 @@ public:
     typedef _Element<byte> reference;
     typedef _Element<const byte> const_reference;
 
+#if defined(_MSC_VER) && _MSC_VER < 1300
+    enum { npos = (size_type)-1  /**< Constant representing `not found' */ };
+#else
+    /** Constant representing `not found'. */
+    static const size_type npos = (size_type)-1;
+#endif
+
     bool_array() : _M_byte_ptr(NULL), _M_length(0) {}
     explicit bool_array(size_type size);
     ~bool_array() { if (_M_byte_ptr != NULL) free(_M_byte_ptr); }
@@ -122,15 +129,18 @@ public:
 
     void flip();
     void swap(bool_array& rhs);
-
-#if defined(_MSC_VER) && _MSC_VER < 1300
-    enum { npos = (size_type)-1  /**< Constant representing `not found' */ };
-#else
-    /** Constant representing `not found'. */
-    static const size_type npos = (size_type)-1;
-#endif
+    void merge_and(const bool_array& rhs,
+                   size_type begin = 0,
+                   size_type end = npos,
+                   size_type offset = 0);
+    void merge_or (const bool_array& rhs,
+                   size_type begin = 0,
+                   size_type end = npos,
+                   size_type offset = 0);
 
 private:
+    byte get_8bits(size_type offset, size_type end) const;
+
     byte*           _M_byte_ptr;
     size_type       _M_length;
     static byte     _S_bit_count[256];
