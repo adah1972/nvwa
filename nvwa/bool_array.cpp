@@ -31,7 +31,7 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @version 3.10, 2010/10/16
+ * @version 3.11, 2010/10/16
  * @author  Wu Yongwei
  *
  */
@@ -166,18 +166,49 @@ bool_array::byte bool_array::_S_bit_ordinal[256] =
 /**
  * Constructs the packed boolean array with a specific size.
  *
- * @param size               size of the array
- * @throw std::out_of_range  if \a size equals \c 0
- * @throw std::bad_alloc     if memory is insufficient
+ * @param size          size of the array
+ * @throw out_of_range  \a size equals \c 0
+ * @throw bad_alloc     memory is insufficient
  */
 bool_array::bool_array(size_type size)
     : _M_byte_ptr(NULL), _M_length(0)
 {
     if (size == 0)
         throw std::out_of_range("invalid bool_array size");
-
     if (!create(size))
         throw std::bad_alloc();
+}
+
+/**
+ * Copy-constructor.
+ *
+ * @param rhs        the bool_array to copy from
+ * @throw bad_alloc  memory is insufficient
+ */
+bool_array::bool_array(const bool_array& rhs)
+{
+    if (rhs.size() == 0)
+    {
+        _M_byte_ptr = NULL;
+        _M_length = 0;
+        return;
+    }
+    if (!create(rhs.size()))
+        throw std::bad_alloc();
+    memcpy(_M_byte_ptr, rhs._M_byte_ptr, (size_t)((_M_length - 1) / 8) + 1);
+}
+
+/**
+ * Assignment operator.
+ *
+ * @param rhs        the bool_array to copy from
+ * @throw bad_alloc  memory is insufficient
+ */
+bool_array& bool_array::operator=(const bool_array& rhs)
+{
+    bool_array temp(rhs);
+    swap(temp);
+    return *this;
 }
 
 /**
@@ -253,22 +284,25 @@ bool_array::size_type bool_array::count() const
 /**
  * Counts elements with a \c true value in a specified range.
  *
- * @param begin  beginning of the range
- * @param end    end of the range (exclusive)
- * @return       the count of \c true elements
+ * @param begin         beginning of the range
+ * @param end           end of the range (exclusive)
+ * @return              the count of \c true elements
+ * @throw out_of_range  bad range for for [begin, end)
  */
 bool_array::size_type bool_array::count(size_type begin, size_type end) const
 {
     assert(_M_byte_ptr);
-    size_type true_cnt = 0;
-    size_t byte_idx_beg, byte_idx_end;
-    byte byte_val;
-
     if (begin == end)
         return 0;
+    if (end == npos)
+        end = _M_length;
     if (begin > end || end > _M_length)
         throw std::out_of_range("invalid bool_array range");
     --end;
+
+    size_type true_cnt = 0;
+    size_t byte_idx_beg, byte_idx_end;
+    byte byte_val;
 
     byte_idx_beg = (size_t)(begin / 8);
     byte_val = _M_byte_ptr[byte_idx_beg];
@@ -290,13 +324,14 @@ bool_array::size_type bool_array::count(size_type begin, size_type end) const
 
 /**
  * Searches for the specified boolean value.  This function accepts a
- * range expressed in [beginning, end).
+ * range expressed in [begin, end).
  *
- * @param begin  index of the position at which the search is to begin
- * @param end    index of the end position (exclusive) to stop searching
- * @param value  the boolean value to find
- * @return       index of the first value found if successful; \c #npos
- *               otherwise
+ * @param begin         index of the position at which the search is to begin
+ * @param end           index of the end position (exclusive) to stop searching
+ * @param value         the boolean value to find
+ * @return              index of the first value found if successful; \c #npos
+ *                      otherwise
+ * @throw out_of_range  bad range for for [begin, end)
  */
 bool_array::size_type bool_array::find_until(
         bool value,
@@ -304,9 +339,10 @@ bool_array::size_type bool_array::find_until(
         size_type end) const
 {
     assert(_M_byte_ptr);
-
     if (begin == end)
         return npos;
+    if (end == npos)
+        end = _M_length;
     if (begin > end || end > _M_length)
         throw std::out_of_range("invalid bool_array range");
     --end;
@@ -372,10 +408,11 @@ void bool_array::swap(bool_array& rhs)
 /**
  * Merges elements of another bool_array with a logical AND.
  *
- * @param rhs     another bool_array to merge
- * @param begin   beginning of the range in \a rhs
- * @param end     end of the range (exclusive) in \a rhs
- * @param offset  position to merge in this bool_array
+ * @param rhs           another bool_array to merge
+ * @param begin         beginning of the range in \a rhs
+ * @param end           end of the range (exclusive) in \a rhs
+ * @param offset        position to merge in this bool_array
+ * @throw out_of_range  bad range for the source or the destination
  */
 void bool_array::merge_and(
         const bool_array& rhs,
@@ -384,7 +421,6 @@ void bool_array::merge_and(
         size_type offset)
 {
     assert(_M_byte_ptr);
-
     if (begin == end)
         return;
     if (end == npos)
@@ -427,10 +463,11 @@ void bool_array::merge_and(
 /**
  * Merges elements of another bool_array with a logical OR.
  *
- * @param rhs     another bool_array to merge
- * @param begin   beginning of the range in \a rhs
- * @param end     end of the range (exclusive) in \a rhs
- * @param offset  position to merge in this bool_array
+ * @param rhs           another bool_array to merge
+ * @param begin         beginning of the range in \a rhs
+ * @param end           end of the range (exclusive) in \a rhs
+ * @param offset        position to merge in this bool_array
+ * @throw out_of_range  bad range for the source or the destination
  */
 void bool_array::merge_or(
         const bool_array& rhs,
@@ -439,7 +476,6 @@ void bool_array::merge_or(
         size_type offset)
 {
     assert(_M_byte_ptr);
-
     if (begin == end)
         return;
     if (end == npos)

@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @version 3.10, 2010/10/16
+ * @version 3.11, 2010/10/16
  * @author  Wu Yongwei
  *
  */
@@ -110,6 +110,9 @@ public:
     explicit bool_array(size_type size);
     ~bool_array() { if (_M_byte_ptr != NULL) free(_M_byte_ptr); }
 
+    bool_array(const bool_array& rhs);
+    bool_array& operator=(const bool_array& rhs);
+
     bool create(size_type size);
     void initialize(bool value);
 
@@ -122,7 +125,7 @@ public:
 
     size_type size() const { return _M_length; }
     size_type count() const;
-    size_type count(size_type begin, size_type end) const;
+    size_type count(size_type begin, size_type end = npos) const;
     size_type find(bool value, size_type offset = 0) const;
     size_type find(bool value, size_type offset, size_type count) const;
     size_type find_until(bool value, size_type begin, size_type end) const;
@@ -222,9 +225,9 @@ inline bool_array::const_reference bool_array::operator[](size_type index)const
 /**
  * Reads the boolean value of an array element via an index.
  *
- * @param index  index of the array element to access
- * @return       the boolean value of the accessed array element
- * @throw std::out_of_range  when the index is too big
+ * @param index         index of the array element to access
+ * @return              the boolean value of the accessed array element
+ * @throw out_of_range  when the index is too big
  */
 inline bool bool_array::at(size_type index) const
 {
@@ -239,8 +242,8 @@ inline bool bool_array::at(size_type index) const
 /**
  * Resets an array element to \c false via an index.
  *
- * @param index  index of the array element to access
- * @throw std::out_of_range  when the index is too big
+ * @param index         index of the array element to access
+ * @throw out_of_range  when the index is too big
  */
 inline void bool_array::reset(size_type index)
 {
@@ -255,8 +258,8 @@ inline void bool_array::reset(size_type index)
 /**
  * Sets an array element to \c true via an index.
  *
- * @param index  index of the array element to access
- * @throw std::out_of_range  when the index is too big
+ * @param index         index of the array element to access
+ * @throw out_of_range  when the index is too big
  */
 inline void bool_array::set(size_type index)
 {
@@ -288,11 +291,12 @@ inline bool_array::size_type bool_array::find(
  * Searches for the specified boolean value.  This function accepts a
  * range expressed in {position, count}.
  *
- * @param offset  index of the position at which the search is to begin
- * @param count   the number of bits to search
- * @param value   the boolean value to find
- * @return        index of the first value found if successful; \c #npos
- *                otherwise
+ * @param offset        index of the position at which the search is to begin
+ * @param count         the number of bits to search
+ * @param value         the boolean value to find
+ * @return              index of the first value found if successful; \c #npos
+ *                      otherwise
+ * @throw out_of_range  \a offset and/or \a count is too big
  */
 inline bool_array::size_type bool_array::find(
         bool value,

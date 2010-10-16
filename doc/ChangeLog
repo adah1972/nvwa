@@ -1,5 +1,23 @@
 2010-10-16  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/bool_array.h: Update documentation comments.
+	(bool_array::bool_array(const bool_array&)): Add declaration of
+	copy-constructor.
+	(bool_array::operator=(const bool_array&)): Add declaration of
+	assignment operator.
+	(bool_array::count(size_type, size_type)): Add a default argument.
+	* nvwa/bool_array.cpp: Update documentation comments and make minor
+	code adjustments.
+	(bool_array::bool_array(const bool_array&)): Add definition of
+	copy-constructor.
+	(bool_array::operator=(const bool_array&)): Add definition of
+	assignment operator.
+	(bool_array::count(size_type, size_type)): Accept the end argument
+	to be npos.
+	(bool_array::find_until(bool, size_type, size_type)): Ditto.
+
+2010-10-16  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/bool_array.h (bool_array::merge_and): New member function
 	declaration.
 	(bool_array::merge_or): Ditto.
