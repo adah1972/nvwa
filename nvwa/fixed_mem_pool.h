@@ -34,22 +34,22 @@
  * The client side needs to do the following things:
  * - Use one of the macros
  *   - #DECLARE_FIXED_MEM_POOL,
- *   - #DECLARE_FIXED_MEM_POOL__NOTHROW, and
+ *   - #DECLARE_FIXED_MEM_POOL__NOTHROW, or
  *   - #DECLARE_FIXED_MEM_POOL__THROW_NOCHECK
  *   .
- *   at the end of the class (say, \c class \e _Cls) definitions
+ *   at the end of the class (say, \c class \e _Cls) definitions.
  * - Optionally, specialize fixed_mem_pool::alignment to change the
  *   alignment value for this specific type.
  * - Optionally, specialize fixed_mem_pool::bad_alloc_handler to change
- *   the behaviour when all memory blocks are allocated
+ *   the behaviour when all memory blocks are allocated.
  * - Call fixed_mem_pool<_Cls>::initialize at the beginning of the
- *   program
+ *   program.
  * - Optionally, call fixed_mem_pool<_Cls>::deinitialize at exit of the
- *   program to check for memory leaks
+ *   program to check for memory leaks.
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
- *   memory usage when the program is running
+ *   memory usage when the program is running.
  *
- * @version 1.24, 2010/05/16
+ * @version 1.25, 2010/10/19
  * @author  Wu Yongwei
  *
  */

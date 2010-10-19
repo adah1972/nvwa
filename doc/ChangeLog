@@ -1,3 +1,8 @@
+2010-10-19  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/bool_array.h: Adjust documentation comments.
+	* nvwa/fixed_mem_pool.h: Ditto.
+
 2010-10-16  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/bool_array.h: Clean up code and documentation comments.

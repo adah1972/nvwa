@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @version 4.0, 2010/10/16
+ * @version 4.1, 2010/10/19
  * @author  Wu Yongwei
  *
  */
@@ -96,8 +96,8 @@ private:
     };
 
 public:
-    typedef _Element<byte> reference;
-    typedef _Element<const byte> const_reference;
+    typedef _Element<byte> reference;              ///< Type of reference
+    typedef _Element<const byte> const_reference;  ///< Type of const reference
 
 #if defined(_MSC_VER) && _MSC_VER < 1300
     enum { npos = (size_type)-1  /**< Constant representing `not found' */ };
@@ -123,7 +123,7 @@ public:
     void reset(size_type pos);
     void set(size_type pos);
 
-    size_type size() const { return _M_length; }
+    size_type size() const;
     size_type count() const;
     size_type count(size_type begin, size_type end = npos) const;
     size_type find(bool value, size_type offset = 0) const;
@@ -285,6 +285,16 @@ inline void bool_array::set(size_type pos)
     byte_pos = (size_t)(pos / 8);
     bit_pos  = (size_t)(pos % 8);
     *(_M_byte_ptr + byte_pos) |= 1 << bit_pos;
+}
+
+/**
+ * Gets the size of the packed boolean array.
+ *
+ * @return  the number of bits of the packed boolean array
+ */
+inline bool_array::size_type bool_array::size() const
+{
+    return _M_length;
 }
 
 /**
