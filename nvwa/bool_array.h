@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @version 4.1, 2010/10/19
+ * @version 4.2, 2010/11/13
  * @author  Wu Yongwei
  *
  */
@@ -108,6 +108,7 @@ public:
 
     bool_array();
     explicit bool_array(size_type size);
+    bool_array(const void* ptr, size_type size);
     ~bool_array();
 
     bool_array(const bool_array& rhs);
@@ -140,6 +141,7 @@ public:
                    size_type begin = 0,
                    size_type end = npos,
                    size_type offset = 0);
+    void copy_to_bitmap(void* dest, size_type begin = 0, size_type end = npos);
 
 private:
     byte get_8bits(size_type offset, size_type end) const;
@@ -197,14 +199,14 @@ inline bool_array::_Element<_Byte_type>::operator bool() const
 }
 
 /**
- * Constructs an empty packed boolean array.
+ * Constructs an empty bool_array.
  */
 inline bool_array::bool_array() : _M_byte_ptr(NULL), _M_length(0)
 {
 }
 
 /**
- * Destroys the packed boolean array and releases memory.
+ * Destroys the bool_array and releases memory.
  */
 inline bool_array::~bool_array()
 {
@@ -288,9 +290,9 @@ inline void bool_array::set(size_type pos)
 }
 
 /**
- * Gets the size of the packed boolean array.
+ * Gets the size of the bool_array.
  *
- * @return  the number of bits of the packed boolean array
+ * @return  the number of bits of the bool_array
  */
 inline bool_array::size_type bool_array::size() const
 {

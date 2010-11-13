@@ -31,13 +31,13 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @version 4.0, 2010/10/16
+ * @version 4.1, 2010/11/13
  * @author  Wu Yongwei
  *
  */
 
 #include <limits.h>         // UINT_MAX, ULONG_MAX
-#include <string.h>         // memset
+#include <string.h>         // memset/memcpy
 #include <algorithm>        // std::swap
 #include "bool_array.h"     // bool_array
 #include "static_assert.h"  // STATIC_ASSERT
@@ -164,7 +164,7 @@ bool_array::byte bool_array::_S_bit_ordinal[256] =
 }; // End _S_bit_ordinal
 
 /**
- * Constructs a packed boolean array with a specific size.
+ * Constructs a bool_array with a specific size.
  *
  * @param size          size of the array
  * @throw out_of_range  \a size equals \c 0
@@ -177,6 +177,28 @@ bool_array::bool_array(size_type size)
         throw std::out_of_range("invalid bool_array size");
     if (!create(size))
         throw std::bad_alloc();
+}
+
+/**
+ * Constructs a bool_array from a given bitmap.
+ *
+ * @param ptr           pointer to a bitmap
+ * @param size          size of the array
+ * @throw out_of_range  \a size equals \c 0
+ * @throw bad_alloc     memory is insufficient
+ */
+bool_array::bool_array(const void* ptr, size_type size)
+    : _M_byte_ptr(NULL), _M_length(0)
+{
+    if (size == 0)
+        throw std::out_of_range("invalid bool_array size");
+    if (!create(size))
+        throw std::bad_alloc();
+
+    size_t byte_cnt = (size_t)((_M_length - 1) / 8) + 1;
+    memcpy(_M_byte_ptr, ptr, byte_cnt);
+    int valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
+    _M_byte_ptr[byte_cnt - 1] &= ~(~0 << valid_bits_in_last_byte);
 }
 
 /**
@@ -512,6 +534,46 @@ void bool_array::merge_or(
         if (bit_offset != 0)
             value = value << bit_offset;
         _M_byte_ptr[byte_offset] |= value;
+    }
+}
+
+/**
+ * Copies the bool_array content as bitmap to a specified buffer.  The
+ * caller needs to ensure the destination buffer is big enough.
+ *
+ * @param dest          address of the destination buffer
+ * @param begin         beginning of the range
+ * @param end           end of the range (exclusive)
+ * @throw out_of_range  bad range for the source or the destination
+ */
+void bool_array::copy_to_bitmap(void* dest, size_type begin, size_type end)
+{
+    assert(_M_byte_ptr);
+    if (begin == end)
+        return;
+    if (end == npos)
+        end = _M_length;
+    if (begin > end || end > _M_length)
+        throw std::out_of_range("invalid bool_array range");
+
+
+    if (begin % 8 == 0)
+        memcpy(dest, _M_byte_ptr + begin / 8, (end - begin - 1) / 8 + 1);
+    else
+    {
+        byte* byte_ptr = (byte*)dest;
+        size_type offset = begin;
+        while (offset < end)
+        {
+            *byte_ptr++ = get_8bits(offset, end);
+            offset += 8;
+        }
+    }
+
+    if (int extra_bits = (end - begin) % 8)
+    {
+        byte* last_byte_ptr = (byte*)dest + (end - begin - 1) / 8;
+        *last_byte_ptr &= ~(~0 << extra_bits);
     }
 }
 

@@ -1,3 +1,16 @@
+2010-11-13  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/bool_array.h: Adjust documentation comments.
+	(bool_array::bool_array(const void*, size_type)): New constructor
+	declaration.
+	(bool_array::copy_to_bitmap(void*, size_type, size_type)): New
+	member function declaration.
+	* nvwa/bool_array.cpp: Adjust documentation comments.
+	(bool_array::bool_array(const void*, size_type)): New constructor
+	definition.
+	(bool_array::copy_to_bitmap(void*, size_type, size_type)): New
+	member function definition.
+
 2010-10-19  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/bool_array.h: Adjust documentation comments.
