@@ -143,6 +143,8 @@ public:
                    size_type offset = 0);
     void copy_to_bitmap(void* dest, size_type begin = 0, size_type end = npos);
 
+    static size_t get_num_bytes_from_bits(size_type num_bits);
+
 private:
     byte get_8bits(size_type offset, size_type end) const;
 
@@ -332,6 +334,17 @@ inline bool_array::size_type bool_array::find(
         size_type count) const
 {
     return find_until(value, offset, offset + count);
+}
+
+/**
+ * Converts the number of bits to number of bytes.
+ *
+ * @param num_bits  number of bits
+ * @return          number of bytes needed to store \a num_bits bits
+ */
+inline size_t bool_array::get_num_bytes_from_bits(size_type num_bits)
+{
+    return (size_t)((num_bits + 7) / 8);
 }
 
 #endif // _BOOL_ARRAY_H

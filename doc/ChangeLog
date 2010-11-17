@@ -1,3 +1,15 @@
+2010-11-17  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/bool_array.h (bool_array::get_num_bytes_from_bits): New
+	inline member function.
+	* nvwa/bool_array.cpp (bool_array::bool_array(const void*, size_type)):
+	Use get_num_bytes_from_bits.
+	(bool_array::create(size_type)): Ditto.
+	(bool_array::initialize(bool)): Ditto.
+	(bool_array::count()): Ditto.
+	(bool_array::flip()): Ditto.
+	(bool_array::copy_to_bitmap(void*, size_type, size_type)): Ditto.
+
 2010-11-13  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/bool_array.h: Adjust documentation comments.

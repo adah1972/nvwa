@@ -195,7 +195,7 @@ bool_array::bool_array(const void* ptr, size_type size)
     if (!create(size))
         throw std::bad_alloc();
 
-    size_t byte_cnt = (size_t)((_M_length - 1) / 8) + 1;
+    size_t byte_cnt = get_num_bytes_from_bits(_M_length);
     memcpy(_M_byte_ptr, ptr, byte_cnt);
     int valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
     _M_byte_ptr[byte_cnt - 1] &= ~(~0 << valid_bits_in_last_byte);
@@ -258,7 +258,7 @@ bool bool_array::create(size_type size)
         return false;
 #endif
 
-    size_t byte_cnt = (size_t)((size - 1) / 8 + 1);
+    size_t byte_cnt = get_num_bytes_from_bits(size);
     byte* byte_ptr = (byte*)malloc(byte_cnt);
     if (byte_ptr == NULL)
         return false;
@@ -279,7 +279,7 @@ bool bool_array::create(size_type size)
 void bool_array::initialize(bool value)
 {
     assert(_M_byte_ptr);
-    size_t byte_cnt = (size_t)((_M_length - 1) / 8) + 1;
+    size_t byte_cnt = get_num_bytes_from_bits(_M_length);
     memset(_M_byte_ptr, value ? ~0 : 0, byte_cnt);
     if (value)
     {
@@ -297,7 +297,7 @@ bool_array::size_type bool_array::count() const
 {
     assert(_M_byte_ptr);
     size_type true_cnt = 0;
-    size_t byte_cnt = (size_t)((_M_length - 1) / 8) + 1;
+    size_t byte_cnt = get_num_bytes_from_bits(_M_length);
     for (size_t i = 0; i < byte_cnt; ++i)
         true_cnt += _S_bit_count[_M_byte_ptr[i]];
     return true_cnt;
@@ -409,7 +409,7 @@ bool_array::size_type bool_array::find_until(
 void bool_array::flip()
 {
     assert(_M_byte_ptr);
-    size_t byte_cnt = (size_t)((_M_length - 1) / 8) + 1;
+    size_t byte_cnt = get_num_bytes_from_bits(_M_length);
     for (size_t i = 0; i < byte_cnt; ++i)
         _M_byte_ptr[i] = ~_M_byte_ptr[i];
     int valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
@@ -558,7 +558,8 @@ void bool_array::copy_to_bitmap(void* dest, size_type begin, size_type end)
 
 
     if (begin % 8 == 0)
-        memcpy(dest, _M_byte_ptr + begin / 8, (end - begin - 1) / 8 + 1);
+        memcpy(dest, _M_byte_ptr + begin / 8,
+               get_num_bytes_from_bits(end - begin));
     else
     {
         byte* byte_ptr = (byte*)dest;
@@ -572,7 +573,8 @@ void bool_array::copy_to_bitmap(void* dest, size_type begin, size_type end)
 
     if (int extra_bits = (end - begin) % 8)
     {
-        byte* last_byte_ptr = (byte*)dest + (end - begin - 1) / 8;
+        byte* last_byte_ptr = (byte*)dest +
+                              get_num_bytes_from_bits(end - begin) - 1;
         *last_byte_ptr &= ~(~0 << extra_bits);
     }
 }
