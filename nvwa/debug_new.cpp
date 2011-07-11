@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2011 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.20, 2010/02/15
+ * @version 4.21, 2011/07/11
  * @author  Wu Yongwei
  *
  */
@@ -203,6 +203,14 @@
  */
 #define ALIGN(s) \
         (((s) + _DEBUG_NEW_ALIGNMENT - 1) & ~(_DEBUG_NEW_ALIGNMENT - 1))
+
+/**
+ * The platform memory alignment.  The current value works well in platforms
+ * I have tested: Windows XP, Windows 7 x64, and Mac OS X Leopard.  It may
+ * be smaller than the real alignment, but must be bigger than \c
+ * sizeof(size_t).
+ */
+const size_t PLATFORM_MEM_ALIGNMENT = sizeof(size_t) * 2;
 
 /**
  * Structure to store the position information where \c new occurs.
@@ -460,12 +468,13 @@ static bool check_tail(new_ptr_list_t* ptr)
 static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
 {
     assert(line >= 0);
+#if _DEBUG_NEW_TYPE == 1
+    STATIC_ASSERT(_DEBUG_NEW_ALIGNMENT >= PLATFORM_MEM_ALIGNMENT,
+                  Alignment_too_small);
+#endif
     STATIC_ASSERT((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0,
                   Alignment_must_be_power_of_two);
     STATIC_ASSERT(_DEBUG_NEW_TAILCHECK >= 0, Invalid_tail_check_length);
-#if _DEBUG_NEW_TYPE == 1
-    STATIC_ASSERT(_DEBUG_NEW_ALIGNMENT > sizeof(size_t), Alignment_too_small);
-#endif
     size_t s = size + ALIGNED_LIST_ITEM_SIZE + _DEBUG_NEW_TAILCHECK;
     new_ptr_list_t* ptr = (new_ptr_list_t*)malloc(s);
     if (ptr == NULL)
@@ -703,14 +712,16 @@ void __debug_new_recorder::_M_process(void* pointer)
 {
     if (pointer == NULL)
         return;
+
     size_t offset = (char*)pointer - (char*)NULL;
-    if (offset != ALIGN(offset)) {
+    if (offset % PLATFORM_MEM_ALIGNMENT != 0) {
         offset -= sizeof(size_t);
-        if (offset != ALIGN(offset)) {
+        if (offset % PLATFORM_MEM_ALIGNMENT != 0) {
             return;
         }
         pointer = (char*)pointer - sizeof(size_t);
     }
+
     new_ptr_list_t* ptr =
             (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
     if (ptr->magic != MAGIC || ptr->line != 0)
