@@ -1,3 +1,8 @@
+2011-07-12  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* doc/README: Update information about GCC and debug_new: some
+	details about GCC 3.x are removed.
+
 2011-07-11  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Fix the problem that a platform alignment of 8 (found in 32-bit code

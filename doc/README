@@ -95,12 +95,9 @@ Contents
    environment variable GLIBCPP_FORCE_NEW ("set GLIBCPP_FORCE_NEW=1" in
    Windows command prompt and "export GLIBCPP_FORCE_NEW=1" in BASH, for
    example) to get precise results of leak reports; otherwise the memory
-   pooling in libstdc++-v3 could cause false positives.  I do not know
-   of the status of GCC 3.2.1, but I do know that 3.0.x, 3.1.x, and 3.2
-   do NOT support this method (but one is not supposed to be still using
-   those interim releases, right?  I personally test mostly on GCC
-   2.95.3, 3.2.3, and 3.4.2 now). -- For GCC 3.4 and later, the variable
-   name is changed to GLIBCXX_FORCE_NEW.
+   pooling in libstdc++-v3 could cause false positives. -- For GCC 3.4
+   and later, the variable name is changed to GLIBCXX_FORCE_NEW.
+   However, I have not noticed this issue again in my tests.
 
    An article on its design and implementation is available at
 
