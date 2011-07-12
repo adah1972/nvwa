@@ -1,5 +1,10 @@
 2011-07-12  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/debug_new.cpp: Add more comments and remove the special
+	detection for Borland C++ Compiler 5.5.1.
+
+2011-07-12  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* doc/README: Update information about GCC and debug_new: some
 	details about GCC 3.x are removed.
 

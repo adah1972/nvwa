@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.21, 2011/07/11
+ * @version 4.22, 2011/07/12
  * @author  Wu Yongwei
  *
  */
@@ -205,10 +205,12 @@
         (((s) + _DEBUG_NEW_ALIGNMENT - 1) & ~(_DEBUG_NEW_ALIGNMENT - 1))
 
 /**
- * The platform memory alignment.  The current value works well in platforms
- * I have tested: Windows XP, Windows 7 x64, and Mac OS X Leopard.  It may
- * be smaller than the real alignment, but must be bigger than \c
- * sizeof(size_t).
+ * The platform memory alignment.  The current value works well in
+ * platforms I have tested: Windows XP, Windows 7 x64, and Mac OS X
+ * Leopard.  It may be smaller than the real alignment, but must be
+ * bigger than \c sizeof(size_t) for it work.  __debug_new_recorder uses
+ * it to detect misaligned pointer returned by `<code>new
+ * NonPODType[size]</code>'.
  */
 const size_t PLATFORM_MEM_ALIGNMENT = sizeof(size_t) * 2;
 
@@ -535,7 +537,7 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
 /**
  * Frees memory and adjusts pointers.
  *
- * @param pointer   pointer to delete
+ * @param pointer   pointer to the previously allocated memory
  * @param addr      pointer to the caller
  * @param is_array  flag indicating whether it is invoked by a
  *                  <code>delete[]</code> call
@@ -708,11 +710,21 @@ int check_mem_corruption()
     return corrupt_cnt;
 }
 
+/**
+ * Processes the allocated memory and inserts file/line informatin.
+ * It will only be done when it can ensure the memory is allocated by
+ * one of our operator new variants.
+ *
+ * @param pointer   pointer returned by a new-expression
+ */
 void __debug_new_recorder::_M_process(void* pointer)
 {
     if (pointer == NULL)
         return;
 
+    // In an expression `new NonPODType[size]', the pointer returned is
+    // not the pointer returned by operator new[], but offset by size_t
+    // to leave room for the size.  It needs to be compensated here.
     size_t offset = (char*)pointer - (char*)NULL;
     if (offset % PLATFORM_MEM_ALIGNMENT != 0) {
         offset -= sizeof(size_t);
@@ -747,6 +759,16 @@ void __debug_new_recorder::_M_process(void* pointer)
     ptr->line = _M_line;
 }
 
+/**
+ * Allocates memory with file/line information.
+ *
+ * @param size  size of the required memory block
+ * @param file  null-terminated string of the file name
+ * @param line  line number
+ * @return      pointer to the memory allocated; or \c NULL if memory is
+ *              insufficient (#_DEBUG_NEW_STD_OPER_NEW is 0)
+ * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
+ */
 void* operator new(size_t size, const char* file, int line)
 {
     void* ptr = alloc_mem(size, file, line, false);
@@ -760,6 +782,16 @@ void* operator new(size_t size, const char* file, int line)
 #endif
 }
 
+/**
+ * Allocates array memory with file/line information.
+ *
+ * @param size  size of the required memory block
+ * @param file  null-terminated string of the file name
+ * @param line  line number
+ * @return      pointer to the memory allocated; or \c NULL if memory is
+ *              insufficient (#_DEBUG_NEW_STD_OPER_NEW is 0)
+ * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
+ */
 void* operator new[](size_t size, const char* file, int line)
 {
     void* ptr = alloc_mem(size, file, line, true);
@@ -773,38 +805,87 @@ void* operator new[](size_t size, const char* file, int line)
 #endif
 }
 
+/**
+ * Allocates memory without file/line information.
+ *
+ * @param size  size of the required memory block
+ * @return      pointer to the memory allocated; or \c NULL if memory is
+ *              insufficient (#_DEBUG_NEW_STD_OPER_NEW is 0)
+ * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
+ */
 void* operator new(size_t size) throw(std::bad_alloc)
 {
     return operator new(size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
 
+/**
+ * Allocates array memory without file/line information.
+ *
+ * @param size  size of the required memory block
+ * @return      pointer to the memory allocated; or \c NULL if memory is
+ *              insufficient (#_DEBUG_NEW_STD_OPER_NEW is 0)
+ * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
+ */
 void* operator new[](size_t size) throw(std::bad_alloc)
 {
     return operator new[](size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
 
-#if !defined(__BORLANDC__) || __BORLANDC__ > 0x551
+/**
+ * Allocates memory with no-throw guarantee.
+ *
+ * @param size  size of the required memory block
+ * @return      pointer to the memory allocated; or \c NULL if memory is
+ *              insufficient
+ */
 void* operator new(size_t size, const std::nothrow_t&) throw()
 {
     return alloc_mem(size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0, false);
 }
 
+/**
+ * Allocates array memory with no-throw guarantee.
+ *
+ * @param size  size of the required memory block
+ * @return      pointer to the memory allocated; or \c NULL if memory is
+ *              insufficient
+ */
 void* operator new[](size_t size, const std::nothrow_t&) throw()
 {
     return alloc_mem(size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0, true);
 }
-#endif
 
+/**
+ * Deallocates memory.
+ *
+ * @param pointer   pointer to the previously allocated memory
+ */
 void operator delete(void* pointer) throw()
 {
     free_pointer(pointer, _DEBUG_NEW_CALLER_ADDRESS, false);
 }
 
+/**
+ * Deallocates array memory.
+ *
+ * @param pointer   pointer to the previously allocated memory
+ */
 void operator delete[](void* pointer) throw()
 {
     free_pointer(pointer, _DEBUG_NEW_CALLER_ADDRESS, true);
 }
 
+/**
+ * Placement deallocation function.  For details, please check Section
+ * 5.3.4 of the C++ 1998 Standard.
+ *
+ * @param pointer   pointer to the previously allocated memory
+ * @param file      null-terminated string of the file name
+ * @param line      line number
+ *
+ * @see   http://www.csci.csusb.edu/dick/c++std/cd2/expr.html#expr.new
+ * @see   http://wyw.dcweb.cn/leakage.htm
+ */
 void operator delete(void* pointer, const char* file, int line) throw()
 {
     if (new_verbose_flag)
@@ -819,6 +900,14 @@ void operator delete(void* pointer, const char* file, int line) throw()
     operator delete(pointer);
 }
 
+/**
+ * Placement deallocation function.  For details, please check Section
+ * 5.3.4 of the C++ 1998 Standard.
+ *
+ * @param pointer   pointer to the previously allocated memory
+ * @param file      null-terminated string of the file name
+ * @param line      line number
+ */
 void operator delete[](void* pointer, const char* file, int line) throw()
 {
     if (new_verbose_flag)
@@ -833,16 +922,31 @@ void operator delete[](void* pointer, const char* file, int line) throw()
     operator delete[](pointer);
 }
 
+/**
+ * Placement deallocation function.  For details, please check Section
+ * 5.3.4 of the C++ 1998 Standard.
+ *
+ * @param pointer   pointer to the previously allocated memory
+ */
 void operator delete(void* pointer, const std::nothrow_t&) throw()
 {
     operator delete(pointer, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
 
+/**
+ * Placement deallocation function.  For details, please check Section
+ * 5.3.4 of the C++ 1998 Standard.
+ *
+ * @param pointer   pointer to the previously allocated memory
+ */
 void operator delete[](void* pointer, const std::nothrow_t&) throw()
 {
     operator delete[](pointer, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
 
+/**
+ * Count of source files that use debug_new.
+ */
 int __debug_new_counter::_S_count = 0;
 
 /**
