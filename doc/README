@@ -128,6 +128,10 @@ Contents
    ensure this class template provides the strong exception safety
    guarantee.
 
+   This class template is made obsolete by boost::circular_buffer, which
+   provides basically the same functionality with a richer API.  You may
+   want to use the Boost library for new code.
+
   * fixed_mem_pool.h
 
    A memory pool implementation that requires initialization (allocates
