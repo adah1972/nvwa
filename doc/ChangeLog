@@ -1,3 +1,10 @@
+2012-01-14  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.9.
+	(SEARCHENGINE): Set to `YES' to enable search.
+	* misc/release.bat (VER): Ditto.
+	* misc/release.sh (VER): Ditto.
+
 2011-07-15  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* doc/README: Mark fc_queue as obsolete.
