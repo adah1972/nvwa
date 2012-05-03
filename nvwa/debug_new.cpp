@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2011 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2012 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.22, 2011/07/12
+ * @version 4.23, 2012/05/03
  * @author  Wu Yongwei
  *
  */
@@ -331,7 +331,11 @@ static bool print_position_from_addr(const void* addr)
     }
     if (new_progname)
     {
+#ifdef __APPLE__
+        const char addr2line_cmd[] = "atos -o ";
+#else
         const char addr2line_cmd[] = "addr2line -e ";
+#endif
 #if   defined(__CYGWIN__) || defined(_WIN32)
         const int  exeext_len = 4;
 #else
