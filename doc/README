@@ -76,8 +76,16 @@ Contents
    file/line information can be displayed if debugging symbols are
    present in the executable, since debug_new stores the caller
    addresses of memory allocation/deallocation routines and they will be
-   converted with addr2line on the fly.  This makes memory tracing much
-   easier.
+   converted with addr2line (or atos on a Mac) on the fly.  This makes
+   memory tracing much easier.
+
+   NOTE for Mac OS X users: If you use OS X 10.7 or later, you may need
+   to add "-Wl,-no_pie" at the end of the command line.  By default OS X
+   will now create position-independent executables, and the OS will
+   load a PIE at a random address each time it is executed, making it
+   difficult to convert the address to symbols.  (I Googled a while for
+   a way to get the base address of a process, but could not find
+   working code.  If you know how to do it right, drop me a message.)
 
    With an idea from Greg Herlihy's post in comp.lang.c++.moderated, the
    implementation was much improved in 2007.  The most significant

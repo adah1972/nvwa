@@ -1,5 +1,9 @@
 2012-05-03  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* doc/README: Add notes about atos and -no_pie on Mac OS X.
+
+2012-05-03  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/debug_new.cpp (print_position_from_addr): Use atos instead of
 	addr2line on Apple platforms.
 
