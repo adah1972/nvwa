@@ -1,3 +1,10 @@
+2013-01-19  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/debug_new.cpp (__debug_new_counter::~__debug_new_counter):
+	Print the macro-related warning only for GCC 3, since this issue has
+	not been seen since GCC 4.
+	* doc/README: Remove the macro-related note for GCC 3 users.
+
 2012-05-03  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* doc/README: Add notes about atos and -no_pie on Mac OS X.
