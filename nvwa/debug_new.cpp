@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2012 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,9 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @version 4.24, 2013/01/19
- * @author  Wu Yongwei
- *
+ * @date    2013-01-26
  */
 
 #include <new>

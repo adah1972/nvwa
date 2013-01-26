@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,9 +31,7 @@
  *
  * Header file for the memory pool base.
  *
- * @version 1.3, 2010/05/16
- * @author  Wu Yongwei
- *
+ * @date    2013-01-26
  */
 
 #ifndef _MEM_POOL_BASE_H

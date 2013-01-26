@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2010 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,9 +32,7 @@
  * Utility functors for containers of pointers (adapted from Scott
  * Meyers' <em>Effective STL</em>).
  *
- * @version 1.6, 2010/05/22
- * @author  Wu Yongwei
- *
+ * @date    2013-01-26
  */
 
 #ifndef _CONT_PTR_UTILS_H

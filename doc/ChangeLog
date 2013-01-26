@@ -1,3 +1,25 @@
+2013-01-26  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Remove all `@version' and `@author' tags; add `@date' instead.
+	`@version' is too cumbersome to maintain and not really useful.
+	* nvwa/bool_array.cpp: Remove `@version' and `@author'; add `@date'.
+	* nvwa/bool_array.h: Ditto.
+	* nvwa/class_level_lock.h: Ditto.
+	* nvwa/cont_ptr_utils.h: Ditto.
+	* nvwa/debug_new.cpp: Ditto.
+	* nvwa/debug_new.h: Ditto.
+	* nvwa/fast_mutex.h: Ditto.
+	* nvwa/fc_queue.h: Ditto.
+	* nvwa/fixed_mem_pool.h: Ditto.
+	* nvwa/mem_pool_base.cpp: Ditto.
+	* nvwa/mem_pool_base.h: Ditto.
+	* nvwa/object_level_lock.h: Ditto.
+	* nvwa/pctimer.h: Ditto.
+	* nvwa/set_assign.h: Ditto.
+	* nvwa/static_assert.h: Ditto.
+	* nvwa/static_mem_pool.cpp: Ditto.
+	* nvwa/static_mem_pool.h: Ditto.
+
 2013-01-19  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/debug_new.cpp (__debug_new_counter::~__debug_new_counter):
