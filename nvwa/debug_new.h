@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    debug_new.h
+ * @file  debug_new.h
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #ifndef _DEBUG_NEW_H

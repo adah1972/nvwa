@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    bool_array.cpp
+ * @file  bool_array.cpp
  *
  * Code for class bool_array (packed boolean array).
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #include <limits.h>         // UINT_MAX, ULONG_MAX

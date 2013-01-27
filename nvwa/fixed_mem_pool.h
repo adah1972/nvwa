@@ -27,7 +27,7 @@
  */
 
 /**
- * @file    fixed_mem_pool.h
+ * @file  fixed_mem_pool.h
  *
  * Definition of a fixed-size memory pool template for structs/classes.
  * This is a easy-to-use class template for pre-allocated memory pools.
@@ -49,7 +49,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running.
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #ifndef _FIXED_MEM_POOL_H

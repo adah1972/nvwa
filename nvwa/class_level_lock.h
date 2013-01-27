@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    class_level_lock.h
+ * @file  class_level_lock.h
  *
  * In essence Loki ClassLevelLockable re-engineered to use a fast_mutex class.
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #ifndef _CLASS_LEVEL_LOCK_H

@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    bool_array.h
+ * @file  bool_array.h
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #ifndef _BOOL_ARRAY_H

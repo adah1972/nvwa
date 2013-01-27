@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    debug_new.cpp
+ * @file  debug_new.cpp
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #include <new>

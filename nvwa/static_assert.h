@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    static_assert.h
+ * @file  static_assert.h
  *
  * Template class to check validity duing compile time (adapted from Loki).
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #ifndef STATIC_ASSERT

@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    fc_queue.h
+ * @file  fc_queue.h
  *
  * Definition of a fixed-capacity queue.
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #ifndef _FC_QUEUE_H

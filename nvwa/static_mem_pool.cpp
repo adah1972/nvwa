@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    static_mem_pool.cpp
+ * @file  static_mem_pool.cpp
  *
  * Non-template and non-inline code for the `static' memory pool.
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #include <algorithm>

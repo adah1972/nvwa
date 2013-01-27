@@ -27,12 +27,12 @@
  */
 
 /**
- * @file    cont_ptr_utils.h
+ * @file  cont_ptr_utils.h
  *
  * Utility functors for containers of pointers (adapted from Scott
  * Meyers' <em>Effective STL</em>).
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #ifndef _CONT_PTR_UTILS_H

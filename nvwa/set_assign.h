@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    set_assign.h
+ * @file  set_assign.h
  *
  * Definition of template functions set_assign_union and set_assign_difference.
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #ifndef _SET_ASSIGN_H

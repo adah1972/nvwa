@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    mem_pool_base.h
+ * @file  mem_pool_base.h
  *
  * Header file for the memory pool base.
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #ifndef _MEM_POOL_BASE_H

@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    mem_pool_base.cpp
+ * @file  mem_pool_base.cpp
  *
  * Implementation for the memory pool base.
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #if defined(_MEM_POOL_USE_MALLOC)

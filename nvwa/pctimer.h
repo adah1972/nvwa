@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    pctimer.h
+ * @file  pctimer.h
  *
  * Function to get a high-resolution timer for Win32/Cygwin/Unix.
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #ifndef _PCTIMER_H

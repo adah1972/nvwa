@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    fast_mutex.h
+ * @file  fast_mutex.h
  *
  * A fast mutex implementation for POSIX and Win32.
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #ifndef _FAST_MUTEX_H

@@ -27,11 +27,11 @@
  */
 
 /**
- * @file    static_mem_pool.h
+ * @file  static_mem_pool.h
  *
  * Header file for the `static' memory pool.
  *
- * @date    2013-01-26
+ * @date  2013-01-27
  */
 
 #ifndef _STATIC_MEM_POOL_H
