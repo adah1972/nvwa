@@ -1,5 +1,9 @@
 2013-01-27  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/_nvwa.h: New file.
+
+2013-01-27  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/bool_array.cpp: Make a minor format adjustment.
 	* nvwa/bool_array.h: Ditto.
 	* nvwa/class_level_lock.h: Ditto.
