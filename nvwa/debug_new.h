@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @date  2013-01-27
+ * @date  2013-02-21
  */
 
 #ifndef _DEBUG_NEW_H
@@ -90,12 +90,6 @@ void* operator new(size_t size, const char* file, int line);
 void* operator new[](size_t size, const char* file, int line);
 void operator delete(void* pointer, const char* file, int line) throw();
 void operator delete[](void* pointer, const char* file, int line) throw();
-#if defined(_MSC_VER) && _MSC_VER < 1300
-// MSVC 6 requires the following declarations; or the non-placement
-// new[]/delete[] will not compile.
-void* operator new[](size_t) throw(std::bad_alloc);
-void operator delete[](void*) throw();
-#endif
 
 /* Control variables */
 extern bool new_autocheck_flag; // default to true: call check_leaks() on exit

@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @date  2013-01-27
+ * @date  2013-02-21
  */
 
 #ifndef _STATIC_MEM_POOL_H
@@ -45,14 +45,6 @@
 #include <stddef.h>
 #include "class_level_lock.h"
 #include "mem_pool_base.h"
-
-/* Defines Work-around for Microsoft Visual C++ 6.0 and Borland C++ 5.5.1 */
-# if (defined(_MSC_VER) && _MSC_VER < 1300) \
-        || (defined(__BORLANDC__) && __BORLANDC__ < 0x600)
-#   define __PRIVATE public
-# else
-#   define __PRIVATE private
-# endif
 
 /* Defines the macro for debugging output */
 # ifdef _STATIC_MEM_POOL_DEBUG
@@ -83,10 +75,9 @@ public:
     void recycle();
     void add(mem_pool_base* memory_pool_p);
 
-__PRIVATE:
-    ~static_mem_pool_set();
 private:
     static_mem_pool_set();
+    ~static_mem_pool_set();
 
     typedef std::vector<mem_pool_base*> container_type;
     container_type _M_memory_pool_set;
@@ -367,7 +358,5 @@ public: \
 // OBSOLETE: no longer needed
 #define PREPARE_STATIC_MEM_POOL_GROUPED(_Cls, _Gid) \
     std::cerr << "PREPARE_STATIC_MEM_POOL_GROUPED is obsolete!\n";
-
-#undef __PRIVATE
 
 #endif // _STATIC_MEM_POOL_H

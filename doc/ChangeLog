@@ -1,3 +1,9 @@
+2013-02-21  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Remove workaround code for compilers not conforming to C++98.
+	* nvwa/debug_new.h: Remove workaround declarations for MSVC 6.
+	* nvwa/static_mem_pool.h (__PRIVATE): Remove macro.
+
 2013-01-27  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/_nvwa.h: New file.
