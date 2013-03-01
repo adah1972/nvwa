@@ -1,5 +1,9 @@
 2013-03-01  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/c++11.h: New file.
+
+2013-03-01  Wu Yongwei  <wuyongwei@gmail.com>
+
 	Use namespace nvwa where appropriate (mostly via macros).
 	* misc/Doxyfile (EXPAND_AS_DEFINED): Add NVWA_NAMESPACE_BEGIN and
 	NVWA_NAMESPACE_END.
