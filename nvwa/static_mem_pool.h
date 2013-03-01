@@ -31,20 +31,23 @@
  *
  * Header file for the `static' memory pool.
  *
- * @date  2013-02-21
+ * @date  2013-03-01
  */
 
-#ifndef _STATIC_MEM_POOL_H
-#define _STATIC_MEM_POOL_H
+#ifndef NVWA_STATIC_MEM_POOL_H
+#define NVWA_STATIC_MEM_POOL_H
 
-#include <new>
-#include <stdexcept>
-#include <string>
-#include <vector>
-#include <assert.h>
-#include <stddef.h>
-#include "class_level_lock.h"
-#include "mem_pool_base.h"
+#include <new>                  // std::bad_alloc
+#include <stdexcept>            // std::runtime_error
+#include <string>               // std::string
+#include <vector>               // std::vector
+#include <assert.h>             // assert
+#include <stddef.h>             // size_t/NULL
+#include "class_level_lock.h"   // nvwa::class_level_lock
+#include "mem_pool_base.h"      // nvwa::mem_pool_base
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+
+NVWA_NAMESPACE_BEGIN
 
 /* Defines the macro for debugging output */
 # ifdef _STATIC_MEM_POOL_DEBUG
@@ -359,4 +362,6 @@ public: \
 #define PREPARE_STATIC_MEM_POOL_GROUPED(_Cls, _Gid) \
     std::cerr << "PREPARE_STATIC_MEM_POOL_GROUPED is obsolete!\n";
 
-#endif // _STATIC_MEM_POOL_H
+NVWA_NAMESPACE_END
+
+#endif // NVWA_STATIC_MEM_POOL_H

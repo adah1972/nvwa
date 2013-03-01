@@ -31,17 +31,20 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
-#ifndef _BOOL_ARRAY_H
-#define _BOOL_ARRAY_H
+#ifndef NVWA_BOOL_ARRAY_H
+#define NVWA_BOOL_ARRAY_H
 
-#include <assert.h>     // assert
-#include <stdlib.h>     // exit, free, and NULL
-#include <new>          // std::bad_alloc
-#include <stdexcept>    // std::out_of_range
-#include <string>       // for exception constructors
+#include <assert.h>             // assert
+#include <stdlib.h>             // exit/free/NULL
+#include <new>                  // std::bad_alloc
+#include <stdexcept>            // std::out_of_range
+#include <string>               // for exception constructors
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+
+NVWA_NAMESPACE_BEGIN
 
 /**
  * Class to represent a packed boolean array.
@@ -345,4 +348,6 @@ inline size_t bool_array::get_num_bytes_from_bits(size_type num_bits)
     return (size_t)((num_bits + 7) / 8);
 }
 
-#endif // _BOOL_ARRAY_H
+NVWA_NAMESPACE_END
+
+#endif // NVWA_BOOL_ARRAY_H

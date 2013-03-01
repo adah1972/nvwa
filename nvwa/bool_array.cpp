@@ -31,14 +31,17 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
-#include <limits.h>         // UINT_MAX, ULONG_MAX
-#include <string.h>         // memset/memcpy
-#include <algorithm>        // std::swap
-#include "bool_array.h"     // bool_array
-#include "static_assert.h"  // STATIC_ASSERT
+#include <limits.h>             // UINT_MAX, ULONG_MAX
+#include <string.h>             // memset/memcpy
+#include <algorithm>            // std::swap
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "bool_array.h"         // bool_array
+#include "static_assert.h"      // STATIC_ASSERT
+
+NVWA_NAMESPACE_BEGIN
 
 /**
  * Array that contains pre-calculated values how many 1-bits there are
@@ -593,3 +596,6 @@ bool_array::byte bool_array::get_8bits(size_type offset, size_type end) const
         retval |= _M_byte_ptr[byte_offset + 1] << (8 - bit_offset);
     return retval;
 }
+
+NVWA_NAMESPACE_END
+

@@ -31,14 +31,23 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @date  2013-02-21
+ * @date  2013-03-01
  */
 
-#ifndef _DEBUG_NEW_H
-#define _DEBUG_NEW_H
+#ifndef NVWA_DEBUG_NEW_H
+#define NVWA_DEBUG_NEW_H
 
-#include <new>
-#include <stdio.h>
+#include <new>                  // size_t/std::bad_alloc
+#include <stdio.h>              // FILE
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+
+/* Special allocation/deallocation functions in the global scope */
+void* operator new(size_t size, const char* file, int line);
+void* operator new[](size_t size, const char* file, int line);
+void operator delete(void* pointer, const char* file, int line) throw();
+void operator delete[](void* pointer, const char* file, int line) throw();
+
+NVWA_NAMESPACE_BEGIN
 
 /**
  * @def _DEBUG_NEW_REDEFINE_NEW
@@ -71,10 +80,10 @@
 /**
  * @def _DEBUG_NEW_TYPE
  *
- * Macro to indicate which variant of \c #DEBUG_NEW is wanted.  The
+ * Macro to indicate which variant of #DEBUG_NEW is wanted.  The
  * default value \c 1 allows the use of placement new (like
  * <code>%new(std::nothrow)</code>), but the verbose output (when
- * \c #new_verbose_flag is \c true) looks worse than some older
+ * nvwa#new_verbose_flag is \c true) looks worse than some older
  * versions (no file/line information for allocations).  Define it
  * to \c 2 to revert to the old behaviour that records file and line
  * information directly on the call to <code>operator new</code>.
@@ -86,10 +95,6 @@
 /* Prototypes */
 int check_leaks();
 int check_mem_corruption();
-void* operator new(size_t size, const char* file, int line);
-void* operator new[](size_t size, const char* file, int line);
-void operator delete(void* pointer, const char* file, int line) throw();
-void operator delete[](void* pointer, const char* file, int line) throw();
 
 /* Control variables */
 extern bool new_autocheck_flag; // default to true: call check_leaks() on exit
@@ -105,11 +110,15 @@ extern const char* new_progname;// default to NULL; should be assigned argv[0]
  * otherwise \c new will be defined to it, and one must use \c new
  * instead.
  */
-#if _DEBUG_NEW_TYPE == 1
-#define DEBUG_NEW __debug_new_recorder(__FILE__, __LINE__) ->* new
-#else
-#define DEBUG_NEW new(__FILE__, __LINE__)
-#endif
+# if _DEBUG_NEW_TYPE == 1
+#   if NVWA_USE_NAMESPACE
+#     define DEBUG_NEW nvwa::debug_new_recorder(__FILE__, __LINE__) ->* new
+#   else
+#     define DEBUG_NEW debug_new_recorder(__FILE__, __LINE__) ->* new
+#   endif
+# else
+#   define DEBUG_NEW new(__FILE__, __LINE__)
+# endif
 
 # if _DEBUG_NEW_REDEFINE_NEW
 #   define new DEBUG_NEW
@@ -129,7 +138,7 @@ extern const char* new_progname;// default to NULL; should be assigned argv[0]
  *
  * The idea comes from <a href="http://groups.google.com/group/comp.lang.c++.moderated/browse_thread/thread/7089382e3bc1c489/85f9107a1dc79ee9?#85f9107a1dc79ee9">Greg Herlihy's post</a> in comp.lang.c++.moderated.
  */
-class __debug_new_recorder
+class debug_new_recorder
 {
     const char* _M_file;
     const int   _M_line;
@@ -137,9 +146,9 @@ class __debug_new_recorder
 public:
     /**
      * Constructor to remember the call context.  The information will
-     * be used in __debug_new_recorder::operator->*.
+     * be used in debug_new_recorder::operator->*.
      */
-    __debug_new_recorder(const char* file, int line)
+    debug_new_recorder(const char* file, int line)
         : _M_file(file), _M_line(line) {}
     /**
      * Operator to write the context information to memory.
@@ -150,8 +159,8 @@ public:
     template <class _Tp> _Tp* operator->*(_Tp* pointer)
     { _M_process(pointer); return pointer; }
 private:
-    __debug_new_recorder(const __debug_new_recorder&);
-    __debug_new_recorder& operator=(const __debug_new_recorder&);
+    debug_new_recorder(const debug_new_recorder&);
+    debug_new_recorder& operator=(const debug_new_recorder&);
 };
 
 /**
@@ -160,14 +169,16 @@ private:
  * This technique is learnt from <em>The C++ Programming Language</em> by
  * Bjarne Stroustup.
  */
-class __debug_new_counter
+class debug_new_counter
 {
     static int _S_count;
 public:
-    __debug_new_counter();
-    ~__debug_new_counter();
+    debug_new_counter();
+    ~debug_new_counter();
 };
 /** Counting object for each file including debug_new.h. */
-static __debug_new_counter __debug_new_count;
+static debug_new_counter __debug_new_count;
 
-#endif // _DEBUG_NEW_H
+NVWA_NAMESPACE_END
+
+#endif // NVWA_DEBUG_NEW_H

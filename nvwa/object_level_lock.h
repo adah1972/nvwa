@@ -34,13 +34,16 @@
  * href="http://www.awprofessional.com/articles/article.asp?p=25298">
  * "Multithreading and the C++ Type System"</a> for the ideas behind.
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
-#ifndef _OBJECT_LEVEL_LOCK_H
-#define _OBJECT_LEVEL_LOCK_H
+#ifndef NVWA_OBJECT_LEVEL_LOCK_H
+#define NVWA_OBJECT_LEVEL_LOCK_H
 
-#include "fast_mutex.h"
+#include "fast_mutex.h"         // nvwa::fast_mutex/_NOTHREADS
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+
+NVWA_NAMESPACE_BEGIN
 
 # ifdef _NOTHREADS
     /**
@@ -130,4 +133,6 @@
     };
 # endif // _NOTHREADS
 
-#endif // _OBJECT_LEVEL_LOCK_H
+NVWA_NAMESPACE_END
+
+#endif // NVWA_OBJECT_LEVEL_LOCK_H

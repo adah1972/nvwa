@@ -31,23 +31,23 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
-#include <new>
-#include <assert.h>
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <new>                  // std::bad_alloc/nothrow_t
+#include <assert.h>             // assert
+#include <stdio.h>              // fprintf/stderr
+#include <stdlib.h>             // abort
+#include <string.h>             // strcpy/strncpy/sprintf
 #ifdef __unix__
-#include <alloca.h>
+#include <alloca.h>             // alloca
 #endif
 #ifdef _WIN32
-#include <malloc.h>
+#include <malloc.h>             // alloca
 #endif
-#include "fast_mutex.h"
-#include "static_assert.h"
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "fast_mutex.h"         // nvwa::fast_mutex
+#include "static_assert.h"      // STATIC_ASSERT
 
 #if !_FAST_MUTEX_CHECK_INITIALIZATION && !defined(_NOTHREADS)
 #error "_FAST_MUTEX_CHECK_INITIALIZATION not set: check_leaks may not work"
@@ -66,7 +66,7 @@
 /**
  * @def _DEBUG_NEW_CALLER_ADDRESS
  *
- * The expression to return the caller address.  #print_position will
+ * The expression to return the caller address.  nvwa#print_position will
  * later on use this address to print the position information of memory
  * operation points.
  */
@@ -119,7 +119,7 @@
  * @def _DEBUG_NEW_PROGNAME
  *
  * The program (executable) name to be set at compile time.  It is
- * better to assign the full program path to #new_progname in \e main
+ * better to assign the full program path to nvwa#new_progname in \e main
  * (at run time) than to use this (compile-time) macro, but this macro
  * serves well as a quick hack.  Note also that double quotation marks
  * need to be used around the program name, i.e., one should specify a
@@ -202,12 +202,14 @@
 #define ALIGN(s) \
         (((s) + _DEBUG_NEW_ALIGNMENT - 1) & ~(_DEBUG_NEW_ALIGNMENT - 1))
 
+NVWA_NAMESPACE_BEGIN
+
 /**
  * The platform memory alignment.  The current value works well in
  * platforms I have tested: Windows XP, Windows 7 x64, and Mac OS X
  * Leopard.  It may be smaller than the real alignment, but must be
- * bigger than \c sizeof(size_t) for it work.  __debug_new_recorder uses
- * it to detect misaligned pointer returned by `<code>new
+ * bigger than \c sizeof(size_t) for it work.  nvwa#debug_new_recorder
+ * uses it to detect misaligned pointer returned by `<code>new
  * NonPODType[size]</code>'.
  */
 const size_t PLATFORM_MEM_ALIGNMENT = sizeof(size_t) * 2;
@@ -719,7 +721,7 @@ int check_mem_corruption()
  *
  * @param pointer   pointer returned by a new-expression
  */
-void __debug_new_recorder::_M_process(void* pointer)
+void debug_new_recorder::_M_process(void* pointer)
 {
     if (pointer == NULL)
         return;
@@ -760,6 +762,45 @@ void __debug_new_recorder::_M_process(void* pointer)
 #endif
     ptr->line = _M_line;
 }
+
+/**
+ * Count of source files that use debug_new.
+ */
+int debug_new_counter::_S_count = 0;
+
+/**
+ * Constructor to increment the count.
+ */
+debug_new_counter::debug_new_counter()
+{
+    ++_S_count;
+}
+
+/**
+ * Destructor to decrement the count.  When the count is zero,
+ * #check_leaks will be called.
+ */
+debug_new_counter::~debug_new_counter()
+{
+    if (--_S_count == 0 && new_autocheck_flag)
+        if (check_leaks())
+        {
+            new_verbose_flag = true;
+#if defined(__GNUC__) && __GNUC__ == 3
+            if (!getenv("GLIBCPP_FORCE_NEW") && !getenv("GLIBCXX_FORCE_NEW"))
+                fprintf(new_output_fp,
+"*** WARNING:  GCC 3 is detected, please make sure the environment\n"
+"    variable GLIBCPP_FORCE_NEW (GCC 3.2 and 3.3) or GLIBCXX_FORCE_NEW\n"
+"    (GCC 3.4) is defined.  Check the README file for details.\n");
+#endif
+        }
+}
+
+NVWA_NAMESPACE_END
+
+#if NVWA_USE_NAMESPACE
+using namespace nvwa;
+#endif // NVWA_USE_NAMESPACE
 
 /**
  * Allocates memory with file/line information.
@@ -879,7 +920,7 @@ void operator delete[](void* pointer) throw()
 
 /**
  * Placement deallocation function.  For details, please check Section
- * 5.3.4 of the C++ 1998 Standard.
+ * 5.3.4 of the C++ 1998 or 2011 Standard.
  *
  * @param pointer   pointer to the previously allocated memory
  * @param file      null-terminated string of the file name
@@ -904,7 +945,7 @@ void operator delete(void* pointer, const char* file, int line) throw()
 
 /**
  * Placement deallocation function.  For details, please check Section
- * 5.3.4 of the C++ 1998 Standard.
+ * 5.3.4 of the C++ 1998 or 2011 Standard.
  *
  * @param pointer   pointer to the previously allocated memory
  * @param file      null-terminated string of the file name
@@ -926,7 +967,7 @@ void operator delete[](void* pointer, const char* file, int line) throw()
 
 /**
  * Placement deallocation function.  For details, please check Section
- * 5.3.4 of the C++ 1998 Standard.
+ * 5.3.4 of the C++ 1998 or 2011 Standard.
  *
  * @param pointer   pointer to the previously allocated memory
  */
@@ -937,44 +978,11 @@ void operator delete(void* pointer, const std::nothrow_t&) throw()
 
 /**
  * Placement deallocation function.  For details, please check Section
- * 5.3.4 of the C++ 1998 Standard.
+ * 5.3.4 of the C++ 1998 or 2011 Standard.
  *
  * @param pointer   pointer to the previously allocated memory
  */
 void operator delete[](void* pointer, const std::nothrow_t&) throw()
 {
     operator delete[](pointer, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
-}
-
-/**
- * Count of source files that use debug_new.
- */
-int __debug_new_counter::_S_count = 0;
-
-/**
- * Constructor to increment the count.
- */
-__debug_new_counter::__debug_new_counter()
-{
-    ++_S_count;
-}
-
-/**
- * Destructor to decrement the count.  When the count is zero,
- * #check_leaks will be called.
- */
-__debug_new_counter::~__debug_new_counter()
-{
-    if (--_S_count == 0 && new_autocheck_flag)
-        if (check_leaks())
-        {
-            new_verbose_flag = true;
-#if defined(__GNUC__) && __GNUC__ == 3
-            if (!getenv("GLIBCPP_FORCE_NEW") && !getenv("GLIBCXX_FORCE_NEW"))
-                fprintf(new_output_fp,
-"*** WARNING:  GCC 3 is detected, please make sure the environment\n"
-"    variable GLIBCPP_FORCE_NEW (GCC 3.2 and 3.3) or GLIBCXX_FORCE_NEW\n"
-"    (GCC 3.4) is defined.  Check the README file for details.\n");
-#endif
-        }
 }

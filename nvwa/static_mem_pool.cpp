@@ -31,12 +31,15 @@
  *
  * Non-template and non-inline code for the `static' memory pool.
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
-#include <algorithm>
-#include "cont_ptr_utils.h"
-#include "static_mem_pool.h"
+#include <algorithm>            // std::for_each
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "cont_ptr_utils.h"     // nvwa::delete_object
+#include "static_mem_pool.h"    // nvwa::static_mem_pool_set
+
+NVWA_NAMESPACE_BEGIN
 
 static_mem_pool_set::static_mem_pool_set()
 {
@@ -52,9 +55,10 @@ static_mem_pool_set::~static_mem_pool_set()
 }
 
 /**
- * Creates the singleton instance of #static_mem_pool_set.
+ * Gets the singleton instance of nvwa#static_mem_pool_set.  The
+ * instance will be created on the first invocation.
  *
- * @return  reference to the instance of #static_mem_pool_set
+ * @return  reference to the instance of nvwa#static_mem_pool_set
  */
 static_mem_pool_set& static_mem_pool_set::instance()
 {
@@ -66,7 +70,7 @@ static_mem_pool_set& static_mem_pool_set::instance()
 /**
  * Asks all static memory pools to recycle unused memory blocks back to
  * the system.  The caller should get the lock to prevent other
- * operations to #static_mem_pool_set during its execution.
+ * operations to nvwa#static_mem_pool_set during its execution.
  */
 void static_mem_pool_set::recycle()
 {
@@ -81,7 +85,7 @@ void static_mem_pool_set::recycle()
 }
 
 /**
- * Adds a new memory pool to #static_mem_pool_set.
+ * Adds a new memory pool to nvwa#static_mem_pool_set.
  *
  * @param memory_pool_p  pointer to the memory pool to add
  */
@@ -90,3 +94,5 @@ void static_mem_pool_set::add(mem_pool_base* memory_pool_p)
     lock guard;
     _M_memory_pool_set.push_back(memory_pool_p);
 }
+
+NVWA_NAMESPACE_END

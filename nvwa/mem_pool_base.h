@@ -31,13 +31,16 @@
  *
  * Header file for the memory pool base.
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
-#ifndef _MEM_POOL_BASE_H
-#define _MEM_POOL_BASE_H
+#ifndef NVWA_MEM_POOL_BASE_H
+#define NVWA_MEM_POOL_BASE_H
 
-#include <stddef.h>
+#include <stddef.h>             // size_t
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+
+NVWA_NAMESPACE_BEGIN
 
 /**
  * Base class for memory pools.
@@ -57,4 +60,6 @@ public:
     };
 };
 
-#endif // _MEM_POOL_BASE_H
+NVWA_NAMESPACE_END
+
+#endif // NVWA_MEM_POOL_BASE_H

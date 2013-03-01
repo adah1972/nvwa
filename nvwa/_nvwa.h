@@ -31,7 +31,7 @@
  *
  * Common definitions for preprocessing.
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
 #ifndef NVWA_NVWA_H
@@ -42,11 +42,11 @@
 #endif // NVWA_USE_NAMESPACE
 
 #if NVWA_USE_NAMESPACE
-#define NVWA_BEGIN_NAMESPACE namespace nvwa {
-#define NVWA_END_NAMESPACE }
+#define NVWA_NAMESPACE_BEGIN namespace nvwa {
+#define NVWA_NAMESPACE_END }
 #else  // NVWA_USE_NAMESPACE
-#define NVWA_BEGIN_NAMESPACE
-#define NVWA_END_NAMESPACE
+#define NVWA_NAMESPACE_BEGIN
+#define NVWA_NAMESPACE_END
 #endif // NVWA_USE_NAMESPACE
 
 #endif // NVWA_NVWA_H

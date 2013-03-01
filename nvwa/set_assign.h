@@ -31,13 +31,16 @@
  *
  * Definition of template functions set_assign_union and set_assign_difference.
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
-#ifndef _SET_ASSIGN_H
-#define _SET_ASSIGN_H
+#ifndef NVWA_SET_ASSIGN_H
+#define NVWA_SET_ASSIGN_H
 
-#include <algorithm>
+#include <algorithm>            // std::copy
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+
+NVWA_NAMESPACE_BEGIN
 
 template <class _Container, class _InputIter>
 _Container& set_assign_union(_Container& dest,
@@ -139,4 +142,6 @@ _Container& set_assign_difference(_Container& dest,
     return dest;
 }
 
-#endif // _SET_ASSIGN_H
+NVWA_NAMESPACE_END
+
+#endif // NVWA_SET_ASSIGN_H

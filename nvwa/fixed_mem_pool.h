@@ -49,18 +49,21 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running.
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
-#ifndef _FIXED_MEM_POOL_H
-#define _FIXED_MEM_POOL_H
+#ifndef NVWA_FIXED_MEM_POOL_H
+#define NVWA_FIXED_MEM_POOL_H
 
-#include <new>
-#include <assert.h>
-#include <stdlib.h>
-#include "class_level_lock.h"
-#include "mem_pool_base.h"
-#include "static_assert.h"
+#include <new>                  // std::bad_alloc
+#include <assert.h>             // assert
+#include <stdlib.h>             // size_t/NULL
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "class_level_lock.h"   // nvwa::class_level_lock
+#include "mem_pool_base.h"      // nvwa::mem_pool_base
+#include "static_assert.h"      // STATIC_ASSERT
+
+NVWA_NAMESPACE_BEGIN
 
 /**
  * Defines the alignment of memory blocks.
@@ -321,4 +324,6 @@ public: \
             fixed_mem_pool<_Cls>::deallocate(pointer); \
     }
 
-#endif // _FIXED_MEM_POOL_H
+NVWA_NAMESPACE_END
+
+#endif // NVWA_FIXED_MEM_POOL_H

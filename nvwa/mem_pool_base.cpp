@@ -31,16 +31,19 @@
  *
  * Implementation for the memory pool base.
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
 #if defined(_MEM_POOL_USE_MALLOC)
-#include <stdlib.h>
+#include <stdlib.h>             // malloc/free
 #else
-#include <new>
+#include <new>                  // std::bad_alloc
 #endif
 
-#include "mem_pool_base.h"
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "mem_pool_base.h"      // nvwa::mem_pool_base
+
+NVWA_NAMESPACE_BEGIN
 
 /* Defines macros to abstract system memory routines */
 # ifdef _MEM_POOL_USE_MALLOC
@@ -86,3 +89,5 @@ void mem_pool_base::dealloc_sys(void* pointer)
 {
     _MEM_POOL_DEALLOCATE(pointer);
 }
+
+NVWA_NAMESPACE_END

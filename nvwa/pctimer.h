@@ -31,12 +31,11 @@
  *
  * Function to get a high-resolution timer for Win32/Cygwin/Unix.
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
-#ifndef _PCTIMER_H
-
-typedef double pctimer_t;
+#ifndef NVWA_PCTIMER_H
+#define NVWA_PCTIMER_H
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 
@@ -47,12 +46,18 @@ typedef double pctimer_t;
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif /* WIN32_LEAN_AND_MEAN */
-#include <windows.h>
+#include <windows.h>            // QueryPerformance*
 
 #ifdef _PCTIMER_NO_WIN32
 #undef _PCTIMER_NO_WIN32
 #undef _WIN32
 #endif /* _PCTIMER_NO_WIN32 */
+
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+
+NVWA_NAMESPACE_BEGIN
+
+typedef double pctimer_t;
 
 __inline pctimer_t pctimer(void)
 {
@@ -69,9 +74,15 @@ __inline pctimer_t pctimer(void)
     return (double)pcount.QuadPart / (double)pcfreq.QuadPart;
 }
 
+NVWA_NAMESPACE_END
+
 #else /* Not Win32/Cygwin */
 
 #include <sys/time.h>
+
+NVWA_NAMESPACE_BEGIN
+
+typedef double pctimer_t;
 
 __inline pctimer_t pctimer(void)
 {
@@ -80,6 +91,8 @@ __inline pctimer_t pctimer(void)
     return (double)tv.tv_sec + (double)tv.tv_usec / 1000000;
 }
 
+NVWA_NAMESPACE_END
+
 #endif /* Win32/Cygwin */
 
-#endif /* _PCTIMER_H */
+#endif /* NVWA_PCTIMER_H */

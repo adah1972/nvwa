@@ -32,11 +32,15 @@
  * Utility functors for containers of pointers (adapted from Scott
  * Meyers' <em>Effective STL</em>).
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
-#ifndef _CONT_PTR_UTILS_H
-#define _CONT_PTR_UTILS_H
+#ifndef NVWA_CONT_PTR_UTILS_H
+#define NVWA_CONT_PTR_UTILS_H
+
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+
+NVWA_NAMESPACE_BEGIN
 
 /**
  * Functor to return objects pointed by a container of pointers.
@@ -128,4 +132,6 @@ private:
     _StringType  _M_sep;
 };
 
-#endif // _CONT_PTR_UTILS_H
+NVWA_NAMESPACE_END
+
+#endif // NVWA_CONT_PTR_UTILS_H

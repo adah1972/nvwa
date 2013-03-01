@@ -31,11 +31,13 @@
  *
  * A fast mutex implementation for POSIX and Win32.
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
-#ifndef _FAST_MUTEX_H
-#define _FAST_MUTEX_H
+#ifndef NVWA_FAST_MUTEX_H
+#define NVWA_FAST_MUTEX_H
+
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
 
 # if !defined(_NOTHREADS)
 #   if !defined(_WIN32THREADS) && \
@@ -45,9 +47,7 @@
 #       define _WIN32THREADS
 #   elif !defined(_PTHREADS) && \
             defined(_REENTRANT)
-//      Automatically use _PTHREADS when specifying -pthread in GCC.
-//      N.B. I do not detect on _PTHREAD_H since libstdc++-v3 under
-//      Linux will silently include <pthread.h> anyway.
+//      Automatically use _PTHREADS when specifying -pthread in GCC or Clang.
 #       define _PTHREADS
 #   endif
 # endif
@@ -101,6 +101,7 @@
 
 # ifdef _PTHREADS
 #   include <pthread.h>
+NVWA_NAMESPACE_BEGIN
 /**
  * Macro alias to `volatile' semantics.  Here it is truly volatile since
  * it is in a multi-threaded (POSIX threads) environment.
@@ -171,6 +172,7 @@
         fast_mutex(const fast_mutex&);
         fast_mutex& operator=(const fast_mutex&);
     };
+NVWA_NAMESPACE_END
 # endif // _PTHREADS
 
 # ifdef _WIN32THREADS
@@ -178,6 +180,7 @@
 #     define WIN32_LEAN_AND_MEAN
 #   endif /* WIN32_LEAN_AND_MEAN */
 #   include <windows.h>
+NVWA_NAMESPACE_BEGIN
 /**
  * Macro alias to `volatile' semantics.  Here it is truly volatile since
  * it is in a multi-threaded (Win32 threads) environment.
@@ -243,9 +246,11 @@
         fast_mutex(const fast_mutex&);
         fast_mutex& operator=(const fast_mutex&);
     };
+NVWA_NAMESPACE_END
 # endif // _WIN32THREADS
 
 # ifdef _NOTHREADS
+NVWA_NAMESPACE_BEGIN
 /**
  * Macro alias to `volatile' semantics.  Here it is not truly volatile
  * since it is in a single-threaded environment.
@@ -289,8 +294,10 @@
         fast_mutex(const fast_mutex&);
         fast_mutex& operator=(const fast_mutex&);
     };
+NVWA_NAMESPACE_END
 # endif // _NOTHREADS
 
+NVWA_NAMESPACE_BEGIN
 /** An acquistion-on-initialization lock class based on fast_mutex. */
 class fast_mutex_autolock
 {
@@ -308,5 +315,6 @@ private:
     fast_mutex_autolock(const fast_mutex_autolock&);
     fast_mutex_autolock& operator=(const fast_mutex_autolock&);
 };
+NVWA_NAMESPACE_END
 
-#endif // _FAST_MUTEX_H
+#endif // NVWA_FAST_MUTEX_H

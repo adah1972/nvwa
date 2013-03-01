@@ -31,18 +31,22 @@
  *
  * Template class to check validity duing compile time (adapted from Loki).
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
 #ifndef STATIC_ASSERT
 
-template <bool> struct __nvwa_compile_time_error;
-template <>     struct __nvwa_compile_time_error<true> {};
+namespace nvwa {
+
+template <bool> struct compile_time_error;
+template <>     struct compile_time_error<true> {};
 
 #define STATIC_ASSERT(_Expr, _Msg) \
     { \
-        __nvwa_compile_time_error<((_Expr) != 0)> ERROR_##_Msg; \
+        nvwa::compile_time_error<((_Expr) != 0)> ERROR_##_Msg; \
         (void)ERROR_##_Msg; \
     }
+
+}
 
 #endif // STATIC_ASSERT

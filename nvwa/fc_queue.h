@@ -31,16 +31,19 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2013-01-27
+ * @date  2013-03-01
  */
 
-#ifndef _FC_QUEUE_H
-#define _FC_QUEUE_H
+#ifndef NVWA_FC_QUEUE_H
+#define NVWA_FC_QUEUE_H
 
-#include <assert.h>
-#include <stddef.h>
-#include <algorithm>
-#include <new>
+#include <assert.h>             // assert
+#include <stddef.h>             // size_t/NULL
+#include <algorithm>            // std::swap
+#include <new>                  // placement new
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+
+NVWA_NAMESPACE_BEGIN
 
 #if defined(BOOST_CONFIG_HPP) && !defined(_FC_QUEUE_NO_BOOST_TYPETRAITS)
 # include <boost/type_traits.hpp>
@@ -378,4 +381,6 @@ void fc_queue<_Tp>::_M_initialize(size_type max_size)
     _M_max_size = max_size;
 }
 
-#endif // _FC_QUEUE_H
+NVWA_NAMESPACE_END
+
+#endif // NVWA_FC_QUEUE_H
