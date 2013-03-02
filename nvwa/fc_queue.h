@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2013-03-01
+ * @date  2013-03-02
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -42,25 +42,9 @@
 #include <algorithm>            // std::swap
 #include <new>                  // placement new
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "type_traits.h"        // nvwa::is_trivially_destructible
 
 NVWA_NAMESPACE_BEGIN
-
-#if defined(BOOST_CONFIG_HPP) && !defined(_FC_QUEUE_NO_BOOST_TYPETRAITS)
-# include <boost/type_traits.hpp>
-# define __true_type  boost::true_type
-# define __false_type boost::false_type
-#elif defined(_STLPORT_VERSION)
-# include <stl/type_traits.h>
-# if !defined(_STLP_HAS_NO_NAMESPACES)
-using std::__type_traits;
-using std::__true_type;
-using std::__false_type;
-# endif
-#elif defined(__GNUC__) && (__GNUC__ >= 3)
-# include <bits/type_traits.h>
-#else
-# include <type_traits.h>
-#endif
 
 /**
  * Class to represent a fixed-capacity queue.
@@ -329,20 +313,15 @@ protected:
 
 protected:
     void _M_initialize(size_type max_size);
-    void _M_destroy(void* pointer, __true_type)
+    void _M_destroy(void*, true_type)
     {}
-    void _M_destroy(void* pointer, __false_type)
+    void _M_destroy(void* pointer, false_type)
     {
         ((_Tp*)pointer)->~_Tp();
     }
     void destroy(void* pointer)
     {
-#if defined(BOOST_CONFIG_HPP) && !defined(_FC_QUEUE_NO_BOOST_TYPETRAITS)
-        _M_destroy(pointer, boost::has_trivial_destructor<_Tp>());
-#else
-        _M_destroy(pointer,
-                  typename __type_traits<_Tp>::has_trivial_destructor());
-#endif
+        _M_destroy(pointer, is_trivially_destructible<_Tp>());
     }
     void construct(void* pointer, const _Tp& value)
     {
