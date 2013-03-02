@@ -1,3 +1,8 @@
+2013-03-02  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/c++11.h (__has_extension): New macro.
+	* nvwa/type_traits.h: New file.
+
 2013-03-01  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/c++11.h: New file.

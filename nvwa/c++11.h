@@ -31,7 +31,7 @@
  *
  * C++11 feature detection macros and workarounds.
  *
- * @date  2013-03-01
+ * @date  2013-03-02
  */
 
 #ifndef NVWA_CXX11_H
@@ -39,6 +39,9 @@
 
 // Only Clang provides these macros; they need to be defined as follows
 // to get a valid expression in preprocessing by other compilers.
+#ifndef __has_extension
+#define __has_extension(x) 0
+#endif
 #ifndef __has_feature
 #define __has_feature(x) 0
 #endif
