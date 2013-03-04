@@ -31,7 +31,7 @@
  *
  * In essence Loki ClassLevelLockable re-engineered to use a fast_mutex class.
  *
- * @date  2013-03-01
+ * @date  2013-03-04
  */
 
 #ifndef NVWA_CLASS_LEVEL_LOCK_H
@@ -39,6 +39,10 @@
 
 #include "fast_mutex.h"         // nvwa::fast_mutex/_NOTHREADS
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+
+#ifndef HAVE_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION
+#define HAVE_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION 1
+#endif
 
 NVWA_NAMESPACE_BEGIN
 

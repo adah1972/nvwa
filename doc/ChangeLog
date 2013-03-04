@@ -1,3 +1,8 @@
+2013-03-04  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/class_level_lock.h (HAVE_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION): 
+	Define the default value to 1.
+
 2013-03-02  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/fc_queue.h: Use type_traits.h to abstract compiler/platform
