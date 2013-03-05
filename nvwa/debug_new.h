@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @date  2013-03-01
+ * @date  2013-03-05
  */
 
 #ifndef NVWA_DEBUG_NEW_H
@@ -40,12 +40,13 @@
 #include <new>                  // size_t/std::bad_alloc
 #include <stdio.h>              // FILE
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++11.h"              // noexcept
 
 /* Special allocation/deallocation functions in the global scope */
 void* operator new(size_t size, const char* file, int line);
 void* operator new[](size_t size, const char* file, int line);
-void operator delete(void* pointer, const char* file, int line) throw();
-void operator delete[](void* pointer, const char* file, int line) throw();
+void operator delete(void* pointer, const char* file, int line) noexcept;
+void operator delete[](void* pointer, const char* file, int line) noexcept;
 
 NVWA_NAMESPACE_BEGIN
 
