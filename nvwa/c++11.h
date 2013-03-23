@@ -31,7 +31,7 @@
  *
  * C++11 feature detection macros and workarounds.
  *
- * @date  2013-03-02
+ * @date  2013-03-23
  */
 
 #ifndef NVWA_CXX11_H
@@ -110,7 +110,8 @@
 #if NVWA_CXX11_MODE && \
     (__has_include(<future>) || \
      (defined(_MSC_VER) && _MSC_VER >= 1700) || \
-     (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 408))
+     (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 405))
+// Note: MinGW GCC does not support futures out of the box as of 4.7.
 #define HAVE_CXX11_FUTURE 1
 #else
 #define HAVE_CXX11_FUTURE 0
