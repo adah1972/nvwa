@@ -1,3 +1,8 @@
+2013-03-26  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/c++11.h (HAVE_CXX11_ATOMIC): Add a note that <atomic> does
+	not work out of the box on MinGW GCC.
+
 2013-03-23  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Change the required GCC version number according to test on Linux.

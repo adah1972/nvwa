@@ -31,7 +31,7 @@
  *
  * C++11 feature detection macros and workarounds.
  *
- * @date  2013-03-23
+ * @date  2013-03-26
  */
 
 #ifndef NVWA_CXX11_H
@@ -68,6 +68,7 @@
     (__has_include(<atomic>) || \
      (defined(_MSC_VER) && _MSC_VER >= 1700) || \
      (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 405))
+// Note: MinGW GCC does not support atomics out of the box as of 4.7.
 #define HAVE_CXX11_ATOMIC 1
 #else
 #define HAVE_CXX11_ATOMIC 0
