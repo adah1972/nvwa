@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2013-03-05
+ * @date  2013-04-20
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -39,7 +39,8 @@
 #include <stdio.h>              // fprintf/stderr
 #include <stdlib.h>             // abort
 #include <string.h>             // strcpy/strncpy/sprintf
-#ifdef __unix__
+#if defined(__unix__) || defined(__unix) || \
+        (defined(__APPLE__) && defined(__MACH__))
 #include <alloca.h>             // alloca
 #endif
 #ifdef _WIN32
@@ -332,7 +333,7 @@ static bool print_position_from_addr(const void* addr)
     }
     if (new_progname)
     {
-#ifdef __APPLE__
+#if defined(__APPLE__) && defined(__MACH__)
         const char addr2line_cmd[] = "atos -o ";
 #else
         const char addr2line_cmd[] = "addr2line -e ";
@@ -342,7 +343,9 @@ static bool print_position_from_addr(const void* addr)
 #else
         const int  exeext_len = 0;
 #endif
-#if  !defined(__CYGWIN__) && defined(__unix__)
+#if  !defined(__CYGWIN__) && \
+        (defined(__unix__) || defined(__unix) || \
+         (defined(__APPLE__) && defined(__MACH__)))
         const char ignore_err[] = " 2>/dev/null";
 #elif defined(__CYGWIN__) || \
         (defined(_WIN32) && defined(WINVER) && WINVER >= 0x0500)

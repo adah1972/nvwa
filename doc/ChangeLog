@@ -1,3 +1,8 @@
+2013-04-20  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/debug_new.cpp: Properly detect Unix platforms (including
+	Apple's OS X).
+
 2013-03-26  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/c++11.h (HAVE_CXX11_ATOMIC): Add a note that <atomic> does
