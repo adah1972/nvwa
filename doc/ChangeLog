@@ -1,3 +1,16 @@
+2013-04-22  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/c++11.h: Remove the macro definition of `noexcept' and
+	`thread_local' to avoid possible confusions.
+	(NVWA_CXX11_USE_WORKAROUND): Remove macro.
+	(_NOEXCEPT): New macro.
+	(_NULLPTR): New macro
+	(_THREAD_LOCAL): New macro
+	* nvwa/debug_new.h: Replace `noexcept' with `_NOEXCEPT'.
+	* nvwa/debug_new.cpp: Ditto.
+	* nvwa/fixed_mem_pool.h: Ditto.
+	* nvwa/static_mem_pool.h: Ditto.
+
 2013-04-20  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/debug_new.cpp: Properly detect Unix platforms (including
