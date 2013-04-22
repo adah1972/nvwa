@@ -1,5 +1,22 @@
 2013-04-22  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/_nvwa (NVWA): New macro.
+	* nvwa/debug_new.h (DEBUG_NEW): Simplify the definition.
+	* nvwa/static_mem_pool.h: Update doc comments.  Correct the
+	placement of `NVWA_NAMESPACE_BEGIN'.
+	(PREPARE_STATIC_MEM_POOL): Remove obsolete macro.
+	(PREPARE_STATIC_MEM_POOL_GROUPED): Ditto.
+	(DECLARE_STATIC_MEM_POOL): Define correctly when namespace is used.
+	(DECLARE_STATIC_MEM_POOL__NOTHROW): Ditto.
+	(DECLARE_STATIC_MEM_POOL_GROUPED): Ditto.
+	(DECLARE_STATIC_MEM_POOL_GROUPED__NOTHROW): Ditto.
+	* nvwa/fixed_mem_pool.h: Update doc comments.
+	(DECLARE_FIXED_MEM_POOL): Define correctly when namespace is used.
+	(DECLARE_FIXED_MEM_POOL__NOTHROW): Ditto.
+	(DECLARE_FIXED_MEM_POOL__THROW_NOCHECK): Ditto.
+
+2013-04-22  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/c++11.h: Remove the macro definition of `noexcept' and
 	`thread_local' to avoid possible confusions.
 	(NVWA_CXX11_USE_WORKAROUND): Remove macro.

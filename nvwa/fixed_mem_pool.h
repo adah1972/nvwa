@@ -255,9 +255,10 @@ bool fixed_mem_pool<_Tp>::bad_alloc_handler()
     return false;
 }
 
+NVWA_NAMESPACE_END
+
 /**
- * Declares the normal (exceptionable) overload of <b>operator new</b>
- * and <b>operator delete</b>.
+ * Declares the normal (throwing) allocation and deallocation functions.
  *
  * @param _Cls  class to use the fixed_mem_pool
  * @see         DECLARE_FIXED_MEM_POOL__THROW_NOCHECK, which, too,
@@ -270,7 +271,7 @@ public: \
     static void* operator new(size_t size) \
     { \
         assert(size == sizeof(_Cls)); \
-        if (void* pointer = fixed_mem_pool<_Cls>::allocate()) \
+        if (void* pointer = NVWA::fixed_mem_pool<_Cls>::allocate()) \
             return pointer; \
         else \
             throw std::bad_alloc(); \
@@ -278,12 +279,11 @@ public: \
     static void  operator delete(void* pointer) \
     { \
         if (pointer != NULL) \
-            fixed_mem_pool<_Cls>::deallocate(pointer); \
+            NVWA::fixed_mem_pool<_Cls>::deallocate(pointer); \
     }
 
 /**
- * Declares the non-exceptionable overload of <b>operator new</b> and
- * <b>operator delete</b>.
+ * Declares the nothrow allocation and deallocation functions.
  *
  * @param _Cls  class to use the fixed_mem_pool
  */
@@ -292,17 +292,17 @@ public: \
     static void* operator new(size_t size) _NOEXCEPT \
     { \
         assert(size == sizeof(_Cls)); \
-        return fixed_mem_pool<_Cls>::allocate(); \
+        return NVWA::fixed_mem_pool<_Cls>::allocate(); \
     } \
     static void  operator delete(void* pointer) \
     { \
         if (pointer != NULL) \
-            fixed_mem_pool<_Cls>::deallocate(pointer); \
+            NVWA::fixed_mem_pool<_Cls>::deallocate(pointer); \
     }
 
 /**
- * Declares the exceptionable, non-checking overload of <b>operator
- * new</b> and <b>operator delete</b>.
+ * Declares the throwing, non-checking allocation and deallocation
+ * functions.
  *
  * N.B.  Using this macro \e requires users to explicitly specialize
  * fixed_mem_pool::bad_alloc_handler so that it shall never return
@@ -317,14 +317,12 @@ public: \
     static void* operator new(size_t size) \
     { \
         assert(size == sizeof(_Cls)); \
-        return fixed_mem_pool<_Cls>::allocate(); \
+        return NVWA::fixed_mem_pool<_Cls>::allocate(); \
     } \
     static void  operator delete(void* pointer) \
     { \
         if (pointer != NULL) \
-            fixed_mem_pool<_Cls>::deallocate(pointer); \
+            NVWA::fixed_mem_pool<_Cls>::deallocate(pointer); \
     }
-
-NVWA_NAMESPACE_END
 
 #endif // NVWA_FIXED_MEM_POOL_H

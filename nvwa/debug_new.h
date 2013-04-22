@@ -112,11 +112,7 @@ extern const char* new_progname;// default to NULL; should be assigned argv[0]
  * instead.
  */
 # if _DEBUG_NEW_TYPE == 1
-#   if NVWA_USE_NAMESPACE
-#     define DEBUG_NEW nvwa::debug_new_recorder(__FILE__, __LINE__) ->* new
-#   else
-#     define DEBUG_NEW debug_new_recorder(__FILE__, __LINE__) ->* new
-#   endif
+#   define DEBUG_NEW NVWA::debug_new_recorder(__FILE__, __LINE__) ->* new
 # else
 #   define DEBUG_NEW new(__FILE__, __LINE__)
 # endif

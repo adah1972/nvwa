@@ -48,8 +48,6 @@
 #include "class_level_lock.h"   // nvwa::class_level_lock
 #include "mem_pool_base.h"      // nvwa::mem_pool_base
 
-NVWA_NAMESPACE_BEGIN
-
 /* Defines the macro for debugging output */
 # ifdef _STATIC_MEM_POOL_DEBUG
 #   include <iostream>
@@ -66,6 +64,8 @@ NVWA_NAMESPACE_BEGIN
 #   define _STATIC_MEM_POOL_TRACE(_Lck, _Msg) \
         ((void)0)
 # endif
+
+NVWA_NAMESPACE_BEGIN
 
 /**
  * Singleton class to maintain a set of existing instantiations of
@@ -96,7 +96,7 @@ private:
  * memory blocks of one specific size.
  *
  * @param _Sz   size of elements in the static_mem_pool
- * @param _Gid  group id of a static_mem_pool: if it is negative,
+ * @param _Gid  group ID of a static_mem_pool: if it is negative,
  *              simultaneous accesses to this static_mem_pool will be
  *              protected from each other; otherwise no protection is
  *              given
@@ -287,13 +287,24 @@ static_mem_pool<_Sz, _Gid>* static_mem_pool<_Sz, _Gid>::_S_create_instance()
     return inst_p;
 }
 
+NVWA_NAMESPACE_END
+
+/**
+ * Declares the normal (throwing) allocation and deallocation functions.
+ * This macro uses the default group.
+ *
+ * @param _Cls  class to use the static_mem_pool
+ * @see   DECLARE_STATIC_MEM_POOL__NOTHROW
+ * @see   DECLARE_STATIC_MEM_POOL_GROUPED
+ * @see   DECLARE_STATIC_MEM_POOL_GROUPED__NOTHROW
+ */
 #define DECLARE_STATIC_MEM_POOL(_Cls) \
 public: \
     static void* operator new(size_t size) \
     { \
         assert(size == sizeof(_Cls)); \
         void* pointer; \
-        pointer = static_mem_pool<sizeof(_Cls)>:: \
+        pointer = NVWA::static_mem_pool<sizeof(_Cls)>:: \
                                instance_known().allocate(); \
         if (pointer == NULL) \
             throw std::bad_alloc(); \
@@ -302,32 +313,51 @@ public: \
     static void operator delete(void* pointer) \
     { \
         if (pointer) \
-            static_mem_pool<sizeof(_Cls)>:: \
+            NVWA::static_mem_pool<sizeof(_Cls)>:: \
                            instance_known().deallocate(pointer); \
     }
 
+/**
+ * Declares the nothrow allocation and deallocation functions.  This macro
+ * uses the default group.
+ *
+ * @param _Cls  class to use the static_mem_pool
+ * @see   DECLARE_STATIC_MEM_POOL
+ * @see   DECLARE_STATIC_MEM_POOL_GROUPED
+ * @see   DECLARE_STATIC_MEM_POOL_GROUPED__NOTHROW
+ */
 #define DECLARE_STATIC_MEM_POOL__NOTHROW(_Cls) \
 public: \
     static void* operator new(size_t size) _NOEXCEPT \
     { \
         assert(size == sizeof(_Cls)); \
-        return static_mem_pool<sizeof(_Cls)>:: \
+        return NVWA::static_mem_pool<sizeof(_Cls)>:: \
                               instance_known().allocate(); \
     } \
     static void operator delete(void* pointer) \
     { \
         if (pointer) \
-            static_mem_pool<sizeof(_Cls)>:: \
+            NVWA::static_mem_pool<sizeof(_Cls)>:: \
                            instance_known().deallocate(pointer); \
     }
 
+/**
+ * Declares the normal (throwing) allocation and deallocation functions.
+ * Users need to specify a group ID.
+ *
+ * @param _Cls  class to use the static_mem_pool
+ * @param _Gid  group ID (negative to protect multi-threaded access)
+ * @see   DECLARE_STATIC_MEM_POOL
+ * @see   DECLARE_STATIC_MEM_POOL__NOTHROW
+ * @see   DECLARE_STATIC_MEM_POOL_GROUPED__NOTHROW
+ */
 #define DECLARE_STATIC_MEM_POOL_GROUPED(_Cls, _Gid) \
 public: \
     static void* operator new(size_t size) \
     { \
         assert(size == sizeof(_Cls)); \
         void* pointer; \
-        pointer = static_mem_pool<sizeof(_Cls), (_Gid)>:: \
+        pointer = NVWA::static_mem_pool<sizeof(_Cls), (_Gid)>:: \
                                instance_known().allocate(); \
         if (pointer == NULL) \
             throw std::bad_alloc(); \
@@ -336,33 +366,33 @@ public: \
     static void operator delete(void* pointer) \
     { \
         if (pointer) \
-            static_mem_pool<sizeof(_Cls), (_Gid)>:: \
+            NVWA::static_mem_pool<sizeof(_Cls), (_Gid)>:: \
                            instance_known().deallocate(pointer); \
     }
 
+/**
+ * Declares the nothrow allocation and deallocation functions.  Users need
+ * to specify a group ID.
+ *
+ * @param _Cls  class to use the static_mem_pool
+ * @param _Gid  group ID (negative to protect multi-threaded access)
+ * @see   DECLARE_STATIC_MEM_POOL
+ * @see   DECLARE_STATIC_MEM_POOL__NOTHROW
+ * @see   DECLARE_STATIC_MEM_POOL_GROUPED
+ */
 #define DECLARE_STATIC_MEM_POOL_GROUPED__NOTHROW(_Cls, _Gid) \
 public: \
     static void* operator new(size_t size) _NOEXCEPT \
     { \
         assert(size == sizeof(_Cls)); \
-        return static_mem_pool<sizeof(_Cls), (_Gid)>:: \
+        return NVWA::static_mem_pool<sizeof(_Cls), (_Gid)>:: \
                               instance_known().allocate(); \
     } \
     static void operator delete(void* pointer) \
     { \
         if (pointer) \
-            static_mem_pool<sizeof(_Cls), (_Gid)>:: \
+            NVWA::static_mem_pool<sizeof(_Cls), (_Gid)>:: \
                            instance_known().deallocate(pointer); \
     }
-
-// OBSOLETE: no longer needed
-#define PREPARE_STATIC_MEM_POOL(_Cls) \
-    std::cerr << "PREPARE_STATIC_MEM_POOL is obsolete!\n";
-
-// OBSOLETE: no longer needed
-#define PREPARE_STATIC_MEM_POOL_GROUPED(_Cls, _Gid) \
-    std::cerr << "PREPARE_STATIC_MEM_POOL_GROUPED is obsolete!\n";
-
-NVWA_NAMESPACE_END
 
 #endif // NVWA_STATIC_MEM_POOL_H
