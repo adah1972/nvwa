@@ -5,8 +5,8 @@ The Name
   Nvwa ("v" is pronounced like the French "u"), is one of the most
   ancient Chinese goddesses.  She was said to have created human beings,
   and, when the evil god Gong-gong crashed himself upon one of the
-  pillars that support the sky and made a hole in it, she repaired the
-  sky with five-coloured stones.
+  pillars that support the sky and made a hole in it, she mended the sky
+  with five-coloured stones.
 
   I thought of the name Nvwa by analogy with Loki.  Since it is so small
   a project and it contains utilities instead of a complete framework, I
@@ -15,17 +15,29 @@ The Name
 
 Code Organization
 
-  Some may think that it is better to include like "#include <nvwa/...>".
-  However, I have reasons to avoid that.  I would like to make the Nvwa
-  files drop-ins for other projects.  One may simply copy them and use
-  them.  It is not necessary to keep them in a separate directory -- of
-  course, not doing so will make it difficult to do cvs update.
+  Nvwa versions prior to 1.0 did not use a namespace.  It looked to me
+  overkill to use a namespace in this small project.  However, having
+  had more project experience and seen more good examples, I have
+  changed my mind.  All nvwa functions and global variables are now
+  inside the namespace "nvwa".
 
-  Some may also wonder why I do not put the contents in namespace nvwa
-  instead of the global one.  Um, some stuff, say, debug_new, simply
-  cannot be put in a namespace.  And the copy-and-use usage pattern also
-  prevents me from doing that.  But this is not unchangeable.  Other
-  opinions, especially those resulting from real usage, are welcome.
+  This said, I do not want to break backward compatibility abruptly.
+  First, people are still able to disable the namespace by defining the
+  macro NVWA_USE_NAMESPACE to 0 (not really recommended, though).
+  Second, I still use the quotation mark (") to include header files
+  internally so that old users do not have to change the include
+  directory (again, not recommended and intended to help the transition
+  only).  Third, I have not changed most of the macro names -- that
+  would break existing code and could do more harm than good now.  In
+  addition, I am not a fan of macro prefixes anyway.
+
+  Overall, I am quite happy with the changes: some code is simplified,
+  and in many cases I do not have to use the uglified names to avoid
+  potential name conflicts.  The changes also do not mean anything to
+  new users.  You just need to follow the modern C++ way.  You should
+  add the root directory of this project to your include directory
+  (there should be a "nvwa" directory inside it with the source files).
+  To include the header file, use "#include <nvwa/...>".
 
 
 Contents
@@ -42,14 +54,23 @@ Contents
    members like at, set, reset, flip, and count.  I myself find "count"
    very useful.
 
+  * c++11.h
+
+   Detection macros for certain features of C++11 that might be of
+   interest to code/library writers.  I have used existing online
+   resources, and I have tested them on popular platforms and compilers
+   that I have access to (Windows, OS X, and Linux; MSVC, Clang, and
+   GCC), but of course not all versions or all combinations.  Patches
+   are welcome for corrections and amendments.
+
   * class_level_lock.h
 
    The Loki ClassLevelLockable adapted to use the fast_mutex layer.  One
    minor divergence from Loki is that the template has an additional
    template parameter _RealLock to boost the performance in non-locking
-   scenarios.  In that case, if you have a decent compiler, you probably
-   want to define HAS_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION to 1 for
-   even better optimization.  Cf. object_level_lock.h.
+   scenarios.  Unless HAVE_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION is
+   explicitly defined to 0, this is enabled automatically.  Cf.
+   object_level_lock.h.
 
   * cont_ptr_utils.h
 
@@ -127,9 +148,10 @@ Contents
    ensure this class template provides the strong exception safety
    guarantee.
 
-   This class template is made obsolete by boost::circular_buffer, which
-   provides basically the same functionality with a richer API.  You may
-   want to use the Boost library for new code.
+   This class template is a good exercise for me to make a STL-type
+   container.  However, it is less useful, now that boost has
+   circular_buffer available and provides similar functionalities with a
+   richer API.  You may want to consider the Boost library for new code.
 
   * fixed_mem_pool.h
 
@@ -172,6 +194,14 @@ Contents
    An article on its design and implementation is available at
 
    http://nvwa.sourceforge.net/article/static_mem_pool.htm
+
+  * type_traits.h
+
+   This file was separated from fc_queue.h.  Type traits was not
+   standardized until C++11, and, in addition, there were late changes
+   in the trait names that did not go into even the 2012 releases of
+   MSVC and GCC.  So I made a nvwa::is_trivially_destructible that can
+   work across main compilers.  I may add more traits later as need be.
 
 
 $Id$
