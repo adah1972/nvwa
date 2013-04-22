@@ -31,7 +31,7 @@
  *
  * Type traits in the C++11 style but usable across main compilers.
  *
- * @date  2013-03-02
+ * @date  2013-04-22
  */
 
 #ifndef NVWA_TYPE_TRAITS_H
@@ -69,7 +69,7 @@ struct is_trivially_destructible
 NVWA_NAMESPACE_END
 
 // Boost is the next option
-#elif defined(BOOST_CONFIG_HPP) && !defined(_FC_QUEUE_NO_BOOST_TYPETRAITS)
+#elif defined(BOOST_CONFIG_HPP) && !defined(NVWA_NO_BOOST_TYPETRAITS)
 
 # include <boost/type_traits.hpp>
 

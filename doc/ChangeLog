@@ -1,5 +1,10 @@
 2013-04-22  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/type_traits.h: Detect `NVWA_NO_BOOST_TYPETRAITS' instead of
+	`_FC_QUEUE_NO_BOOST_TYPETRAITS'.
+
+2013-04-22  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/_nvwa (NVWA): New macro.
 	* nvwa/debug_new.h (DEBUG_NEW): Simplify the definition.
 	* nvwa/static_mem_pool.h: Update doc comments.  Correct the
