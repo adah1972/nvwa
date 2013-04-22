@@ -1,5 +1,10 @@
 2013-04-22  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* misc/Doxyfile (EXPAND_AS_DEFINED): Add NVWA.
+	(PREDEFINED): Define _FINAL, _NOEXCEPT, _NULLPTR, and _OVERRIDE.
+
+2013-04-22  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/type_traits.h: Detect `NVWA_NO_BOOST_TYPETRAITS' instead of
 	`_FC_QUEUE_NO_BOOST_TYPETRAITS'.
 
