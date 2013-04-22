@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2013-04-20
+ * @date  2013-04-22
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -47,7 +47,7 @@
 #include <malloc.h>             // alloca
 #endif
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // noexcept
+#include "c++11.h"              // _NOEXCEPT
 #include "fast_mutex.h"         // nvwa::fast_mutex
 #include "static_assert.h"      // STATIC_ASSERT
 
@@ -885,7 +885,7 @@ void* operator new[](size_t size) throw(std::bad_alloc)
  * @return      pointer to the memory allocated; or \c NULL if memory is
  *              insufficient
  */
-void* operator new(size_t size, const std::nothrow_t&) noexcept
+void* operator new(size_t size, const std::nothrow_t&) _NOEXCEPT
 {
     return alloc_mem(size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0, false);
 }
@@ -897,7 +897,7 @@ void* operator new(size_t size, const std::nothrow_t&) noexcept
  * @return      pointer to the memory allocated; or \c NULL if memory is
  *              insufficient
  */
-void* operator new[](size_t size, const std::nothrow_t&) noexcept
+void* operator new[](size_t size, const std::nothrow_t&) _NOEXCEPT
 {
     return alloc_mem(size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0, true);
 }
@@ -907,7 +907,7 @@ void* operator new[](size_t size, const std::nothrow_t&) noexcept
  *
  * @param pointer   pointer to the previously allocated memory
  */
-void operator delete(void* pointer) noexcept
+void operator delete(void* pointer) _NOEXCEPT
 {
     free_pointer(pointer, _DEBUG_NEW_CALLER_ADDRESS, false);
 }
@@ -917,7 +917,7 @@ void operator delete(void* pointer) noexcept
  *
  * @param pointer   pointer to the previously allocated memory
  */
-void operator delete[](void* pointer) noexcept
+void operator delete[](void* pointer) _NOEXCEPT
 {
     free_pointer(pointer, _DEBUG_NEW_CALLER_ADDRESS, true);
 }
@@ -933,7 +933,7 @@ void operator delete[](void* pointer) noexcept
  * @see   http://www.csci.csusb.edu/dick/c++std/cd2/expr.html#expr.new
  * @see   http://wyw.dcweb.cn/leakage.htm
  */
-void operator delete(void* pointer, const char* file, int line) noexcept
+void operator delete(void* pointer, const char* file, int line) _NOEXCEPT
 {
     if (new_verbose_flag)
     {
@@ -955,7 +955,7 @@ void operator delete(void* pointer, const char* file, int line) noexcept
  * @param file      null-terminated string of the file name
  * @param line      line number
  */
-void operator delete[](void* pointer, const char* file, int line) noexcept
+void operator delete[](void* pointer, const char* file, int line) _NOEXCEPT
 {
     if (new_verbose_flag)
     {
@@ -975,7 +975,7 @@ void operator delete[](void* pointer, const char* file, int line) noexcept
  *
  * @param pointer   pointer to the previously allocated memory
  */
-void operator delete(void* pointer, const std::nothrow_t&) noexcept
+void operator delete(void* pointer, const std::nothrow_t&) _NOEXCEPT
 {
     operator delete(pointer, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
@@ -986,7 +986,7 @@ void operator delete(void* pointer, const std::nothrow_t&) noexcept
  *
  * @param pointer   pointer to the previously allocated memory
  */
-void operator delete[](void* pointer, const std::nothrow_t&) noexcept
+void operator delete[](void* pointer, const std::nothrow_t&) _NOEXCEPT
 {
     operator delete[](pointer, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }

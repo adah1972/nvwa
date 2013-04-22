@@ -49,7 +49,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running.
  *
- * @date  2013-03-05
+ * @date  2013-04-22
  */
 
 #ifndef NVWA_FIXED_MEM_POOL_H
@@ -59,7 +59,7 @@
 #include <assert.h>             // assert
 #include <stdlib.h>             // size_t/NULL
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // noexcept
+#include "c++11.h"              // _NOEXCEPT
 #include "class_level_lock.h"   // nvwa::class_level_lock
 #include "mem_pool_base.h"      // nvwa::mem_pool_base
 #include "static_assert.h"      // STATIC_ASSERT
@@ -289,7 +289,7 @@ public: \
  */
 #define DECLARE_FIXED_MEM_POOL__NOTHROW(_Cls) \
 public: \
-    static void* operator new(size_t size) noexcept \
+    static void* operator new(size_t size) _NOEXCEPT \
     { \
         assert(size == sizeof(_Cls)); \
         return fixed_mem_pool<_Cls>::allocate(); \

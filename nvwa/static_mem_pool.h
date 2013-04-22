@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @date  2013-03-05
+ * @date  2013-04-22
  */
 
 #ifndef NVWA_STATIC_MEM_POOL_H
@@ -44,7 +44,7 @@
 #include <assert.h>             // assert
 #include <stddef.h>             // size_t/NULL
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // noexcept
+#include "c++11.h"              // _NOEXCEPT
 #include "class_level_lock.h"   // nvwa::class_level_lock
 #include "mem_pool_base.h"      // nvwa::mem_pool_base
 
@@ -308,7 +308,7 @@ public: \
 
 #define DECLARE_STATIC_MEM_POOL__NOTHROW(_Cls) \
 public: \
-    static void* operator new(size_t size) noexcept \
+    static void* operator new(size_t size) _NOEXCEPT \
     { \
         assert(size == sizeof(_Cls)); \
         return static_mem_pool<sizeof(_Cls)>:: \
@@ -342,7 +342,7 @@ public: \
 
 #define DECLARE_STATIC_MEM_POOL_GROUPED__NOTHROW(_Cls, _Gid) \
 public: \
-    static void* operator new(size_t size) noexcept \
+    static void* operator new(size_t size) _NOEXCEPT \
     { \
         assert(size == sizeof(_Cls)); \
         return static_mem_pool<sizeof(_Cls), (_Gid)>:: \

@@ -31,7 +31,7 @@
  *
  * C++11 feature detection macros and workarounds.
  *
- * @date  2013-03-26
+ * @date  2013-04-22
  */
 
 #ifndef NVWA_CXX11_H
@@ -240,12 +240,6 @@
 
 /* Workarounds */
 
-#ifndef NVWA_CXX11_USE_WORKAROUND
-#define NVWA_CXX11_USE_WORKAROUND 1
-#endif // NVWA_CXX11_USE_WORKAROUND
-
-#if NVWA_CXX11_USE_WORKAROUND
-
 #if HAVE_CXX11_FINAL
 #define _FINAL final
 #else
@@ -258,18 +252,26 @@
 #define _OVERRIDE
 #endif
 
-#if !HAVE_CXX11_NOEXCEPT
-#define noexcept throw()
-#endif
-
-#if !HAVE_CXX11_THREAD_LOCAL
-#ifdef _MSC_VER
-#define thread_local __declspec(thread)
+#if HAVE_CXX11_NOEXCEPT
+#define _NOEXCEPT noexcept
 #else
-#define thread_local __thread
-#endif
+#define _NOEXCEPT throw()
 #endif
 
-#endif // NVWA_CXX11_USE_WORKAROUND
+#if HAVE_CXX11_NULLPTR
+#define _NULLPTR nullptr
+#else
+#define _NULLPTR NULL
+#endif
+
+#if HAVE_CXX11_THREAD_LOCAL
+#define _THREAD_LOCAL thread_local
+#else
+#ifdef _MSC_VER
+#define _THREAD_LOCAL __declspec(thread)
+#else
+#define _THREAD_LOCAL __thread
+#endif
+#endif
 
 #endif // NVWA_CXX11_H
