@@ -1,3 +1,12 @@
+2013-08-02  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/c++11.h (HAVE_CXX11_ATOMIC): Define to 0 if MinGW is
+	detected.
+	(HAVE_CXX11_FUTURE): Ditto.
+	(HAVE_CXX11_MUTEX): New macro.
+	(_NOEXCEPT): Adjust definition slightly for the MSVC case to avoid
+	redefinition warnings.
+
 2013-04-22  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* doc/README: Update about code organization, new files, and other
