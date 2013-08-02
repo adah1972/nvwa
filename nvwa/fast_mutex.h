@@ -31,7 +31,7 @@
  *
  * A fast mutex implementation for POSIX and Win32.
  *
- * @date  2013-08-01
+ * @date  2013-08-02
  */
 
 #ifndef NVWA_FAST_MUTEX_H
