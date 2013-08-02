@@ -1,5 +1,11 @@
 2013-08-02  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/fast_mutex: Correct an error-detection check for MinGW GCC.
+	(fast_mutex): Add a new class definition that uses the C++11 mutex.
+	(NVWA_USE_CXX11_MUTEX): New macro.
+
+2013-08-02  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/c++11.h (HAVE_CXX11_ATOMIC): Define to 0 if MinGW is
 	detected.
 	(HAVE_CXX11_FUTURE): Ditto.
