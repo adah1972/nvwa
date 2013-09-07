@@ -2,9 +2,9 @@
 
 # Recommended tool versions and notes:
 #
-#   * Graphviz 2.8
+#   * Graphviz 2.32
 #
-#     Newer versions do NOT work for me
+#     This new version works well for me; diagrams looks better than 2.8
 #
 #   * Doxygen 1.5.1/1.5.2 for LaTeX output
 #

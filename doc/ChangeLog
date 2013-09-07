@@ -1,3 +1,8 @@
+2013-09-07  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* misc/doxit.sh: Update information about tools used to create the
+	documentation.
+
 2013-08-02  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/fast_mutex: Correct an error-detection check for MinGW GCC.
