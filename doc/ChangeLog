@@ -1,5 +1,10 @@
 2013-09-07  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/static_assert.h (STATIC_ASSERT): New macro definition for the
+	C++11 case.
+
+2013-09-07  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/debug_new.cpp (MAGIC): Rename to DEBUG_NEW_MAGIC and mark as
 	static.
 	(ALIGNED_LIST_ITEM_SIZE): Mark as static.
@@ -62,8 +67,8 @@
 	`thread_local' to avoid possible confusions.
 	(NVWA_CXX11_USE_WORKAROUND): Remove macro.
 	(_NOEXCEPT): New macro.
-	(_NULLPTR): New macro
-	(_THREAD_LOCAL): New macro
+	(_NULLPTR): New macro.
+	(_THREAD_LOCAL): New macro.
 	* nvwa/debug_new.h: Replace `noexcept' with `_NOEXCEPT'.
 	* nvwa/debug_new.cpp: Ditto.
 	* nvwa/fixed_mem_pool.h: Ditto.

@@ -31,10 +31,18 @@
  *
  * Template class to check validity duing compile time (adapted from Loki).
  *
- * @date  2013-03-01
+ * @date  2013-09-07
  */
 
 #ifndef STATIC_ASSERT
+
+#include "c++11.h"
+
+#if HAVE_CXX11_STATIC_ASSERT
+
+#define STATIC_ASSERT(_Expr, _Msg) static_assert(_Expr, #_Msg)
+
+#else
 
 namespace nvwa {
 
@@ -48,5 +56,7 @@ template <>     struct compile_time_error<true> {};
     }
 
 }
+
+#endif // HAVE_CXX11_STATIC_ASSERT
 
 #endif // STATIC_ASSERT
