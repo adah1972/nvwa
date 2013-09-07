@@ -1,5 +1,11 @@
 2013-09-07  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/debug_new.cpp (MAGIC): Rename to DEBUG_NEW_MAGIC and mark as
+	static.
+	(ALIGNED_LIST_ITEM_SIZE): Mark as static.
+
+2013-09-07  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* misc/doxit.sh: Update information about tools used to create the
 	documentation.
 

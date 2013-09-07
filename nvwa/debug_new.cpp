@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2013-04-22
+ * @date  2013-09-07
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -241,12 +241,12 @@ struct new_ptr_list_t
 /**
  * Definition of the constant magic number used for error detection.
  */
-const unsigned MAGIC = 0x4442474E;
+static const unsigned DEBUG_NEW_MAGIC = 0x4442474E;
 
 /**
  * The extra memory allocated by <code>operator new</code>.
  */
-const int ALIGNED_LIST_ITEM_SIZE = ALIGN(sizeof(new_ptr_list_t));
+static const int ALIGNED_LIST_ITEM_SIZE = ALIGN(sizeof(new_ptr_list_t));
 
 /**
  * List of all new'd pointers.
@@ -264,7 +264,7 @@ static new_ptr_list_t new_ptr_list = {
     },
     0,
     0,
-    MAGIC
+    DEBUG_NEW_MAGIC
 };
 
 /**
@@ -513,7 +513,7 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
     ptr->line = line;
     ptr->is_array = is_array;
     ptr->size = size;
-    ptr->magic = MAGIC;
+    ptr->magic = DEBUG_NEW_MAGIC;
     {
         fast_mutex_autolock lock(new_ptr_lock);
         ptr->prev = new_ptr_list.prev;
@@ -556,7 +556,7 @@ static void free_pointer(void* pointer, void* addr, bool is_array)
         return;
     new_ptr_list_t* ptr =
             (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
-    if (ptr->magic != MAGIC)
+    if (ptr->magic != DEBUG_NEW_MAGIC)
     {
         {
             fast_mutex_autolock lock(new_output_lock);
@@ -634,7 +634,7 @@ int check_leaks()
     while (ptr != &new_ptr_list)
     {
         const char* const pointer = (char*)ptr + ALIGNED_LIST_ITEM_SIZE;
-        if (ptr->magic != MAGIC)
+        if (ptr->magic != DEBUG_NEW_MAGIC)
         {
             fprintf(new_output_fp,
                     "warning: heap data corrupt near %p\n",
@@ -682,14 +682,14 @@ int check_mem_corruption()
             ptr = ptr->next)
     {
         const char* const pointer = (char*)ptr + ALIGNED_LIST_ITEM_SIZE;
-        if (ptr->magic == MAGIC
+        if (ptr->magic == DEBUG_NEW_MAGIC
 #if _DEBUG_NEW_TAILCHECK
                 && check_tail(ptr)
 #endif
                 )
             continue;
 #if _DEBUG_NEW_TAILCHECK
-        if (ptr->magic != MAGIC)
+        if (ptr->magic != DEBUG_NEW_MAGIC)
         {
 #endif
             fprintf(new_output_fp,
@@ -744,7 +744,7 @@ void debug_new_recorder::_M_process(void* pointer)
 
     new_ptr_list_t* ptr =
             (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
-    if (ptr->magic != MAGIC || ptr->line != 0)
+    if (ptr->magic != DEBUG_NEW_MAGIC || ptr->line != 0)
     {
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
