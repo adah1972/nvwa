@@ -220,6 +220,19 @@
 #endif
 #endif
 
+#if !defined(HAVE_CXX11_THREAD)
+#if NVWA_CXX11_MODE && \
+    (__has_include(<thread>) || \
+     (defined(_MSC_VER) && _MSC_VER >= 1700) || \
+     (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 404 && \
+      !defined(__MINGW32__)))
+// Note: MinGW GCC does not support std::thread out of the box as of 4.8.
+#define HAVE_CXX11_THREAD 1
+#else
+#define HAVE_CXX11_THREAD 0
+#endif
+#endif
+
 #if !defined(HAVE_CXX11_THREAD_LOCAL)
 #if NVWA_CXX11_MODE && \
     (__has_feature(cxx_thread_local) || \

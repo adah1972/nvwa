@@ -1,5 +1,9 @@
 2013-09-17  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/c++11.h (HAVE_CXX11_THREAD): New macro.
+
+2013-09-17  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/c++11.h: Update comments according to test results on MinGW
 	GCC 4.8.
 
