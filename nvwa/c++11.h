@@ -31,7 +31,7 @@
  *
  * C++11 feature detection macros and workarounds.
  *
- * @date  2013-08-02
+ * @date  2013-09-17
  */
 
 #ifndef NVWA_CXX11_H
@@ -69,7 +69,7 @@
      (defined(_MSC_VER) && _MSC_VER >= 1700) || \
      (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 405 && \
       !defined(__MINGW32__)))
-// Note: MinGW GCC does not support atomics out of the box as of 4.7.
+// Note: MinGW GCC does not support atomics out of the box as of 4.8.
 #define HAVE_CXX11_ATOMIC 1
 #else
 #define HAVE_CXX11_ATOMIC 0
@@ -114,7 +114,7 @@
      (defined(_MSC_VER) && _MSC_VER >= 1700) || \
      (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 405 && \
       !defined(__MINGW32__)))
-// Note: MinGW GCC does not support futures out of the box as of 4.7.
+// Note: MinGW GCC does not support futures out of the box as of 4.8.
 #define HAVE_CXX11_FUTURE 1
 #else
 #define HAVE_CXX11_FUTURE 0
@@ -148,7 +148,7 @@
      (defined(_MSC_VER) && _MSC_VER >= 1700) || \
      (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 403 && \
       !defined(__MINGW32__)))
-// Note: MinGW GCC does not support std::mutex out of the box as of 4.7.
+// Note: MinGW GCC does not support std::mutex out of the box as of 4.8.
 #define HAVE_CXX11_MUTEX 1
 #else
 #define HAVE_CXX11_MUTEX 0
