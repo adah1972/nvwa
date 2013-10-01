@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2013-03-02
+ * @date  2013-10-01
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -40,6 +40,7 @@
 #include <assert.h>             // assert
 #include <stddef.h>             // size_t/NULL
 #include <algorithm>            // std::swap
+#include <memory>               // std::allocator
 #include <new>                  // placement new
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "type_traits.h"        // nvwa::is_trivially_destructible
@@ -49,7 +50,7 @@ NVWA_NAMESPACE_BEGIN
 /**
  * Class to represent a fixed-capacity queue.
  */
-template <class _Tp>
+template <class _Tp, class _Alloc = std::allocator<_Tp> >
 class fc_queue
 {
 public:
@@ -96,7 +97,8 @@ public:
             destroy(&_M_front->_M_data);
             _M_front = _M_front->_M_next;
         }
-        delete[] _M_nodes_array;
+        typename _Alloc::template rebind<_Node>::other alloc;
+        alloc.deallocate(_M_nodes_array, _M_max_size + 1);
     }
 
     /**
@@ -329,8 +331,8 @@ protected:
     }
 };
 
-template <class _Tp>
-fc_queue<_Tp>::fc_queue(const fc_queue& rhs)
+template <class _Tp, class _Alloc>
+fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
     : _M_nodes_array(NULL), _M_front(NULL)
 {
     fc_queue temp(rhs._M_max_size);
@@ -344,11 +346,12 @@ fc_queue<_Tp>::fc_queue(const fc_queue& rhs)
     swap(temp);
 }
 
-template <class _Tp>
-void fc_queue<_Tp>::_M_initialize(size_type max_size)
+template <class _Tp, class _Alloc>
+void fc_queue<_Tp, _Alloc>::_M_initialize(size_type max_size)
 {
     size_type i;
-    _M_nodes_array = new _Node[max_size + 1];
+    typename _Alloc::template rebind<_Node>::other alloc;
+    _M_nodes_array = alloc.allocate(max_size + 1);
     _M_new = _M_nodes_array;
     for (i = 0; i < max_size; ++i)
         _M_nodes_array[i]._M_next = _M_nodes_array + i + 1;

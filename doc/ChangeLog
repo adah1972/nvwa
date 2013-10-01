@@ -1,3 +1,8 @@
+2013-10-01  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/fc_queue.h (fc_queue): Use an allocator template parameter
+	for memory management.
+
 2013-09-17  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/c++11.h (HAVE_CXX11_THREAD): New macro.
