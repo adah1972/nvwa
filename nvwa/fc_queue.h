@@ -43,6 +43,7 @@
 #include <memory>               // std::allocator
 #include <new>                  // placement new
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++11.h"              // _NOEXCEPT
 #include "type_traits.h"        // nvwa::is_trivially_destructible
 
 NVWA_NAMESPACE_BEGIN
@@ -55,6 +56,7 @@ class fc_queue
 {
 public:
     typedef _Tp                 value_type;
+    typedef _Alloc              allocator_type;
     typedef size_t              size_type;
     typedef value_type*         pointer;
     typedef const value_type*   const_pointer;
@@ -66,16 +68,22 @@ public:
      * in an uninitialized (capacity not set), though defined, state.
      * The member functions empty(), full(), capacity(), and size() still
      * return meaningful results.
+     *
+     * @param alloc  the allocator to use
      */
-    fc_queue() : _M_nodes_array(NULL), _M_new(NULL), _M_front(NULL)
-               , _M_size(0), _M_max_size(0) {}
+    explicit fc_queue(const _Alloc& alloc = _Alloc())
+        : _M_nodes_array(NULL), _M_new(NULL), _M_front(NULL)
+        , _M_size(0), _M_max_size(0), _M_node_alloc(alloc)
+    {}
 
     /**
      * Constructor that creates the queue with a maximum size (capacity).
      *
      * @param max_size  the maximum size allowed
+     * @param alloc     the allocator to use
      */
-    explicit fc_queue(size_type max_size)
+    explicit fc_queue(size_type max_size, const _Alloc& alloc = _Alloc())
+        : _M_node_alloc(alloc)
     {
         _M_initialize(max_size);
     }
@@ -97,8 +105,7 @@ public:
             destroy(&_M_front->_M_data);
             _M_front = _M_front->_M_next;
         }
-        typename _Alloc::template rebind<_Node>::other alloc;
-        alloc.deallocate(_M_nodes_array, _M_max_size + 1);
+        _M_node_alloc.deallocate(_M_nodes_array, _M_max_size + 1);
     }
 
     /**
@@ -131,7 +138,7 @@ public:
      *
      * @return  \c true if uninitialized; \c false otherwise
      */
-    bool uninitialized() const
+    bool uninitialized() const _NOEXCEPT
     {
         return _M_nodes_array == NULL;
     }
@@ -141,7 +148,7 @@ public:
      *
      * @return  \c true if it is empty; \c false otherwise
      */
-    bool empty() const
+    bool empty() const _NOEXCEPT
     {
         return _M_size == 0;
     }
@@ -152,7 +159,7 @@ public:
      *
      * @return  \c true if it is full; \c false otherwise
      */
-    bool full() const
+    bool full() const _NOEXCEPT
     {
         return _M_size == _M_max_size;
     }
@@ -162,7 +169,7 @@ public:
      *
      * @return  the maximum number of allowed items in the queue
      */
-    size_type capacity() const
+    size_type capacity() const _NOEXCEPT
     {
         return _M_max_size;
     }
@@ -172,7 +179,7 @@ public:
      *
      * @return  the number of existing items in the queue
      */
-    size_type size() const
+    size_type size() const _NOEXCEPT
     {
         return _M_size;
     }
@@ -296,6 +303,17 @@ public:
         std::swap(_M_back,           rhs._M_back);
         std::swap(_M_size,           rhs._M_size);
         std::swap(_M_max_size,       rhs._M_max_size);
+        std::swap(_M_node_alloc,     rhs._M_node_alloc);
+    }
+
+    /**
+     * Gets the allocator of the queue.
+     *
+     * @return  the allocator of the queue
+     */
+    allocator_type get_allocator() const
+    {
+        return _M_node_alloc;
     }
 
 protected:
@@ -312,15 +330,10 @@ protected:
     _Node*      _M_back;
     size_type   _M_size;
     size_type   _M_max_size;
+    typedef typename _Alloc::template rebind<_Node>::other _Node_allocator;
+    _Node_allocator _M_node_alloc;
 
 protected:
-    void _M_initialize(size_type max_size);
-    void _M_destroy(void*, true_type)
-    {}
-    void _M_destroy(void* pointer, false_type)
-    {
-        ((_Tp*)pointer)->~_Tp();
-    }
     void destroy(void* pointer)
     {
         _M_destroy(pointer, is_trivially_destructible<_Tp>());
@@ -329,13 +342,22 @@ protected:
     {
         new (pointer) _Tp(value);
     }
+
+private:
+    void _M_initialize(size_type max_size);
+    void _M_destroy(void*, true_type)
+    {}
+    void _M_destroy(void* pointer, false_type)
+    {
+        ((_Tp*)pointer)->~_Tp();
+    }
 };
 
 template <class _Tp, class _Alloc>
 fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
     : _M_nodes_array(NULL), _M_front(NULL)
 {
-    fc_queue temp(rhs._M_max_size);
+    fc_queue temp(rhs._M_max_size, rhs.get_allocator());
     _Node* node = rhs._M_front;
     while (node)
     {
@@ -350,8 +372,7 @@ template <class _Tp, class _Alloc>
 void fc_queue<_Tp, _Alloc>::_M_initialize(size_type max_size)
 {
     size_type i;
-    typename _Alloc::template rebind<_Node>::other alloc;
-    _M_nodes_array = alloc.allocate(max_size + 1);
+    _M_nodes_array = _M_node_alloc.allocate(max_size + 1);
     _M_new = _M_nodes_array;
     for (i = 0; i < max_size; ++i)
         _M_nodes_array[i]._M_next = _M_nodes_array + i + 1;
@@ -361,6 +382,12 @@ void fc_queue<_Tp, _Alloc>::_M_initialize(size_type max_size)
     _M_back = NULL;
     _M_size = 0;
     _M_max_size = max_size;
+}
+
+template <class _Tp, class _Alloc>
+void swap(fc_queue<_Tp, _Alloc>& lhs, fc_queue<_Tp, _Alloc>& rhs)
+{
+    lhs.swap(rhs);
 }
 
 NVWA_NAMESPACE_END

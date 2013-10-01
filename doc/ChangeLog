@@ -1,5 +1,28 @@
 2013-10-01  Wu Yongwei  <wuyongwei@gmail.com>
 
+	Use allocators more correctly.
+	* nvwa/fc_queue (fc_queue<>::fc_queue(const allocator_type&)): Add
+	an optional allocator parameter to the constructor.
+	(fc_queue<>::fc_queue(size_t, const allocator&)): Ditto.
+	(fc_queue<>::~fc_queue()): Deallocate with the appropriate allocator.
+	(fc_queue<>::uninitialized()): Mark with _NOEXCEPT.
+	(fc_queue<>::empty()): Ditto.
+	(fc_queue<>::full()): Ditto.
+	(fc_queue<>::capacity()): Ditto.
+	(fc_queue<>::size()): Ditto.
+	(fc_queue<>::swap()): Swap also _M_node_alloc.
+	(fc_queue<>::get_allocator): New function.
+	(fc_queue<>::_Node_allocator): New typedef.
+	(fc_queue<>::_M_node_alloc): New member variable.
+	(fc_queue<>::_M_initialize(size_type)): Change visibility to private.
+	(fc_queue<>::_M_destroy(void*, true_type)): Ditto.
+	(fc_queue<>::_M_destroy(void*, false_type)): Ditto.
+	(fc_queue<>::fc_queue(const fc_queue&)): Use the right-hand side's
+	allocator.
+	(swap(fc_queue&, fc_queue&)): New function.
+
+2013-10-01  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/fc_queue.h (fc_queue): Use an allocator template parameter
 	for memory management.
 
