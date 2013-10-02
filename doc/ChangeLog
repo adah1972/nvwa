@@ -1,7 +1,14 @@
+2013-10-02  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Reimplement fc_queue and make it more efficient.
+	* nvwa/fc_queue.h (fc_queue<>): New implementation that keeps the
+	old interface.
+	* doc/README: Update about fc_queue.
+
 2013-10-01  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Use allocators more correctly.
-	* nvwa/fc_queue (fc_queue<>::fc_queue(const allocator_type&)): Add
+	* nvwa/fc_queue.h (fc_queue<>::fc_queue(const allocator_type&)): Add
 	an optional allocator parameter to the constructor.
 	(fc_queue<>::fc_queue(size_t, const allocator&)): Ditto.
 	(fc_queue<>::~fc_queue()): Deallocate with the appropriate allocator.

@@ -149,9 +149,12 @@ Contents
    guarantee.
 
    This class template is a good exercise for me to make a STL-type
-   container.  However, it is less useful, now that boost has
-   circular_buffer available and provides similar functionalities with a
-   richer API.  You may want to consider the Boost library for new code.
+   container.  Depending on your needs, you may find circular_buffer in
+   Boost more useful, which provides similar functionalities and a
+   richer API.  However, the design philosophies behind the two
+   implementations are quite different.  fc_queue is modelled closely on
+   std::queue, and I optimize mainly for a lockless producer-consumer
+   pattern.
 
   * fixed_mem_pool.h
 

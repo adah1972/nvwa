@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2013-10-01
+ * @date  2013-10-02
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -49,7 +49,10 @@
 NVWA_NAMESPACE_BEGIN
 
 /**
- * Class to represent a fixed-capacity queue.
+ * Class to represent a fixed-capacity queue.  This class has an
+ * interface close to \c std::queue, but it allows very efficient and
+ * lockless one-producer, one-consumer access, as long as the producer
+ * does not try to queue an item when the queue is already full.
  */
 template <class _Tp, class _Alloc = std::allocator<_Tp> >
 class fc_queue
@@ -71,9 +74,9 @@ public:
      *
      * @param alloc  the allocator to use
      */
-    explicit fc_queue(const _Alloc& alloc = _Alloc())
-        : _M_nodes_array(NULL), _M_new(NULL), _M_front(NULL)
-        , _M_size(0), _M_max_size(0), _M_node_alloc(alloc)
+    explicit fc_queue(const allocator_type& alloc = allocator_type())
+        : _M_head(NULL), _M_tail(NULL), _M_begin(NULL), _M_end(NULL)
+        , _M_alloc(alloc)
     {}
 
     /**
@@ -82,8 +85,9 @@ public:
      * @param max_size  the maximum size allowed
      * @param alloc     the allocator to use
      */
-    explicit fc_queue(size_type max_size, const _Alloc& alloc = _Alloc())
-        : _M_node_alloc(alloc)
+    explicit fc_queue(size_type max_size,
+                      const allocator_type& alloc = allocator_type())
+        : _M_alloc(alloc)
     {
         _M_initialize(max_size);
     }
@@ -100,12 +104,13 @@ public:
      */
     ~fc_queue()
     {
-        while (_M_front)
+        while (_M_head != _M_tail)
         {
-            destroy(&_M_front->_M_data);
-            _M_front = _M_front->_M_next;
+            destroy(_M_head);
+            _M_head = increment(_M_head);
         }
-        _M_node_alloc.deallocate(_M_nodes_array, _M_max_size + 1);
+        if (_M_begin)
+            _M_alloc.deallocate(_M_begin, _M_end - _M_begin);
     }
 
     /**
@@ -140,7 +145,7 @@ public:
      */
     bool uninitialized() const _NOEXCEPT
     {
-        return _M_nodes_array == NULL;
+        return _M_begin == NULL;
     }
 
     /**
@@ -150,7 +155,7 @@ public:
      */
     bool empty() const _NOEXCEPT
     {
-        return _M_size == 0;
+        return _M_head == _M_tail;
     }
 
     /**
@@ -161,7 +166,7 @@ public:
      */
     bool full() const _NOEXCEPT
     {
-        return _M_size == _M_max_size;
+        return _M_head == increment(_M_tail);
     }
 
     /**
@@ -171,7 +176,7 @@ public:
      */
     size_type capacity() const _NOEXCEPT
     {
-        return _M_max_size;
+        return _M_end - _M_begin - 1;
     }
 
     /**
@@ -181,7 +186,10 @@ public:
      */
     size_type size() const _NOEXCEPT
     {
-        return _M_size;
+        ptrdiff_t dist = _M_tail - _M_head;
+        if (dist < 0)
+            dist += _M_end - _M_begin;
+        return dist;
     }
 
     /**
@@ -192,7 +200,7 @@ public:
     reference front()
     {
         assert(!empty());
-        return *(pointer)(&_M_front->_M_data);
+        return *_M_head;
     }
 
     /**
@@ -203,7 +211,7 @@ public:
     const_reference front() const
     {
         assert(!empty());
-        return *(const_pointer)(&_M_front->_M_data);
+        return *_M_head;
     }
 
     /**
@@ -214,7 +222,7 @@ public:
     reference back()
     {
         assert(!empty());
-        return *(pointer)(&_M_back->_M_data);
+        return *decrement(_M_tail);
     }
 
     /**
@@ -225,7 +233,7 @@ public:
     const_reference back() const
     {
         assert(!empty());
-        return *(const_pointer)(&_M_back->_M_data);
+        return *decrement(_M_tail);
     };
 
     /**
@@ -236,23 +244,10 @@ public:
      */
     void push(const value_type& value)
     {
-        // Use the temporary (register) variable to eliminate
-        // repeatedly loading the same value from memory
-        register _Node* new_node = _M_new;
-        construct(&new_node->_M_data, value);
+        construct(_M_tail, value);
         if (full())
             pop();
-        if (empty())
-            _M_front = _M_back = new_node;
-        else
-        {
-            _M_back->_M_next = new_node;
-            _M_back          = new_node;
-        }
-        _M_new = _M_new->_M_next;
-        assert(_M_new != NULL);
-        new_node->_M_next = NULL;
-        ++_M_size;
+        _M_tail = increment(_M_tail);
     }
 
     /**
@@ -261,14 +256,8 @@ public:
     void pop()
     {
         assert(!empty());
-        destroy(&_M_front->_M_data);
-        _Node* old_front = _M_front;
-        _M_front = old_front->_M_next;
-        assert(_M_free_nodes_end->_M_next == NULL);
-        _M_free_nodes_end->_M_next = old_front;
-        _M_free_nodes_end = old_front;
-        old_front->_M_next = NULL;
-        --_M_size;
+        destroy(_M_head);
+        _M_head = increment(_M_head);
     }
 
     /**
@@ -279,12 +268,12 @@ public:
      */
     bool contains(const value_type& value) const
     {
-        register _Node* node = _M_front;
-        while (node)
+        pointer ptr = _M_head;
+        while (ptr != _M_tail)
         {
-            if (value == *(const_pointer)(&node->_M_data))
+            if (*ptr == value)
                 return true;
-            node = node->_M_next;
+            ptr = increment(ptr);
         }
         return false;
     }
@@ -295,15 +284,12 @@ public:
      * @param rhs  the queue to exchange
      */
     void swap(fc_queue& rhs)
-    {
-        std::swap(_M_nodes_array,    rhs._M_nodes_array);
-        std::swap(_M_free_nodes_end, rhs._M_free_nodes_end);
-        std::swap(_M_new,            rhs._M_new);
-        std::swap(_M_front,          rhs._M_front);
-        std::swap(_M_back,           rhs._M_back);
-        std::swap(_M_size,           rhs._M_size);
-        std::swap(_M_max_size,       rhs._M_max_size);
-        std::swap(_M_node_alloc,     rhs._M_node_alloc);
+     {
+        std::swap(_M_head,  rhs._M_head);
+        std::swap(_M_tail,  rhs._M_tail);
+        std::swap(_M_begin, rhs._M_begin);
+        std::swap(_M_end,   rhs._M_end);
+        std::swap(_M_alloc, rhs._M_alloc);
     }
 
     /**
@@ -313,75 +299,69 @@ public:
      */
     allocator_type get_allocator() const
     {
-        return _M_node_alloc;
+        return _M_alloc;
     }
 
 protected:
-    /** Struct to represent a node in the queue. */
-    struct _Node
-    {
-        _Node*  _M_next;
-        char    _M_data[sizeof(_Tp)];
-    };
-    _Node*      _M_nodes_array;
-    _Node*      _M_free_nodes_end;
-    _Node*      _M_new;
-    _Node*      _M_front;
-    _Node*      _M_back;
-    size_type   _M_size;
-    size_type   _M_max_size;
-    typedef typename _Alloc::template rebind<_Node>::other _Node_allocator;
-    _Node_allocator _M_node_alloc;
+    pointer         _M_head;
+    pointer         _M_tail;
+    pointer         _M_begin;
+    pointer         _M_end;
+    allocator_type  _M_alloc;
 
 protected:
-    void destroy(void* pointer)
+    pointer increment(pointer ptr) const _NOEXCEPT
     {
-        _M_destroy(pointer, is_trivially_destructible<_Tp>());
+        ++ptr;
+        if (ptr == _M_end)
+            ptr = _M_begin;
+        return ptr;
     }
-    void construct(void* pointer, const _Tp& value)
+    pointer decrement(pointer ptr) const _NOEXCEPT
     {
-        new (pointer) _Tp(value);
+        if (ptr == _M_begin)
+            ptr = _M_end;
+        return --ptr;
+    }
+    void construct(void* ptr, const _Tp& value)
+    {
+        new (ptr) _Tp(value);
+    }
+    void destroy(void* ptr)
+    {
+        _M_destroy(ptr, is_trivially_destructible<_Tp>());
     }
 
 private:
     void _M_initialize(size_type max_size);
     void _M_destroy(void*, true_type)
     {}
-    void _M_destroy(void* pointer, false_type)
+    void _M_destroy(void* ptr, false_type)
     {
-        ((_Tp*)pointer)->~_Tp();
+        ((_Tp*)ptr)->~_Tp();
     }
 };
 
 template <class _Tp, class _Alloc>
 fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
-    : _M_nodes_array(NULL), _M_front(NULL)
+    : _M_head(NULL), _M_tail(NULL), _M_begin(NULL)
 {
-    fc_queue temp(rhs._M_max_size, rhs.get_allocator());
-    _Node* node = rhs._M_front;
-    while (node)
+    fc_queue temp(rhs.capacity(), rhs.get_allocator());
+    pointer ptr = rhs._M_head;
+    while (ptr != rhs._M_tail)
     {
-        temp.push(*(pointer)(&node->_M_data));
-        node = node->_M_next;
+        temp.push(*ptr);
+        ptr = rhs.increment(ptr);
     }
-    assert(temp.size() == rhs.size());
     swap(temp);
 }
 
 template <class _Tp, class _Alloc>
 void fc_queue<_Tp, _Alloc>::_M_initialize(size_type max_size)
 {
-    size_type i;
-    _M_nodes_array = _M_node_alloc.allocate(max_size + 1);
-    _M_new = _M_nodes_array;
-    for (i = 0; i < max_size; ++i)
-        _M_nodes_array[i]._M_next = _M_nodes_array + i + 1;
-    _M_nodes_array[i]._M_next = NULL;
-    _M_free_nodes_end = _M_nodes_array + max_size;
-    _M_front = NULL;
-    _M_back = NULL;
-    _M_size = 0;
-    _M_max_size = max_size;
+    _M_begin = _M_alloc.allocate(max_size + 1);
+    _M_end = _M_begin + max_size + 1;
+    _M_head = _M_tail = _M_begin;
 }
 
 template <class _Tp, class _Alloc>
