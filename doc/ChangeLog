@@ -1,5 +1,10 @@
 2013-10-02  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/fc_queue.h: Update copyright year.
+	* nvwa/fixed_mem_pool.h: Ditto.
+
+2013-10-02  Wu Yongwei  <wuyongwei@gmail.com>
+
 	Reimplement fc_queue and make it more efficient.
 	* nvwa/fc_queue.h (fc_queue<>): New implementation that keeps the
 	old interface.
