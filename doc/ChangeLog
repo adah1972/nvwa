@@ -1,5 +1,13 @@
 2013-10-02  Wu Yongwei  <wuyongwei@gmail.com>
 
+	Simplify code by removing some unuseful member functions.
+	* nvwa/fc_queue.h (fc_queue<>::fc_queue(const allocators&)): Remove.
+	(fc_queue<>::initialize(size_type)): Remove.
+	(fc_queue<>::uninitialized()): Remove.
+	(fc_queue<>::_M_initialize()): Remove.
+
+2013-10-02  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/fc_queue.h: Update copyright year.
 	* nvwa/fixed_mem_pool.h: Ditto.
 

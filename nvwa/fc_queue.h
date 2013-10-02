@@ -67,19 +67,6 @@ public:
     typedef const value_type&   const_reference;
 
     /**
-     * Default constructor that creates a null queue.  The queue remains
-     * in an uninitialized (capacity not set), though defined, state.
-     * The member functions empty(), full(), capacity(), and size() still
-     * return meaningful results.
-     *
-     * @param alloc  the allocator to use
-     */
-    explicit fc_queue(const allocator_type& alloc = allocator_type())
-        : _M_head(NULL), _M_tail(NULL), _M_begin(NULL), _M_end(NULL)
-        , _M_alloc(alloc)
-    {}
-
-    /**
      * Constructor that creates the queue with a maximum size (capacity).
      *
      * @param max_size  the maximum size allowed
@@ -89,7 +76,9 @@ public:
                       const allocator_type& alloc = allocator_type())
         : _M_alloc(alloc)
     {
-        _M_initialize(max_size);
+        _M_begin = _M_alloc.allocate(max_size + 1);
+        _M_end = _M_begin + max_size + 1;
+        _M_head = _M_tail = _M_begin;
     }
 
     /**
@@ -123,29 +112,6 @@ public:
         fc_queue temp(rhs);
         swap(temp);
         return *this;
-    }
-
-    /**
-     * Initializes the queue with a maximum size (capacity).  The queue
-     * must be default-constructed, and this function must not have been
-     * called.
-     *
-     * @param max_size  the maximum size allowed
-     */
-    void initialize(size_type max_size)
-    {
-        assert(uninitialized());
-        _M_initialize(max_size);
-    }
-
-    /**
-     * Checks whether the queue has been initialized.
-     *
-     * @return  \c true if uninitialized; \c false otherwise
-     */
-    bool uninitialized() const _NOEXCEPT
-    {
-        return _M_begin == NULL;
     }
 
     /**
@@ -333,7 +299,6 @@ protected:
     }
 
 private:
-    void _M_initialize(size_type max_size);
     void _M_destroy(void*, true_type)
     {}
     void _M_destroy(void* ptr, false_type)
@@ -354,14 +319,6 @@ fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
         ptr = rhs.increment(ptr);
     }
     swap(temp);
-}
-
-template <class _Tp, class _Alloc>
-void fc_queue<_Tp, _Alloc>::_M_initialize(size_type max_size)
-{
-    _M_begin = _M_alloc.allocate(max_size + 1);
-    _M_end = _M_begin + max_size + 1;
-    _M_head = _M_tail = _M_begin;
 }
 
 template <class _Tp, class _Alloc>
