@@ -31,20 +31,25 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2013-10-02
+ * @date  2013-10-03
  */
 
 #ifndef NVWA_FC_QUEUE_H
 #define NVWA_FC_QUEUE_H
 
 #include <assert.h>             // assert
-#include <stddef.h>             // size_t/NULL
-#include <algorithm>            // std::swap
+#include <stddef.h>             // ptrdiff_t/size_t/NULL
 #include <memory>               // std::allocator
 #include <new>                  // placement new
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // _NOEXCEPT
+#include "c++11.h"              // _NOEXCEPT/_NOEXCEPT_
 #include "type_traits.h"        // nvwa::is_trivially_destructible
+
+#ifdef NVWA_CXX11_MODE
+#include <utility>              // std::swap/std::declval
+#else
+#include <algorithm>            // std::swap
+#endif
 
 NVWA_NAMESPACE_BEGIN
 
@@ -52,7 +57,13 @@ NVWA_NAMESPACE_BEGIN
  * Class to represent a fixed-capacity queue.  This class has an
  * interface close to \c std::queue, but it allows very efficient and
  * lockless one-producer, one-consumer access, as long as the producer
- * does not try to queue an item when the queue is already full.
+ * does not try to queue an element when the queue is already full.
+ *
+ * @param _Tp     the type of elements in the queue
+ * @param _Alloc  allocator to use for memory management
+ * @pre           \a _Tp shall be \c CopyConstructible and \c
+ *                Destructible, and \a _Alloc shall meet the allocator
+ *                requirements (Table 28 in the C++11 spec).
  */
 template <class _Tp, class _Alloc = std::allocator<_Tp> >
 class fc_queue
@@ -71,20 +82,35 @@ public:
      *
      * @param max_size  the maximum size allowed
      * @param alloc     the allocator to use
+     * @pre             \a max_size shall be not be zero
+     * @post            Unless memory allocation throws an exception, this
+     *                  queue will be constructed with the specified maximum
+     *                  size, and the following conditions will hold:
+     *                  - <code>empty()</code>
+     *                  - <code>! full()</code>
+     *                  - <code>capacity() == max_size</code>
+     *                  - <code>size() == 0</code>
+     *                  - <code>get_allocator() == alloc</code>
      */
     explicit fc_queue(size_type max_size,
                       const allocator_type& alloc = allocator_type())
         : _M_alloc(alloc)
     {
+        assert(max_size != 0);
+        if (max_size + 1 == 0)
+            throw std::bad_alloc();
         _M_begin = _M_alloc.allocate(max_size + 1);
         _M_end = _M_begin + max_size + 1;
         _M_head = _M_tail = _M_begin;
     }
 
     /**
-     * Copy-constructor that copies all items from another queue.
+     * Copy-constructor that copies all elements from another queue.
      *
      * @param rhs  the queue to copy
+     * @post       If copy-construction is successful (no exception is
+     *             thrown during memory allocation and element copy),
+     *             this queue will have the same elements as \a rhs.
      */
     fc_queue(const fc_queue& rhs);
 
@@ -103,9 +129,14 @@ public:
     }
 
     /**
-     * Assignment operator that copies all items from another queue.
+     * Assignment operator that copies all elements from another queue.
      *
      * @param rhs  the queue to copy
+     * @post       If assignment is successful (no exception is thrown
+     *             during memory allocation and element copy), this queue
+     *             will have the same elements as \a rhs.  Otherwise this
+     *             queue is unchanged (strong exception safety is
+     *             guaranteed).
      */
     fc_queue& operator=(const fc_queue& rhs)
     {
@@ -115,7 +146,7 @@ public:
     }
 
     /**
-     * Checks whether the queue is empty (containing no items).
+     * Checks whether the queue is empty (containing no elements).
      *
      * @return  \c true if it is empty; \c false otherwise
      */
@@ -126,7 +157,7 @@ public:
 
     /**
      * Checks whether the queue is full (containing the maximum allowed
-     * items).
+     * elements).
      *
      * @return  \c true if it is full; \c false otherwise
      */
@@ -136,9 +167,9 @@ public:
     }
 
     /**
-     * Gets the maximum number of allowed items in the queue.
+     * Gets the maximum number of allowed elements in the queue.
      *
-     * @return  the maximum number of allowed items in the queue
+     * @return  the maximum number of allowed elements in the queue
      */
     size_type capacity() const _NOEXCEPT
     {
@@ -146,9 +177,9 @@ public:
     }
 
     /**
-     * Gets the number of existing items in the queue.
+     * Gets the number of existing elements in the queue.
      *
-     * @return  the number of existing items in the queue
+     * @return  the number of existing elements in the queue
      */
     size_type size() const _NOEXCEPT
     {
@@ -159,54 +190,58 @@ public:
     }
 
     /**
-     * Gets the first item in the queue.
+     * Gets the first element in the queue.
      *
-     * @return  reference to the first item
+     * @return  reference to the first element
      */
-    reference front()
+    reference front() _NOEXCEPT
     {
         assert(!empty());
         return *_M_head;
     }
 
     /**
-     * Gets the first item in the queue.
+     * Gets the first element in the queue.
      *
-     * @return  const reference to the first item
+     * @return  const reference to the first element
      */
-    const_reference front() const
+    const_reference front() const _NOEXCEPT
     {
         assert(!empty());
         return *_M_head;
     }
 
     /**
-     * Gets the last item in the queue.
+     * Gets the last element in the queue.
      *
-     * @return  reference to the last item
+     * @return  reference to the last element
      */
-    reference back()
+    reference back() _NOEXCEPT
     {
         assert(!empty());
         return *decrement(_M_tail);
     }
 
     /**
-     * Gets the last item in the queue.
+     * Gets the last element in the queue.
      *
-     * @return  const reference to the last item
+     * @return  const reference to the last element
      */
-    const_reference back() const
+    const_reference back() const _NOEXCEPT
     {
         assert(!empty());
         return *decrement(_M_tail);
     };
 
     /**
-     * Inserts a new item at the end of the queue.  The first item will
-     * be discarded if the queue is full.
+     * Inserts a new element at the end of the queue.  The first element
+     * will be discarded if the queue is full.
      *
-     * @param value  the item to be inserted
+     * @param value  the value to be inserted
+     * @post         <code>size() <= capacity() && back() == value</code>,
+     *               unless an exception is thrown, in which case this
+     *               queue is unchanged (strong exception safety is
+     *               guaranteed).
      */
     void push(const value_type& value)
     {
@@ -217,9 +252,13 @@ public:
     }
 
     /**
-     * Discards the first item in the queue.
+     * Discards the first element in the queue.
+     *
+     * @pre   This queue is not empty.
+     * @post  One element is discarded at the front, \c size() is
+     *        decremented by one, and \c full() is \c false.
      */
-    void pop()
+    void pop() _NOEXCEPT
     {
         assert(!empty());
         destroy(_M_head);
@@ -227,9 +266,10 @@ public:
     }
 
     /**
-     * Checks whether the queue contains a specific item.
+     * Checks whether the queue contains a specific element.
      *
-     * @param value  the item to be compared
+     * @param value  the value to be compared
+     * @pre          \c value_type shall be \c EqualityComparable.
      * @return       \c true if found; \c false otherwise
      */
     bool contains(const value_type& value) const
@@ -245,17 +285,25 @@ public:
     }
 
     /**
-     * Exchanges the items of two queues.
+     * Exchanges the elements of two queues.
      *
-     * @param rhs  the queue to exchange
+     * @param rhs  the queue to exchange with
+     * @post       If swapping the allocators does not throw, \c *this
+     *             will be swapped with \a rhs.  If swapping the
+     *             allocators throws with strong exception safety
+     *             guarantee, this function will also provide such
+     *             guarantee.
      */
     void swap(fc_queue& rhs)
-     {
-        std::swap(_M_head,  rhs._M_head);
-        std::swap(_M_tail,  rhs._M_tail);
-        std::swap(_M_begin, rhs._M_begin);
-        std::swap(_M_end,   rhs._M_end);
-        std::swap(_M_alloc, rhs._M_alloc);
+        _NOEXCEPT_(noexcept(swap(std::declval<allocator_type&>(),
+                                 std::declval<allocator_type&>())))
+    {
+        using std::swap;
+        swap(_M_alloc, rhs._M_alloc);
+        swap(_M_head,  rhs._M_head);
+        swap(_M_tail,  rhs._M_tail);
+        swap(_M_begin, rhs._M_begin);
+        swap(_M_end,   rhs._M_end);
     }
 
     /**
@@ -293,15 +341,15 @@ protected:
     {
         new (ptr) _Tp(value);
     }
-    void destroy(void* ptr)
+    void destroy(void* ptr) _NOEXCEPT
     {
         _M_destroy(ptr, is_trivially_destructible<_Tp>());
     }
 
 private:
-    void _M_destroy(void*, true_type)
+    void _M_destroy(void*, true_type) _NOEXCEPT
     {}
-    void _M_destroy(void* ptr, false_type)
+    void _M_destroy(void* ptr, false_type) _NOEXCEPT
     {
         ((_Tp*)ptr)->~_Tp();
     }
@@ -321,8 +369,19 @@ fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
     swap(temp);
 }
 
+/**
+ * Exchanges the elements of two queues.
+ *
+ * @param lhs  the first queue to exchange
+ * @param rhs  the second queue to exchange
+ * @post       If swapping the allocators does not throw, \a lhs will be
+ *             swapped with \a rhs.  If swapping the allocators throws
+ *             with strong exception safety guarantee, this function
+ *             will also provide such guarantee.
+ */
 template <class _Tp, class _Alloc>
 void swap(fc_queue<_Tp, _Alloc>& lhs, fc_queue<_Tp, _Alloc>& rhs)
+    _NOEXCEPT_(noexcept(lhs.swap(rhs)))
 {
     lhs.swap(rhs);
 }

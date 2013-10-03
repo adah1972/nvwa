@@ -1,3 +1,23 @@
+2013-10-03  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/c++11.h (_NOEXCEPT_): New macro.
+	* nvwa/fc_queue.h: Describe more details in documentation comment,
+	especially the preconditions and postconditions; correct the include
+	fileh for C++11.
+	(fc_queue<>::fc_queue(size_type, const allocator_type&)): Add checks
+	for the parameter max_size.
+	(fc_queue<>::front()): Mark as noexcept.
+	(fc_queue<>::front() const): Ditto.
+	(fc_queue<>::back()): Ditto.
+	(fc_queue<>::back() const): Ditto.
+	(fc_queue<>::pop()): Ditto.
+	(fc_queue<>::destroy(void*)): Ditto.
+	(fc_queue<>::_M_destroy(void*, true_type)): Ditto.
+	(fc_queue<>::_M_destroy(void*, false_type)): Ditto.
+	(fc_queue<>::swap(fc_queue&)): Make better exception safety
+	guarantee and write a noexcept-specification.
+	(swap(fc_queue<>&, fc_queue<>&)): Write a noexcept-specification.
+
 2013-10-02  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Simplify code by removing some unuseful member functions.
