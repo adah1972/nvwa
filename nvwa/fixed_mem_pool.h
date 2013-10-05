@@ -49,7 +49,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running.
  *
- * @date  2013-10-02
+ * @date  2013-10-05
  */
 
 #ifndef NVWA_FIXED_MEM_POOL_H
@@ -70,7 +70,7 @@ NVWA_NAMESPACE_BEGIN
  * Defines the alignment of memory blocks.
  */
 #ifndef MEM_POOL_ALIGNMENT
-#define MEM_POOL_ALIGNMENT 4
+#define MEM_POOL_ALIGNMENT sizeof(void*)
 #endif
 
 /**
