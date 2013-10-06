@@ -1,5 +1,22 @@
 2013-10-06  Wu Yongwei  <wuyongwei@gmail.com>
 
+	Mark _NOEXCEPT where appropriate; add a non-member swap function.
+	* bool_array.cpp (bool_array::create(size_type)): Mark as _NOEXCEPT.
+	(bool_array::initialize(bool)): Ditto.
+	(bool_array::count()): Ditto.
+	(bool_array::flip()): Ditto.
+	(bool_array::swap(bool_array&)): Ditto.
+	* bool_array.h (bool_array::bool_array()): Ditto.
+	(bool_array::create(size_type)): Ditto.
+	(bool_array::initialize(bool)): Ditto.
+	(bool_array::size()): Ditto.
+	(bool_array::count()): Ditto.
+	(bool_array::flip()): Ditto.
+	(bool_array::swap(bool_array&)): Ditto.
+	(swap(bool_array&, bool_array&)): New function.
+
+2013-10-06  Wu Yongwei  <wuyongwei@gmail.com>
+
 	Fine-tune the Doxygen output.
 	* misc/Doxyfile (PREDEFINED): Add definitions of _NOEXCEPT_, NVWA,
 	NVWA_NAMESPACE_BEGIN, NVWA_NAMESPACE_END.
