@@ -737,6 +737,10 @@ void debug_new_recorder::_M_process(void* usr_ptr)
     if (offset % PLATFORM_MEM_ALIGNMENT != 0) {
         offset -= sizeof(size_t);
         if (offset % PLATFORM_MEM_ALIGNMENT != 0) {
+            fast_mutex_autolock lock(new_output_lock);
+            fprintf(new_output_fp,
+                    "warning: memory unaligned; skipping processing (%s:%d)\n",
+                    _M_file, _M_line);
             return;
         }
         usr_ptr = (char*)usr_ptr - sizeof(size_t);
