@@ -1,5 +1,13 @@
 2013-10-06  Wu Yongwei  <wuyongwei@gmail.com>
 
+	Fine-tune the Doxygen output.
+	* misc/Doxyfile (PREDEFINED): Add definitions of _NOEXCEPT_, NVWA,
+	NVWA_NAMESPACE_BEGIN, NVWA_NAMESPACE_END.
+	(EXPAND_AS_DEFINED): Remove __PRIVATE, NVWA, NVWA_NAMESPACE_BEGIN,
+	NVWA_NAMESPACE_END.
+
+2013-10-06  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/debug_new.cpp (debug_new_recorder::_M_process(void*)): Output
 	a message (instead of returning silently) when memory alignment
 	cannot be compensated.

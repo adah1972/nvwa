@@ -193,13 +193,14 @@ PREDEFINED             = __GNUC__ \
                          _DEBUG_NEW_REDEFINE_NEW=0 \
                          _FINAL=final \
                          _NOEXCEPT=noexcept \
+                         _NOEXCEPT_(x)= \
                          _NULLPTR=nullptr \
                          _OVERRIDE=override \
-                         _PTHREADS
-EXPAND_AS_DEFINED      = __PRIVATE \
-                         NVWA \
-                         NVWA_NAMESPACE_BEGIN \
-                         NVWA_NAMESPACE_END
+                         _PTHREADS \
+                         NVWA=nvwa \
+                         NVWA_NAMESPACE_BEGIN="namespace nvwa {" \
+                         NVWA_NAMESPACE_END="}"
+EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Configuration::additions related to external references   
