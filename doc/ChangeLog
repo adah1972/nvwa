@@ -1,5 +1,11 @@
 2013-10-06  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* misc/Doxyfile (EXTRACT_STATIC): Change to `NO'.
+	(INPUT): Remove `static_assert.h'.
+	(PREDEFINED): Add `_DEBUG' and `_DEBUG_NEW_REDEFINE_NEW=0'.
+
+2013-10-06  Wu Yongwei  <wuyongwei@gmail.com>
+
 	Avoid using `pointer' as a variable or parameter name, as it is
 	defined as a type in many C++ containers (including fc_queue).
 	* nvwa/bool_array.h: Change all local variables and parameters named
