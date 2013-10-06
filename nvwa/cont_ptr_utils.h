@@ -32,7 +32,7 @@
  * Utility functors for containers of pointers (adapted from Scott
  * Meyers' <em>Effective STL</em>).
  *
- * @date  2013-03-01
+ * @date  2013-10-06
  */
 
 #ifndef NVWA_CONT_PTR_UTILS_H
@@ -57,9 +57,9 @@ NVWA_NAMESPACE_BEGIN
 struct dereference
 {
     template <typename _Tp>
-    const _Tp& operator()(const _Tp* pointer) const
+    const _Tp& operator()(const _Tp* ptr) const
     {
-        return *pointer;
+        return *ptr;
     }
 };
 
@@ -79,9 +79,9 @@ struct dereference
 struct dereference_less
 {
     template <typename _Pointer>
-    bool operator()(const _Pointer& pointer1, const _Pointer& pointer2) const
+    bool operator()(const _Pointer& ptr1, const _Pointer& ptr2) const
     {
-        return *pointer1 < *pointer2;
+        return *ptr1 < *ptr2;
     }
 };
 
@@ -98,9 +98,9 @@ struct dereference_less
 struct delete_object
 {
     template <typename _Tp>
-    void operator()(_Tp* pointer) const
+    void operator()(_Tp* ptr) const
     {
-        delete pointer;
+        delete ptr;
     }
 };
 
@@ -122,9 +122,9 @@ struct output_object
     {}
 
     template <typename _Pointer>
-    void operator()(const _Pointer& pointer) const
+    void operator()(const _Pointer& ptr) const
     {
-        _M_outs << *pointer << _M_sep;
+        _M_outs << *ptr << _M_sep;
     }
 
 private:

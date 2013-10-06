@@ -1,3 +1,29 @@
+2013-10-06  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Avoid using `pointer' as a variable or parameter name, as it is
+	defined as a type in many C++ containers (including fc_queue).
+	* nvwa/bool_array.h: Change all local variables and parameters named
+	`pointer' to `ptr'.
+	* nvwa/cont_ptr_utils: Ditto.
+	* nvwa/debug_new.h: Ditto.
+	* nvwa/fixed_mem_pool.h: Ditto.
+	* nvwa/mem_pool_base.cpp: Ditto.
+	* nvwa/mem_pool_base.h: Ditto.
+	* nvwa/static_mem_pool.h: Ditto.
+	* nvwa/debug_new.cpp (check_tail): Change the local variable
+	`pointer' to `tail_ptr'.
+	(alloc_mem): Change the local variable `pointer' to `usr_ptr'.
+	(free_pointer): Ditto.
+	(check_leaks): Ditto.
+	(check_mem_corruption): Ditto.
+	(debug_new_recorder::_M_process(void*)): Ditto.
+	(operator delete(void*)): Change the parameter `pointer' to `ptr'.
+	(operator delete[](void*)): Ditto.
+	(operator delete(void*, const char*, int)): Ditto.
+	(operator delete[](void*, const char*, int)): Ditto.
+	(operator delete(void*, const std::nothrow_t&)): Ditto.
+	(operator delete[](void*, const std::nothrow_t&)): Ditto.
+
 2013-10-05  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/fixed_mem_pool.h (MEM_POOL_ALIGNMENT): Set the default value

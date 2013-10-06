@@ -31,7 +31,7 @@
  *
  * Header file for the memory pool base.
  *
- * @date  2013-03-01
+ * @date  2013-10-06
  */
 
 #ifndef NVWA_MEM_POOL_BASE_H
@@ -51,7 +51,7 @@ public:
     virtual ~mem_pool_base();
     virtual void recycle() = 0;
     static void* alloc_sys(size_t size);
-    static void dealloc_sys(void* pointer);
+    static void dealloc_sys(void* ptr);
 
     /** Structure to store the next available memory block. */
     struct _Block_list

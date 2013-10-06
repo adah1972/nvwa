@@ -49,7 +49,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running.
  *
- * @date  2013-10-05
+ * @date  2013-10-06
  */
 
 #ifndef NVWA_FIXED_MEM_POOL_H
@@ -58,7 +58,7 @@
 #include <new>                  // std::bad_alloc
 #include <assert.h>             // assert
 #include <stdlib.h>             // size_t/NULL
-#include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "_nvwa.h"              // NVWA/NVWA_NAMESPACE_*
 #include "c++11.h"              // _NOEXCEPT
 #include "class_level_lock.h"   // nvwa::class_level_lock
 #include "mem_pool_base.h"      // nvwa::mem_pool_base
@@ -271,15 +271,15 @@ public: \
     static void* operator new(size_t size) \
     { \
         assert(size == sizeof(_Cls)); \
-        if (void* pointer = NVWA::fixed_mem_pool<_Cls>::allocate()) \
-            return pointer; \
+        if (void* ptr = NVWA::fixed_mem_pool<_Cls>::allocate()) \
+            return ptr; \
         else \
             throw std::bad_alloc(); \
     } \
-    static void  operator delete(void* pointer) \
+    static void  operator delete(void* ptr) \
     { \
-        if (pointer != NULL) \
-            NVWA::fixed_mem_pool<_Cls>::deallocate(pointer); \
+        if (ptr != NULL) \
+            NVWA::fixed_mem_pool<_Cls>::deallocate(ptr); \
     }
 
 /**
@@ -294,10 +294,10 @@ public: \
         assert(size == sizeof(_Cls)); \
         return NVWA::fixed_mem_pool<_Cls>::allocate(); \
     } \
-    static void  operator delete(void* pointer) \
+    static void  operator delete(void* ptr) \
     { \
-        if (pointer != NULL) \
-            NVWA::fixed_mem_pool<_Cls>::deallocate(pointer); \
+        if (ptr != NULL) \
+            NVWA::fixed_mem_pool<_Cls>::deallocate(ptr); \
     }
 
 /**
@@ -319,10 +319,10 @@ public: \
         assert(size == sizeof(_Cls)); \
         return NVWA::fixed_mem_pool<_Cls>::allocate(); \
     } \
-    static void  operator delete(void* pointer) \
+    static void  operator delete(void* ptr) \
     { \
-        if (pointer != NULL) \
-            NVWA::fixed_mem_pool<_Cls>::deallocate(pointer); \
+        if (ptr != NULL) \
+            NVWA::fixed_mem_pool<_Cls>::deallocate(ptr); \
     }
 
 #endif // NVWA_FIXED_MEM_POOL_H

@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @date  2013-04-22
+ * @date  2013-10-06
  */
 
 #ifndef NVWA_DEBUG_NEW_H
@@ -45,8 +45,8 @@
 /* Special allocation/deallocation functions in the global scope */
 void* operator new(size_t size, const char* file, int line);
 void* operator new[](size_t size, const char* file, int line);
-void operator delete(void* pointer, const char* file, int line) _NOEXCEPT;
-void operator delete[](void* pointer, const char* file, int line) _NOEXCEPT;
+void operator delete(void* ptr, const char* file, int line) _NOEXCEPT;
+void operator delete[](void* ptr, const char* file, int line) _NOEXCEPT;
 
 NVWA_NAMESPACE_BEGIN
 
@@ -139,7 +139,7 @@ class debug_new_recorder
 {
     const char* _M_file;
     const int   _M_line;
-    void _M_process(void* pointer);
+    void _M_process(void* ptr);
 public:
     /**
      * Constructor to remember the call context.  The information will
@@ -153,8 +153,8 @@ public:
      * precedence, it is rarely used, and it looks good: so people can
      * tell the special usage more quickly.
      */
-    template <class _Tp> _Tp* operator->*(_Tp* pointer)
-    { _M_process(pointer); return pointer; }
+    template <class _Tp> _Tp* operator->*(_Tp* ptr)
+    { _M_process(ptr); return ptr; }
 private:
     debug_new_recorder(const debug_new_recorder&);
     debug_new_recorder& operator=(const debug_new_recorder&);

@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2013-03-01
+ * @date  2013-10-06
  */
 
 #ifndef NVWA_BOOL_ARRAY_H
@@ -87,7 +87,7 @@ private:
     class _Element
     {
     public:
-        _Element(_Byte_type* pointer, size_type pos);
+        _Element(_Byte_type* ptr, size_type pos);
         bool operator=(bool value);
         operator bool() const;
     private:
@@ -161,15 +161,15 @@ private:
 /**
  * Constructs a reference to an array element.
  *
- * @param pointer  pointer to the interal boolean data
- * @param pos      position of the array element to access
+ * @param ptr  ptr to the interal boolean data
+ * @param pos  position of the array element to access
  */
 template <typename _Byte_type>
 inline bool_array::_Element<_Byte_type>::_Element(
-        _Byte_type* pointer,
+        _Byte_type* ptr,
         size_type pos)
 {
-    _M_byte_ptr = pointer;
+    _M_byte_ptr = ptr;
     _M_byte_pos = (size_t)(pos / 8);
     _M_bit_pos  = (size_t)(pos % 8);
 }

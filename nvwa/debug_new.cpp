@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2013-09-07
+ * @date  2013-10-06
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -450,16 +450,16 @@ static void print_position(const void* ptr, int line)
  * Checks whether the padding bytes at the end of a memory block is
  * tampered with.
  *
- * @param ptr   pointer to a new_ptr_list_t struct
- * @return      \c true if the padding bytes are untouched; \c false
- *              otherwise
+ * @param ptr  pointer to a new_ptr_list_t struct
+ * @return     \c true if the padding bytes are untouched; \c false
+ *             otherwise
  */
 static bool check_tail(new_ptr_list_t* ptr)
 {
-    const unsigned char* const pointer = (unsigned char*)ptr +
+    const unsigned char* const tail_ptr = (unsigned char*)ptr +
                             ALIGNED_LIST_ITEM_SIZE + ptr->size;
     for (int i = 0; i < _DEBUG_NEW_TAILCHECK; ++i)
-        if (pointer[i] != _DEBUG_NEW_TAILCHECK_CHAR)
+        if (tail_ptr[i] != _DEBUG_NEW_TAILCHECK_CHAR)
             return false;
     return true;
 }
@@ -500,7 +500,7 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
         _DEBUG_NEW_ERROR_ACTION;
 #endif
     }
-    void* pointer = (char*)ptr + ALIGNED_LIST_ITEM_SIZE;
+    void* usr_ptr = (char*)ptr + ALIGNED_LIST_ITEM_SIZE;
 #if _DEBUG_NEW_FILENAME_LEN == 0
     ptr->file = file;
 #else
@@ -522,7 +522,7 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
         new_ptr_list.prev = ptr;
     }
 #if _DEBUG_NEW_TAILCHECK
-    memset((char*)pointer + size, _DEBUG_NEW_TAILCHECK_CHAR,
+    memset((char*)usr_ptr + size, _DEBUG_NEW_TAILCHECK_CHAR,
                                   _DEBUG_NEW_TAILCHECK);
 #endif
     if (new_verbose_flag)
@@ -531,7 +531,7 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
         fprintf(new_output_fp,
                 "new%s: allocated %p (size %lu, ",
                 is_array ? "[]" : "",
-                pointer, (unsigned long)size);
+                usr_ptr, (unsigned long)size);
         if (line != 0)
             print_position(ptr->file, ptr->line);
         else
@@ -539,29 +539,29 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
         fprintf(new_output_fp, ")\n");
     }
     total_mem_alloc += size;
-    return pointer;
+    return usr_ptr;
 }
 
 /**
  * Frees memory and adjusts pointers.
  *
- * @param pointer   pointer to the previously allocated memory
+ * @param usr_ptr   pointer to the previously allocated memory
  * @param addr      pointer to the caller
  * @param is_array  flag indicating whether it is invoked by a
  *                  <code>delete[]</code> call
  */
-static void free_pointer(void* pointer, void* addr, bool is_array)
+static void free_pointer(void* usr_ptr, void* addr, bool is_array)
 {
-    if (pointer == NULL)
+    if (usr_ptr == NULL)
         return;
     new_ptr_list_t* ptr =
-            (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
+            (new_ptr_list_t*)((char*)usr_ptr - ALIGNED_LIST_ITEM_SIZE);
     if (ptr->magic != DEBUG_NEW_MAGIC)
     {
         {
             fast_mutex_autolock lock(new_output_lock);
             fprintf(new_output_fp, "delete%s: invalid pointer %p (",
-                    is_array ? "[]" : "", pointer);
+                    is_array ? "[]" : "", usr_ptr);
             print_position(addr, 0);
             fprintf(new_output_fp, ")\n");
         }
@@ -633,24 +633,24 @@ int check_leaks()
     new_ptr_list_t* ptr = new_ptr_list.next;
     while (ptr != &new_ptr_list)
     {
-        const char* const pointer = (char*)ptr + ALIGNED_LIST_ITEM_SIZE;
+        const char* const usr_ptr = (char*)ptr + ALIGNED_LIST_ITEM_SIZE;
         if (ptr->magic != DEBUG_NEW_MAGIC)
         {
             fprintf(new_output_fp,
                     "warning: heap data corrupt near %p\n",
-                    pointer);
+                    usr_ptr);
         }
 #if _DEBUG_NEW_TAILCHECK
         if (!check_tail(ptr))
         {
             fprintf(new_output_fp,
                     "warning: overwritten past end of object at %p\n",
-                    pointer);
+                    usr_ptr);
         }
 #endif
         fprintf(new_output_fp,
                 "Leaked object at %p (size %lu, ",
-                pointer,
+                usr_ptr,
                 (unsigned long)ptr->size);
         if (ptr->line != 0)
             print_position(ptr->file, ptr->line);
@@ -681,7 +681,7 @@ int check_mem_corruption()
             ptr != &new_ptr_list;
             ptr = ptr->next)
     {
-        const char* const pointer = (char*)ptr + ALIGNED_LIST_ITEM_SIZE;
+        const char* const usr_ptr = (char*)ptr + ALIGNED_LIST_ITEM_SIZE;
         if (ptr->magic == DEBUG_NEW_MAGIC
 #if _DEBUG_NEW_TAILCHECK
                 && check_tail(ptr)
@@ -694,7 +694,7 @@ int check_mem_corruption()
 #endif
             fprintf(new_output_fp,
                     "Heap data corrupt near %p (size %lu, ",
-                    pointer,
+                    usr_ptr,
                     (unsigned long)ptr->size);
 #if _DEBUG_NEW_TAILCHECK
         }
@@ -702,7 +702,7 @@ int check_mem_corruption()
         {
             fprintf(new_output_fp,
                     "Overwritten past end of object at %p (size %lu, ",
-                    pointer,
+                    usr_ptr,
                     (unsigned long)ptr->size);
         }
 #endif
@@ -723,27 +723,27 @@ int check_mem_corruption()
  * It will only be done when it can ensure the memory is allocated by
  * one of our operator new variants.
  *
- * @param pointer   pointer returned by a new-expression
+ * @param usr_ptr  pointer returned by a new-expression
  */
-void debug_new_recorder::_M_process(void* pointer)
+void debug_new_recorder::_M_process(void* usr_ptr)
 {
-    if (pointer == NULL)
+    if (usr_ptr == NULL)
         return;
 
     // In an expression `new NonPODType[size]', the pointer returned is
     // not the pointer returned by operator new[], but offset by size_t
     // to leave room for the size.  It needs to be compensated here.
-    size_t offset = (char*)pointer - (char*)NULL;
+    size_t offset = (char*)usr_ptr - (char*)NULL;
     if (offset % PLATFORM_MEM_ALIGNMENT != 0) {
         offset -= sizeof(size_t);
         if (offset % PLATFORM_MEM_ALIGNMENT != 0) {
             return;
         }
-        pointer = (char*)pointer - sizeof(size_t);
+        usr_ptr = (char*)usr_ptr - sizeof(size_t);
     }
 
     new_ptr_list_t* ptr =
-            (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
+            (new_ptr_list_t*)((char*)usr_ptr - ALIGNED_LIST_ITEM_SIZE);
     if (ptr->magic != DEBUG_NEW_MAGIC || ptr->line != 0)
     {
         fast_mutex_autolock lock(new_output_lock);
@@ -756,7 +756,7 @@ void debug_new_recorder::_M_process(void* pointer)
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "info: pointer %p allocated from %s:%d\n",
-                pointer, _M_file, _M_line);
+                usr_ptr, _M_file, _M_line);
     }
 #if _DEBUG_NEW_FILENAME_LEN == 0
     ptr->file = _M_file;
@@ -905,88 +905,88 @@ void* operator new[](size_t size, const std::nothrow_t&) _NOEXCEPT
 /**
  * Deallocates memory.
  *
- * @param pointer   pointer to the previously allocated memory
+ * @param ptr  pointer to the previously allocated memory
  */
-void operator delete(void* pointer) _NOEXCEPT
+void operator delete(void* ptr) _NOEXCEPT
 {
-    free_pointer(pointer, _DEBUG_NEW_CALLER_ADDRESS, false);
+    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, false);
 }
 
 /**
  * Deallocates array memory.
  *
- * @param pointer   pointer to the previously allocated memory
+ * @param ptr  pointer to the previously allocated memory
  */
-void operator delete[](void* pointer) _NOEXCEPT
+void operator delete[](void* ptr) _NOEXCEPT
 {
-    free_pointer(pointer, _DEBUG_NEW_CALLER_ADDRESS, true);
+    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, true);
 }
 
 /**
  * Placement deallocation function.  For details, please check Section
  * 5.3.4 of the C++ 1998 or 2011 Standard.
  *
- * @param pointer   pointer to the previously allocated memory
- * @param file      null-terminated string of the file name
- * @param line      line number
+ * @param ptr   pointer to the previously allocated memory
+ * @param file  null-terminated string of the file name
+ * @param line  line number
  *
  * @see   http://www.csci.csusb.edu/dick/c++std/cd2/expr.html#expr.new
  * @see   http://wyw.dcweb.cn/leakage.htm
  */
-void operator delete(void* pointer, const char* file, int line) _NOEXCEPT
+void operator delete(void* ptr, const char* file, int line) _NOEXCEPT
 {
     if (new_verbose_flag)
     {
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "info: exception thrown on initializing object at %p (",
-                pointer);
+                ptr);
         print_position(file, line);
         fprintf(new_output_fp, ")\n");
     }
-    operator delete(pointer);
+    operator delete(ptr);
 }
 
 /**
  * Placement deallocation function.  For details, please check Section
  * 5.3.4 of the C++ 1998 or 2011 Standard.
  *
- * @param pointer   pointer to the previously allocated memory
- * @param file      null-terminated string of the file name
- * @param line      line number
+ * @param ptr   pointer to the previously allocated memory
+ * @param file  null-terminated string of the file name
+ * @param line  line number
  */
-void operator delete[](void* pointer, const char* file, int line) _NOEXCEPT
+void operator delete[](void* ptr, const char* file, int line) _NOEXCEPT
 {
     if (new_verbose_flag)
     {
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "info: exception thrown on initializing objects at %p (",
-                pointer);
+                ptr);
         print_position(file, line);
         fprintf(new_output_fp, ")\n");
     }
-    operator delete[](pointer);
+    operator delete[](ptr);
 }
 
 /**
  * Placement deallocation function.  For details, please check Section
  * 5.3.4 of the C++ 1998 or 2011 Standard.
  *
- * @param pointer   pointer to the previously allocated memory
+ * @param ptr  pointer to the previously allocated memory
  */
-void operator delete(void* pointer, const std::nothrow_t&) _NOEXCEPT
+void operator delete(void* ptr, const std::nothrow_t&) _NOEXCEPT
 {
-    operator delete(pointer, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
+    operator delete(ptr, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
 
 /**
  * Placement deallocation function.  For details, please check Section
  * 5.3.4 of the C++ 1998 or 2011 Standard.
  *
- * @param pointer   pointer to the previously allocated memory
+ * @param ptr  pointer to the previously allocated memory
  */
-void operator delete[](void* pointer, const std::nothrow_t&) _NOEXCEPT
+void operator delete[](void* ptr, const std::nothrow_t&) _NOEXCEPT
 {
-    operator delete[](pointer, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
+    operator delete[](ptr, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }

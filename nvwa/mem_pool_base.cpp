@@ -31,7 +31,7 @@
  *
  * Implementation for the memory pool base.
  *
- * @date  2013-03-01
+ * @date  2013-10-06
  */
 
 #if defined(_MEM_POOL_USE_MALLOC)
@@ -83,11 +83,11 @@ void* mem_pool_base::alloc_sys(size_t size)
 /**
  * Frees memory and returns it to the run-time system.
  *
- * @param pointer  pointer to the memory block previously allocated
+ * @param ptr  pointer to the memory block previously allocated
  */
-void mem_pool_base::dealloc_sys(void* pointer)
+void mem_pool_base::dealloc_sys(void* ptr)
 {
-    _MEM_POOL_DEALLOCATE(pointer);
+    _MEM_POOL_DEALLOCATE(ptr);
 }
 
 NVWA_NAMESPACE_END

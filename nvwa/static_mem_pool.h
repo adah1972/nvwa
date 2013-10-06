@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @date  2013-04-22
+ * @date  2013-10-06
  */
 
 #ifndef NVWA_STATIC_MEM_POOL_H
@@ -43,7 +43,7 @@
 #include <vector>               // std::vector
 #include <assert.h>             // assert
 #include <stddef.h>             // size_t/NULL
-#include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "_nvwa.h"              // NVWA/NVWA_NAMESPACE_*
 #include "c++11.h"              // _NOEXCEPT
 #include "class_level_lock.h"   // nvwa::class_level_lock
 #include "mem_pool_base.h"      // nvwa::mem_pool_base
@@ -160,13 +160,13 @@ public:
     /**
      * Deallocates memory by putting the memory block into the pool.
      *
-     * @param pointer  pointer to memory to be deallocated
+     * @param ptr  pointer to memory to be deallocated
      */
-    void deallocate(void* pointer)
+    void deallocate(void* ptr)
     {
-        assert(pointer != NULL);
+        assert(ptr != NULL);
         lock guard;
-        _Block_list* block = reinterpret_cast<_Block_list*>(pointer);
+        _Block_list* block = reinterpret_cast<_Block_list*>(ptr);
         block->_M_next = _S_memory_block_p;
         _S_memory_block_p = block;
     }
@@ -303,18 +303,18 @@ public: \
     static void* operator new(size_t size) \
     { \
         assert(size == sizeof(_Cls)); \
-        void* pointer; \
-        pointer = NVWA::static_mem_pool<sizeof(_Cls)>:: \
+        void* ptr; \
+        ptr = NVWA::static_mem_pool<sizeof(_Cls)>:: \
                                instance_known().allocate(); \
-        if (pointer == NULL) \
+        if (ptr == NULL) \
             throw std::bad_alloc(); \
-        return pointer; \
+        return ptr; \
     } \
-    static void operator delete(void* pointer) \
+    static void operator delete(void* ptr) \
     { \
-        if (pointer) \
+        if (ptr) \
             NVWA::static_mem_pool<sizeof(_Cls)>:: \
-                           instance_known().deallocate(pointer); \
+                           instance_known().deallocate(ptr); \
     }
 
 /**
@@ -334,11 +334,11 @@ public: \
         return NVWA::static_mem_pool<sizeof(_Cls)>:: \
                               instance_known().allocate(); \
     } \
-    static void operator delete(void* pointer) \
+    static void operator delete(void* ptr) \
     { \
-        if (pointer) \
+        if (ptr) \
             NVWA::static_mem_pool<sizeof(_Cls)>:: \
-                           instance_known().deallocate(pointer); \
+                           instance_known().deallocate(ptr); \
     }
 
 /**
@@ -356,18 +356,18 @@ public: \
     static void* operator new(size_t size) \
     { \
         assert(size == sizeof(_Cls)); \
-        void* pointer; \
-        pointer = NVWA::static_mem_pool<sizeof(_Cls), (_Gid)>:: \
+        void* ptr; \
+        ptr = NVWA::static_mem_pool<sizeof(_Cls), (_Gid)>:: \
                                instance_known().allocate(); \
-        if (pointer == NULL) \
+        if (ptr == NULL) \
             throw std::bad_alloc(); \
-        return pointer; \
+        return ptr; \
     } \
-    static void operator delete(void* pointer) \
+    static void operator delete(void* ptr) \
     { \
-        if (pointer) \
+        if (ptr) \
             NVWA::static_mem_pool<sizeof(_Cls), (_Gid)>:: \
-                           instance_known().deallocate(pointer); \
+                           instance_known().deallocate(ptr); \
     }
 
 /**
@@ -388,11 +388,11 @@ public: \
         return NVWA::static_mem_pool<sizeof(_Cls), (_Gid)>:: \
                               instance_known().allocate(); \
     } \
-    static void operator delete(void* pointer) \
+    static void operator delete(void* ptr) \
     { \
-        if (pointer) \
+        if (ptr) \
             NVWA::static_mem_pool<sizeof(_Cls), (_Gid)>:: \
-                           instance_known().deallocate(pointer); \
+                           instance_known().deallocate(ptr); \
     }
 
 #endif // NVWA_STATIC_MEM_POOL_H
