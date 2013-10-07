@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2013-10-03
+ * @date  2013-10-07
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -194,7 +194,7 @@ public:
      *
      * @return  reference to the first element
      */
-    reference front() _NOEXCEPT
+    reference front()
     {
         assert(!empty());
         return *_M_head;
@@ -205,7 +205,7 @@ public:
      *
      * @return  const reference to the first element
      */
-    const_reference front() const _NOEXCEPT
+    const_reference front() const
     {
         assert(!empty());
         return *_M_head;
@@ -216,7 +216,7 @@ public:
      *
      * @return  reference to the last element
      */
-    reference back() _NOEXCEPT
+    reference back()
     {
         assert(!empty());
         return *decrement(_M_tail);
@@ -227,7 +227,7 @@ public:
      *
      * @return  const reference to the last element
      */
-    const_reference back() const _NOEXCEPT
+    const_reference back() const
     {
         assert(!empty());
         return *decrement(_M_tail);
@@ -258,7 +258,7 @@ public:
      * @post  One element is discarded at the front, \c size() is
      *        decremented by one, and \c full() is \c false.
      */
-    void pop() _NOEXCEPT
+    void pop()
     {
         assert(!empty());
         destroy(_M_head);
@@ -341,15 +341,15 @@ protected:
     {
         new (ptr) _Tp(value);
     }
-    void destroy(void* ptr) _NOEXCEPT
+    void destroy(void* ptr) _NOEXCEPT_(noexcept(std::declval<_Tp*>()->~_Tp()))
     {
         _M_destroy(ptr, is_trivially_destructible<_Tp>());
     }
 
 private:
-    void _M_destroy(void*, true_type) _NOEXCEPT
+    void _M_destroy(void*, true_type)
     {}
-    void _M_destroy(void* ptr, false_type) _NOEXCEPT
+    void _M_destroy(void* ptr, false_type)
     {
         ((_Tp*)ptr)->~_Tp();
     }

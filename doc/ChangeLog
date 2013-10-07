@@ -1,12 +1,26 @@
+2013-10-07  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Follow N3279 and be more conservative about the use of noexcept.
+	* nvwa/fc_queue.h (fc_queue<>::front()): Unmark as _NOEXCEPT.
+	(fc_queue<>::front() const): Ditto.
+	(fc_queue<>::back()): Ditto.
+	(fc_queue<>::back() const): Ditto.
+	(fc_queue<>::pop()): Ditto.
+	(fc_queue<>::_M_destroy(void*, true_type)): Ditto.
+	(fc_queue<>::_M_destroy(void*, false_type)): Ditto.
+	(fc_queue<>::destroy(void*)): Change the noexcept-specification to a
+	conditional (potentially for future use; not really useful now).
+
 2013-10-06  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Mark _NOEXCEPT where appropriate; add a non-member swap function.
-	* bool_array.cpp (bool_array::create(size_type)): Mark as _NOEXCEPT.
+	* nvwa/bool_array.cpp (bool_array::create(size_type)): Mark as
+	_NOEXCEPT.
 	(bool_array::initialize(bool)): Ditto.
 	(bool_array::count()): Ditto.
 	(bool_array::flip()): Ditto.
 	(bool_array::swap(bool_array&)): Ditto.
-	* bool_array.h (bool_array::bool_array()): Ditto.
+	* nvwa/bool_array.h (bool_array::bool_array()): Ditto.
 	(bool_array::create(size_type)): Ditto.
 	(bool_array::initialize(bool)): Ditto.
 	(bool_array::size()): Ditto.
