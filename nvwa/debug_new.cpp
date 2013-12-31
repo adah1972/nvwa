@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2013-10-06
+ * @date  2013-12-31
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -125,8 +125,8 @@
  * (at run time) than to use this (compile-time) macro, but this macro
  * serves well as a quick hack.  Note also that double quotation marks
  * need to be used around the program name, i.e., one should specify a
- * command-line option like <code>-D_DEBUG_NEW_PROGNAME=\"a.out\"</code>
- * in \e bash, or <code>-D_DEBUG_NEW_PROGNAME=\"a.exe\"</code> in the
+ * command-line option like <code>-D_DEBUG_NEW_PROGNAME=\\"a.out\"</code>
+ * in \e bash, or <code>-D_DEBUG_NEW_PROGNAME=\\"a.exe\"</code> in the
  * Windows command prompt.
  */
 #ifndef _DEBUG_NEW_PROGNAME

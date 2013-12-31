@@ -1,3 +1,12 @@
+2013-12-31  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* misc/Doxyfile (PREDEFINED): Define `__inline' as `inline'.
+	(PROJECT_NUMBER): Increase to 1.0.
+	* misc/release.bat (VER): Ditto.
+	* misc/release.sh (VER): Ditto.
+	* nvwa/debug_new.cpp: Revise the documentation comment to ensure the
+	backslash appear correctly in the output.
+
 2013-10-07  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Follow N3279 and be more conservative about the use of noexcept.
@@ -380,8 +389,8 @@
 
 2012-01-14  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* misc/Doxyfile (PROJECT_NUMBER): Increase to 0.9.
-	(SEARCHENGINE): Set to `YES' to enable search.
+	* misc/Doxyfile (SEARCHENGINE): Set to `YES' to enable search.
+	(PROJECT_NUMBER): Increase to 0.9.
 	* misc/release.bat (VER): Ditto.
 	* misc/release.sh (VER): Ditto.
 
