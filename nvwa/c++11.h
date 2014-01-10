@@ -65,11 +65,13 @@
 
 #if !defined(HAVE_CXX11_ATOMIC)
 #if NVWA_CXX11_MODE && \
-    (__has_include(<atomic>) || \
+    ((__has_include(<atomic>) && !defined(__MINGW32__)) || \
      (defined(_MSC_VER) && _MSC_VER >= 1700) || \
-     (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 405 && \
-      !defined(__MINGW32__)))
-// Note: MinGW GCC does not support atomics out of the box as of 4.8.
+     (((defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 405) || \
+       defined(__clang__)) && \
+      (!defined(__MINGW32__) || defined(_POSIX_THREADS))))
+// Note: MinGW GCC, unless built with POSIX threads (as in
+//       MinGW-builds), does not support atomics as of 4.8.
 #define HAVE_CXX11_ATOMIC 1
 #else
 #define HAVE_CXX11_ATOMIC 0
@@ -110,11 +112,13 @@
 
 #if !defined(HAVE_CXX11_FUTURE)
 #if NVWA_CXX11_MODE && \
-    (__has_include(<future>) || \
+    ((__has_include(<future>) && !defined(__MINGW32__)) || \
      (defined(_MSC_VER) && _MSC_VER >= 1700) || \
-     (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 405 && \
-      !defined(__MINGW32__)))
-// Note: MinGW GCC does not support futures out of the box as of 4.8.
+     (((defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 405) || \
+       defined(__clang__)) && \
+      (!defined(__MINGW32__) || defined(_POSIX_THREADS))))
+// Note: MinGW GCC, unless built with POSIX threads (as in
+//       MinGW-builds), does not support futures as of 4.8.
 #define HAVE_CXX11_FUTURE 1
 #else
 #define HAVE_CXX11_FUTURE 0
@@ -144,11 +148,13 @@
 
 #if !defined(HAVE_CXX11_MUTEX)
 #if NVWA_CXX11_MODE && \
-    (__has_include(<mutex>) || \
+    ((__has_include(<mutex>) && !defined(__MINGW32__)) || \
      (defined(_MSC_VER) && _MSC_VER >= 1700) || \
-     (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 403 && \
-      !defined(__MINGW32__)))
-// Note: MinGW GCC does not support std::mutex out of the box as of 4.8.
+     (((defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 403) || \
+       defined(__clang__)) && \
+      (!defined(__MINGW32__) || defined(_POSIX_THREADS))))
+// Note: MinGW GCC, unless built with POSIX threads (as in
+//       MinGW-builds), does not support std::mutex as of 4.8.
 #define HAVE_CXX11_MUTEX 1
 #else
 #define HAVE_CXX11_MUTEX 0
@@ -222,11 +228,13 @@
 
 #if !defined(HAVE_CXX11_THREAD)
 #if NVWA_CXX11_MODE && \
-    (__has_include(<thread>) || \
+    ((__has_include(<thread>) && !defined(__MINGW32__)) || \
      (defined(_MSC_VER) && _MSC_VER >= 1700) || \
-     (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 404 && \
-      !defined(__MINGW32__)))
-// Note: MinGW GCC does not support std::thread out of the box as of 4.8.
+     (((defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 404) || \
+       defined(__clang__)) && \
+      (!defined(__MINGW32__) || defined(_POSIX_THREADS))))
+// Note: MinGW GCC, unless built with POSIX threads (as in
+//       MinGW-builds), does not support std::thread as of 4.8.
 #define HAVE_CXX11_THREAD 1
 #else
 #define HAVE_CXX11_THREAD 0

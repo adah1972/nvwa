@@ -1,3 +1,11 @@
+2014-01-10  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/c++11.h (HAVE_CXX11_ATOMIC): Adjust condition according to
+	test results from Clang and MinGW-builds on Windows.
+	(HAVE_CXX11_FUTURE): Ditto.
+	(HAVE_CXX11_MUTEX): Ditto.
+	(HAVE_CXX11_THREAD): Ditto.
+
 2013-12-31  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* misc/Doxyfile (PREDEFINED): Define `__inline' as `inline'.
