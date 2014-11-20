@@ -1,4 +1,9 @@
-2014-11-19  Wu Yongwei  <wuyongwei@gmail.com>
+2014-11-20  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/functional.h: Avoid the term `functor'.
+	(functor_pipeline): Rename to func_pipeline.
+
+2014-11-18  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/functional.h: New file.
 

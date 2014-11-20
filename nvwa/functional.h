@@ -154,19 +154,19 @@ auto apply(const _Tp& data, _Fn fn, _Fargs... args)
 }
 
 /**
- * Functor to pipeline functor operations.
+ * Function object to pipeline the application of function objects.
  *
- * @param _Functors  functions to apply
+ * @param _Funcs  functions to apply
  */
-template <typename... _Functors>
-struct functor_pipeline;
+template <typename... _Funcs>
+struct func_pipeline;
 
 /**
- * Functor to pipeline function operations.  This is the no-operation
- * functor to terminate recursion.
+ * Function object to pipeline the application of function objects.
+ * This is the no-operation specialization to terminate recursion.
  */
 template <>
-struct functor_pipeline<>
+struct func_pipeline<>
 {
     template <typename _Tp>
     auto operator()(const _Tp& input)
@@ -176,18 +176,18 @@ struct functor_pipeline<>
 };
 
 /**
- * Functor to pipeline function operations.  This is the general
- * recursive functor to apply the first functor and call itself with the
- * rest functors.
+ * Function object to pipeline the application of function objects.
+ * This is the general recursive specialization to apply the first
+ * function object and then call itself with the rest function objects.
  */
 template <typename _First, typename... _Rest>
-struct functor_pipeline<_First, _Rest...>
+struct func_pipeline<_First, _Rest...>
 {
     template <typename _Tp>
     auto operator()(const _Tp& input)
     {
         _First fn;
-        return functor_pipeline<_Rest...>()(fn(input));
+        return func_pipeline<_Rest...>()(fn(input));
     }
 };
 
