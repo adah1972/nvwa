@@ -40,6 +40,7 @@
 
 #include <memory>               // std::allocator
 #include <type_traits>          // std::integral_constant...
+#include <utility>              // std::forward
 #include <vector>               // std::vector
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
@@ -136,9 +137,9 @@ reduce(_Fn reducefn, const _Cont& inputs,
  * Returns the data intact to terminate the recursion.
  */
 template <typename _Tp>
-auto apply(const _Tp& data)
+auto apply(_Tp&& data)
 {
-    return data;
+    return std::forward<_Tp>(data);
 }
 
 /**
@@ -149,9 +150,9 @@ auto apply(const _Tp& data)
  * @param args  the rest functions to apply
  */
 template <typename _Tp, typename _Fn, typename... _Fargs>
-auto apply(const _Tp& data, _Fn fn, _Fargs... args)
+auto apply(_Tp&& data, _Fn fn, _Fargs... args)
 {
-    return apply(fn(data), args...);
+    return apply(fn(std::forward<_Tp>(data)), args...);
 }
 
 /**
@@ -170,7 +171,7 @@ template <>
 struct func_pipeline<>
 {
     template <typename _Tp>
-    auto operator()(const _Tp& input)
+    auto operator()(_Tp&& input)
     {
         return input;
     }
@@ -185,10 +186,10 @@ template <typename _First, typename... _Rest>
 struct func_pipeline<_First, _Rest...>
 {
     template <typename _Tp>
-    auto operator()(const _Tp& input)
+    auto operator()(_Tp&& input)
     {
         _First fn;
-        return func_pipeline<_Rest...>()(fn(input));
+        return func_pipeline<_Rest...>()(fn(std::forward<_Tp>(input)));
     }
 };
 
