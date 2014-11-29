@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2014 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @date  2013-03-01
+ * @date  2014-11-29
  */
 
 #include <limits.h>             // UINT_MAX, ULONG_MAX
@@ -39,6 +39,7 @@
 #include <algorithm>            // std::swap
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "bool_array.h"         // bool_array
+#include "c++11.h"              // _NULLPTR
 #include "static_assert.h"      // STATIC_ASSERT
 
 NVWA_NAMESPACE_BEGIN
@@ -172,7 +173,7 @@ bool_array::byte bool_array::_S_bit_ordinal[256] =
  * @throw bad_alloc     memory is insufficient
  */
 bool_array::bool_array(size_type size)
-    : _M_byte_ptr(NULL), _M_length(0)
+    : _M_byte_ptr(_NULLPTR), _M_length(0)
 {
     if (size == 0)
         throw std::out_of_range("invalid bool_array size");
@@ -189,7 +190,7 @@ bool_array::bool_array(size_type size)
  * @throw bad_alloc     memory is insufficient
  */
 bool_array::bool_array(const void* ptr, size_type size)
-    : _M_byte_ptr(NULL), _M_length(0)
+    : _M_byte_ptr(_NULLPTR), _M_length(0)
 {
     if (size == 0)
         throw std::out_of_range("invalid bool_array size");
@@ -212,7 +213,7 @@ bool_array::bool_array(const bool_array& rhs)
 {
     if (rhs.size() == 0)
     {
-        _M_byte_ptr = NULL;
+        _M_byte_ptr = _NULLPTR;
         _M_length = 0;
         return;
     }
@@ -261,7 +262,7 @@ bool bool_array::create(size_type size) _NOEXCEPT
 
     size_t byte_cnt = get_num_bytes_from_bits(size);
     byte* byte_ptr = (byte*)malloc(byte_cnt);
-    if (byte_ptr == NULL)
+    if (byte_ptr == _NULLPTR)
         return false;
 
     if (_M_byte_ptr)

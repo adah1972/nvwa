@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2009-2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2009-2014 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2013-10-07
+ * @date  2014-11-29
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -42,7 +42,7 @@
 #include <memory>               // std::allocator
 #include <new>                  // placement new
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // _NOEXCEPT/_NOEXCEPT_
+#include "c++11.h"              // _NOEXCEPT/_NOEXCEPT_/_NULLPTR
 #include "type_traits.h"        // nvwa::is_trivially_destructible
 
 #ifdef NVWA_CXX11_MODE
@@ -357,7 +357,7 @@ private:
 
 template <class _Tp, class _Alloc>
 fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
-    : _M_head(NULL), _M_tail(NULL), _M_begin(NULL)
+    : _M_head(_NULLPTR), _M_tail(_NULLPTR), _M_begin(_NULLPTR)
 {
     fc_queue temp(rhs.capacity(), rhs.get_allocator());
     pointer ptr = rhs._M_head;

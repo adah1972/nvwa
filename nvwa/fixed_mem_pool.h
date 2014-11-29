@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2005-2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2005-2014 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -49,7 +49,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running.
  *
- * @date  2013-10-06
+ * @date  2014-11-29
  */
 
 #ifndef NVWA_FIXED_MEM_POOL_H
@@ -57,7 +57,7 @@
 
 #include <new>                  // std::bad_alloc
 #include <assert.h>             // assert
-#include <stdlib.h>             // size_t/NULL
+#include <stddef.h>             // size_t/NULL
 #include "_nvwa.h"              // NVWA/NVWA_NAMESPACE_*
 #include "c++11.h"              // _NOEXCEPT
 #include "class_level_lock.h"   // nvwa::class_level_lock
@@ -118,11 +118,11 @@ private:
 
 /** Pointer to the allocated chunk of memory. */
 template <class _Tp>
-void* fixed_mem_pool<_Tp>::_S_mem_pool_ptr = NULL;
+void* fixed_mem_pool<_Tp>::_S_mem_pool_ptr = _NULLPTR;
 
 /** Pointer to the first available memory block. */
 template <class _Tp>
-void* fixed_mem_pool<_Tp>::_S_first_avail_ptr = NULL;
+void* fixed_mem_pool<_Tp>::_S_first_avail_ptr = _NULLPTR;
 
 /** Count of allocations. */
 template <class _Tp>
@@ -147,7 +147,7 @@ inline void* fixed_mem_pool<_Tp>::allocate()
         }
         else
             if (!bad_alloc_handler())
-                return NULL;
+                return _NULLPTR;
     }
 }
 
@@ -159,7 +159,7 @@ inline void* fixed_mem_pool<_Tp>::allocate()
 template <class _Tp>
 inline void fixed_mem_pool<_Tp>::deallocate(void* block_ptr)
 {
-    if (block_ptr == NULL)
+    if (block_ptr == _NULLPTR)
         return;
     lock guard;
     assert(_S_alloc_cnt != 0);
@@ -187,7 +187,7 @@ bool fixed_mem_pool<_Tp>::initialize(size_t size)
     assert(size > 0);
     _S_mem_pool_ptr = mem_pool_base::alloc_sys(size * block_size::value);
     _S_first_avail_ptr = _S_mem_pool_ptr;
-    if (_S_mem_pool_ptr == NULL)
+    if (_S_mem_pool_ptr == _NULLPTR)
         return false;
     char* block = (char*)_S_mem_pool_ptr;
     while (--size != 0)
@@ -196,7 +196,7 @@ bool fixed_mem_pool<_Tp>::initialize(size_t size)
         *(void**)block = next;
         block = next;
     }
-    *(void**)block = NULL;
+    *(void**)block = _NULLPTR;
     return true;
 }
 
@@ -214,8 +214,8 @@ int fixed_mem_pool<_Tp>::deinitialize()
         return _S_alloc_cnt;
     assert(is_initialized());
     mem_pool_base::dealloc_sys(_S_mem_pool_ptr);
-    _S_mem_pool_ptr = NULL;
-    _S_first_avail_ptr = NULL;
+    _S_mem_pool_ptr = _NULLPTR;
+    _S_first_avail_ptr = _NULLPTR;
     return 0;
 }
 
@@ -238,16 +238,16 @@ inline int fixed_mem_pool<_Tp>::get_alloc_count()
 template <class _Tp>
 inline bool fixed_mem_pool<_Tp>::is_initialized()
 {
-    return _S_mem_pool_ptr != NULL;;
+    return _S_mem_pool_ptr != _NULLPTR;
 }
 
 /**
  * Bad allocation handler.  Called when there are no memory blocks
  * available in the memory pool.  If this function returns \c false
  * (default behaviour if not explicitly specialized), it indicates that
- * it can do nothing and allocate() should return \c NULL; if this
- * function returns \c true, it indicates that it has freed some memory
- * blocks and allocate() should try allocating again.
+ * it can do nothing and allocate() should return null; if this function
+ * returns \c true, it indicates that it has freed some memory blocks
+ * and allocate() should try allocating again.
  */
 template <class _Tp>
 bool fixed_mem_pool<_Tp>::bad_alloc_handler()
@@ -263,8 +263,8 @@ NVWA_NAMESPACE_END
  * @param _Cls  class to use the fixed_mem_pool
  * @see         DECLARE_FIXED_MEM_POOL__THROW_NOCHECK, which, too,
  *              defines an <b>operator new</b> that will never return
- *              \c NULL, but requires more discipline on the
- *              programmer's side.
+ *              null, but requires more discipline on the programmer's
+ *              side.
  */
 #define DECLARE_FIXED_MEM_POOL(_Cls) \
 public: \
@@ -278,7 +278,7 @@ public: \
     } \
     static void  operator delete(void* ptr) \
     { \
-        if (ptr != NULL) \
+        if (ptr != _NULLPTR) \
             NVWA::fixed_mem_pool<_Cls>::deallocate(ptr); \
     }
 
@@ -296,7 +296,7 @@ public: \
     } \
     static void  operator delete(void* ptr) \
     { \
-        if (ptr != NULL) \
+        if (ptr != _NULLPTR) \
             NVWA::fixed_mem_pool<_Cls>::deallocate(ptr); \
     }
 
@@ -308,7 +308,7 @@ public: \
  * fixed_mem_pool::bad_alloc_handler so that it shall never return
  * \c false (it may throw exceptions, say, \c std::bad_alloc, or simply
  * abort).  Otherwise a segmentation fault might occur (instead of
- * returning a \c NULL pointer).
+ * returning a null pointer).
  *
  * @param _Cls  class to use the fixed_mem_pool
  */
@@ -321,7 +321,7 @@ public: \
     } \
     static void  operator delete(void* ptr) \
     { \
-        if (ptr != NULL) \
+        if (ptr != _NULLPTR) \
             NVWA::fixed_mem_pool<_Cls>::deallocate(ptr); \
     }
 

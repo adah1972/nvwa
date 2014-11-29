@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2014 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Implementation for the memory pool base.
  *
- * @date  2013-10-06
+ * @date  2014-11-29
  */
 
 #if defined(_MEM_POOL_USE_MALLOC)
@@ -73,7 +73,7 @@ mem_pool_base::~mem_pool_base()
  *
  * @param size  size of the memory to allocate in bytes
  * @return      pointer to allocated memory block if successful; or
- *              \c NULL if memory allocation fails
+ *              null if memory allocation fails
  */
 void* mem_pool_base::alloc_sys(size_t size)
 {

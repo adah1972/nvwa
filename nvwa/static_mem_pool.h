@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2014 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @date  2013-10-06
+ * @date  2014-11-29
  */
 
 #ifndef NVWA_STATIC_MEM_POOL_H
@@ -44,7 +44,7 @@
 #include <assert.h>             // assert
 #include <stddef.h>             // size_t/NULL
 #include "_nvwa.h"              // NVWA/NVWA_NAMESPACE_*
-#include "c++11.h"              // _NOEXCEPT
+#include "c++11.h"              // _NOEXCEPT/_NULLPTR/_OVERRIDE
 #include "class_level_lock.h"   // nvwa::class_level_lock
 #include "mem_pool_base.h"      // nvwa::mem_pool_base
 
@@ -133,7 +133,7 @@ public:
      */
     static static_mem_pool& instance_known()
     {
-        assert(_S_instance_p != NULL);
+        assert(_S_instance_p != _NULLPTR);
         return *_S_instance_p;
     }
     /**
@@ -141,7 +141,7 @@ public:
      * to get it from the memory pool first, and request memory from the
      * system if there is no free memory in the pool.
      *
-     * @return  pointer to allocated memory if successful; \c NULL
+     * @return  pointer to allocated memory if successful; null
      *          otherwise
      */
     void* allocate()
@@ -164,13 +164,13 @@ public:
      */
     void deallocate(void* ptr)
     {
-        assert(ptr != NULL);
+        assert(ptr != _NULLPTR);
         lock guard;
         _Block_list* block = reinterpret_cast<_Block_list*>(ptr);
         block->_M_next = _S_memory_block_p;
         _S_memory_block_p = block;
     }
-    virtual void recycle();
+    virtual void recycle() _OVERRIDE;
 
 private:
     static_mem_pool()
@@ -190,9 +190,9 @@ private:
             dealloc_sys(block);
             block = next;
         }
-        _S_memory_block_p = NULL;
+        _S_memory_block_p = _NULLPTR;
 #   endif
-        _S_instance_p = NULL;
+        _S_instance_p = _NULLPTR;
         _S_destroyed = true;
         _STATIC_MEM_POOL_TRACE(false, "static_mem_pool<" << _Sz << ','
                                       << _Gid << "> is destroyed");
@@ -216,7 +216,7 @@ private:
 template <size_t _Sz, int _Gid> bool
         static_mem_pool<_Sz, _Gid>::_S_destroyed = false;
 template <size_t _Sz, int _Gid> mem_pool_base::_Block_list*
-        static_mem_pool<_Sz, _Gid>::_S_memory_block_p = NULL;
+        static_mem_pool<_Sz, _Gid>::_S_memory_block_p = _NULLPTR;
 template <size_t _Sz, int _Gid> static_mem_pool<_Sz, _Gid>*
         static_mem_pool<_Sz, _Gid>::_S_instance_p = _S_create_instance();
 
@@ -306,7 +306,7 @@ public: \
         void* ptr; \
         ptr = NVWA::static_mem_pool<sizeof(_Cls)>:: \
                                instance_known().allocate(); \
-        if (ptr == NULL) \
+        if (ptr == _NULLPTR) \
             throw std::bad_alloc(); \
         return ptr; \
     } \
@@ -359,7 +359,7 @@ public: \
         void* ptr; \
         ptr = NVWA::static_mem_pool<sizeof(_Cls), (_Gid)>:: \
                                instance_known().allocate(); \
-        if (ptr == NULL) \
+        if (ptr == _NULLPTR) \
             throw std::bad_alloc(); \
         return ptr; \
     } \

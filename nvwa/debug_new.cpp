@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2014 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2013-12-31
+ * @date  2014-11-29
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -47,7 +47,7 @@
 #include <malloc.h>             // alloca
 #endif
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // _NOEXCEPT
+#include "c++11.h"              // _NOEXCEPT/_NULLPTR
 #include "fast_mutex.h"         // nvwa::fast_mutex
 #include "static_assert.h"      // STATIC_ASSERT
 
@@ -76,7 +76,7 @@
 #ifdef __GNUC__
 #define _DEBUG_NEW_CALLER_ADDRESS __builtin_return_address(0)
 #else
-#define _DEBUG_NEW_CALLER_ADDRESS NULL
+#define _DEBUG_NEW_CALLER_ADDRESS _NULLPTR
 #endif
 #endif
 
@@ -130,7 +130,7 @@
  * Windows command prompt.
  */
 #ifndef _DEBUG_NEW_PROGNAME
-#define _DEBUG_NEW_PROGNAME NULL
+#define _DEBUG_NEW_PROGNAME _NULLPTR
 #endif
 
 /**
@@ -257,7 +257,7 @@ static new_ptr_list_t new_ptr_list = {
     0,
     {
 #if _DEBUG_NEW_FILENAME_LEN == 0
-        NULL
+        _NULLPTR
 #else
         ""
 #endif
@@ -322,7 +322,7 @@ const char* new_progname = _DEBUG_NEW_PROGNAME;
  */
 static bool print_position_from_addr(const void* addr)
 {
-    static const void* last_addr = NULL;
+    static const void* last_addr = _NULLPTR;
     static char last_info[256] = "";
     if (addr == last_addr)
     {
@@ -430,16 +430,16 @@ static bool print_position_from_addr(const void*)
  */
 static void print_position(const void* ptr, int line)
 {
-    if (line != 0)          // Is file/line information present?
+    if (line != 0)             // Is file/line information present?
     {
         fprintf(new_output_fp, "%s:%d", (const char*)ptr, line);
     }
-    else if (ptr != NULL)   // Is caller address present?
+    else if (ptr != _NULLPTR)  // Is caller address present?
     {
         if (!print_position_from_addr(ptr)) // Fail to get source position?
             fprintf(new_output_fp, "%p", ptr);
     }
-    else                    // No information is present
+    else                       // No information is present
     {
         fprintf(new_output_fp, "<Unknown>");
     }
@@ -472,8 +472,8 @@ static bool check_tail(new_ptr_list_t* ptr)
  * @param file      null-terminated string of the file name
  * @param line      line number
  * @param is_array  boolean value whether this is an array operation
- * @return          pointer to the user-requested memory area; \c NULL
- *                  if memory allocation is not successful
+ * @return          pointer to the user-requested memory area; null if
+ *                  memory allocation is not successful
  */
 static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
 {
@@ -487,10 +487,10 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
     STATIC_ASSERT(_DEBUG_NEW_TAILCHECK >= 0, Invalid_tail_check_length);
     size_t s = size + ALIGNED_LIST_ITEM_SIZE + _DEBUG_NEW_TAILCHECK;
     new_ptr_list_t* ptr = (new_ptr_list_t*)malloc(s);
-    if (ptr == NULL)
+    if (ptr == _NULLPTR)
     {
 #if _DEBUG_NEW_STD_OPER_NEW
-        return NULL;
+        return _NULLPTR;
 #else
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
@@ -552,7 +552,7 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
  */
 static void free_pointer(void* usr_ptr, void* addr, bool is_array)
 {
-    if (usr_ptr == NULL)
+    if (usr_ptr == _NULLPTR)
         return;
     new_ptr_list_t* ptr =
             (new_ptr_list_t*)((char*)usr_ptr - ALIGNED_LIST_ITEM_SIZE);
@@ -727,13 +727,13 @@ int check_mem_corruption()
  */
 void debug_new_recorder::_M_process(void* usr_ptr)
 {
-    if (usr_ptr == NULL)
+    if (usr_ptr == _NULLPTR)
         return;
 
     // In an expression `new NonPODType[size]', the pointer returned is
     // not the pointer returned by operator new[], but offset by size_t
     // to leave room for the size.  It needs to be compensated here.
-    size_t offset = (char*)usr_ptr - (char*)NULL;
+    size_t offset = (char*)usr_ptr - (char*)_NULLPTR;
     if (offset % PLATFORM_MEM_ALIGNMENT != 0) {
         offset -= sizeof(size_t);
         if (offset % PLATFORM_MEM_ALIGNMENT != 0) {
@@ -816,7 +816,7 @@ using namespace nvwa;
  * @param size  size of the required memory block
  * @param file  null-terminated string of the file name
  * @param line  line number
- * @return      pointer to the memory allocated; or \c NULL if memory is
+ * @return      pointer to the memory allocated; or null if memory is
  *              insufficient (#_DEBUG_NEW_STD_OPER_NEW is 0)
  * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
  */
@@ -839,7 +839,7 @@ void* operator new(size_t size, const char* file, int line)
  * @param size  size of the required memory block
  * @param file  null-terminated string of the file name
  * @param line  line number
- * @return      pointer to the memory allocated; or \c NULL if memory is
+ * @return      pointer to the memory allocated; or null if memory is
  *              insufficient (#_DEBUG_NEW_STD_OPER_NEW is 0)
  * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
  */
@@ -860,7 +860,7 @@ void* operator new[](size_t size, const char* file, int line)
  * Allocates memory without file/line information.
  *
  * @param size  size of the required memory block
- * @return      pointer to the memory allocated; or \c NULL if memory is
+ * @return      pointer to the memory allocated; or null if memory is
  *              insufficient (#_DEBUG_NEW_STD_OPER_NEW is 0)
  * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
  */
@@ -873,7 +873,7 @@ void* operator new(size_t size) throw(std::bad_alloc)
  * Allocates array memory without file/line information.
  *
  * @param size  size of the required memory block
- * @return      pointer to the memory allocated; or \c NULL if memory is
+ * @return      pointer to the memory allocated; or null if memory is
  *              insufficient (#_DEBUG_NEW_STD_OPER_NEW is 0)
  * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
  */
@@ -886,7 +886,7 @@ void* operator new[](size_t size) throw(std::bad_alloc)
  * Allocates memory with no-throw guarantee.
  *
  * @param size  size of the required memory block
- * @return      pointer to the memory allocated; or \c NULL if memory is
+ * @return      pointer to the memory allocated; or null if memory is
  *              insufficient
  */
 void* operator new(size_t size, const std::nothrow_t&) _NOEXCEPT
@@ -898,7 +898,7 @@ void* operator new(size_t size, const std::nothrow_t&) _NOEXCEPT
  * Allocates array memory with no-throw guarantee.
  *
  * @param size  size of the required memory block
- * @return      pointer to the memory allocated; or \c NULL if memory is
+ * @return      pointer to the memory allocated; or null if memory is
  *              insufficient
  */
 void* operator new[](size_t size, const std::nothrow_t&) _NOEXCEPT

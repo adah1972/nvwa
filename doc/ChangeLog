@@ -1,5 +1,16 @@
 2014-11-29  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/bool_array.cpp: Replace `NULL' with `_NULLPTR' in C++ code;
+	change occurrences of `\c NULL' in doc comments to `null'.
+	* nvwa/bool_array.h: Ditto.
+	* nvwa/debug_new.cpp: Ditto.
+	* nvwa/fc_queue.h: Ditto.
+	* nvwa/fixed_mem_pool.h: Ditto.
+	* nvwa/mem_pool_base.cpp: Ditto.
+	* nvwa/static_mem_pool.h: Ditto.
+
+2014-11-29  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/functional.h (func_pipeline): Remove.
 	(compose<>): New function template.
 

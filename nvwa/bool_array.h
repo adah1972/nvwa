@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2014 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2013-10-06
+ * @date  2014-11-29
  */
 
 #ifndef NVWA_BOOL_ARRAY_H
@@ -43,7 +43,7 @@
 #include <stdexcept>            // std::out_of_range
 #include <string>               // for exception constructors
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // _NOEXCEPT
+#include "c++11.h"              // _NOEXCEPT/_NULLPTR
 
 NVWA_NAMESPACE_BEGIN
 
@@ -205,7 +205,7 @@ inline bool_array::_Element<_Byte_type>::operator bool() const
 /**
  * Constructs an empty bool_array.
  */
-inline bool_array::bool_array() _NOEXCEPT : _M_byte_ptr(NULL), _M_length(0)
+inline bool_array::bool_array() _NOEXCEPT : _M_byte_ptr(_NULLPTR), _M_length(0)
 {
 }
 
@@ -214,7 +214,7 @@ inline bool_array::bool_array() _NOEXCEPT : _M_byte_ptr(NULL), _M_length(0)
  */
 inline bool_array::~bool_array()
 {
-    if (_M_byte_ptr != NULL)
+    if (_M_byte_ptr != _NULLPTR)
         free(_M_byte_ptr);
 }
 
