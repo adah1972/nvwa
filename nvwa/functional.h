@@ -156,42 +156,31 @@ auto apply(_Tp&& data, _Fn fn, _Fargs... args)
 }
 
 /**
- * Function object to pipeline the application of function objects.
+ * Constructs a function (object) that composes the passed functions.
  *
- * @param _Funcs  functions to apply
+ * @return      the identity function
  */
-template <typename... _Funcs>
-struct func_pipeline;
+template <typename _Tp>
+auto compose()
+{
+    return apply<_Tp>;
+}
 
 /**
- * Function object to pipeline the application of function objects.
- * This is the no-operation specialization to terminate recursion.
+ * Constructs a function (object) that composes the passed functions.
+ *
+ * @param fn    the first function to compose (which is applied last)
+ * @param args  the rest functions to compose
+ * @return      the function object that composes the passed functions
  */
-template <>
-struct func_pipeline<>
+template <typename _Tp, typename _Fn, typename... _Fargs>
+auto compose(_Fn fn, _Fargs... args)
 {
-    template <typename _Tp>
-    auto operator()(_Tp&& input)
+    return [=](_Tp&& x)
     {
-        return input;
-    }
-};
-
-/**
- * Function object to pipeline the application of function objects.
- * This is the general recursive specialization to apply the first
- * function object and then call itself with the rest function objects.
- */
-template <typename _First, typename... _Rest>
-struct func_pipeline<_First, _Rest...>
-{
-    template <typename _Tp>
-    auto operator()(_Tp&& input)
-    {
-        _First fn;
-        return func_pipeline<_Rest...>()(fn(std::forward<_Tp>(input)));
-    }
-};
+        return fn(compose<_Tp>(args...)(std::forward<_Tp>(x)));
+    };
+}
 
 NVWA_NAMESPACE_END
 
