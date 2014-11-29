@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2014-11-18
+ * @date  2014-11-29
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -45,35 +45,36 @@
 
 NVWA_NAMESPACE_BEGIN
 
-namespace funcimpl {
+namespace detail {
 
-template <class T1, class T2>
+template <class _T1, class _T2>
 struct can_reserve
 {
     struct good { char dummy; };
     struct bad { char dummy[2]; };
-    template <class U, void   (U::*)(size_t)> struct SFINAE1 {};
-    template <class U, size_t (U::*)() const> struct SFINAE2 {};
-    template <class U> static good test_reserve(SFINAE1<U, &U::reserve>*);
-    template <class U> static bad  test_reserve(...);
-    template <class U> static good test_size(SFINAE2<U, &U::size>*);
-    template <class U> static bad  test_size(...);
-    static const bool value = (sizeof(test_reserve<T1>(0)) == sizeof(good) &&
-                               sizeof(test_size<T2>(0)) == sizeof(good));
+    template <class _Up, void   (_Up::*)(size_t)> struct _SFINAE1 {};
+    template <class _Up, size_t (_Up::*)() const> struct _SFINAE2 {};
+    template <class _Up> static good __reserve(_SFINAE1<_Up, &_Up::reserve>*);
+    template <class _Up> static bad  __reserve(...);
+    template <class _Up> static good __size(_SFINAE2<_Up, &_Up::size>*);
+    template <class _Up> static bad  __size(...);
+    static const bool value =
+        (sizeof(__reserve<_T1>(nullptr)) == sizeof(good) &&
+         sizeof(__size<_T2>(nullptr)) == sizeof(good));
 };
 
-template <class T1, class T2>
-void try_reserve(T1&, const T2&, std::false_type)
+template <class _T1, class _T2>
+void try_reserve(_T1&, const _T2&, std::false_type)
 {
 }
 
-template <class T1, class T2>
-void try_reserve(T1& dest, const T2& src, std::true_type)
+template <class _T1, class _T2>
+void try_reserve(_T1& dest, const _T2& src, std::true_type)
 {
     dest.reserve(src.size());
 }
 
-} /* namespace funcimpl */
+} /* namespace detail */
 
 /**
  * Applies the \a mapfn function to each item in the input container.
@@ -97,10 +98,10 @@ map(_Fn mapfn, const _Cont& inputs)
 {
     _OutCont<typename _Cont::value_type,
         _Alloc<typename _Cont::value_type>> result;
-    funcimpl::try_reserve(
+    detail::try_reserve(
         result, inputs,
         std::integral_constant<
-            bool, funcimpl::can_reserve<decltype(result), _Cont>::value>());
+            bool, detail::can_reserve<decltype(result), _Cont>::value>());
     for (auto& item : inputs)
         result.push_back(mapfn(item));
     return result;

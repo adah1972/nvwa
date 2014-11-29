@@ -1,5 +1,10 @@
 2014-11-20  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/functional.h: Adjust code style for better consistency.
+	(nvwa::funcimpl): Rename to detail.
+
+2014-11-20  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/functional.h: Avoid the term `functor'.
 	(functor_pipeline): Rename to func_pipeline.
 
