@@ -82,7 +82,7 @@ public:
      *
      * @param max_size  the maximum size allowed
      * @param alloc     the allocator to use
-     * @pre             \a max_size shall be not be zero
+     * @pre             \a max_size shall be not be zero.
      * @post            Unless memory allocation throws an exception, this
      *                  queue will be constructed with the specified maximum
      *                  size, and the following conditions will hold:
