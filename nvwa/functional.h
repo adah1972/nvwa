@@ -248,11 +248,10 @@ std::function<_Rs(_Tp)> fix_curry(
     fn_self_ref r = {
         [f](fn_self_ref x)
         {   // λx.f (λy.(x x) y)
-            return f(fn_1st_ord(
-                        [x](_Tp&& y)
-                        {
-                            return x.fn(x)(std::forward<_Tp>(y));
-                        }));
+            return f(fn_1st_ord([x](_Tp&& y)
+                                {
+                                    return x.fn(x)(std::forward<_Tp>(y));
+                                }));
         }
     };
     return r.fn(r);
