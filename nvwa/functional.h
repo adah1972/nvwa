@@ -217,95 +217,45 @@ struct fix_function_converter
 };
 
 /**
- * The simple fixed-point combinator using lazy evaluation of definition.
- *
- * @param _Tp  type of the function argument
- * @param _Rs  type of the function return value
- */
-template <typename _Tp, typename _Rs>
-struct fix_simple
-{
-    typedef std::function<_Rs(_Tp)>                fn_1st_ord;
-    typedef std::function<fn_1st_ord(fn_1st_ord)>  fn_2nd_ord;
-
-    fn_1st_ord operator()(fn_2nd_ord f2) const
-    {   // Y f = f (Y f)
-        fn_1st_ord y_f = [this, f2](_Tp&& x)
-        {   // λx.Y (f x)
-            return operator()(f2)(std::forward<_Tp>(x));
-        };
-        return f2(y_f);
-    }
-};
-
-/**
- * The classic Curry-style fixed-point combinator.
- *
- * @param _Tp  type of the function argument
- * @param _Rs  type of the function return value
- */
-template <typename _Tp, typename _Rs>
-struct fix_curry
-{
-    typedef std::function<_Rs(_Tp)>                fn_1st_ord;
-    typedef std::function<fn_1st_ord(fn_1st_ord)>  fn_2nd_ord;
-    typedef detail::self_ref_func<fn_1st_ord>      fn_self_ref;
-
-    fn_1st_ord operator()(fn_2nd_ord f2) const
-    {   // Y = λf.(λx.x x) (λx.f (x x))
-        fn_self_ref r = {
-            [f2](fn_self_ref s)
-            {   // λs.f(λx.(s s) x)
-                return f2(fn_1st_ord(
-                            [s](_Tp&& x)
-                            {
-                                return s.fn(s)(std::forward<_Tp>(x));
-                            }));
-            }
-        };
-        return r.fn(r);
-    }
-};
-
-/**
- * Helper function to generate the fixed point without specifying the
- * types.
- *
- * @param f2  the second-order function to combine with
- * @return    the fixed point
- */
-template <template <typename, typename> class _Fixer,
-          typename _Tp, typename _Rs>
-std::function<_Rs(_Tp)> make_fix(
-    std::function<std::function<_Rs(_Tp)>(std::function<_Rs(_Tp)>)> f2)
-{
-    return _Fixer<_Tp, _Rs>()(f2);
-}
-
-/**
  * Generates the fixed point using the simple fixed-point combinator.
  *
- * @param f2  the second-order function to combine with
- * @return    the fixed point
+ * @param f  the second-order function to combine with
+ * @return   the fixed point
  */
 template <typename _Tp, typename _Rs>
-std::function<_Rs(_Tp)> make_fix_simple(
-    std::function<std::function<_Rs(_Tp)>(std::function<_Rs(_Tp)>)> f2)
-{
-    return make_fix<fix_simple>(f2);
+std::function<_Rs(_Tp)> fix_simple(
+    std::function<std::function<_Rs(_Tp)>(std::function<_Rs(_Tp)>)> f)
+{   // Y f = f (λx.(Y f) x)
+    return f([f](_Tp&& x)
+              {
+                  return fix_simple(f)(std::forward<_Tp>(x));
+              });
 }
 
 /**
  * Generates the fixed point using the Curry-style fixed-point combinator.
  *
- * @param f2  the second-order function to combine with
- * @return    the fixed point
+ * @param f  the second-order function to combine with
+ * @return   the fixed point
  */
 template <typename _Tp, typename _Rs>
-std::function<_Rs(_Tp)> make_fix_curry(
-    std::function<std::function<_Rs(_Tp)>(std::function<_Rs(_Tp)>)> f2)
-{
-    return make_fix<fix_curry>(f2);
+std::function<_Rs(_Tp)> fix_curry(
+    std::function<std::function<_Rs(_Tp)>(std::function<_Rs(_Tp)>)> f)
+{   // Y = λf.(λx.x x) (λx.f (λy.(x x) y))
+    typedef std::function<_Rs(_Tp)>            fn_1st_ord;
+    typedef detail::self_ref_func<fn_1st_ord>  fn_self_ref;
+
+    fn_self_ref r = {
+        [f](fn_self_ref x)
+        {   // λx.f (λy.(x x) y)
+            return f(fn_1st_ord(
+                        [x](_Tp&& y)
+                        {
+                            return x.fn(x)(std::forward<_Tp>(y));
+                        }));
+        }
+    };
+    return r.fn(r);
 }
 
 NVWA_NAMESPACE_END

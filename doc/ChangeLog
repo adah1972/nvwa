@@ -1,5 +1,13 @@
 2014-12-14  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/functional.h (make_fix<>): Remove.
+	(make_fix_simple<>): Ditto.
+	(make_fix_curry<>): Ditto.
+	(fix_simple<>): Change to a function template.
+	(fix_curry<>): Ditto.
+
+2014-12-14  Wu Yongwei  <wuyongwei@gmail.com>
+
 	Implement fixed-point combinator.
 	* nvwa/functional.h (detail::self_ref_func<>): New struct template.
 	(fix_function_converter<>): New function object template.
