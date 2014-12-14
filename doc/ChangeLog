@@ -1,3 +1,14 @@
+2014-12-14  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Implement fixed-point combinator.
+	* nvwa/functional.h (detail::self_ref_func<>): New struct template.
+	(fix_function_converter<>): New function object template.
+	(fix_simple<>): Ditto.
+	(fix_curry<>): Ditto.
+	(make_fix<>): New function template.
+	(make_fix_simple<>): Ditto.
+	(make_fix_curry<>): Ditto.
+
 2014-11-29  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/bool_array.cpp: Replace `NULL' with `_NULLPTR' in C++ code;

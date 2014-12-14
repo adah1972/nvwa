@@ -32,12 +32,13 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2014-11-29
+ * @date  2014-12-14
  */
 
 #ifndef NVWA_FUNCTIONAL_H
 #define NVWA_FUNCTIONAL_H
 
+#include <functional>           // std::function
 #include <memory>               // std::allocator
 #include <type_traits>          // std::integral_constant...
 #include <utility>              // std::forward
@@ -74,6 +75,12 @@ void try_reserve(_T1& dest, const _T2& src, std::true_type)
 {
     dest.reserve(src.size());
 }
+
+template <typename _Fn>
+struct self_ref_func
+{
+    std::function<_Fn(self_ref_func)> fn;
+};
 
 } /* namespace detail */
 
@@ -180,6 +187,128 @@ auto compose(_Fn fn, _Fargs... args)
     {
         return fn(compose<_Tp>(args...)(std::forward<_Tp>(x)));
     };
+}
+
+/**
+ * Helper class to convert a function to a lambda expression suitable to
+ * be passed to #fix.
+ *
+ * @param _Tp  type of the function argument
+ * @param _Rs  type of the function return value
+ */
+template <typename _Tp, typename _Rs>
+struct fix_function_converter
+{
+    typedef std::function<_Rs(_Tp)>                fn_1st_ord;
+    typedef std::function<fn_1st_ord(fn_1st_ord)>  fn_2nd_ord;
+
+    fn_2nd_ord
+    operator()(std::function<_Rs(std::function<_Rs(_Tp)>, _Tp)> fn) const
+    {
+        return fn_2nd_ord([fn](fn_1st_ord f1)
+                          {
+                              return fn_1st_ord(
+                                  [fn, f1](_Tp&& x)
+                                  {
+                                      return fn(f1, std::forward<_Tp>(x));
+                                  });
+                          });
+    }
+};
+
+/**
+ * The simple fixed-point combinator using lazy evaluation of definition.
+ *
+ * @param _Tp  type of the function argument
+ * @param _Rs  type of the function return value
+ */
+template <typename _Tp, typename _Rs>
+struct fix_simple
+{
+    typedef std::function<_Rs(_Tp)>                fn_1st_ord;
+    typedef std::function<fn_1st_ord(fn_1st_ord)>  fn_2nd_ord;
+
+    fn_1st_ord operator()(fn_2nd_ord f2) const
+    {   // Y f = f (Y f)
+        return [this, f2](_Tp&& x)
+        {
+            fn_1st_ord y_f = [this, f2](_Tp&& x)
+            {   // λx.Y (f x)
+                return operator()(f2)(std::forward<_Tp>(x));
+            };
+            return f2(y_f)(x);
+        };
+    }
+};
+
+/**
+ * The classic Curry-style fixed-point combinator.
+ *
+ * @param _Tp  type of the function argument
+ * @param _Rs  type of the function return value
+ */
+template <typename _Tp, typename _Rs>
+struct fix_curry
+{
+    typedef std::function<_Rs(_Tp)>                fn_1st_ord;
+    typedef std::function<fn_1st_ord(fn_1st_ord)>  fn_2nd_ord;
+    typedef detail::self_ref_func<fn_1st_ord>      fn_self_ref;
+
+    fn_1st_ord operator()(fn_2nd_ord f2) const
+    {   // Y = λf.(λx.x x) (λx.f (x x))
+        fn_self_ref r = {
+            [f2](fn_self_ref s)
+            {   // λs.f(λx.(s s) x)
+                return f2(fn_1st_ord(
+                            [s](_Tp&& x)
+                            {
+                                return s.fn(s)(std::forward<_Tp>(x));
+                            }));
+            }
+        };
+        return r.fn(r);
+    }
+};
+
+/**
+ * Helper function to generate the fixed point without specifying the
+ * types.
+ *
+ * @param f2  the second-order function to combine with
+ * @return    the fixed point
+ */
+template <template <typename, typename> class _Fixer,
+          typename _Tp, typename _Rs>
+std::function<_Rs(_Tp)> make_fix(
+    std::function<std::function<_Rs(_Tp)>(std::function<_Rs(_Tp)>)> f2)
+{
+    return _Fixer<_Tp, _Rs>()(f2);
+}
+
+/**
+ * Generates the fixed point using the simple fixed-point combinator.
+ *
+ * @param f2  the second-order function to combine with
+ * @return    the fixed point
+ */
+template <typename _Tp, typename _Rs>
+std::function<_Rs(_Tp)> make_fix_simple(
+    std::function<std::function<_Rs(_Tp)>(std::function<_Rs(_Tp)>)> f2)
+{
+    return make_fix<fix_simple>(f2);
+}
+
+/**
+ * Generates the fixed point using the Curry-style fixed-point combinator.
+ *
+ * @param f2  the second-order function to combine with
+ * @return    the fixed point
+ */
+template <typename _Tp, typename _Rs>
+std::function<_Rs(_Tp)> make_fix_curry(
+    std::function<std::function<_Rs(_Tp)>(std::function<_Rs(_Tp)>)> f2)
+{
+    return make_fix<fix_curry>(f2);
 }
 
 NVWA_NAMESPACE_END
