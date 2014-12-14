@@ -227,9 +227,9 @@ std::function<_Rs(_Tp)> fix_simple(
     std::function<std::function<_Rs(_Tp)>(std::function<_Rs(_Tp)>)> f)
 {   // Y f = f (λx.(Y f) x)
     return f([f](_Tp&& x)
-              {
-                  return fix_simple(f)(std::forward<_Tp>(x));
-              });
+             {
+                 return fix_simple(f)(std::forward<_Tp>(x));
+             });
 }
 
 /**
