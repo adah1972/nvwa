@@ -230,14 +230,11 @@ struct fix_simple
 
     fn_1st_ord operator()(fn_2nd_ord f2) const
     {   // Y f = f (Y f)
-        return [this, f2](_Tp&& x)
-        {
-            fn_1st_ord y_f = [this, f2](_Tp&& x)
-            {   // λx.Y (f x)
-                return operator()(f2)(std::forward<_Tp>(x));
-            };
-            return f2(y_f)(x);
+        fn_1st_ord y_f = [this, f2](_Tp&& x)
+        {   // λx.Y (f x)
+            return operator()(f2)(std::forward<_Tp>(x));
         };
+        return f2(y_f);
     }
 };
 
