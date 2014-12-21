@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2014-12-14
+ * @date  2014-12-21
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -80,6 +80,46 @@ template <typename _Fn>
 struct self_ref_func
 {
     std::function<_Fn(self_ref_func)> fn;
+};
+
+// The code of struct curry is adapted from Julian's answer to the
+// StackOverflow question "How can currying be done in C++?"
+//<URL:http://stackoverflow.com/questions/152005/how-can-currying-be-done-in-c>
+//
+// Current restriction: rvalue reference passing can only work when it
+// is the last parameter in the function being curried.
+
+template <typename _Fn>
+struct curry;
+
+template <typename _Rs, typename _Tp>
+struct curry<std::function<_Rs(_Tp)>>
+{
+    typedef std::function<_Rs(_Tp)> type;
+
+    static type make(type fn)
+    {
+        return fn;
+    }
+};
+
+template <typename _Rs, typename _Tp, typename... _Targs>
+struct curry<std::function<_Rs(_Tp, _Targs...)>>
+{
+    typedef typename curry<std::function<_Rs(_Targs...)>>::type remaining_type;
+    typedef std::function<remaining_type(_Tp)> type;
+
+    static type make(std::function<_Rs(_Tp, _Targs...)> fn)
+    {
+        return [fn](_Tp&& x)
+        {
+            return curry<std::function<_Rs(_Targs...)>>::make(
+                [fn, x](_Targs&&... args)
+                {
+                    return fn(x, std::forward<_Targs>(args)...);
+                });
+        };
+    }
 };
 
 } /* namespace detail */
@@ -190,33 +230,6 @@ auto compose(_Fn fn, _Fargs... args)
 }
 
 /**
- * Helper class to convert a function to a lambda expression suitable to
- * be passed to #fix.
- *
- * @param _Tp  type of the function argument
- * @param _Rs  type of the function return value
- */
-template <typename _Tp, typename _Rs>
-struct fix_function_converter
-{
-    typedef std::function<_Rs(_Tp)>                fn_1st_ord;
-    typedef std::function<fn_1st_ord(fn_1st_ord)>  fn_2nd_ord;
-
-    fn_2nd_ord
-    operator()(std::function<_Rs(std::function<_Rs(_Tp)>, _Tp)> fn) const
-    {
-        return fn_2nd_ord([fn](fn_1st_ord f1)
-                          {
-                              return fn_1st_ord(
-                                  [fn, f1](_Tp&& x)
-                                  {
-                                      return fn(f1, std::forward<_Tp>(x));
-                                  });
-                          });
-    }
-};
-
-/**
  * Generates the fixed point using the simple fixed-point combinator.
  *
  * @param f  the second-order function to combine with
@@ -255,6 +268,36 @@ std::function<_Rs(_Tp)> fix_curry(
         }
     };
     return r.fn(r);
+}
+
+/**
+ * Makes a curried function.  The returned function takes one argument
+ * at a time, and return a function that takes the next argument until
+ * all arguments are exhausted, in which case it returns the final
+ * result.
+ *
+ * @param fn  the function to be curried as a \c std::function
+ * @return    the curried function
+ */
+template <typename _Rs, typename... _Targs>
+auto make_curry(std::function<_Rs(_Targs...)> fn)
+{
+    return detail::curry<std::function<_Rs(_Targs...)>>::make(fn);
+}
+
+/**
+ * Makes a curried function.  The returned function takes one argument
+ * at a time, and return a function that takes the next argument until
+ * all arguments are exhausted, in which case it returns the final
+ * result.
+ *
+ * @param fn  the function to be curried as a function pointer
+ * @return    the curried function
+ */
+template <typename _Rs, typename... _Targs>
+auto make_curry(_Rs(*fn)(_Targs...))
+{
+    return detail::curry<std::function<_Rs(_Targs...)>>::make(fn);
 }
 
 NVWA_NAMESPACE_END
