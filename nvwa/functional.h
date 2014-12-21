@@ -97,7 +97,7 @@ struct curry<std::function<_Rs(_Tp)>>
 {
     typedef std::function<_Rs(_Tp)> type;
 
-    static type make(type fn)
+    static type make(const type& fn)
     {
         return fn;
     }
@@ -109,7 +109,7 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
     typedef typename curry<std::function<_Rs(_Targs...)>>::type remaining_type;
     typedef std::function<remaining_type(_Tp)> type;
 
-    static type make(std::function<_Rs(_Tp, _Targs...)> fn)
+    static type make(const std::function<_Rs(_Tp, _Targs...)>& fn)
     {
         return [fn](_Tp&& x)
         {
@@ -231,11 +231,33 @@ auto compose(_Fn fn, _Fargs... args)
 
 /**
  * Generates the fixed point using the simple fixed-point combinator.
+ * This function takes a non-curried function of two parameters.
  *
  * @param f  the second-order function to combine with
  * @return   the fixed point
  */
-template <typename _Tp, typename _Rs>
+template <typename _Rs, typename _Tp>
+std::function<_Rs(_Tp)> fix_simple(
+    std::function<_Rs(std::function<_Rs(_Tp)>, _Tp)> f)
+{   // Y f = f (λx.(Y f) x)
+    return [f](_Tp&& x)
+    {
+        return f([f](_Tp&& x)
+                 {
+                     return fix_simple(f)(std::forward<_Tp>(x));
+                 },
+                 std::forward<_Tp>(x));
+    };
+}
+
+/**
+ * Generates the fixed point using the simple fixed-point combinator.
+ * This function takes a curried function of one parameter.
+ *
+ * @param f  the second-order function to combine with
+ * @return   the fixed point
+ */
+template <typename _Rs, typename _Tp>
 std::function<_Rs(_Tp)> fix_simple(
     std::function<std::function<_Rs(_Tp)>(std::function<_Rs(_Tp)>)> f)
 {   // Y f = f (λx.(Y f) x)
@@ -247,11 +269,12 @@ std::function<_Rs(_Tp)> fix_simple(
 
 /**
  * Generates the fixed point using the Curry-style fixed-point combinator.
+ * This function takes a curried function of one parameter.
  *
  * @param f  the second-order function to combine with
  * @return   the fixed point
  */
-template <typename _Tp, typename _Rs>
+template <typename _Rs, typename _Tp>
 std::function<_Rs(_Tp)> fix_curry(
     std::function<std::function<_Rs(_Tp)>(std::function<_Rs(_Tp)>)> f)
 {   // Y = λf.(λx.x x) (λx.f (λy.(x x) y))

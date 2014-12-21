@@ -1,5 +1,14 @@
 2014-12-21  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/functional.h (curry<>::make): Make the function parameter
+	const lvalue reference.
+	(fix_simple<>): Add a new overload that takes a non-curried
+	two-argument function.
+	(fix_simple<>): Reverse the order of the two template parameters.
+	(fix_curry<>): Ditto.
+
+2014-12-21  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/functional.h (detail::curry<>): New struct template.
 	(make_curry<>): New function template.
 	(fix_function_converter<>): Remove (obsoleted by make_curry).
