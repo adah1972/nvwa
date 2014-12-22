@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2014-12-21
+ * @date  2014-12-22
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -41,7 +41,7 @@
 #include <functional>           // std::function
 #include <memory>               // std::allocator
 #include <type_traits>          // std::integral_constant...
-#include <utility>              // std::forward
+#include <utility>              // std::declval/forward
 #include <vector>               // std::vector
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
@@ -141,11 +141,11 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
 template <template <typename, typename> class _OutCont = std::vector,
           template <typename> class _Alloc = std::allocator,
           typename _Fn, class _Cont>
-_OutCont<typename _Cont::value_type, _Alloc<typename _Cont::value_type>>
-map(_Fn mapfn, const _Cont& inputs)
+auto map(_Fn mapfn, const _Cont& inputs)
 {
-    _OutCont<typename _Cont::value_type,
-        _Alloc<typename _Cont::value_type>> result;
+    typedef decltype(mapfn(std::declval<typename _Cont::value_type>()))
+        result_type;
+    _OutCont<result_type, _Alloc<result_type>> result;
     detail::try_reserve(
         result, inputs,
         std::integral_constant<
@@ -159,25 +159,87 @@ map(_Fn mapfn, const _Cont& inputs)
  * Applies the \a reducefn function cumulatively to items in the input
  * container.
  *
- * This is similar to \c std::accumumulate, but the style is more
+ * This is similar to \c std::accumulate, but the style is more
  * functional and more suitable for chaining operations.
  *
  * @param reducefn  the function to apply
  * @param inputs    the input container
- * @param initval   initial value for the cumulative calculation
- * @pre             \a mapfn shall take two arguments of the type of the
- *                  items in \a inputs, and the input container shall
- *                  support iteration.
+ * @pre             \a reducefn shall take two arguments of the type of
+ *                  the items in \a inputs, and the input container
+ *                  shall support iteration.
  */
 template <typename _Fn, class _Cont>
-typename _Cont::value_type
-reduce(_Fn reducefn, const _Cont& inputs,
-       typename _Cont::value_type initval = typename _Cont::value_type())
+auto reduce(_Fn reducefn, const _Cont& inputs)
 {
-    auto result = initval;
+    auto result = typename _Cont::value_type();
     for (auto& item : inputs)
         result = reducefn(result, item);
     return result;
+}
+
+/**
+ * Applies the \a reducefn function cumulatively to a range.
+ *
+ * This is similar to \c std::accumulate, but the interface is
+ * different, and \c reducefn is allowed to have arguments of different
+ * types (the first argument shall have the same type as the function
+ * return type).  Perfect forwarding allows the result to be a reference
+ * type.
+ *
+ * @param reducefn  the function to apply
+ * @param value     the first argument to be passed to \a reducefn
+ * @param begin     beginning of the range
+ * @param end       end of the range
+ * @pre             \a reducefn shall take one argument of the result
+ *                  type, and one argument of the type of the items in
+ *                  \a inputs, and the input container shall support
+ *                  iteration.
+ */
+template <typename _Rs, typename _Fn, typename _Iter>
+_Rs&& reduce(_Fn reducefn, _Rs&& value, _Iter begin, _Iter end)
+{
+    // Recursion (instead of iteration) is used in this function, as
+    // _Rs&& may be a reference type and a result of this type cannot
+    // be assigned to (like the implementation of reduce above).
+    if (begin == end)
+        return value;
+    _Iter current = begin;
+    return reduce(reducefn, reducefn(std::forward<_Rs>(value), *current),
+                  ++begin, end);
+}
+
+/**
+ * Applies the \a reducefn function cumulatively to items in the input
+ * container.
+ *
+ * This is similar to \c std::accumulate, but the style is more
+ * functional and more suitable for chaining operations.  This
+ * implementation allows the two arguments of \a reducefn to have
+ * different types (the first argument shall have the same type as the
+ * function return type).  Perfect forwarding allows the result to be a
+ * reference type, and it is possible to write code like:
+ *
+ * @code
+ * // Declaration of the output function
+ * std::ostream& print(std::ostream& os, const my_type&);
+ * ...
+ * // Dump all contents of the container_of_my_type to cout
+ * nvwa::reduce(print, container_of_my_type, std::cout);
+ * @endcode
+ *
+ * @param reducefn  the function to apply
+ * @param inputs    the input container
+ * @param initval   initial value for the cumulative calculation
+ * @pre             \a reducefn shall take one argument of the result
+ *                  type, and one argument of the type of the items in
+ *                  \a inputs, and the input container shall support
+ *                  iteration.
+ */
+template <typename _Rs, typename _Fn, class _Cont>
+_Rs&& reduce(_Fn reducefn, const _Cont& inputs, _Rs&& initval)
+{
+    return reduce(reducefn, std::forward<_Rs>(initval),
+                  std::begin(inputs), std::end(inputs));
 }
 
 /**

@@ -1,3 +1,11 @@
+2014-12-22  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/functional.h (map<>): Allow the function argument to have
+	different input and output types.
+	(reduce<>): Allow the function argument to have arguments of
+	different types; use perfect forwarding to enable the use of
+	reference types.
+
 2014-12-21  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/functional.h (curry<>::make): Make the function parameter
