@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2014-12-22
+ * @date  2014-12-23
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -49,6 +49,8 @@ NVWA_NAMESPACE_BEGIN
 
 namespace detail {
 
+// Struct to check whether _T1 has a suitable reserve member function
+// and _T2 has a suitable size member function.
 template <class _T1, class _T2>
 struct can_reserve
 {
@@ -76,22 +78,39 @@ void try_reserve(_T1& dest, const _T2& src, std::true_type)
     dest.reserve(src.size());
 }
 
+// Struct to wrap a function for self-reference.
 template <typename _Fn>
 struct self_ref_func
 {
     std::function<_Fn(self_ref_func)> fn;
 };
 
-// The code of struct curry is adapted from Julian's answer to the
-// StackOverflow question "How can currying be done in C++?"
-//<URL:http://stackoverflow.com/questions/152005/how-can-currying-be-done-in-c>
-//
-// Current restriction: rvalue reference passing can only work when it
-// is the last parameter in the function being curried.
+// Struct to wrap data, which may or may not be of reference type.
+template <typename _Tp, bool _Is_ref = std::is_reference<_Tp>()>
+struct wrapper
+{
+    wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
+    _Tp get() const { return std::move(value); }
+    _Tp value;
+};
 
+// Partial specialization that allows copying an rvalue reference.  It
+// can actually work on non-reference types, but can incur an additional
+// copy.
+template <typename _Tp>
+struct wrapper<_Tp, true>
+{
+    wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
+    wrapper(const wrapper& rhs) : value(static_cast<_Tp>(rhs.value)) {}
+    _Tp get() const { return std::move(value); }
+    _Tp value;
+};
+
+// Declaration of curry, to be specialized below.
 template <typename _Fn>
 struct curry;
 
+// Termination of currying, which returns the original function.
 template <typename _Rs, typename _Tp>
 struct curry<std::function<_Rs(_Tp)>>
 {
@@ -103,6 +122,7 @@ struct curry<std::function<_Rs(_Tp)>>
     }
 };
 
+// Recursion template to curry functions with more than one parameter.
 template <typename _Rs, typename _Tp, typename... _Targs>
 struct curry<std::function<_Rs(_Tp, _Targs...)>>
 {
@@ -112,12 +132,15 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
     static type make(const std::function<_Rs(_Tp, _Targs...)>& fn)
     {
         return [fn](_Tp&& x)
-        {
-            return curry<std::function<_Rs(_Targs...)>>::make(
-                [fn, x](_Targs&&... args)
-                {
-                    return fn(x, std::forward<_Targs>(args)...);
-                });
+        {   // Use wrapper to ensure reference types are correctly captured.
+            return [fn](wrapper<_Tp> w)
+            {
+                return curry<std::function<_Rs(_Targs...)>>::make(
+                    [fn, w](_Targs&&... args)
+                    {
+                        return fn(w.get(), std::forward<_Targs>(args)...);
+                    });
+            }(wrapper<_Tp>(std::forward<_Tp>(x)));
         };
     }
 };

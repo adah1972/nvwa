@@ -1,5 +1,11 @@
 2014-12-22  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/functional.h (detail::wrapper<>): New struct template.
+	(detail::curry<>): Use wrapper to ensure reference types are
+	correctly captured.
+
+2014-12-22  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/functional.h (map<>): Allow the function argument to have
 	different input and output types.
 	(reduce<>): Allow the function argument to have arguments of
