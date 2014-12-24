@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2014-12-23
+ * @date  2014-12-24
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -40,8 +40,8 @@
 
 #include <functional>           // std::function
 #include <memory>               // std::allocator
-#include <type_traits>          // std::integral_constant...
-#include <utility>              // std::declval/forward
+#include <type_traits>          // std::integral_constant/is_reference/...
+#include <utility>              // std::declval/forward/move
 #include <vector>               // std::vector
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
@@ -94,9 +94,9 @@ struct wrapper
     _Tp value;
 };
 
-// Partial specialization that allows copying an rvalue reference.  It
-// can actually work on non-reference types, but can incur an additional
-// copy.
+// Partial specialization that allows copying an rvalue reference.
+// It can actually work on non-reference types, but may then incur
+// an additional copy.
 template <typename _Tp>
 struct wrapper<_Tp, true>
 {
@@ -245,7 +245,7 @@ _Rs&& reduce(_Fn reducefn, _Rs&& value, _Iter begin, _Iter end)
  * @code
  * // Declaration of the output function
  * std::ostream& print(std::ostream& os, const my_type&);
- * ...
+ * …
  * // Dump all contents of the container_of_my_type to cout
  * nvwa::reduce(print, container_of_my_type, std::cout);
  * @endcode
