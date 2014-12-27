@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2014-12-24
+ * @date  2014-12-27
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -269,7 +269,7 @@ _Rs&& reduce(_Fn reducefn, const _Cont& inputs, _Rs&& initval)
  * Returns the data intact to terminate the recursion.
  */
 template <typename _Tp>
-auto apply(_Tp&& data)
+_Tp apply(_Tp&& data)
 {
     return std::forward<_Tp>(data);
 }
@@ -282,7 +282,7 @@ auto apply(_Tp&& data)
  * @param args  the rest functions to apply
  */
 template <typename _Tp, typename _Fn, typename... _Fargs>
-auto apply(_Tp&& data, _Fn fn, _Fargs... args)
+decltype(auto) apply(_Tp&& data, _Fn fn, _Fargs... args)
 {
     return apply(fn(std::forward<_Tp>(data)), args...);
 }
@@ -308,7 +308,7 @@ auto compose()
 template <typename _Tp, typename _Fn, typename... _Fargs>
 auto compose(_Fn fn, _Fargs... args)
 {
-    return [=](_Tp&& x)
+    return [=](_Tp&& x) -> decltype(auto)
     {
         return fn(compose<_Tp>(args...)(std::forward<_Tp>(x)));
     };
