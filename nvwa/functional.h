@@ -114,7 +114,7 @@ auto compose_ref()
 template <typename _Tp, typename _Fn, typename... _Fargs>
 auto compose_ref(_Fn fn, _Fargs... args)
 {
-    return [=](_Tp&& x) -> decltype(auto)
+    return [fn, args...](_Tp&& x) -> decltype(auto)
     {
         return fn(compose_ref<_Tp>(args...)(std::forward<_Tp>(x)));
     };
@@ -125,7 +125,7 @@ auto compose_ref(_Fn fn, _Fargs... args)
 template <typename _Tp, typename... _Fargs>
 auto compose_impl(std::false_type, _Fargs... args)
 {
-    return [=](_Tp x) -> decltype(auto)
+    return [args...](_Tp x) -> decltype(auto)
     {
         return compose_ref<_Tp&&>(args...)(std::move(x));
     };
