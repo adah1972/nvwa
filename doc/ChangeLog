@@ -1,3 +1,10 @@
+2014-12-30  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/functional.h (detail::compose_ref<>): New function template.
+	(detail::compose_impl<>): New function template.
+	(compose<>): Make the object-type instantiation work with both
+	lvalues and rvalues.
+
 2014-12-27  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/functional.h (apply<>): Fix the wrong use of auto return type

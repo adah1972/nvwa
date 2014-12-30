@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2014-12-27
+ * @date  2014-12-30
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -46,6 +46,28 @@
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
 NVWA_NAMESPACE_BEGIN
+
+/**
+ * Returns the data intact to terminate the recursion.
+ */
+template <typename _Tp>
+_Tp apply(_Tp&& data)
+{
+    return std::forward<_Tp>(data);
+}
+
+/**
+ * Applies the functions in the arguments to the data consecutively.
+ *
+ * @param data  the data to operate on
+ * @param fn    the first function to apply
+ * @param args  the rest functions to apply
+ */
+template <typename _Tp, typename _Fn, typename... _Fargs>
+decltype(auto) apply(_Tp&& data, _Fn fn, _Fargs... args)
+{
+    return apply(fn(std::forward<_Tp>(data)), args...);
+}
 
 namespace detail {
 
@@ -67,15 +89,54 @@ struct can_reserve
          sizeof(__size<_T2>(nullptr)) == sizeof(good));
 };
 
+// Does nothing since can_reserve::value is false.
 template <class _T1, class _T2>
 void try_reserve(_T1&, const _T2&, std::false_type)
 {
 }
 
+// Reserves the destination with the source's size.
 template <class _T1, class _T2>
 void try_reserve(_T1& dest, const _T2& src, std::true_type)
 {
     dest.reserve(src.size());
+}
+
+// Returns the identity function for the given reference type.
+template <typename _Tp>
+auto compose_ref()
+{
+    return apply<_Tp>;
+}
+
+// Returns the function to compose the given functions for the given
+// reference type, with at least one function.
+template <typename _Tp, typename _Fn, typename... _Fargs>
+auto compose_ref(_Fn fn, _Fargs... args)
+{
+    return [=](_Tp&& x) -> decltype(auto)
+    {
+        return fn(compose_ref<_Tp>(args...)(std::forward<_Tp>(x)));
+    };
+}
+
+// Returns the function to compose the given functions for the given
+// object type.
+template <typename _Tp, typename... _Fargs>
+auto compose_impl(std::false_type, _Fargs... args)
+{
+    return [=](_Tp x) -> decltype(auto)
+    {
+        return compose_ref<_Tp&&>(args...)(std::move(x));
+    };
+}
+
+// Returns the function to compose the given functions for the given
+// reference type.
+template <typename _Tp, typename... _Fargs>
+auto compose_impl(std::true_type, _Fargs... args)
+{
+    return compose_ref<_Tp>(args...);
 }
 
 // Struct to wrap a function for self-reference.
@@ -266,52 +327,16 @@ _Rs&& reduce(_Fn reducefn, const _Cont& inputs, _Rs&& initval)
 }
 
 /**
- * Returns the data intact to terminate the recursion.
- */
-template <typename _Tp>
-_Tp apply(_Tp&& data)
-{
-    return std::forward<_Tp>(data);
-}
-
-/**
- * Applies the functions in the arguments to the data consecutively.
- *
- * @param data  the data to operate on
- * @param fn    the first function to apply
- * @param args  the rest functions to apply
- */
-template <typename _Tp, typename _Fn, typename... _Fargs>
-decltype(auto) apply(_Tp&& data, _Fn fn, _Fargs... args)
-{
-    return apply(fn(std::forward<_Tp>(data)), args...);
-}
-
-/**
  * Constructs a function (object) that composes the passed functions.
  *
- * @return      the identity function
- */
-template <typename _Tp>
-auto compose()
-{
-    return apply<_Tp>;
-}
-
-/**
- * Constructs a function (object) that composes the passed functions.
- *
- * @param fn    the first function to compose (which is applied last)
- * @param args  the rest functions to compose
+ * @param args  the functions to compose
  * @return      the function object that composes the passed functions
  */
-template <typename _Tp, typename _Fn, typename... _Fargs>
-auto compose(_Fn fn, _Fargs... args)
+template <typename Tp, typename... Fargs>
+auto compose(Fargs... args)
 {
-    return [=](_Tp&& x) -> decltype(auto)
-    {
-        return fn(compose<_Tp>(args...)(std::forward<_Tp>(x)));
-    };
+    return detail::compose_impl<Tp>(typename std::is_reference<Tp>::type(),
+                                    args...);
 }
 
 /**
