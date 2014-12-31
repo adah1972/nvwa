@@ -1,3 +1,13 @@
+2014-12-31  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Make make_curry safer to store the referenced objects unless the
+	reference parameter is a non-const lvalue reference.
+	* nvwa/functional.h (detail::wrapper<>): Change its semantics to
+	treat object types, non-const lvalue reference types, and const
+	lvalue reference and rvalue reference types differently.
+	(curry<>::make): Keep the reference-ness of the return value of the
+	innermost lambda.
+
 2014-12-30  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/functional.h (detail::compose_ref<>): New function template.

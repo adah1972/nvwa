@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2014-12-30
+ * @date  2014-12-31
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -46,6 +46,12 @@
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
 NVWA_NAMESPACE_BEGIN
+
+// These are defined in C++14, but not all platforms support them.
+template <bool _Bp, typename _Tp = void>
+using enable_if_t = typename std::enable_if<_Bp, _Tp>::type;
+template <typename _Tp>
+using remove_reference_t = typename std::remove_reference<_Tp>::type;
 
 /**
  * Returns the data intact to terminate the recursion.
@@ -146,25 +152,35 @@ struct self_ref_func
     std::function<_Fn(self_ref_func)> fn;
 };
 
-// Struct to wrap data, which may or may not be of reference type.
-template <typename _Tp, bool _Is_ref = std::is_reference<_Tp>()>
+// Struct to wrap data, which may or may not be a reference.
+template <typename _Tp,
+          bool _Deep_copy = std::is_rvalue_reference<_Tp>{} ||
+                            (std::is_lvalue_reference<_Tp>{} &&
+                             std::is_const<remove_reference_t<_Tp>>{})>
 struct wrapper
 {
     wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
-    _Tp get() const { return std::move(value); }
+    template <typename _Up = _Tp>
+    enable_if_t<std::is_lvalue_reference<_Up>{}, _Tp> get() const
+    {
+        return value;
+    }
+    template <typename _Up = _Tp>
+    enable_if_t<!std::is_lvalue_reference<_Up>{}, _Tp> get() const
+    {
+        return std::move(value);
+    }
     _Tp value;
 };
 
-// Partial specialization that allows copying an rvalue reference.
-// It can actually work on non-reference types, but may then incur
-// an additional copy.
+// Partial specialization that copies the object used by the reference.
 template <typename _Tp>
 struct wrapper<_Tp, true>
 {
     wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
     wrapper(const wrapper& rhs) : value(static_cast<_Tp>(rhs.value)) {}
     _Tp get() const { return std::move(value); }
-    _Tp value;
+    remove_reference_t<_Tp> value;
 };
 
 // Declaration of curry, to be specialized below.
@@ -197,7 +213,7 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
             return [fn](wrapper<_Tp> w)
             {
                 return curry<std::function<_Rs(_Targs...)>>::make(
-                    [fn, w](_Targs&&... args)
+                    [fn, w](_Targs&&... args) -> decltype(auto)
                     {
                         return fn(w.get(), std::forward<_Targs>(args)...);
                     });
