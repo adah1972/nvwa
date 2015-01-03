@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2014-12-31
+ * @date  2015-01-03
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -52,6 +52,8 @@ template <bool _Bp, typename _Tp = void>
 using enable_if_t = typename std::enable_if<_Bp, _Tp>::type;
 template <typename _Tp>
 using remove_reference_t = typename std::remove_reference<_Tp>::type;
+template <typename _Tp>
+using decay_t = typename std::decay<_Tp>::type;
 
 /**
  * Returns the data intact to terminate the recursion.
@@ -178,9 +180,8 @@ template <typename _Tp>
 struct wrapper<_Tp, true>
 {
     wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
-    wrapper(const wrapper& rhs) : value(static_cast<_Tp>(rhs.value)) {}
     _Tp get() const { return std::move(value); }
-    remove_reference_t<_Tp> value;
+    decay_t<_Tp> value;
 };
 
 // Declaration of curry, to be specialized below.

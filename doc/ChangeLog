@@ -1,3 +1,10 @@
+2015-01-03  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/functional.h (detail::wrapper<>::value): Substitute `decay_t'
+	for `remove_reference_t' to optimize for move.
+	(detail::wrapper<>::wrapper(const wrapper&)): Remove the copy-
+	constructor that is no longer useful. 
+
 2014-12-31  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Make make_curry safer to store the referenced objects unless the
