@@ -320,15 +320,31 @@ auto compose()
 /**
  * Constructs a function (object) that composes the passed functions.
  *
- * @param args  the functions to compose
+ * @param fn    the function to compose
+ * @return      the function object that composes the passed function
+ */
+template <typename _Fn>
+auto compose(_Fn fn)
+{
+    return [fn](auto&&... x) -> decltype(auto)
+    {
+        return fn(std::forward<decltype(x)>(x)...);
+    };
+}
+
+/**
+ * Constructs a function (object) that composes the passed functions.
+ *
+ * @param fn    the last function to compose
+ * @param args  the other functions to compose
  * @return      the function object that composes the passed functions
  */
 template <typename _Fn, typename... _Fargs>
 auto compose(_Fn fn, _Fargs... args)
 {
-    return [fn, args...](auto&& x) -> decltype(auto)
+    return [fn, args...](auto&&... x) -> decltype(auto)
     {
-        return fn(compose(args...)(std::forward<decltype(x)>(x)));
+        return fn(compose(args...)(std::forward<decltype(x)>(x)...));
     };
 }
 

@@ -1,6 +1,11 @@
 2015-01-03  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* nvwa/functional.h (compose<>): Simply its interface and
+	* nvwa/functional.h (compose<>): Allow the composed function to take
+	multiple arguments.
+
+2015-01-03  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/functional.h (compose<>): Simplify its interface and
 	implementation with C++14 generic lambdas.
 
 2015-01-03  Wu Yongwei  <wuyongwei@gmail.com>
