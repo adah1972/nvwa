@@ -311,7 +311,10 @@ _Rs&& reduce(_Fn reducefn, const _Cont& inputs, _Rs&& initval)
  */
 auto compose()
 {
-    return [](auto&& x) { return std::forward<decltype(x)>(x); };
+    return [](auto&& x) -> decltype(auto)
+    {
+        return std::forward<decltype(x)>(x);
+    };
 }
 
 /**
