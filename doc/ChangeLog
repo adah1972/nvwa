@@ -1,5 +1,10 @@
 2015-01-03  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/functional.h (detail::curry<>::make): Use the C++14 init
+	capture to reduce object copying.
+
+2015-01-03  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/functional.h (detail::wrapper<>::value): Substitute `decay_t'
 	for `remove_reference_t' to optimize for move.
 	(detail::wrapper<>::wrapper(const wrapper&)): Remove the copy-

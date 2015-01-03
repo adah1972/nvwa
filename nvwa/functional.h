@@ -211,14 +211,12 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
     {
         return [fn](_Tp&& x)
         {   // Use wrapper to ensure reference types are correctly captured.
-            return [fn](wrapper<_Tp> w)
-            {
-                return curry<std::function<_Rs(_Targs...)>>::make(
-                    [fn, w](_Targs&&... args) -> decltype(auto)
-                    {
-                        return fn(w.get(), std::forward<_Targs>(args)...);
-                    });
-            }(wrapper<_Tp>(std::forward<_Tp>(x)));
+            return curry<std::function<_Rs(_Targs...)>>::make(
+                [fn, w = wrapper<_Tp>(std::forward<_Tp>(x))](
+                        _Targs && ... args) -> decltype(auto)
+                {
+                    return fn(w.get(), std::forward<_Targs>(args)...);
+                });
         };
     }
 };
