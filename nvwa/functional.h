@@ -110,43 +110,6 @@ void try_reserve(_T1& dest, const _T2& src, std::true_type)
     dest.reserve(src.size());
 }
 
-// Returns the identity function for the given reference type.
-template <typename _Tp>
-auto compose_ref()
-{
-    return apply<_Tp>;
-}
-
-// Returns the function to compose the given functions for the given
-// reference type, with at least one function.
-template <typename _Tp, typename _Fn, typename... _Fargs>
-auto compose_ref(_Fn fn, _Fargs... args)
-{
-    return [fn, args...](_Tp&& x) -> decltype(auto)
-    {
-        return fn(compose_ref<_Tp>(args...)(std::forward<_Tp>(x)));
-    };
-}
-
-// Returns the function to compose the given functions for the given
-// object type.
-template <typename _Tp, typename... _Fargs>
-auto compose_impl(std::false_type, _Fargs... args)
-{
-    return [args...](_Tp x) -> decltype(auto)
-    {
-        return compose_ref<_Tp&&>(args...)(std::move(x));
-    };
-}
-
-// Returns the function to compose the given functions for the given
-// reference type.
-template <typename _Tp, typename... _Fargs>
-auto compose_impl(std::true_type, _Fargs... args)
-{
-    return compose_ref<_Tp>(args...);
-}
-
 // Struct to wrap a function for self-reference.
 template <typename _Fn>
 struct self_ref_func
@@ -344,14 +307,26 @@ _Rs&& reduce(_Fn reducefn, const _Cont& inputs, _Rs&& initval)
 /**
  * Constructs a function (object) that composes the passed functions.
  *
+ * @return      the forwarding function
+ */
+auto compose()
+{
+    return [](auto&& x) { return std::forward<decltype(x)>(x); };
+}
+
+/**
+ * Constructs a function (object) that composes the passed functions.
+ *
  * @param args  the functions to compose
  * @return      the function object that composes the passed functions
  */
-template <typename Tp, typename... Fargs>
-auto compose(Fargs... args)
+template <typename _Fn, typename... _Fargs>
+auto compose(_Fn fn, _Fargs... args)
 {
-    return detail::compose_impl<Tp>(typename std::is_reference<Tp>::type(),
-                                    args...);
+    return [fn, args...](auto&& x) -> decltype(auto)
+    {
+        return fn(compose(args...)(std::forward<decltype(x)>(x)));
+    };
 }
 
 /**

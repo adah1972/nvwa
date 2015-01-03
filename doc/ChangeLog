@@ -1,5 +1,10 @@
 2015-01-03  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/functional.h (compose<>): Simply its interface and
+	implementation with C++14 generic lambdas.
+
+2015-01-03  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/functional.h (detail::curry<>::make): Use the C++14 init
 	capture to reduce object copying.
 
