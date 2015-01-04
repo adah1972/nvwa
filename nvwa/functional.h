@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2014 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2014-2015 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2015-01-03
+ * @date  2015-01-04
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -176,7 +176,7 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
         {   // Use wrapper to ensure reference types are correctly captured.
             return curry<std::function<_Rs(_Targs...)>>::make(
                 [fn, w = wrapper<_Tp>(std::forward<_Tp>(x))](
-                        _Targs && ... args) -> decltype(auto)
+                        _Targs&&... args) -> decltype(auto)
                 {
                     return fn(w.get(), std::forward<_Targs>(args)...);
                 });
