@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2015-01-04
+ * @date  2015-01-07
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -48,8 +48,6 @@
 NVWA_NAMESPACE_BEGIN
 
 // These are defined in C++14, but not all platforms support them.
-template <bool _Bp, typename _Tp = void>
-using enable_if_t = typename std::enable_if<_Bp, _Tp>::type;
 template <typename _Tp>
 using remove_reference_t = typename std::remove_reference<_Tp>::type;
 template <typename _Tp>
@@ -125,16 +123,7 @@ template <typename _Tp,
 struct wrapper
 {
     wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
-    template <typename _Up = _Tp>
-    enable_if_t<std::is_lvalue_reference<_Up>{}, _Tp> get() const
-    {
-        return value;
-    }
-    template <typename _Up = _Tp>
-    enable_if_t<!std::is_lvalue_reference<_Up>{}, _Tp> get() const
-    {
-        return std::move(value);
-    }
+    _Tp get() const { return value; }
     _Tp value;
 };
 
@@ -143,7 +132,7 @@ template <typename _Tp>
 struct wrapper<_Tp, true>
 {
     wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
-    _Tp get() const { return std::move(value); }
+    _Tp get() const { return value; }
     decay_t<_Tp> value;
 };
 
