@@ -250,7 +250,7 @@ template <typename _Rs, typename _Fn, typename _Iter>
 _Rs&& reduce(_Fn reducefn, _Rs&& value, _Iter begin, _Iter end)
 {
     // Recursion (instead of iteration) is used in this function, as
-    // _Rs&& may be a reference type and a result of this type cannot
+    // _Rs may be a reference type and a result of this type cannot
     // be assigned to (like the implementation of reduce above).
     if (begin == end)
         return value;
