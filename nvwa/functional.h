@@ -147,7 +147,8 @@ struct wrapper<_Tp, true>
     decay_t<_Tp> value;
 };
 
-// Declaration of curry, to be specialized below.
+// Declaration of curry, to be specialized below.  The code is based on
+// Julian Becker's StackOverflow answer at <url:http://tinyurl.com/cxx-curry>.
 template <typename _Fn>
 struct curry;
 
