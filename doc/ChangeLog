@@ -1,3 +1,17 @@
+2015-05-19  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Add new macros that can force the choice of fast_mutex
+	implementation.
+	* nvwa/fast_mutex.h (NVWA_USE_CXX11_MUTEX): Define to 1 if C++11
+	mutex is supported and no competing macros appear.
+	(NVWA_WIN32THREADS): Define if _WIN32THREADS is defined and no
+	competing macros appear.
+	(NVWA_PTHREADS): Define if _PTHREADS is defined and no competing
+	macros appear.
+	(NVWA_NOTHREADS): Define if no competing macros appear.
+	(fast_mutex): Choose the implementation based on the above four
+	macros.
+
 2015-03-01  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/functional (detail::curry<>): Add credit for Julian Becker

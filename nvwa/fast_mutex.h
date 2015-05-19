@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2015 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -29,9 +29,9 @@
 /**
  * @file  fast_mutex.h
  *
- * A fast mutex implementation for POSIX and Win32.
+ * A fast mutex implementation for POSIX, Win32, and modern C++.
  *
- * @date  2013-08-02
+ * @date  2015-05-19
  */
 
 #ifndef NVWA_FAST_MUTEX_H
@@ -42,7 +42,9 @@
 
 # if !defined(_NOTHREADS)
 #   if !defined(NVWA_USE_CXX11_MUTEX) && HAVE_CXX11_MUTEX != 0 && \
-            !defined(_WIN32THREADS) && defined(_WIN32) && defined(_MT) && \
+            !defined(_WIN32THREADS) && !defined(NVWA_WIN32THREADS) && \
+            !defined(NVWA_PTHREADS) && !defined(NVWA_NOTHREADS) && \
+            defined(_WIN32) && defined(_MT) && \
             (!defined(_MSC_VER) || defined(_DLL))
 //      Prefer using std::mutex on Windows to avoid the namespace
 //      pollution caused by <windows.h>.  However, MSVC has a re-entry
@@ -69,7 +71,14 @@
 # endif
 
 # ifndef NVWA_USE_CXX11_MUTEX
-#   define NVWA_USE_CXX11_MUTEX 0
+#   if HAVE_CXX11_MUTEX != 0 && \
+            !defined(_NOTHREADS)    && !defined(NVWA_NOTHREADS) && \
+            !defined(_PTHREADS)     && !defined(NVWA_PTHREADS) && \
+            !defined(_WIN32THREADS) && !defined(NVWA_WIN32THREADS)
+#       define NVWA_USE_CXX11_MUTEX 1
+#   else
+#       define NVWA_USE_CXX11_MUTEX 0
+#   endif
 # endif
 
 # if !defined(_PTHREADS) && !defined(_WIN32THREADS) && \
@@ -89,6 +98,24 @@
 #   error "Be sure to specify -mthreads with -D_WIN32THREADS"
 # endif
 
+// With all the heuristics above, things may still go wrong, maybe even
+// due to a specific inclusion order.  So they may be overridden by
+// manually defining the NVWA_* macros below.
+# if NVWA_USE_CXX11_MUTEX == 0 && \
+        !defined(NVWA_WIN32THREADS) && \
+        !defined(NVWA_PTHREADS) && \
+        !defined(NVWA_NOTHREADS)
+//  _WIN32THREADS takes precedence, as some C++ libraries have _PTHREADS
+//  defined even on Win32 platforms.
+#   if defined(_WIN32THREADS)
+#       define NVWA_WIN32THREADS
+#   elif defined(_PTHREADS)
+#       define NVWA_PTHREADS
+#   else
+#       define NVWA_NOTHREADS
+#   endif
+# endif
+
 # ifndef _FAST_MUTEX_CHECK_INITIALIZATION
 /**
  * Macro to control whether to check for initialization status for each
@@ -99,12 +126,6 @@
  * will disable to check.
  */
 #   define _FAST_MUTEX_CHECK_INITIALIZATION 1
-# endif
-
-# if defined(_PTHREADS) && defined(_WIN32THREADS)
-//  Some C++ libraries have _PTHREADS defined even on Win32 platforms.
-//  Thus this hack.
-#   undef _PTHREADS
 # endif
 
 # ifdef _DEBUG
@@ -189,9 +210,7 @@ NVWA_NAMESPACE_BEGIN
         fast_mutex& operator=(const fast_mutex&);
     };
 NVWA_NAMESPACE_END
-# endif // NVWA_USE_CXX11_MUTEX != 0
-
-# if defined(_PTHREADS) && NVWA_USE_CXX11_MUTEX == 0
+# elif defined(NVWA_PTHREADS)
 #   include <pthread.h>
 NVWA_NAMESPACE_BEGIN
 /**
@@ -265,9 +284,7 @@ NVWA_NAMESPACE_BEGIN
         fast_mutex& operator=(const fast_mutex&);
     };
 NVWA_NAMESPACE_END
-# endif // _PTHREADS
-
-# if defined(_WIN32THREADS) && NVWA_USE_CXX11_MUTEX == 0
+# elif defined(NVWA_WIN32THREADS)
 #   ifndef WIN32_LEAN_AND_MEAN
 #     define WIN32_LEAN_AND_MEAN
 #   endif /* WIN32_LEAN_AND_MEAN */
@@ -339,9 +356,7 @@ NVWA_NAMESPACE_BEGIN
         fast_mutex& operator=(const fast_mutex&);
     };
 NVWA_NAMESPACE_END
-# endif // _WIN32THREADS
-
-# ifdef _NOTHREADS
+# elif defined(NVWA_NOTHREADS)
 NVWA_NAMESPACE_BEGIN
 /**
  * Macro alias to `volatile' semantics.  Here it is not truly volatile
@@ -387,10 +402,10 @@ NVWA_NAMESPACE_BEGIN
         fast_mutex& operator=(const fast_mutex&);
     };
 NVWA_NAMESPACE_END
-# endif // _NOTHREADS
+# endif // Definition of class fast_mutex
 
 NVWA_NAMESPACE_BEGIN
-/** An acquistion-on-initialization lock class based on fast_mutex. */
+/** RAII lock class for fast_mutex. */
 class fast_mutex_autolock
 {
     fast_mutex& _M_mtx;
