@@ -81,7 +81,8 @@ INPUT                  = ../nvwa/fast_mutex.h \
                          ../nvwa/cont_ptr_utils.h \
                          ../nvwa/bool_array.h \
                          ../nvwa/bool_array.cpp \
-                         ../nvwa/fc_queue.h
+                         ../nvwa/fc_queue.h \
+                         ../nvwa/functional.h
 FILE_PATTERNS          = 
 RECURSIVE              = NO
 EXCLUDE                = 

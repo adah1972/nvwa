@@ -1,5 +1,9 @@
 2015-06-01  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* misc/Doxyfile (INPUT): Add functional.h.
+
+2015-06-01  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/functional (map<>): Rename to fmap.
 
 2015-05-19  Wu Yongwei  <wuyongwei@gmail.com>
