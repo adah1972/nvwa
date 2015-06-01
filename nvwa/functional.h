@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2015-03-01
+ * @date  2015-06-01
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -204,7 +204,7 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
 template <template <typename, typename> class _OutCont = std::vector,
           template <typename> class _Alloc = std::allocator,
           typename _Fn, class _Cont>
-auto map(_Fn mapfn, const _Cont& inputs)
+auto fmap(_Fn mapfn, const _Cont& inputs)
 {
     typedef decltype(mapfn(std::declval<typename _Cont::value_type>()))
         result_type;
