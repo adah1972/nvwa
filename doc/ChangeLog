@@ -1,5 +1,15 @@
 2015-06-01  Wu Yongwei  <wuyongwei@gmail.com>
 
+	Add boost tests for some files.
+	* test/Makefile: New file.
+	* test/test_bool_array.cpp: New file.
+	* test/test_fc_queue.cpp: New file.
+	* test/test_fixed_mem_pool.cpp: New file.
+	* test/test_functional.cpp: New file.
+	* test/test_suite.cpp: New file.
+
+2015-06-01  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* misc/Doxyfile (INPUT): Add functional.h.
 
 2015-06-01  Wu Yongwei  <wuyongwei@gmail.com>
