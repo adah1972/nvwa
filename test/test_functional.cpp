@@ -164,12 +164,12 @@ BOOST_AUTO_TEST_CASE(functional_test)
     std::ostringstream oss;  // boost cannot find my operator<< via ADL
     oss << v;
     BOOST_TEST_MESSAGE("Test vector is " << oss.str());
-	oss.str(std::string());
-	oss << SquareList()(v);
-	BOOST_TEST_MESSAGE("Square list is " << oss.str());
-	BOOST_CHECK_EQUAL(SumList()(v), 15);
+    oss.str(std::string());
+    oss << SquareList()(v);
+    BOOST_TEST_MESSAGE("Square list is " << oss.str());
+    BOOST_CHECK_EQUAL(SumList()(v), 15);
     auto squared_sum = nvwa::compose(SumList(), SquareList());
-	BOOST_CHECK_EQUAL(squared_sum(v), 55);
+    BOOST_CHECK_EQUAL(squared_sum(v), 55);
     using nvwa::apply;
     BOOST_CHECK_EQUAL(apply(v, squared_sum), 55);
     BOOST_CHECK_EQUAL(apply(v, SquareList(), SumList()), 55);
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE(functional_test)
     BOOST_CHECK_EQUAL(nvwa::compose(inc, inc, inc)(2), 5);
     BOOST_CHECK_EQUAL(nvwa::apply(v,
                                   [](const std::vector<int>& v)
-								  {
+                                  {
                                       return nvwa::reduce(std::plus<int>(),
                                                           v);
                                   },
@@ -213,9 +213,9 @@ BOOST_AUTO_TEST_CASE(functional_test)
     typedef function<Func(Func)> FuncFunc;
 
     FuncFunc almost_fac = [](Func f)
-	{
+    {
         return Func([f](int n)
-		{
+        {
             if (n <= 1)
                 return 1;
             return n * f(n - 1);
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE(functional_test)
     auto const middle = nvwa::make_curry(test_curry)(obj1)(Obj(2));
     middle(Obj(3));
     middle(Obj(3));
-	oss.str(std::string());
+    oss.str(std::string());
     nvwa::make_curry(test_out3)(oss)("Hello ")("functional ")("world!");
-	BOOST_CHECK_EQUAL(oss.str(), "Hello functional world!");
+    BOOST_CHECK_EQUAL(oss.str(), "Hello functional world!");
 }
