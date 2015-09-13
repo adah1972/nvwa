@@ -1,3 +1,12 @@
+2015-09-13  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Add platform detection macros.
+	* _nvwa.h (NVWA_APPLE): New macro.
+	(NVWA_CYGWIN): New macro.
+	(NVWA_LINUX): New macro.
+	(NVWA_UNIX): New macro.
+	(NVWA_WIN32): New macro.
+
 2015-06-01  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Add boost tests for some files.

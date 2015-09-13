@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2013-2015 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Common definitions for preprocessing.
  *
- * @date  2013-04-22
+ * @date  2015-09-13
  */
 
 #ifndef NVWA_NVWA_H
@@ -50,5 +50,45 @@
 #define NVWA_NAMESPACE_END
 #define NVWA
 #endif // NVWA_USE_NAMESPACE
+
+#ifndef NVWA_APPLE
+#if defined(__APPLE__) && defined(__MACH__)
+#define NVWA_APPLE 1
+#else
+#define NVWA_APPLE 0
+#endif
+#endif // NVWA_APPLE
+
+#ifndef NVWA_CYGWIN
+#if defined(__CYGWIN__)
+#define NVWA_CYGWIN 1
+#else
+#define NVWA_CYGWIN 0
+#endif
+#endif // NVWA_CYGWIN
+
+#ifndef NVWA_LINUX
+#if defined(__linux__) || defined(__linux)
+#define NVWA_LINUX 1
+#else
+#define NVWA_LINUX 0
+#endif
+#endif // NVWA_LINUX
+
+#ifndef NVWA_UNIX
+#if defined(__unix__) || defined(__unix) || NVWA_APPLE
+#define NVWA_UNIX 1
+#else
+#define NVWA_UNIX 0
+#endif
+#endif // NVWA_UNIX
+
+#ifndef NVWA_WIN32
+#if defined(_WIN32)
+#define NVWA_WIN32 1
+#else
+#define NVWA_WIN32 0
+#endif
+#endif // NVWA_WIN32
 
 #endif // NVWA_NVWA_H
