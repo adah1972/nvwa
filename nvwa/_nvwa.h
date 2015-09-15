@@ -31,7 +31,7 @@
  *
  * Common definitions for preprocessing.
  *
- * @date  2015-09-13
+ * @date  2015-09-15
  */
 
 #ifndef NVWA_NVWA_H
@@ -90,5 +90,13 @@
 #define NVWA_WIN32 0
 #endif
 #endif // NVWA_WIN32
+
+#ifndef NVWA_WINDOWS
+#if defined(NVWA_CYGWIN) || defined(NVWA_WIN32)
+#define NVWA_WINDOWS 1
+#else
+#define NVWA_WINDOWS 0
+#endif
+#endif // NVWA_WINDOWS
 
 #endif // NVWA_NVWA_H

@@ -1,3 +1,7 @@
+2015-09-15  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* _nvwa.h (NVWA_WINDOWS): New macro.
+
 2015-09-13  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Add platform detection macros.
