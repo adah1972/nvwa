@@ -96,7 +96,7 @@
 #endif // NVWA_WIN32
 
 #ifndef NVWA_WINDOWS
-#if defined(NVWA_CYGWIN) || defined(NVWA_WIN32)
+#if NVWA_CYGWIN || NVWA_WIN32
 #define NVWA_WINDOWS 1
 #else
 #define NVWA_WINDOWS 0

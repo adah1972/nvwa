@@ -1,5 +1,15 @@
 2015-09-20  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/_nvwa.h (NVWA_WINDOWS): Fix the wrong condition of setting
+	its value.
+
+2015-09-20  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/pctimer.h: Use NVWA_WINDOWS to detect platforms; replace the
+	local macro _PCTIMER_NO_WIN32 with NVWA_PCTIMER_NO_WIN32.
+
+2015-09-20  Wu Yongwei  <wuyongwei@gmail.com>
+
 	Fix a problem of using pctimer.h in plain C.
 	* nvwa/_nvwa.h (NVWA_USE_NAMESPACE): Set the default value to 0 or 1
 	depending on whether the code is used in C or C++.
