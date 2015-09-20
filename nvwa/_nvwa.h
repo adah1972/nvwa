@@ -31,14 +31,18 @@
  *
  * Common definitions for preprocessing.
  *
- * @date  2015-09-15
+ * @date  2015-09-20
  */
 
 #ifndef NVWA_NVWA_H
 #define NVWA_NVWA_H
 
 #ifndef NVWA_USE_NAMESPACE
+#ifdef __cplusplus
 #define NVWA_USE_NAMESPACE 1
+#else
+#define NVWA_USE_NAMESPACE 0
+#endif // __cplusplus
 #endif // NVWA_USE_NAMESPACE
 
 #if NVWA_USE_NAMESPACE

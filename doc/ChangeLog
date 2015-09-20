@@ -1,3 +1,9 @@
+2015-09-20  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Fix a problem of using pctimer.h in plain C.
+	* _nvwa.h (NVWA_USE_NAMESPACE): Set the default value to 0 or 1
+	depending on whether the code is used in C or C++.
+
 2015-09-15  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* _nvwa.h (NVWA_WINDOWS): New macro.
