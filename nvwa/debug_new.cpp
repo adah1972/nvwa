@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2014 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2015 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,22 +31,21 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2014-11-29
+ * @date  2015-09-20
  */
 
+#include "_nvwa.h"              // NVWA macros
 #include <new>                  // std::bad_alloc/nothrow_t
 #include <assert.h>             // assert
 #include <stdio.h>              // fprintf/stderr
 #include <stdlib.h>             // abort
 #include <string.h>             // strcpy/strncpy/sprintf
-#if defined(__unix__) || defined(__unix) || \
-        (defined(__APPLE__) && defined(__MACH__))
+#if NVWA_UNIX
 #include <alloca.h>             // alloca
 #endif
 #ifdef _WIN32
 #include <malloc.h>             // alloca
 #endif
-#include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++11.h"              // _NOEXCEPT/_NULLPTR
 #include "fast_mutex.h"         // nvwa::fast_mutex
 #include "static_assert.h"      // STATIC_ASSERT
@@ -333,22 +332,20 @@ static bool print_position_from_addr(const void* addr)
     }
     if (new_progname)
     {
-#if defined(__APPLE__) && defined(__MACH__)
+#if NVWA_APPLE
         const char addr2line_cmd[] = "atos -o ";
 #else
         const char addr2line_cmd[] = "addr2line -e ";
 #endif
-#if   defined(__CYGWIN__) || defined(_WIN32)
+#if NVWA_WINDOWS
         const int  exeext_len = 4;
 #else
         const int  exeext_len = 0;
 #endif
-#if  !defined(__CYGWIN__) && \
-        (defined(__unix__) || defined(__unix) || \
-         (defined(__APPLE__) && defined(__MACH__)))
+#if NVWA_UNIX && !NVWA_CYGWIN
         const char ignore_err[] = " 2>/dev/null";
-#elif defined(__CYGWIN__) || \
-        (defined(_WIN32) && defined(WINVER) && WINVER >= 0x0500)
+#elif NVWA_CYGWIN || \
+        (NVWA_WIN32 && defined(WINVER) && WINVER >= 0x0500)
         const char ignore_err[] = " 2>nul";
 #else
         const char ignore_err[] = "";
@@ -362,7 +359,7 @@ static bool print_position_from_addr(const void* addr)
         strcpy(cmd, addr2line_cmd);
         strcpy(cmd + sizeof addr2line_cmd - 1, new_progname);
         size_t len = strlen(cmd);
-#if   defined(__CYGWIN__) || defined(_WIN32)
+#if NVWA_WINDOWS
         if (len <= 4
                 || (strcmp(cmd + len - 4, ".exe") != 0 &&
                     strcmp(cmd + len - 4, ".EXE") != 0))
