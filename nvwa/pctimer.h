@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2015 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,16 +31,18 @@
  *
  * Function to get a high-resolution timer for Win32/Cygwin/Unix.
  *
- * @date  2013-03-01
+ * @date  2015-09-20
  */
 
 #ifndef NVWA_PCTIMER_H
 #define NVWA_PCTIMER_H
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#include "_nvwa.h"              // NVWA_NAMESPACE_*/NVWA_WINDOWS
+
+#if NVWA_WINDOWS
 
 #ifndef _WIN32
-#define _PCTIMER_NO_WIN32
+#define NVWA_PCTIMER_NO_WIN32
 #endif /* _WIN32 */
 
 #ifndef WIN32_LEAN_AND_MEAN
@@ -48,12 +50,10 @@
 #endif /* WIN32_LEAN_AND_MEAN */
 #include <windows.h>            // QueryPerformance*
 
-#ifdef _PCTIMER_NO_WIN32
-#undef _PCTIMER_NO_WIN32
+#ifdef NVWA_PCTIMER_NO_WIN32
+#undef NVWA_PCTIMER_NO_WIN32
 #undef _WIN32
-#endif /* _PCTIMER_NO_WIN32 */
-
-#include "_nvwa.h"              // NVWA_NAMESPACE_*
+#endif /* NVWA_PCTIMER_NO_WIN32 */
 
 NVWA_NAMESPACE_BEGIN
 
@@ -76,7 +76,7 @@ __inline pctimer_t pctimer(void)
 
 NVWA_NAMESPACE_END
 
-#else /* Not Win32/Cygwin */
+#else /* Not Windows */
 
 #include <sys/time.h>
 
@@ -93,6 +93,6 @@ __inline pctimer_t pctimer(void)
 
 NVWA_NAMESPACE_END
 
-#endif /* Win32/Cygwin */
+#endif /* NVWA_WINDOWS */
 
 #endif /* NVWA_PCTIMER_H */

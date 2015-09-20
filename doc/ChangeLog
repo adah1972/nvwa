@@ -1,12 +1,12 @@
 2015-09-20  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* nvwa/_nvwa.h (NVWA_WINDOWS): Fix the wrong condition of setting
-	its value.
+	* nvwa/pctimer.h: Use NVWA_WINDOWS to detect platforms; replace the
+	local macro _PCTIMER_NO_WIN32 with NVWA_PCTIMER_NO_WIN32.
 
 2015-09-20  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* nvwa/pctimer.h: Use NVWA_WINDOWS to detect platforms; replace the
-	local macro _PCTIMER_NO_WIN32 with NVWA_PCTIMER_NO_WIN32.
+	* nvwa/_nvwa.h (NVWA_WINDOWS): Fix the wrong condition of setting
+	its value.
 
 2015-09-20  Wu Yongwei  <wuyongwei@gmail.com>
 
