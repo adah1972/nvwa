@@ -1,17 +1,17 @@
 2015-09-20  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Fix a problem of using pctimer.h in plain C.
-	* _nvwa.h (NVWA_USE_NAMESPACE): Set the default value to 0 or 1
+	* nvwa/_nvwa.h (NVWA_USE_NAMESPACE): Set the default value to 0 or 1
 	depending on whether the code is used in C or C++.
 
 2015-09-15  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* _nvwa.h (NVWA_WINDOWS): New macro.
+	* nvwa/_nvwa.h (NVWA_WINDOWS): New macro.
 
 2015-09-13  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Add platform detection macros.
-	* _nvwa.h (NVWA_APPLE): New macro.
+	* nvwa/_nvwa.h (NVWA_APPLE): New macro.
 	(NVWA_CYGWIN): New macro.
 	(NVWA_LINUX): New macro.
 	(NVWA_UNIX): New macro.
@@ -417,7 +417,7 @@
 
 2013-04-22  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* nvwa/_nvwa (NVWA): New macro.
+	* nvwa/_nvwa.h (NVWA): New macro.
 	* nvwa/debug_new.h (DEBUG_NEW): Simplify the definition.
 	* nvwa/static_mem_pool.h: Update doc comments.  Correct the
 	placement of `NVWA_NAMESPACE_BEGIN'.
