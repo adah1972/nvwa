@@ -1,3 +1,8 @@
+2015-10-20  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/functional.h (fmap<>): Make sure the return value contain
+	values instead of references.
+
 2015-09-20  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/debug_new.cpp: Use the new platform detection macros to
@@ -48,7 +53,7 @@
 
 2015-06-01  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* nvwa/functional (map<>): Rename to fmap.
+	* nvwa/functional.h (map<>): Rename to fmap.
 
 2015-05-19  Wu Yongwei  <wuyongwei@gmail.com>
 
@@ -66,20 +71,20 @@
 
 2015-03-01  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* nvwa/functional (detail::curry<>): Add credit for Julian Becker
+	* nvwa/functional.h (detail::curry<>): Add credit for Julian Becker
 	<becker.julian@gmail.com>.
 
 2015-03-01  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* nvwa/functional (detail::wrapper<>::get): Specialize for the
+	* nvwa/functional.h (detail::wrapper<>::get): Specialize for the
 	rvalue reference case so that a function with rvalue reference
 	parameters can be curried (a temporary object is created each time a
 	call happens).
 
 2015-01-07  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* nvwa/functional (detail::wrapper<>::get): Simplify and remove the
-	wrong use of std::move.
+	* nvwa/functional.h (detail::wrapper<>::get): Simplify and remove
+	the wrong use of std::move.
 
 2015-01-03  Wu Yongwei  <wuyongwei@gmail.com>
 

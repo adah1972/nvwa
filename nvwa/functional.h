@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2015-06-01
+ * @date  2015-10-20
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -206,8 +206,8 @@ template <template <typename, typename> class _OutCont = std::vector,
           typename _Fn, class _Cont>
 auto fmap(_Fn mapfn, const _Cont& inputs)
 {
-    typedef decltype(mapfn(std::declval<typename _Cont::value_type>()))
-        result_type;
+    typedef decay_t<decltype(
+        mapfn(std::declval<typename _Cont::value_type>()))> result_type;
     _OutCont<result_type, _Alloc<result_type>> result;
     detail::try_reserve(
         result, inputs,
