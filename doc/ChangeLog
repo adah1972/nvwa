@@ -1,3 +1,12 @@
+2015-10-24  Andrzej Auchimowicz  <aa.contributions@wp.eu>
+
+	* nvwa/debug.cpp (_DEBUG_NEW_REMEMBER_STACK_TRACE): New macro to
+	optionally store stack backtrace information.
+	(new_ptr_list_t::stacktrace): New member variable.
+	(print_stacktrace): New function.
+	(alloc_mem): Store stack trace when configured.
+	(check_leaks): Print available stack trace when a leak is found.
+
 2015-10-20  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/functional.h (fmap<>): Make sure the return value contain

@@ -31,24 +31,46 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2015-09-20
+ * @date  2015-10-24
  */
 
-#include "_nvwa.h"              // NVWA macros
 #include <new>                  // std::bad_alloc/nothrow_t
 #include <assert.h>             // assert
 #include <stdio.h>              // fprintf/stderr
 #include <stdlib.h>             // abort
 #include <string.h>             // strcpy/strncpy/sprintf
+#include "_nvwa.h"              // NVWA macros
+
 #if NVWA_UNIX
 #include <alloca.h>             // alloca
 #endif
-#ifdef _WIN32
+#if NVWA_WIN32
 #include <malloc.h>             // alloca
 #endif
+
+#if NVWA_LINUX || NVWA_APPLE
+#include <execinfo.h>           // backtrace
+#endif
+
+#if NVWA_WINDOWS
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>            // CaptureStackBackTrace
+#endif
+
 #include "c++11.h"              // _NOEXCEPT/_NULLPTR
 #include "fast_mutex.h"         // nvwa::fast_mutex
 #include "static_assert.h"      // STATIC_ASSERT
+
+#undef  _DEBUG_NEW_EMULATE_MALLOC
+#undef  _DEBUG_NEW_REDEFINE_NEW
+/**
+ * Macro to indicate whether redefinition of \c new is wanted.  Here it
+ * is defined to \c 0 to disable the redefinition of \c new.
+ */
+#define _DEBUG_NEW_REDEFINE_NEW 0
+#include "debug_new.h"
 
 #if !_FAST_MUTEX_CHECK_INITIALIZATION && !defined(_NOTHREADS)
 #error "_FAST_MUTEX_CHECK_INITIALIZATION not set: check_leaks may not work"
@@ -106,10 +128,11 @@
  * access the address of the file name on Linux (in my case, a core dump
  * occurred when check_leaks tried to access the file name in a shared
  * library after a \c SIGINT).  This value makes the size of
- * new_ptr_list_t \c 64 on non-Windows 32-bit platforms.
+ * new_ptr_list_t \c 64 on non-Windows 32-bit platforms (w/o stack
+ * backtrace).
  */
 #ifndef _DEBUG_NEW_FILENAME_LEN
-#ifdef _WIN32
+#if NVWA_WINDOWS
 #define _DEBUG_NEW_FILENAME_LEN 0
 #else
 #define _DEBUG_NEW_FILENAME_LEN 44
@@ -130,6 +153,23 @@
  */
 #ifndef _DEBUG_NEW_PROGNAME
 #define _DEBUG_NEW_PROGNAME _NULLPTR
+#endif
+
+/**
+ * @def _DEBUG_NEW_REMEMBER_STACK_TRACE
+ *
+ * Macro to indicate whether stack traces of allocations should be
+ * included in NVWA allocation information and be printed while leaks
+ * are reported.  Useful to pinpoint leaks caused by strdup and other
+ * custom allocation functions.  It is also very helpful in filtering
+ * out false positives caused by internal STL/C runtime operations.  It
+ * is off by default because it is quite memory heavy.  Set it to \c 1
+ * to make all allocations have stack trace attached, or set to \c 2 to
+ * make only allocations that lack calling source code information (file
+ * and line) have the stack trace attached.
+ */
+#ifndef _DEBUG_NEW_REMEMBER_STACK_TRACE
+#define _DEBUG_NEW_REMEMBER_STACK_TRACE 0
 #endif
 
 /**
@@ -188,15 +228,6 @@
 #pragma init_seg(compiler)
 #endif
 
-#undef  _DEBUG_NEW_EMULATE_MALLOC
-#undef  _DEBUG_NEW_REDEFINE_NEW
-/**
- * Macro to indicate whether redefinition of \c new is wanted.  Here it
- * is defined to \c 0 to disable the redefinition of \c new.
- */
-#define _DEBUG_NEW_REDEFINE_NEW 0
-#include "debug_new.h"
-
 /**
  * Gets the aligned value of memory block size.
  */
@@ -234,6 +265,9 @@ struct new_ptr_list_t
     };
     unsigned        line   :31; ///< Line number of the caller; or \c 0
     unsigned        is_array:1; ///< Non-zero iff <em>new[]</em> is used
+#if _DEBUG_NEW_REMEMBER_STACK_TRACE
+    void**          stacktrace;
+#endif
     unsigned        magic;      ///< Magic number for error detection
 };
 
@@ -263,6 +297,9 @@ static new_ptr_list_t new_ptr_list = {
     },
     0,
     0,
+#if _DEBUG_NEW_REMEMBER_STACK_TRACE
+    _NULLPTR,
+#endif
     DEBUG_NEW_MAGIC
 };
 
@@ -337,11 +374,13 @@ static bool print_position_from_addr(const void* addr)
 #else
         const char addr2line_cmd[] = "addr2line -e ";
 #endif
+
 #if NVWA_WINDOWS
         const int  exeext_len = 4;
 #else
         const int  exeext_len = 0;
 #endif
+
 #if NVWA_UNIX && !NVWA_CYGWIN
         const char ignore_err[] = " 2>/dev/null";
 #elif NVWA_CYGWIN || \
@@ -442,6 +481,20 @@ static void print_position(const void* ptr, int line)
     }
 }
 
+#if _DEBUG_NEW_REMEMBER_STACK_TRACE
+/**
+ * Prints the stack backtrace.
+ *
+ * @param stacktrace  pointer to the stack trace
+ */
+static void print_stacktrace(void** stacktrace)
+{
+    fprintf(new_output_fp, "Stack backtrace:\n");
+    for (size_t i = 0; stacktrace[i] != _NULLPTR; ++i)
+        fprintf(new_output_fp, "%p\n", stacktrace[i]);
+}
+#endif
+
 #if _DEBUG_NEW_TAILCHECK
 /**
  * Checks whether the padding bytes at the end of a memory block is
@@ -508,6 +561,35 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
         ptr->addr = (void*)file;
 #endif
     ptr->line = line;
+#if _DEBUG_NEW_REMEMBER_STACK_TRACE
+    ptr->stacktrace = _NULLPTR;
+
+#if _DEBUG_NEW_REMEMBER_STACK_TRACE == 2
+    if (line == 0)
+#endif
+    {
+        void* buffer [255];
+        size_t buffer_length = sizeof(buffer) / sizeof(*buffer);
+
+#if NVWA_UNIX
+        int stacktrace_length = backtrace(buffer, int(buffer_length));
+#endif
+
+#if NVWA_WINDOWS
+        USHORT stacktrace_length = CaptureStackBackTrace(
+            0, DWORD(buffer_length), buffer, _NULLPTR);
+#endif
+
+        size_t stacktrace_size = stacktrace_length * sizeof(void*);
+        ptr->stacktrace = (void**)malloc(stacktrace_size + 1);
+
+        if (ptr->stacktrace != _NULLPTR)
+        {
+            memcpy(ptr->stacktrace, buffer, stacktrace_size);
+            ptr->stacktrace[stacktrace_length] = _NULLPTR;
+        }
+    }
+#endif
     ptr->is_array = is_array;
     ptr->size = size;
     ptr->magic = DEBUG_NEW_MAGIC;
@@ -613,6 +695,9 @@ static void free_pointer(void* usr_ptr, void* addr, bool is_array)
                 (char*)ptr + ALIGNED_LIST_ITEM_SIZE,
                 (unsigned long)ptr->size, (unsigned long)total_mem_alloc);
     }
+#if _DEBUG_NEW_REMEMBER_STACK_TRACE
+    free(ptr->stacktrace);
+#endif
     free(ptr);
     return;
 }
@@ -645,20 +730,30 @@ int check_leaks()
                     usr_ptr);
         }
 #endif
+
         fprintf(new_output_fp,
                 "Leaked object at %p (size %lu, ",
                 usr_ptr,
                 (unsigned long)ptr->size);
+
         if (ptr->line != 0)
             print_position(ptr->file, ptr->line);
         else
             print_position(ptr->addr, ptr->line);
+
         fprintf(new_output_fp, ")\n");
+
+#if _DEBUG_NEW_REMEMBER_STACK_TRACE
+        if (ptr->stacktrace != _NULLPTR)
+            print_stacktrace(ptr->stacktrace);
+#endif
+
         ptr = ptr->next;
         ++leak_cnt;
     }
     if (new_verbose_flag || leak_cnt)
         fprintf(new_output_fp, "*** %d leaks found\n", leak_cnt);
+
     return leak_cnt;
 }
 
@@ -766,6 +861,10 @@ void debug_new_recorder::_M_process(void* usr_ptr)
             [_DEBUG_NEW_FILENAME_LEN - 1] = '\0';
 #endif
     ptr->line = _M_line;
+#if _DEBUG_NEW_REMEMBER_STACK_TRACE == 2
+    free(ptr->stacktrace);
+    ptr->stacktrace = _NULLPTR;
+#endif
 }
 
 /**
