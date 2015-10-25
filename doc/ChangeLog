@@ -1,3 +1,12 @@
+2015-10-25  Andrzej Auchimowicz  <aa.contributions@wp.eu>
+
+	* nvwa/debug_new.h (stacktrace_print_callback_t): New typedef.
+	(stacktrace_print_callback): New declaration.
+	* nvwa/debug_new.cpp (stacktrace_print_callback): New global
+	variable.
+	(print_stacktrace): Call stacktrace_print_callback if it is not
+	null; fall back to simple printing if it is.
+
 2015-10-24  Andrzej Auchimowicz  <aa.contributions@wp.eu>
 
 	* nvwa/debug.cpp (_DEBUG_NEW_REMEMBER_STACK_TRACE): New macro to
@@ -1778,7 +1787,7 @@
 	(operator new(size_t, const char*, int)): Ditto.
 	(operator delete(void*)): Ditto.
 	(operator delete[](void*)): Ditto.
-	* nvwa/debug_new.h: Add declaration of new_progname.
+	* nvwa/debug_new.h (new_progname): New declaration.
 	* misc/Doxyfile: Predefine __GNUC__ in doxygen documentation.
 
 2004-12-09  Wu Yongwei  <adah@sh163.net>

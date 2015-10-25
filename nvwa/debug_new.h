@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2015 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @date  2013-10-06
+ * @date  2015-10-25
  */
 
 #ifndef NVWA_DEBUG_NEW_H
@@ -93,6 +93,14 @@ NVWA_NAMESPACE_BEGIN
 #define _DEBUG_NEW_TYPE 1
 #endif
 
+/**
+ * Callback type for stack trace printing.
+ *
+ * @param fp          pointer to the output stream
+ * @param stacktrace  pointer to the stack trace array (null-terminated)
+ */
+typedef void (*stacktrace_print_callback_t)(FILE* fp, void** stacktrace);
+
 /* Prototypes */
 int check_leaks();
 int check_mem_corruption();
@@ -101,7 +109,8 @@ int check_mem_corruption();
 extern bool new_autocheck_flag; // default to true: call check_leaks() on exit
 extern bool new_verbose_flag;   // default to false: no verbose information
 extern FILE* new_output_fp;     // default to stderr: output to console
-extern const char* new_progname;// default to NULL; should be assigned argv[0]
+extern const char* new_progname;// default to null; should be assigned argv[0]
+extern stacktrace_print_callback_t stacktrace_print_callback;// default to null
 
 /**
  * @def DEBUG_NEW

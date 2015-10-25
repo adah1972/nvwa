@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2015-10-24
+ * @date  2015-10-25
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -346,6 +346,13 @@ FILE* new_output_fp = stderr;
  */
 const char* new_progname = _DEBUG_NEW_PROGNAME;
 
+/**
+ * Pointer to the callback used to print the stack backtrace in case of
+ * a memory problem.  A null value causes the default stack trace
+ * printing routine to be used.
+ */
+stacktrace_print_callback_t stacktrace_print_callback = _NULLPTR;
+
 #if _DEBUG_NEW_USE_ADDR2LINE
 /**
  * Tries printing the position information from an instruction address.
@@ -485,13 +492,26 @@ static void print_position(const void* ptr, int line)
 /**
  * Prints the stack backtrace.
  *
- * @param stacktrace  pointer to the stack trace
+ * When #stacktrace_print_callback is not null, it is used for printing
+ * the stacktrace items.  Default implementation of call stack printing
+ * is very spartan&mdash;only stack frame pointers are printed&mdash;but
+ * even that output is still useful.  Just do address lookup in LLDB
+ * etc.
+ *
+ * @param stacktrace  pointer to the stack trace array
  */
 static void print_stacktrace(void** stacktrace)
 {
-    fprintf(new_output_fp, "Stack backtrace:\n");
-    for (size_t i = 0; stacktrace[i] != _NULLPTR; ++i)
-        fprintf(new_output_fp, "%p\n", stacktrace[i]);
+     if (stacktrace_print_callback == _NULLPTR)
+     {
+        fprintf(new_output_fp, "Stack backtrace:\n");
+        for (size_t i = 0; stacktrace[i] != _NULLPTR; ++i)
+            fprintf(new_output_fp, "%p\n", stacktrace[i]);
+     }
+     else
+     {
+         stacktrace_print_callback(new_output_fp, stacktrace);
+     }
 }
 #endif
 
@@ -803,6 +823,12 @@ int check_mem_corruption()
         else
             print_position(ptr->addr, ptr->line);
         fprintf(new_output_fp, ")\n");
+
+#if _DEBUG_NEW_REMEMBER_STACK_TRACE
+        if (ptr->stacktrace != _NULLPTR)
+            print_stacktrace(ptr->stacktrace);
+#endif
+
         ++corrupt_cnt;
     }
     fprintf(new_output_fp, "*** Checking for memory corruption: %d FOUND\n",
