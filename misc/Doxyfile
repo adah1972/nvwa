@@ -81,8 +81,8 @@ INPUT                  = ../nvwa/fast_mutex.h \
                          ../nvwa/cont_ptr_utils.h \
                          ../nvwa/bool_array.h \
                          ../nvwa/bool_array.cpp \
-                         ../nvwa/fc_queue.h \
-                         ../nvwa/functional.h
+                         ../nvwa/fc_queue.h
+#                        ../nvwa/functional.h
 FILE_PATTERNS          = 
 RECURSIVE              = NO
 EXCLUDE                = 
@@ -192,6 +192,7 @@ INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = __GNUC__ \
                          _DEBUG \
                          _DEBUG_NEW_REDEFINE_NEW=0 \
+                         _DEBUG_NEW_REMEMBER_STACK_TRACE=1 \
                          _FINAL=final \
                          _NOEXCEPT=noexcept \
                          _NOEXCEPT_(x)= \

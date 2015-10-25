@@ -1,3 +1,11 @@
+2015-10-25  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* misc/Doxyfile (INPUT): Comment out functional.h (as it does not
+	work well with the Doxygen version I use; the latest version has
+	other significant bugs).
+	(PREDEFINED): Add _DEBUG_NEW_REMEMBER_STACK_TRACE=1 to force the
+	inclusion of related code in Doxygen output.
+
 2015-10-25  Andrzej Auchimowicz  <aa.contributions@wp.eu>
 
 	* nvwa/debug_new.h (leak_whitelist_callback_t): New typedef.
