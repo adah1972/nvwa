@@ -504,9 +504,9 @@ static void print_stacktrace(void** stacktrace)
 {
      if (stacktrace_print_callback == _NULLPTR)
      {
-        fprintf(new_output_fp, "Stack backtrace:\n");
-        for (size_t i = 0; stacktrace[i] != _NULLPTR; ++i)
-            fprintf(new_output_fp, "%p\n", stacktrace[i]);
+         fprintf(new_output_fp, "Stack backtrace:\n");
+         for (size_t i = 0; stacktrace[i] != _NULLPTR; ++i)
+             fprintf(new_output_fp, "%p\n", stacktrace[i]);
      }
      else
      {
