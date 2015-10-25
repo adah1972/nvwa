@@ -1,5 +1,13 @@
 2015-10-25  Andrzej Auchimowicz  <aa.contributions@wp.eu>
 
+	* nvwa/debug_new.h (leak_whitelist_callback_t): New typedef.
+	(leak_whitelist_callback): New declaration.
+	* nvwa/debug_new.cpp (leak_whitelist_callback): New global variable.
+	(is_leak_whitelisted): New function.
+	(check_leaks): Report leaks after the whitelist check.
+
+2015-10-25  Andrzej Auchimowicz  <aa.contributions@wp.eu>
+
 	* nvwa/debug_new.h (stacktrace_print_callback_t): New typedef.
 	(stacktrace_print_callback): New declaration.
 	* nvwa/debug_new.cpp (stacktrace_print_callback): New global

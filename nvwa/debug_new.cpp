@@ -353,6 +353,12 @@ const char* new_progname = _DEBUG_NEW_PROGNAME;
  */
 stacktrace_print_callback_t stacktrace_print_callback = _NULLPTR;
 
+/**
+ * Pointer to the callback used to filter out false positives from leak
+ * reports.  A null value means the lack of filtering.
+ */
+leak_whitelist_callback_t leak_whitelist_callback = _NULLPTR;
+
 #if _DEBUG_NEW_USE_ADDR2LINE
 /**
  * Tries printing the position information from an instruction address.
@@ -492,11 +498,11 @@ static void print_position(const void* ptr, int line)
 /**
  * Prints the stack backtrace.
  *
- * When #stacktrace_print_callback is not null, it is used for printing
- * the stacktrace items.  Default implementation of call stack printing
- * is very spartan&mdash;only stack frame pointers are printed&mdash;but
- * even that output is still useful.  Just do address lookup in LLDB
- * etc.
+ * When nvwa#stacktrace_print_callback is not null, it is used for
+ * printing the stacktrace items.  Default implementation of call stack
+ * printing is very spartan&mdash;only stack frame pointers are
+ * printed&mdash;but even that output is still useful.  Just do address
+ * lookup in LLDB etc.
  *
  * @param stacktrace  pointer to the stack trace array
  */
@@ -514,6 +520,31 @@ static void print_stacktrace(void** stacktrace)
      }
 }
 #endif
+
+/**
+ * Checks whether a leak should be ignored.  Its runtime performance
+ * depends on the callback nvwa#leak_whitelist_callback.
+ *
+ * @param ptr  pointer to a new_ptr_list_t struct
+ * @return     \c true if the leak should be whitelisted; \c false
+ *             otherwise
+ */
+static bool is_leak_whitelisted(new_ptr_list_t* ptr)
+{
+    if (leak_whitelist_callback == _NULLPTR)
+        return false;
+
+    char const* file = ptr->line != 0 ? ptr->file : _NULLPTR;
+    int line = ptr->line;
+    void* addr = ptr->line == 0 ? ptr->addr : _NULLPTR;
+#if _DEBUG_NEW_REMEMBER_STACK_TRACE
+    void** stacktrace = ptr->stacktrace;
+#else
+    void** stacktrace = _NULLPTR;
+#endif
+
+    return leak_whitelist_callback(file, line, addr, stacktrace);
+}
 
 #if _DEBUG_NEW_TAILCHECK
 /**
@@ -730,9 +761,11 @@ static void free_pointer(void* usr_ptr, void* addr, bool is_array)
 int check_leaks()
 {
     int leak_cnt = 0;
+    int whitelisted_leak_cnt = 0;
     fast_mutex_autolock lock_ptr(new_ptr_lock);
     fast_mutex_autolock lock_output(new_output_lock);
     new_ptr_list_t* ptr = new_ptr_list.next;
+
     while (ptr != &new_ptr_list)
     {
         const char* const usr_ptr = (char*)ptr + ALIGNED_LIST_ITEM_SIZE;
@@ -751,28 +784,45 @@ int check_leaks()
         }
 #endif
 
-        fprintf(new_output_fp,
-                "Leaked object at %p (size %lu, ",
-                usr_ptr,
-                (unsigned long)ptr->size);
-
-        if (ptr->line != 0)
-            print_position(ptr->file, ptr->line);
+        if (is_leak_whitelisted(ptr))
+        {
+            ++whitelisted_leak_cnt;
+        }
         else
-            print_position(ptr->addr, ptr->line);
+        {
+            fprintf(new_output_fp,
+                    "Leaked object at %p (size %lu, ",
+                    usr_ptr,
+                    (unsigned long)ptr->size);
 
-        fprintf(new_output_fp, ")\n");
+            if (ptr->line != 0)
+                print_position(ptr->file, ptr->line);
+            else
+                print_position(ptr->addr, ptr->line);
+
+            fprintf(new_output_fp, ")\n");
 
 #if _DEBUG_NEW_REMEMBER_STACK_TRACE
-        if (ptr->stacktrace != _NULLPTR)
-            print_stacktrace(ptr->stacktrace);
+            if (ptr->stacktrace != _NULLPTR)
+                print_stacktrace(ptr->stacktrace);
 #endif
+        }
 
         ptr = ptr->next;
         ++leak_cnt;
     }
     if (new_verbose_flag || leak_cnt)
-        fprintf(new_output_fp, "*** %d leaks found\n", leak_cnt);
+    {
+        if (whitelisted_leak_cnt > 0)
+        {
+            fprintf(new_output_fp, "*** %d leaks found (%d whitelisted)\n",
+                leak_cnt, whitelisted_leak_cnt);
+        }
+        else
+        {
+            fprintf(new_output_fp, "*** %d leaks found\n", leak_cnt);
+        }
+    }
 
     return leak_cnt;
 }

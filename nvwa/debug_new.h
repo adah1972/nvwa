@@ -101,6 +101,22 @@ NVWA_NAMESPACE_BEGIN
  */
 typedef void (*stacktrace_print_callback_t)(FILE* fp, void** stacktrace);
 
+/**
+ * Callback type for the leak whitelist function.  \a file, \a address,
+ * and \a backtrace might be null depending on library configuration,
+ * platform, and amount of runtime information available.  \a line can
+ * be 0 when line number info is not available at runtime.
+ *
+ * @param file        null-terminated string of the file name
+ * @param line        line number
+ * @param addr        address of code where leakage happens
+ * @param stacktrace  pointer to the stack trace array (null-terminated)
+ * @return            \c true if the leak should be whitelisted;
+ *                    \c false otherwise
+ */
+typedef bool (*leak_whitelist_callback_t)(char const* file, int line,
+                                          void* addr, void** stacktrace);
+
 /* Prototypes */
 int check_leaks();
 int check_mem_corruption();
@@ -111,6 +127,7 @@ extern bool new_verbose_flag;   // default to false: no verbose information
 extern FILE* new_output_fp;     // default to stderr: output to console
 extern const char* new_progname;// default to null; should be assigned argv[0]
 extern stacktrace_print_callback_t stacktrace_print_callback;// default to null
+extern leak_whitelist_callback_t leak_whitelist_callback;    // default to null
 
 /**
  * @def DEBUG_NEW
