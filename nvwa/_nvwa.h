@@ -31,11 +31,17 @@
  *
  * Common definitions for preprocessing.
  *
- * @date  2015-09-20
+ * @date  2015-10-28
  */
 
 #ifndef NVWA_NVWA_H
 #define NVWA_NVWA_H
+
+/**
+ * @namespace nvwa
+ * Namespace of the nvwa project.  Most functions and global variables
+ * are defined in this namespace.
+ */
 
 #ifndef NVWA_USE_NAMESPACE
 #ifdef __cplusplus

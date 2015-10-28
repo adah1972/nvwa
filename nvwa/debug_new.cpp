@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2015-10-25
+ * @date  2015-10-28
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -266,7 +266,7 @@ struct new_ptr_list_t
     unsigned        line   :31; ///< Line number of the caller; or \c 0
     unsigned        is_array:1; ///< Non-zero iff <em>new[]</em> is used
 #if _DEBUG_NEW_REMEMBER_STACK_TRACE
-    void**          stacktrace;
+    void**          stacktrace; ///< Pointer to stack trace information
 #endif
     unsigned        magic;      ///< Magic number for error detection
 };
@@ -319,8 +319,8 @@ static fast_mutex new_output_lock;
 static size_t total_mem_alloc = 0;
 
 /**
- * Flag to control whether #check_leaks will be automatically called on
- * program exit.
+ * Flag to control whether nvwa#check_leaks will be automatically called
+ * on program exit.
  */
 bool new_autocheck_flag = true;
 
@@ -958,7 +958,7 @@ debug_new_counter::debug_new_counter()
 
 /**
  * Destructor to decrement the count.  When the count is zero,
- * #check_leaks will be called.
+ * nvwa#check_leaks will be called.
  */
 debug_new_counter::~debug_new_counter()
 {
@@ -1166,3 +1166,7 @@ void operator delete[](void* ptr, const std::nothrow_t&) _NOEXCEPT
 {
     operator delete[](ptr, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
+
+// This is to make Doxygen happy
+#undef _DEBUG_NEW_REMEMBER_STACK_TRACE
+#define _DEBUG_NEW_REMEMBER_STACK_TRACE 0

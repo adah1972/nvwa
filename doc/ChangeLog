@@ -1,8 +1,21 @@
+2015-10-28  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Adjust for Doxygen output.
+	* misc/Doxyfile: Update the configuration file to be based on
+	Doxygen 1.5.2; Remove options obsolete in Doxygen 1.8; hide
+	undocumented items but include documented private and static
+	entities.
+	(INPUT): Add _nvwa.h and c++11.h.
+	* nvwa/_nvwa.h: Add documentation comment for namespace nvwa.
+	* nvwa/debug_new.cpp: Add documentation comment for
+	new_ptr_list_t::stacktrace; fix two wrong links; make
+	_DEBUG_NEW_REMEMBER_STACK_TRACE documented.
+
 2015-10-25  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* misc/Doxyfile (INPUT): Comment out functional.h (as it does not
 	work well with the Doxygen version I use; the latest version has
-	other significant bugs).
+	other issues).
 	(PREDEFINED): Add _DEBUG_NEW_REMEMBER_STACK_TRACE=1 to force the
 	inclusion of related code in Doxygen output.
 
