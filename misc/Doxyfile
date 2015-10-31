@@ -88,8 +88,8 @@ INPUT                  = ../nvwa/_nvwa.h \
                          ../nvwa/cont_ptr_utils.h \
                          ../nvwa/bool_array.h \
                          ../nvwa/bool_array.cpp \
-                         ../nvwa/fc_queue.h
-#                        ../nvwa/functional.h
+                         ../nvwa/fc_queue.h \
+                         ../nvwa/functional.h
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = 
 RECURSIVE              = NO

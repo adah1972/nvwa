@@ -1,3 +1,9 @@
+2015-10-31  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* misc/Doxyfile (INPUT): Re-enable functional.h.
+	* misc/doxit.sh: Make it work with the latest Doxygen 1.8.10;
+	hide functional.h when Doxygen 1.5 or 1.6 is detected.
+
 2015-10-28  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Adjust for Doxygen output.

@@ -2,19 +2,22 @@
 
 # Recommended tool versions and notes:
 #
-#   * Graphviz 2.32
+#   * Graphviz 2.38
 #
-#     This new version works well for me; diagrams looks better than 2.8
+#     This new version works well for me
 #
 #   * Doxygen 1.5.1/1.5.2 for LaTeX output
 #
 #     1.5.3+ have wrong output in some diagrams
 #
-#   * Doxygen 1.5.8/1.6.2 for HTML output 
+#   * Doxygen 1.5.8/1.6.2/1.8.10 for HTML output 
 #
 #     1.5.9 has broken link on "More..."
 #     1.6.0/1 left-aligns the project name
 #     1.6.3 has issues with included-by graphs
+#
+#     I personally do not quite like the look of output of 1.8, but it
+#     has good support for C++11
 #
 
 # Intermediate Doxyfile
@@ -41,6 +44,9 @@ fi
 if [ "$DOXYGEN" = "" ]; then
   DOXYGEN=doxygen
 fi
+
+HIDE_FUNCTIONAL_H=NO
+$DOXYGEN --version | grep '^1\.\(5\|6\)\.' > /dev/null && HIDE_FUNCTIONAL_H=YES
 
 # Determine Doxygen options
 if [ "$PDF_HYPERLINKS" = "" ]; then
@@ -75,6 +81,9 @@ if [ "$GENERATE_LATEX" = "YES" ]; then
   fi
 else
   sedfile 's/\(GENERATE_LATEX *=\).*/\1 NO/'  $DOXYFILE_TMP
+fi
+if [ "$HIDE_FUNCTIONAL_H" = "YES" ]; then
+  sedfile 's/ \(.*nvwa\/functional\.h\)/#\1/' $DOXYFILE_TMP
 fi
 
 # Work around an expression that will confuse Doxygen
