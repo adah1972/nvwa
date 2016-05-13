@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2015-10-20
+ * @date  2016-05-13
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -46,14 +46,6 @@
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
 NVWA_NAMESPACE_BEGIN
-
-// These are defined in C++14, but not all platforms support them.
-template <bool _Bp, typename _Tp = void>
-using enable_if_t = typename std::enable_if<_Bp, _Tp>::type;
-template <typename _Tp>
-using remove_reference_t = typename std::remove_reference<_Tp>::type;
-template <typename _Tp>
-using decay_t = typename std::decay<_Tp>::type;
 
 /**
  * Returns the data intact to terminate the recursion.
@@ -121,7 +113,7 @@ struct self_ref_func
 template <typename _Tp,
           bool _Deep_copy = std::is_rvalue_reference<_Tp>{} ||
                             (std::is_lvalue_reference<_Tp>{} &&
-                             std::is_const<remove_reference_t<_Tp>>{})>
+                             std::is_const<std::remove_reference_t<_Tp>>{})>
 struct wrapper
 {
     wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
@@ -135,16 +127,18 @@ struct wrapper<_Tp, true>
 {
     wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
     template <typename _Up = _Tp>
-    enable_if_t<std::is_rvalue_reference<_Up>{}, decay_t<_Tp>> get() const
+    std::enable_if_t<std::is_rvalue_reference<_Up>{}, std::decay_t<_Tp>>
+    get() const
     {
         return value;
     }
     template <typename _Up = _Tp>
-    enable_if_t<!std::is_rvalue_reference<_Up>{}, _Tp> get() const
+    std::enable_if_t<!std::is_rvalue_reference<_Up>{}, _Tp>
+    get() const
     {
         return value;
     }
-    decay_t<_Tp> value;
+    std::decay_t<_Tp> value;
 };
 
 // Declaration of curry, to be specialized below.  The code is based on
@@ -188,15 +182,15 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
 } /* namespace detail */
 
 /**
- * Applies the \a mapfn function to each item in the input container.
+ * Applies a function to each item in the input container.
  *
  * This is similar to \c std::transform, but the style is more
  * functional and more suitable for chaining operations.
  *
- * @param mapfn   the function to apply
+ * @param fn      the function to apply
  * @param inputs  the input container
- * @pre           \a mapfn shall take one argument of the type of the
- *                items in \a inputs, the output container shall support
+ * @pre           \a fn shall take one argument of the type of the items
+ *                in \a inputs, the output container shall support
  *                \c push_back, and the input container shall support
  *                iteration.
  * @return        the container of results
@@ -204,17 +198,21 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
 template <template <typename, typename> class _OutCont = std::vector,
           template <typename> class _Alloc = std::allocator,
           typename _Fn, class _Cont>
-auto fmap(_Fn mapfn, const _Cont& inputs)
+auto fmap(_Fn fn, const _Cont& inputs) ->
+_OutCont<
+    std::decay_t<decltype(fn(std::declval<typename _Cont::value_type>()))>,
+    _Alloc<std::decay_t<decltype(
+            fn(std::declval<typename _Cont::value_type>()))>>>
 {
-    typedef decay_t<decltype(
-        mapfn(std::declval<typename _Cont::value_type>()))> result_type;
+    typedef std::decay_t<decltype(
+        fn(std::declval<typename _Cont::value_type>()))> result_type;
     _OutCont<result_type, _Alloc<result_type>> result;
     detail::try_reserve(
         result, inputs,
         std::integral_constant<
             bool, detail::can_reserve<decltype(result), _Cont>::value>());
     for (auto& item : inputs)
-        result.push_back(mapfn(item));
+        result.push_back(fn(item));
     return result;
 }
 
@@ -310,6 +308,7 @@ _Rs&& reduce(_Fn reducefn, const _Cont& inputs, _Rs&& initval)
  *
  * @return      the forwarding function
  */
+inline
 auto compose()
 {
     return [](auto&& x) -> decltype(auto)
