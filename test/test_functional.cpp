@@ -70,29 +70,39 @@ auto sum(T1 x, T2 y, Targ... args)
     return sum(x + y, args...);
 }
 
-template <typename type>
-std::ostream& print_with_space(std::ostream& os, const type& data)
+template <typename T>
+std::ostream& print_with_space(std::ostream& os, const T& data)
 {
     os << data << ' ';
     return os;
 }
 
-template <typename type>
-std::ostream& operator<<(std::ostream& os, const std::list<type>& data)
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::list<T>& data)
 {
     os << "[ ";
-    nvwa::reduce(print_with_space<type>, data, os);;
+    nvwa::reduce(print_with_space<T>, data, os);;
     os << ']';
     return os;
 }
 
-template <typename type>
-std::ostream& operator<<(std::ostream& os, const std::vector<type>& data)
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& data)
 {
     os << "( ";
     std::copy(data.begin(), data.end(),
-              std::ostream_iterator<type>(os, " "));
+              std::ostream_iterator<T>(os, " "));
     os << ')';
+    return os;
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const nvwa::optional<T>& data)
+{
+    if (data.is_valid())
+        os << "just " << data.cref();
+    else
+        os << "invalid";
     return os;
 }
 
@@ -158,6 +168,18 @@ void test_out3(std::ostream& os, std::string a, const std::string& b,
 BOOST_AUTO_TEST_CASE(functional_test)
 {
     Obj guard(99);  // special guard
+    nvwa::optional<int> nothing;
+    auto r1 = fmap(increase, nothing);
+    auto r2 = fmap(increase, nvwa::make_optional(41));
+    BOOST_CHECK(!r1.is_valid());
+    BOOST_CHECK(r2.is_valid() && r2.value() == 42);
+    auto const inc_opt = nvwa::lift_optional<int>::make(increase);
+    BOOST_CHECK([](nvwa::optional<int> x) { return !x.is_valid(); }
+                  (inc_opt(r1)));
+    BOOST_CHECK([](nvwa::optional<int> x)
+                {
+                    return x.is_valid() && x.value() == 43;
+                }(inc_opt(r2)));
     assert((nvwa::detail::can_reserve<std::vector<int>,
                                       std::list<int>>::value));
     std::vector<int> v{1, 2, 3, 4, 5};
@@ -165,7 +187,7 @@ BOOST_AUTO_TEST_CASE(functional_test)
     oss << v;
     BOOST_TEST_MESSAGE("Test vector is " << oss.str());
     oss.str(std::string());
-    oss << SquareList()(v);
+    oss << fmap(SquareList(), nvwa::make_optional(v));
     BOOST_TEST_MESSAGE("Square list is " << oss.str());
     BOOST_CHECK_EQUAL(SumList()(v), 15);
     auto squared_sum = nvwa::compose(SumList(), SquareList());
@@ -218,7 +240,8 @@ BOOST_AUTO_TEST_CASE(functional_test)
         {
             if (n <= 1)
                 return 1;
-            return n * f(n - 1);
+            else
+                return n * f(n - 1);
         });
     };
     FuncFunc almost_fac2 = nvwa::make_curry(fact);

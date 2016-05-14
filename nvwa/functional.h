@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2014-2015 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2014-2016 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-05-13
+ * @date  2016-05-14
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -40,7 +40,7 @@
 
 #include <functional>           // std::function
 #include <memory>               // std::allocator
-#include <type_traits>          // std::integral_constant/is_reference/...
+#include <type_traits>          // std::decay_t/is_const/integral_constant/...
 #include <utility>              // std::declval/forward/move
 #include <vector>               // std::vector
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
@@ -48,25 +48,55 @@
 NVWA_NAMESPACE_BEGIN
 
 /**
- * Returns the data intact to terminate the recursion.
+ * Class for optional values.  It is modelled after the Maybe type in Haskell.
+ *
+ * @param _Tp  the optional type to store
  */
 template <typename _Tp>
-_Tp apply(_Tp&& data)
+class optional
 {
-    return std::forward<_Tp>(data);
+    bool is_valid_;
+    _Tp value_;
+
+public:
+    typedef _Tp value_type;
+    typedef _Tp& reference;
+    typedef const _Tp& const_reference;
+
+    optional() : is_valid_(false) {}
+    template <typename _Up>
+    optional(_Up&& x) : is_valid_(true), value_(std::forward<_Up>(x)) {}
+
+    bool is_valid() const { return is_valid_; }
+
+    std::enable_if_t<!std::is_reference<_Tp>{}, value_type> value() const
+    {
+        return value_;
+    }
+    std::enable_if_t<!std::is_reference<_Tp>{}, value_type> move_value()
+    {
+        return std::move(value_);
+    }
+    reference ref() { return value_; }
+    const_reference cref() const { return value_; }
+};
+
+template <typename _Tp>
+optional<std::decay_t<_Tp>> make_optional(_Tp&& x)
+{
+    return optional<std::decay_t<_Tp>>(std::forward<_Tp>(x));
 }
 
-/**
- * Applies the functions in the arguments to the data consecutively.
- *
- * @param data  the data to operate on
- * @param fn    the first function to apply
- * @param args  the rest functions to apply
- */
-template <typename _Tp, typename _Fn, typename... _Fargs>
-decltype(auto) apply(_Tp&& data, _Fn fn, _Fargs... args)
+template <typename _Tp>
+bool is_valid(const optional<_Tp>& x)
 {
-    return apply(fn(std::forward<_Tp>(data)), args...);
+    return x.is_valid();
+}
+
+template <typename _Tp, typename... _Targs>
+bool is_valid(const optional<_Tp>& first, const optional<_Targs>&... other)
+{
+    return first.is_valid() && is_valid(other...);
 }
 
 namespace detail {
@@ -80,13 +110,13 @@ struct can_reserve
     struct bad { char dummy[2]; };
     template <class _Up, void   (_Up::*)(size_t)> struct _SFINAE1 {};
     template <class _Up, size_t (_Up::*)() const> struct _SFINAE2 {};
-    template <class _Up> static good __reserve(_SFINAE1<_Up, &_Up::reserve>*);
-    template <class _Up> static bad  __reserve(...);
-    template <class _Up> static good __size(_SFINAE2<_Up, &_Up::size>*);
-    template <class _Up> static bad  __size(...);
+    template <class _Up> static good reserve(_SFINAE1<_Up, &_Up::reserve>*);
+    template <class _Up> static bad  reserve(...);
+    template <class _Up> static good size(_SFINAE2<_Up, &_Up::size>*);
+    template <class _Up> static bad  size(...);
     static const bool value =
-        (sizeof(__reserve<_T1>(nullptr)) == sizeof(good) &&
-         sizeof(__size<_T2>(nullptr)) == sizeof(good));
+        (sizeof(reserve<_T1>(nullptr)) == sizeof(good) &&
+         sizeof(size<_T2>(nullptr)) == sizeof(good));
 };
 
 // Does nothing since can_reserve::value is false.
@@ -181,6 +211,91 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
 
 } /* namespace detail */
 
+template <typename... _Targs>
+struct lift_optional
+{
+    /**
+     * Lifts a function so that it takes const references of optionals
+     * and returns an optional.
+     *
+     * @param fn  function to lift
+     */
+    template <typename _Fn>
+    static auto make(_Fn fn)
+    {
+        return [fn](const optional<_Targs>&... args)
+        {
+            typedef std::decay_t<decltype(fn(args.cref()...))> result_type;
+            if (is_valid(args...))
+                return optional<result_type>(fn(args.cref()...));
+            else
+                return optional<result_type>();
+        };
+    }
+
+    /**
+     * Lifts a function so that it takes rvalue references of optionals
+     * and returns an optional.
+     *
+     * @param fn  function to lift
+     */
+    template <typename _Fn>
+    static auto make_move(_Fn fn)
+    {
+        return [fn](optional<_Targs>&&... args)
+        {
+            typedef std::decay_t<decltype(fn(args.move_value()...))>
+                result_type;
+            if (is_valid(args...))
+                return optional<result_type>(fn(args.move_value()...));
+            else
+                return optional<result_type>();
+        };
+    }
+};
+
+/**
+ * Applies a function to the values of optionals if they are all valid.
+ *
+ * If any of the optionals are invalid, the result is invalid too.
+ * This version works for const optionals (general case).
+ *
+ * @param fn    the function to apply
+ * @param args  optionals whose values will be passed to \a fn
+ * @return      an optional that either is invalid (if any of the input
+ *              is invalid) or contains the output of \a fn
+ */
+template <typename _Fn, typename... _Targs>
+auto fmap(_Fn fn, const optional<_Targs>&... args)
+{
+    typedef std::decay_t<decltype(fn(args.cref()...))> result_type;
+    if (is_valid(args...))
+        return optional<result_type>(fn(args.cref()...));
+    else
+        return optional<result_type>();
+}
+
+/**
+ * Applies a function to the values of optionals if they are all valid.
+ *
+ * If any of the optionals are invalid, the result is invalid too.
+ * This version optimizes for movable optionals.
+ *
+ * @param fn    the function to apply
+ * @param args  optionals whose values will be passed to \a fn
+ * @return      an optional that either is invalid (if any of the input
+ *              is invalid) or contains the output of \a fn
+ */
+template <typename _Fn, typename... _Targs>
+auto fmap(_Fn fn, optional<_Targs>&&... args)
+{
+    typedef std::decay_t<decltype(fn(args.move_value()...))> result_type;
+    if (is_valid(args...))
+        return optional<result_type>(fn(args.move_value()...));
+    else
+        return optional<result_type>();
+}
+
 /**
  * Applies a function to each item in the input container.
  *
@@ -198,11 +313,12 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
 template <template <typename, typename> class _OutCont = std::vector,
           template <typename> class _Alloc = std::allocator,
           typename _Fn, class _Cont>
-auto fmap(_Fn fn, const _Cont& inputs) ->
-_OutCont<
-    std::decay_t<decltype(fn(std::declval<typename _Cont::value_type>()))>,
-    _Alloc<std::decay_t<decltype(
-            fn(std::declval<typename _Cont::value_type>()))>>>
+auto fmap(_Fn fn, const _Cont& inputs) -> decltype(
+    begin(inputs), end(inputs),
+    _OutCont<std::decay_t<
+                 decltype(fn(std::declval<typename _Cont::value_type>()))>,
+             _Alloc<std::decay_t<decltype(
+                 fn(std::declval<typename _Cont::value_type>()))>>>())
 {
     typedef std::decay_t<decltype(
         fn(std::declval<typename _Cont::value_type>()))> result_type;
@@ -301,6 +417,28 @@ _Rs&& reduce(_Fn reducefn, const _Cont& inputs, _Rs&& initval)
 {
     return reduce(reducefn, std::forward<_Rs>(initval),
                   std::begin(inputs), std::end(inputs));
+}
+
+/**
+ * Returns the data intact to terminate the recursion.
+ */
+template <typename _Tp>
+_Tp apply(_Tp&& data)
+{
+    return std::forward<_Tp>(data);
+}
+
+/**
+ * Applies the functions in the arguments to the data consecutively.
+ *
+ * @param data  the data to operate on
+ * @param fn    the first function to apply
+ * @param args  the rest functions to apply
+ */
+template <typename _Tp, typename _Fn, typename... _Fargs>
+decltype(auto) apply(_Tp&& data, _Fn fn, _Fargs... args)
+{
+    return apply(fn(std::forward<_Tp>(data)), args...);
 }
 
 /**
