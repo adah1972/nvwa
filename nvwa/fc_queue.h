@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2009-2014 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2009-2016 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2014-11-29
+ * @date  2016-05-22
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -295,8 +295,8 @@ public:
      *             guarantee.
      */
     void swap(fc_queue& rhs)
-        _NOEXCEPT_(noexcept(swap(std::declval<allocator_type&>(),
-                                 std::declval<allocator_type&>())))
+        _NOEXCEPT_(noexcept(std::swap(std::declval<allocator_type&>(),
+                                      std::declval<allocator_type&>())))
     {
         using std::swap;
         swap(_M_alloc, rhs._M_alloc);

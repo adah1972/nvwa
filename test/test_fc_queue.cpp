@@ -17,7 +17,7 @@ void swap(Obj& lhs, Obj& rhs) _NOEXCEPT;
 BOOST_AUTO_TEST_CASE(fc_queue_test)
 {
     nvwa::fc_queue<int> q(4);
-    BOOST_MESSAGE("sizeof fc_queue is " << sizeof q);
+    BOOST_TEST_MESSAGE("sizeof fc_queue is " << sizeof q);
     BOOST_CHECK_EQUAL(q.capacity(), 4);
     BOOST_CHECK_EQUAL(q.size(), 0);
     BOOST_CHECK(!q.full());
