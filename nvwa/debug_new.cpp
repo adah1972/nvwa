@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2015 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2016 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2015-10-28
+ * @date  2016-08-03
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -632,7 +632,7 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
 #endif
 
         size_t stacktrace_size = stacktrace_length * sizeof(void*);
-        ptr->stacktrace = (void**)malloc(stacktrace_size + 1);
+        ptr->stacktrace = (void**)malloc(stacktrace_size + sizeof(void*));
 
         if (ptr->stacktrace != _NULLPTR)
         {
