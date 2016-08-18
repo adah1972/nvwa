@@ -1,9 +1,14 @@
+#include "nvwa/fixed_mem_pool.h"
 #include <iostream>
 #include <utility>
 #include <boost/test/unit_test.hpp>
-#include "nvwa/fixed_mem_pool.h"
 
 using namespace boost::unit_test_framework;
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#endif
 
 class Obj {
 public:
@@ -12,6 +17,10 @@ private:
     char a[12];
     DECLARE_FIXED_MEM_POOL(Obj)
 };
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 BOOST_AUTO_TEST_CASE(fixed_mem_test)
 {

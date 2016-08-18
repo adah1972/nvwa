@@ -1,8 +1,8 @@
+#include "nvwa/fc_queue.h"
 #include <iostream>
 #include <type_traits>
 #include <utility>
 #include <boost/test/unit_test.hpp>
-#include "nvwa/fc_queue.h"
 
 using namespace boost::unit_test_framework;
 
@@ -18,36 +18,36 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
 {
     nvwa::fc_queue<int> q(4);
     BOOST_TEST_MESSAGE("sizeof fc_queue is " << sizeof q);
-    BOOST_CHECK_EQUAL(q.capacity(), 4);
-    BOOST_CHECK_EQUAL(q.size(), 0);
+    BOOST_CHECK_EQUAL(q.capacity(), 4U);
+    BOOST_CHECK_EQUAL(q.size(), 0U);
     BOOST_CHECK(!q.full());
     BOOST_CHECK(q.empty());
     q.push(1);
-    BOOST_CHECK_EQUAL(q.size(), 1);
+    BOOST_CHECK_EQUAL(q.size(), 1U);
     BOOST_CHECK(!q.full());
     BOOST_CHECK(!q.empty());
     BOOST_CHECK_EQUAL(q.front(), 1);
     BOOST_CHECK_EQUAL(q.back(), 1);
     q.push(2);
-    BOOST_CHECK_EQUAL(q.size(), 2);
+    BOOST_CHECK_EQUAL(q.size(), 2U);
     BOOST_CHECK(!q.full());
     BOOST_CHECK(!q.empty());
     BOOST_CHECK_EQUAL(q.front(), 1);
     BOOST_CHECK_EQUAL(q.back(), 2);
     q.push(3);
-    BOOST_CHECK_EQUAL(q.size(), 3);
+    BOOST_CHECK_EQUAL(q.size(), 3U);
     BOOST_CHECK(!q.full());
     BOOST_CHECK(!q.empty());
     BOOST_CHECK_EQUAL(q.front(), 1);
     BOOST_CHECK_EQUAL(q.back(), 3);
     q.push(4);
-    BOOST_CHECK_EQUAL(q.size(), 4);
+    BOOST_CHECK_EQUAL(q.size(), 4U);
     BOOST_CHECK(q.full());
     BOOST_CHECK(!q.empty());
     BOOST_CHECK_EQUAL(q.front(), 1);
     BOOST_CHECK_EQUAL(q.back(), 4);
     q.push(5);
-    BOOST_CHECK_EQUAL(q.size(), 4);
+    BOOST_CHECK_EQUAL(q.size(), 4U);
     BOOST_CHECK(q.full());
     BOOST_CHECK(!q.empty());
     BOOST_CHECK_EQUAL(q.front(), 2);
@@ -58,26 +58,26 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
     BOOST_CHECK(q.contains(5));
     BOOST_CHECK(!q.contains(6));
     q.pop();
-    BOOST_CHECK_EQUAL(q.size(), 3);
+    BOOST_CHECK_EQUAL(q.size(), 3U);
     BOOST_CHECK(!q.full());
     BOOST_CHECK(!q.empty());
     BOOST_CHECK_EQUAL(q.front(), 3);
     BOOST_CHECK_EQUAL(q.back(), 5);
     q.pop();
-    BOOST_CHECK_EQUAL(q.size(), 2);
+    BOOST_CHECK_EQUAL(q.size(), 2U);
     BOOST_CHECK(!q.full());
     BOOST_CHECK(!q.empty());
     BOOST_CHECK_EQUAL(q.front(), 4);
     BOOST_CHECK_EQUAL(q.back(), 5);
     q.pop();
-    BOOST_CHECK_EQUAL(q.size(), 1);
+    BOOST_CHECK_EQUAL(q.size(), 1U);
     BOOST_CHECK(!q.full());
     BOOST_CHECK(!q.empty());
     BOOST_CHECK_EQUAL(q.front(), 5);
     BOOST_CHECK_EQUAL(q.back(), 5);
     nvwa::fc_queue<int> r(q);
     q.pop();
-    BOOST_CHECK_EQUAL(q.size(), 0);
+    BOOST_CHECK_EQUAL(q.size(), 0U);
     BOOST_CHECK(!q.full());
     BOOST_CHECK(q.empty());
     BOOST_CHECK(!r.full());

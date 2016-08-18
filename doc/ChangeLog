@@ -1,3 +1,12 @@
+2016-08-18  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* test/test_bool_array.cpp: Adjust the include file order.
+	* test/test_fc_queue.cpp: Ditto.
+	(BOOST_AUTO_TEST_CASE(fc_queue_test)): Change the code to eliminate
+	compiler warnings.
+	* test/test_fixed_mem_pool.cpp: Adjust the include file order and
+	disable a GCC warning.
+
 2016-08-03  Andrzej Auchimowicz  <aa.contributions@wp.eu>
 
 	* nvwa/debug_new.cpp (alloc_mem): Fix an issue of insufficient memory
