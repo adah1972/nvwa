@@ -327,7 +327,7 @@ auto fmap(_Fn fn, const _Cont& inputs) -> decltype(
         result, inputs,
         std::integral_constant<
             bool, detail::can_reserve<decltype(result), _Cont>::value>());
-    for (auto& item : inputs)
+    for (const auto& item : inputs)
         result.push_back(fn(item));
     return result;
 }
