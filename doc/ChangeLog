@@ -1,5 +1,9 @@
 2016-09-29  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* doc/README: Clarify on lockless-ness.
+
+2016-09-29  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/functional.h (reduce<>(_Fn, const _Cont&)): Fix a type error.
 	(reduce<>(_Fn, _Rs&&, _Iter, _Iter)): Ditto.
 

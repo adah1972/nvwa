@@ -154,7 +154,9 @@ Contents
    richer API.  However, the design philosophies behind the two
    implementations are quite different.  fc_queue is modelled closely on
    std::queue, and I optimize mainly for a lockless producer-consumer
-   pattern.
+   pattern -- when there is one producer and one consumer, and the
+   producer does not try to queue an element when the queue is already
+   full, no lock is needed for the queue operations.
 
   * fixed_mem_pool.h
 
