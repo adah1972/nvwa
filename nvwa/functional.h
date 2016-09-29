@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-05-14
+ * @date  2016-09-29
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -349,7 +349,7 @@ template <typename _Fn, class _Cont>
 auto reduce(_Fn reducefn, const _Cont& inputs)
 {
     auto result = typename _Cont::value_type();
-    for (auto& item : inputs)
+    for (const auto& item : inputs)
         result = reducefn(result, item);
     return result;
 }
@@ -379,7 +379,7 @@ _Rs&& reduce(_Fn reducefn, _Rs&& value, _Iter begin, _Iter end)
     // _Rs may be a reference type and a result of this type cannot
     // be assigned to (like the implementation of reduce above).
     if (begin == end)
-        return value;
+        return std::forward<_Rs>(value);
     _Iter current = begin;
     return reduce(reducefn, reducefn(std::forward<_Rs>(value), *current),
                   ++begin, end);

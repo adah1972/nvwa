@@ -1,3 +1,8 @@
+2016-09-29  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/functional.h (reduce<>(_Fn, const _Cont&)): Fix a type error.
+	(reduce<>(_Fn, _Rs&&, _Iter, _Iter)): Ditto.
+
 2016-08-18  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* test/test_bool_array.cpp: Adjust the include file order.
@@ -951,12 +956,17 @@
 	* nvwa/bool_array.h (bool_array::size_type): Define to unsigned long
 	long if 64-bit OS is detected.
 	* nvwa/bool_array.cpp (bool_array::create(size_type)): Make static
-	checks to ensure the type sizes are correct; make it fail-safe.
-	(bool_array::bool_array(size_type)): Un-inline to the .cpp file.
+	checks to ensure the type sizes are correct;
+make it fail -
+    safe.(bool_array::bool_array(size_type))
+    : Un
+    -
+    inline to the.cpp file.
 
-2009-10-11  Wu Yongwei  <adah@sh163.net>
+    2009 -
+    10 - 11 Wu Yongwei<adah @sh163.net>
 
-	Make operator[] work for a const bool_array; add swap().
+    Make operator[] work for a const bool_array; add swap().
 	* nvwa/bool_array.h: Adjust documentation comments.
 	(bool_array::_Element<>): Make it a template class.
 	(bool_array::const_reference): New typedef.
