@@ -32,13 +32,14 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-09-29
+ * @date  2016-10-06
  */
 
 #ifndef NVWA_FUNCTIONAL_H
 #define NVWA_FUNCTIONAL_H
 
 #include <functional>           // std::function
+#include <iterator>             // std::begin/iterator_traits
 #include <memory>               // std::allocator
 #include <type_traits>          // std::decay_t/is_const/integral_constant/...
 #include <utility>              // std::declval/forward/move
@@ -209,6 +210,15 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
     }
 };
 
+using std::begin;
+
+template <class _Rng>
+auto adl_begin(_Rng&& rng) -> decltype(begin(rng));
+
+template <class _Rng>
+using value_type = typename std::iterator_traits<decltype(
+    adl_begin(std::declval<_Rng>()))>::value_type;
+
 } /* namespace detail */
 
 template <typename... _Targs>
@@ -348,7 +358,7 @@ auto fmap(_Fn fn, const _Cont& inputs) -> decltype(
 template <typename _Fn, class _Cont>
 auto reduce(_Fn reducefn, const _Cont& inputs)
 {
-    auto result = typename _Cont::value_type();
+    auto result = typename detail::value_type<_Cont>();
     for (const auto& item : inputs)
         result = reducefn(result, item);
     return result;
