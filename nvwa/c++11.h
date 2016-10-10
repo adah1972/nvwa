@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2013-2016 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * C++11 feature detection macros and workarounds.
  *
- * @date  2013-10-03
+ * @date  2016-10-10
  */
 
 #ifndef NVWA_CXX11_H
@@ -86,6 +86,17 @@
 #define HAVE_CXX11_AUTO_TYPE 1
 #else
 #define HAVE_CXX11_AUTO_TYPE 0
+#endif
+#endif
+
+#if !defined(HAVE_CXX11_DELETED_FUNCTION)
+#if NVWA_CXX11_MODE && \
+    (__has_feature(cxx_deleted_functions) || \
+     (defined(_MSC_VER) && _MSC_VER >= 1800) || \
+     (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 404))
+#define HAVE_CXX11_DELETED_FUNCTION 1
+#else
+#define HAVE_CXX11_DELETED_FUNCTION 0
 #endif
 #endif
 
@@ -274,6 +285,12 @@
 
 
 /* Workarounds */
+
+#if HAVE_CXX11_DELETED_FUNCTION
+#define _DELETED = delete
+#else
+#define _DELETED
+#endif
 
 #if HAVE_CXX11_FINAL
 #define _FINAL final
