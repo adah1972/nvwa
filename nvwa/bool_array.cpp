@@ -599,4 +599,3 @@ bool_array::byte bool_array::get_8bits(size_type offset, size_type end) const
 }
 
 NVWA_NAMESPACE_END
-
