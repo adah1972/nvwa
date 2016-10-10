@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2016-05-22
+ * @date  2016-10-10
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -45,7 +45,7 @@
 #include "c++11.h"              // _NOEXCEPT/_NOEXCEPT_/_NULLPTR
 #include "type_traits.h"        // nvwa::is_trivially_destructible
 
-#ifdef NVWA_CXX11_MODE
+#if NVWA_CXX11_MODE
 #include <utility>              // std::swap/std::declval
 #else
 #include <algorithm>            // std::swap

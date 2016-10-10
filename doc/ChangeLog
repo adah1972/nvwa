@@ -1,5 +1,9 @@
 2016-10-10  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/fc_queue.h: Correct a wrong use of NVWA_CXX11_MODE.
+
+2016-10-10  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/c++11.h (HAVE_CXX11_DELETED_FUNCTION): New macro.
 	(_DELETED): New macro.
 
