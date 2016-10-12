@@ -1,5 +1,11 @@
 2016-10-12  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/file_line_reader.h
+	(swap(file_line_reader::iterator&, file_line_reader::iterator&)):
+	New function.
+
+2016-10-12  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/function.h (detail::wrapper<>): Rename to ref_wrapper.
 
 2016-10-10  Wu Yongwei  <wuyongwei@gmail.com>

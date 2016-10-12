@@ -31,7 +31,7 @@
  *
  * Header file for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2016-10-10
+ * @date  2016-10-12
  */
 
 #ifndef FILE_LINE_READER_H
@@ -139,6 +139,12 @@ private:
     size_t read_pos_;
     size_t size_;
 };
+
+inline void swap(file_line_reader::iterator& lhs,
+                 file_line_reader::iterator& rhs)
+{
+    lhs.swap(rhs);
+}
 
 NVWA_NAMESPACE_END
 
