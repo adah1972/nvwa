@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-10-06
+ * @date  2016-10-12
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -145,18 +145,18 @@ template <typename _Tp,
           bool _Deep_copy = std::is_rvalue_reference<_Tp>{} ||
                             (std::is_lvalue_reference<_Tp>{} &&
                              std::is_const<std::remove_reference_t<_Tp>>{})>
-struct wrapper
+struct ref_wrapper
 {
-    wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
+    ref_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
     _Tp get() const { return value; }
     _Tp value;
 };
 
 // Partial specialization that copies the object used by the reference.
 template <typename _Tp>
-struct wrapper<_Tp, true>
+struct ref_wrapper<_Tp, true>
 {
-    wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
+    ref_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
     template <typename _Up = _Tp>
     std::enable_if_t<std::is_rvalue_reference<_Up>{}, std::decay_t<_Tp>>
     get() const
@@ -201,7 +201,7 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
         return [fn](_Tp&& x)
         {   // Use wrapper to ensure reference types are correctly captured.
             return curry<std::function<_Rs(_Targs...)>>::make(
-                [fn, w = wrapper<_Tp>(std::forward<_Tp>(x))](
+                [fn, w = ref_wrapper<_Tp>(std::forward<_Tp>(x))](
                         _Targs&&... args) -> decltype(auto)
                 {
                     return fn(w.get(), std::forward<_Targs>(args)...);
