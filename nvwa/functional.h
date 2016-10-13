@@ -83,19 +83,20 @@ public:
 };
 
 template <typename _Tp>
-optional<std::decay_t<_Tp>> make_optional(_Tp&& x)
+constexpr optional<std::decay_t<_Tp>> make_optional(_Tp&& x)
 {
     return optional<std::decay_t<_Tp>>(std::forward<_Tp>(x));
 }
 
 template <typename _Tp>
-bool is_valid(const optional<_Tp>& x)
+constexpr bool is_valid(const optional<_Tp>& x)
 {
     return x.is_valid();
 }
 
 template <typename _Tp, typename... _Targs>
-bool is_valid(const optional<_Tp>& first, const optional<_Targs>&... other)
+constexpr bool is_valid(const optional<_Tp>& first, const
+                        optional<_Targs>&... other)
 {
     return first.is_valid() && is_valid(other...);
 }
@@ -274,7 +275,7 @@ struct lift_optional
  *              is invalid) or contains the output of \a f
  */
 template <typename _Fn, typename... _Targs>
-auto fmap(_Fn f, const optional<_Targs>&... args)
+constexpr auto fmap(_Fn f, const optional<_Targs>&... args)
 {
     typedef std::decay_t<decltype(f(args.cref()...))> result_type;
     if (is_valid(args...))
@@ -295,7 +296,7 @@ auto fmap(_Fn f, const optional<_Targs>&... args)
  *              is invalid) or contains the output of \a f
  */
 template <typename _Fn, typename... _Targs>
-auto fmap(_Fn f, optional<_Targs>&&... args)
+constexpr auto fmap(_Fn f, optional<_Targs>&&... args)
 {
     typedef std::decay_t<decltype(f(args.move_value()...))> result_type;
     if (is_valid(args...))
@@ -321,7 +322,7 @@ auto fmap(_Fn f, optional<_Targs>&&... args)
 template <template <typename, typename> class _OutCont = std::vector,
           template <typename> class _Alloc = std::allocator,
           typename _Fn, class _Cont>
-auto fmap(_Fn f, const _Cont& inputs) -> decltype(
+constexpr auto fmap(_Fn f, const _Cont& inputs) -> decltype(
     begin(inputs), end(inputs),
     _OutCont<std::decay_t<
                  decltype(f(std::declval<typename _Cont::value_type>()))>,
@@ -353,7 +354,7 @@ auto fmap(_Fn f, const _Cont& inputs) -> decltype(
  *                iteration.
  */
 template <typename _Fn, class _Cont>
-auto reduce(_Fn f, const _Cont& inputs)
+constexpr auto reduce(_Fn f, const _Cont& inputs)
 {
     auto result = typename detail::value_type<_Cont>();
     for (const auto& item : inputs)
@@ -378,7 +379,7 @@ auto reduce(_Fn f, const _Cont& inputs)
  *               the input container shall support iteration.
  */
 template <typename _Rs, typename _Fn, typename _Iter>
-_Rs&& reduce(_Fn f, _Rs&& value, _Iter begin, _Iter end)
+constexpr _Rs&& reduce(_Fn f, _Rs&& value, _Iter begin, _Iter end)
 {
     // Recursion (instead of iteration) is used in this function, as
     // _Rs may be a reference type and a result of this type cannot
@@ -416,7 +417,7 @@ _Rs&& reduce(_Fn f, _Rs&& value, _Iter begin, _Iter end)
  *                 and the input container shall support iteration.
  */
 template <typename _Rs, typename _Fn, class _Cont>
-auto reduce(_Fn f, const _Cont& inputs, _Rs&& initval)
+constexpr auto reduce(_Fn f, const _Cont& inputs, _Rs&& initval)
     -> decltype(f(initval, *std::begin(inputs)))
 {
     return reduce(f, std::forward<_Rs>(initval),
@@ -427,7 +428,7 @@ auto reduce(_Fn f, const _Cont& inputs, _Rs&& initval)
  * Returns the data intact to terminate the recursion.
  */
 template <typename _Tp>
-_Tp apply(_Tp&& data)
+constexpr _Tp apply(_Tp&& data)
 {
     return std::forward<_Tp>(data);
 }
@@ -440,7 +441,7 @@ _Tp apply(_Tp&& data)
  * @param args  the rest functions to apply
  */
 template <typename _Tp, typename _Fn, typename... _Fargs>
-decltype(auto) apply(_Tp&& data, _Fn f, _Fargs... args)
+constexpr decltype(auto) apply(_Tp&& data, _Fn f, _Fargs... args)
 {
     return apply(f(std::forward<_Tp>(data)), args...);
 }

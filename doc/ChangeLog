@@ -1,5 +1,13 @@
 2016-10-13  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/functional.h (make_optional<>): Mark as constexpr.
+	(is_valid<>): Ditto.
+	(fmap<>): Ditto.
+	(reduce<>): Ditto.
+	(apply<>): Ditto.
+
+2016-10-13  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/functional.h (detail::ref_wrapper<>): Rename to safe_wrapper.
 	(curry<>::make): Change the parameter fn to f.
 	(lift_optional<>::make): Ditto.
