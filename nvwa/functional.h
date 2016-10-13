@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-10-12
+ * @date  2016-10-13
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -145,18 +145,18 @@ template <typename _Tp,
           bool _Deep_copy = std::is_rvalue_reference<_Tp>{} ||
                             (std::is_lvalue_reference<_Tp>{} &&
                              std::is_const<std::remove_reference_t<_Tp>>{})>
-struct ref_wrapper
+struct safe_wrapper
 {
-    ref_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
+    safe_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
     _Tp get() const { return value; }
     _Tp value;
 };
 
 // Partial specialization that copies the object used by the reference.
 template <typename _Tp>
-struct ref_wrapper<_Tp, true>
+struct safe_wrapper<_Tp, true>
 {
-    ref_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
+    safe_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
     template <typename _Up = _Tp>
     std::enable_if_t<std::is_rvalue_reference<_Up>{}, std::decay_t<_Tp>>
     get() const
@@ -183,9 +183,9 @@ struct curry<std::function<_Rs(_Tp)>>
 {
     typedef std::function<_Rs(_Tp)> type;
 
-    static type make(const type& fn)
+    static type make(const type& f)
     {
-        return fn;
+        return f;
     }
 };
 
@@ -196,15 +196,15 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
     typedef typename curry<std::function<_Rs(_Targs...)>>::type remaining_type;
     typedef std::function<remaining_type(_Tp)> type;
 
-    static type make(const std::function<_Rs(_Tp, _Targs...)>& fn)
+    static type make(const std::function<_Rs(_Tp, _Targs...)>& f)
     {
-        return [fn](_Tp&& x)
+        return [f](_Tp&& x)
         {   // Use wrapper to ensure reference types are correctly captured.
             return curry<std::function<_Rs(_Targs...)>>::make(
-                [fn, w = ref_wrapper<_Tp>(std::forward<_Tp>(x))](
+                [f, w = safe_wrapper<_Tp>(std::forward<_Tp>(x))](
                         _Targs&&... args) -> decltype(auto)
                 {
-                    return fn(w.get(), std::forward<_Targs>(args)...);
+                    return f(w.get(), std::forward<_Targs>(args)...);
                 });
         };
     }
@@ -212,12 +212,10 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
 
 using std::begin;
 
-template <class _Rng>
-auto adl_begin(_Rng&& rng) -> decltype(begin(rng));
-
+// Type alias to get the value type of a container or range
 template <class _Rng>
 using value_type = typename std::iterator_traits<decltype(
-    adl_begin(std::declval<_Rng>()))>::value_type;
+    begin(std::declval<_Rng>()))>::value_type;
 
 } /* namespace detail */
 
@@ -228,16 +226,16 @@ struct lift_optional
      * Lifts a function so that it takes const references of optionals
      * and returns an optional.
      *
-     * @param fn  function to lift
+     * @param f  function to lift
      */
     template <typename _Fn>
-    static auto make(_Fn fn)
+    static auto make(_Fn f)
     {
-        return [fn](const optional<_Targs>&... args)
+        return [f](const optional<_Targs>&... args)
         {
-            typedef std::decay_t<decltype(fn(args.cref()...))> result_type;
+            typedef std::decay_t<decltype(f(args.cref()...))> result_type;
             if (is_valid(args...))
-                return optional<result_type>(fn(args.cref()...));
+                return optional<result_type>(f(args.cref()...));
             else
                 return optional<result_type>();
         };
@@ -247,17 +245,17 @@ struct lift_optional
      * Lifts a function so that it takes rvalue references of optionals
      * and returns an optional.
      *
-     * @param fn  function to lift
+     * @param f  function to lift
      */
     template <typename _Fn>
-    static auto make_move(_Fn fn)
+    static auto make_move(_Fn f)
     {
-        return [fn](optional<_Targs>&&... args)
+        return [f](optional<_Targs>&&... args)
         {
-            typedef std::decay_t<decltype(fn(args.move_value()...))>
+            typedef std::decay_t<decltype(f(args.move_value()...))>
                 result_type;
             if (is_valid(args...))
-                return optional<result_type>(fn(args.move_value()...));
+                return optional<result_type>(f(args.move_value()...));
             else
                 return optional<result_type>();
         };
@@ -270,17 +268,17 @@ struct lift_optional
  * If any of the optionals are invalid, the result is invalid too.
  * This version works for const optionals (general case).
  *
- * @param fn    the function to apply
- * @param args  optionals whose values will be passed to \a fn
+ * @param f     the function to apply
+ * @param args  optionals whose values will be passed to \a f
  * @return      an optional that either is invalid (if any of the input
- *              is invalid) or contains the output of \a fn
+ *              is invalid) or contains the output of \a f
  */
 template <typename _Fn, typename... _Targs>
-auto fmap(_Fn fn, const optional<_Targs>&... args)
+auto fmap(_Fn f, const optional<_Targs>&... args)
 {
-    typedef std::decay_t<decltype(fn(args.cref()...))> result_type;
+    typedef std::decay_t<decltype(f(args.cref()...))> result_type;
     if (is_valid(args...))
-        return optional<result_type>(fn(args.cref()...));
+        return optional<result_type>(f(args.cref()...));
     else
         return optional<result_type>();
 }
@@ -291,17 +289,17 @@ auto fmap(_Fn fn, const optional<_Targs>&... args)
  * If any of the optionals are invalid, the result is invalid too.
  * This version optimizes for movable optionals.
  *
- * @param fn    the function to apply
- * @param args  optionals whose values will be passed to \a fn
+ * @param f     the function to apply
+ * @param args  optionals whose values will be passed to \a f
  * @return      an optional that either is invalid (if any of the input
- *              is invalid) or contains the output of \a fn
+ *              is invalid) or contains the output of \a f
  */
 template <typename _Fn, typename... _Targs>
-auto fmap(_Fn fn, optional<_Targs>&&... args)
+auto fmap(_Fn f, optional<_Targs>&&... args)
 {
-    typedef std::decay_t<decltype(fn(args.move_value()...))> result_type;
+    typedef std::decay_t<decltype(f(args.move_value()...))> result_type;
     if (is_valid(args...))
-        return optional<result_type>(fn(args.move_value()...));
+        return optional<result_type>(f(args.move_value()...));
     else
         return optional<result_type>();
 }
@@ -312,9 +310,9 @@ auto fmap(_Fn fn, optional<_Targs>&&... args)
  * This is similar to \c std::transform, but the style is more
  * functional and more suitable for chaining operations.
  *
- * @param fn      the function to apply
+ * @param f       the function to apply
  * @param inputs  the input container
- * @pre           \a fn shall take one argument of the type of the items
+ * @pre           \a f shall take one argument of the type of the items
  *                in \a inputs, the output container shall support
  *                \c push_back, and the input container shall support
  *                iteration.
@@ -323,67 +321,64 @@ auto fmap(_Fn fn, optional<_Targs>&&... args)
 template <template <typename, typename> class _OutCont = std::vector,
           template <typename> class _Alloc = std::allocator,
           typename _Fn, class _Cont>
-auto fmap(_Fn fn, const _Cont& inputs) -> decltype(
+auto fmap(_Fn f, const _Cont& inputs) -> decltype(
     begin(inputs), end(inputs),
     _OutCont<std::decay_t<
-                 decltype(fn(std::declval<typename _Cont::value_type>()))>,
+                 decltype(f(std::declval<typename _Cont::value_type>()))>,
              _Alloc<std::decay_t<decltype(
-                 fn(std::declval<typename _Cont::value_type>()))>>>())
+                 f(std::declval<typename _Cont::value_type>()))>>>())
 {
     typedef std::decay_t<decltype(
-        fn(std::declval<typename _Cont::value_type>()))> result_type;
+        f(std::declval<typename _Cont::value_type>()))> result_type;
     _OutCont<result_type, _Alloc<result_type>> result;
     detail::try_reserve(
         result, inputs,
         std::integral_constant<
             bool, detail::can_reserve<decltype(result), _Cont>::value>());
     for (const auto& item : inputs)
-        result.push_back(fn(item));
+        result.push_back(f(item));
     return result;
 }
 
 /**
- * Applies the \a reducefn function cumulatively to items in the input
- * container.
+ * Applies a function cumulatively to items in the input container.
  *
  * This is similar to \c std::accumulate, but the style is more
  * functional and more suitable for chaining operations.
  *
- * @param reducefn  the function to apply
- * @param inputs    the input container
- * @pre             \a reducefn shall take two arguments of the type of
- *                  the items in \a inputs, and the input container
- *                  shall support iteration.
+ * @param f       the function to apply
+ * @param inputs  the input container
+ * @pre           \a f shall take two arguments of the type of the items
+ *                in \a inputs, and the input container shall support
+ *                iteration.
  */
 template <typename _Fn, class _Cont>
-auto reduce(_Fn reducefn, const _Cont& inputs)
+auto reduce(_Fn f, const _Cont& inputs)
 {
     auto result = typename detail::value_type<_Cont>();
     for (const auto& item : inputs)
-        result = reducefn(result, item);
+        result = f(result, item);
     return result;
 }
 
 /**
- * Applies the \a reducefn function cumulatively to a range.
+ * Applies a function cumulatively to a range.
  *
  * This is similar to \c std::accumulate, but the interface is
- * different, and \c reducefn is allowed to have arguments of different
- * types (the first argument shall have the same type as the function
- * return type).  Perfect forwarding allows the result to be a reference
- * type.
+ * different, and \a f is allowed to have arguments of different types
+ * (the first argument shall have the same type as the function return
+ * type).  Perfect forwarding allows the result to be a reference type.
  *
- * @param reducefn  the function to apply
- * @param value     the first argument to be passed to \a reducefn
- * @param begin     beginning of the range
- * @param end       end of the range
- * @pre             \a reducefn shall take one argument of the result
- *                  type, and one argument of the type of the items in
- *                  \a inputs, and the input container shall support
- *                  iteration.
+ * @param f      the function to apply
+ * @param value  the first argument to be passed to \a f
+ * @param begin  beginning of the range
+ * @param end    end of the range
+ * @pre          \a f shall take one argument of the result type, and
+ *               one argument of the type of the items in \a inputs, and
+ *               the input container shall support iteration.
  */
 template <typename _Rs, typename _Fn, typename _Iter>
-_Rs&& reduce(_Fn reducefn, _Rs&& value, _Iter begin, _Iter end)
+_Rs&& reduce(_Fn f, _Rs&& value, _Iter begin, _Iter end)
 {
     // Recursion (instead of iteration) is used in this function, as
     // _Rs may be a reference type and a result of this type cannot
@@ -391,20 +386,19 @@ _Rs&& reduce(_Fn reducefn, _Rs&& value, _Iter begin, _Iter end)
     if (begin == end)
         return std::forward<_Rs>(value);
     _Iter current = begin;
-    return reduce(reducefn, reducefn(std::forward<_Rs>(value), *current),
+    return reduce(f, f(std::forward<_Rs>(value), *current),
                   ++begin, end);
 }
 
 /**
- * Applies the \a reducefn function cumulatively to items in the input
- * container.
+ * Applies a function cumulatively to items in the input container.
  *
  * This is similar to \c std::accumulate, but the style is more
  * functional and more suitable for chaining operations.  This
- * implementation allows the two arguments of \a reducefn to have
- * different types (the first argument shall have the same type as the
- * function return type).  Perfect forwarding allows the result to be a
- * reference type, and it is possible to write code like:
+ * implementation allows the two arguments of \a f to have different
+ * types (the first argument shall have the same type as the function
+ * return type).  Perfect forwarding allows the result to be a reference
+ * type, and it is possible to write code like:
  *
  * @code
  * // Declaration of the output function
@@ -414,18 +408,18 @@ _Rs&& reduce(_Fn reducefn, _Rs&& value, _Iter begin, _Iter end)
  * nvwa::reduce(print, container_of_my_type, std::cout);
  * @endcode
  *
- * @param reducefn  the function to apply
- * @param inputs    the input container
- * @param initval   initial value for the cumulative calculation
- * @pre             \a reducefn shall take one argument of the result
- *                  type, and one argument of the type of the items in
- *                  \a inputs, and the input container shall support
- *                  iteration.
+ * @param f        the function to apply
+ * @param inputs   the input container
+ * @param initval  initial value for the cumulative calculation @pre
+ *                 \a f shall take one argument of the result type, and
+ *                 one argument of the type of the items in \a inputs,
+ *                 and the input container shall support iteration.
  */
 template <typename _Rs, typename _Fn, class _Cont>
-_Rs&& reduce(_Fn reducefn, const _Cont& inputs, _Rs&& initval)
+auto reduce(_Fn f, const _Cont& inputs, _Rs&& initval)
+    -> decltype(f(initval, *std::begin(inputs)))
 {
-    return reduce(reducefn, std::forward<_Rs>(initval),
+    return reduce(f, std::forward<_Rs>(initval),
                   std::begin(inputs), std::end(inputs));
 }
 
@@ -442,13 +436,13 @@ _Tp apply(_Tp&& data)
  * Applies the functions in the arguments to the data consecutively.
  *
  * @param data  the data to operate on
- * @param fn    the first function to apply
+ * @param f     the first function to apply
  * @param args  the rest functions to apply
  */
 template <typename _Tp, typename _Fn, typename... _Fargs>
-decltype(auto) apply(_Tp&& data, _Fn fn, _Fargs... args)
+decltype(auto) apply(_Tp&& data, _Fn f, _Fargs... args)
 {
-    return apply(fn(std::forward<_Tp>(data)), args...);
+    return apply(f(std::forward<_Tp>(data)), args...);
 }
 
 /**
@@ -468,31 +462,31 @@ auto compose()
 /**
  * Constructs a function (object) that composes the passed functions.
  *
- * @param fn    the function to compose
- * @return      the function object that composes the passed function
+ * @param f  the function to compose
+ * @return   the function object that composes the passed function
  */
 template <typename _Fn>
-auto compose(_Fn fn)
+auto compose(_Fn f)
 {
-    return [fn](auto&&... x) -> decltype(auto)
+    return [f](auto&&... x) -> decltype(auto)
     {
-        return fn(std::forward<decltype(x)>(x)...);
+        return f(std::forward<decltype(x)>(x)...);
     };
 }
 
 /**
  * Constructs a function (object) that composes the passed functions.
  *
- * @param fn    the last function to compose
+ * @param f     the last function to compose
  * @param args  the other functions to compose
  * @return      the function object that composes the passed functions
  */
 template <typename _Fn, typename... _Fargs>
-auto compose(_Fn fn, _Fargs... args)
+auto compose(_Fn f, _Fargs... args)
 {
-    return [fn, args...](auto&&... x) -> decltype(auto)
+    return [f, args...](auto&&... x) -> decltype(auto)
     {
-        return fn(compose(args...)(std::forward<decltype(x)>(x)...));
+        return f(compose(args...)(std::forward<decltype(x)>(x)...));
     };
 }
 
@@ -566,13 +560,13 @@ std::function<_Rs(_Tp)> fix_curry(
  * all arguments are exhausted, in which case it returns the final
  * result.
  *
- * @param fn  the function to be curried as a \c std::function
- * @return    the curried function
+ * @param f  the function to be curried as a \c std::function
+ * @return   the curried function
  */
 template <typename _Rs, typename... _Targs>
-auto make_curry(std::function<_Rs(_Targs...)> fn)
+auto make_curry(std::function<_Rs(_Targs...)> f)
 {
-    return detail::curry<std::function<_Rs(_Targs...)>>::make(fn);
+    return detail::curry<std::function<_Rs(_Targs...)>>::make(f);
 }
 
 /**
@@ -581,13 +575,13 @@ auto make_curry(std::function<_Rs(_Targs...)> fn)
  * all arguments are exhausted, in which case it returns the final
  * result.
  *
- * @param fn  the function to be curried as a function pointer
- * @return    the curried function
+ * @param f  the function to be curried as a function pointer
+ * @return   the curried function
  */
 template <typename _Rs, typename... _Targs>
-auto make_curry(_Rs(*fn)(_Targs...))
+auto make_curry(_Rs(*f)(_Targs...))
 {
-    return detail::curry<std::function<_Rs(_Targs...)>>::make(fn);
+    return detail::curry<std::function<_Rs(_Targs...)>>::make(f);
 }
 
 NVWA_NAMESPACE_END

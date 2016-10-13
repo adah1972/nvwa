@@ -1,3 +1,16 @@
+2016-10-13  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/functional.h (detail::ref_wrapper<>): Rename to safe_wrapper.
+	(curry<>::make): Change the parameter fn to f.
+	(lift_optional<>::make): Ditto.
+	(lift_optional<>::make_move): Ditto.
+	(fmap<>): Ditto.
+	(apply<>): Ditto.
+	(compose<>): Ditto.
+	(make_curry<>): Ditto.
+	(reduce<>):: Change the parameter reducefn to f.
+	(detail::adl_begin): Remove it and replace its use.
+
 2016-10-12  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/file_line_reader.h
