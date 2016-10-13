@@ -1,5 +1,9 @@
 2016-10-13  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/functional.h: Change `item' to `element' in comments. 
+
+2016-10-13  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/functional.h (detail::adl_begin): Restore its use.
 	(reduce<>(_Fn, const _Cont&, _Rs&&)): Check that adl_begin works on
 	_Cont to reduce potential conflicts with other overloads.

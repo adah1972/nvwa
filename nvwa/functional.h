@@ -310,17 +310,17 @@ constexpr auto fmap(_Fn f, optional<_Targs>&&... args)
 }
 
 /**
- * Applies a function to each item in the input container.
+ * Applies a function to each element in the input container.
  *
  * This is similar to \c std::transform, but the style is more
  * functional and more suitable for chaining operations.
  *
  * @param f       the function to apply
  * @param inputs  the input container
- * @pre           \a f shall take one argument of the type of the items
- *                in \a inputs, the output container shall support
- *                \c push_back, and the input container shall support
- *                iteration.
+ * @pre           \a f shall take one argument of the type of the
+ *                elements in \a inputs, the output container shall
+ *                support \c push_back, and the input container shall
+ *                support iteration.
  * @return        the container of results
  */
 template <template <typename, typename> class _OutCont = std::vector,
@@ -346,16 +346,16 @@ constexpr auto fmap(_Fn f, const _Cont& inputs) -> decltype(
 }
 
 /**
- * Applies a function cumulatively to items in the input container.
+ * Applies a function cumulatively to elements in the input container.
  *
  * This is similar to \c std::accumulate, but the style is more
  * functional and more suitable for chaining operations.
  *
  * @param f       the function to apply
  * @param inputs  the input container
- * @pre           \a f shall take two arguments of the type of the items
- *                in \a inputs, and the input container shall support
- *                iteration.
+ * @pre           \a f shall take two arguments of the type of the
+ *                elements in \a inputs, and the input container shall
+ *                support iteration.
  */
 template <typename _Fn, class _Cont>
 constexpr auto reduce(_Fn f, const _Cont& inputs)
@@ -379,8 +379,8 @@ constexpr auto reduce(_Fn f, const _Cont& inputs)
  * @param begin  beginning of the range
  * @param end    end of the range
  * @pre          \a f shall take one argument of the result type, and
- *               one argument of the type of the items in \a inputs, and
- *               the input container shall support iteration.
+ *               one argument of the type of the elements in \a inputs,
+ *               and the input container shall support iteration.
  */
 template <typename _Rs, typename _Fn, typename _Iter>
 constexpr _Rs&& reduce(_Fn f, _Rs&& value, _Iter begin, _Iter end)
@@ -396,7 +396,7 @@ constexpr _Rs&& reduce(_Fn f, _Rs&& value, _Iter begin, _Iter end)
 }
 
 /**
- * Applies a function cumulatively to items in the input container.
+ * Applies a function cumulatively to elements in the input container.
  *
  * This is similar to \c std::accumulate, but the style is more
  * functional and more suitable for chaining operations.  This
@@ -417,7 +417,7 @@ constexpr _Rs&& reduce(_Fn f, _Rs&& value, _Iter begin, _Iter end)
  * @param inputs   the input container
  * @param initval  initial value for the cumulative calculation @pre
  *                 \a f shall take one argument of the result type, and
- *                 one argument of the type of the items in \a inputs,
+ *                 one argument of the type of the elements in \a inputs,
  *                 and the input container shall support iteration.
  */
 template <typename _Rs, typename _Fn, class _Cont>
