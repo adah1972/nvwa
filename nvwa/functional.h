@@ -213,10 +213,14 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
 
 using std::begin;
 
+// Function declaration to resolve begin using argument-dependent lookup
+template <class _Rng>
+auto adl_begin(_Rng&& rng) -> decltype(begin(rng));
+
 // Type alias to get the value type of a container or range
 template <class _Rng>
 using value_type = typename std::iterator_traits<decltype(
-    begin(std::declval<_Rng>()))>::value_type;
+    adl_begin(std::declval<_Rng>()))>::value_type;
 
 } /* namespace detail */
 
@@ -418,10 +422,10 @@ constexpr _Rs&& reduce(_Fn f, _Rs&& value, _Iter begin, _Iter end)
  */
 template <typename _Rs, typename _Fn, class _Cont>
 constexpr auto reduce(_Fn f, const _Cont& inputs, _Rs&& initval)
-    -> decltype(f(initval, *std::begin(inputs)))
+    -> decltype(f(initval, *detail::adl_begin(inputs)))
 {
     return reduce(f, std::forward<_Rs>(initval),
-                  std::begin(inputs), std::end(inputs));
+                  begin(inputs), end(inputs));
 }
 
 /**
