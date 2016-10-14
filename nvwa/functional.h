@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-10-13
+ * @date  2016-10-14
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -432,7 +432,7 @@ constexpr auto reduce(_Fn f, const _Cont& inputs, _Rs&& initval)
  * Returns the data intact to terminate the recursion.
  */
 template <typename _Tp>
-constexpr _Tp apply(_Tp&& data)
+constexpr _Tp pipeline(_Tp&& data)
 {
     return std::forward<_Tp>(data);
 }
@@ -445,9 +445,9 @@ constexpr _Tp apply(_Tp&& data)
  * @param args  the rest functions to apply
  */
 template <typename _Tp, typename _Fn, typename... _Fargs>
-constexpr decltype(auto) apply(_Tp&& data, _Fn f, _Fargs... args)
+constexpr decltype(auto) pipeline(_Tp&& data, _Fn f, _Fargs... args)
 {
-    return apply(f(std::forward<_Tp>(data)), args...);
+    return pipeline(f(std::forward<_Tp>(data)), args...);
 }
 
 /**

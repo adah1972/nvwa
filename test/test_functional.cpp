@@ -192,18 +192,20 @@ BOOST_AUTO_TEST_CASE(functional_test)
     BOOST_CHECK_EQUAL(SumList()(v), 15);
     auto squared_sum = nvwa::compose(SumList(), SquareList());
     BOOST_CHECK_EQUAL(squared_sum(v), 55);
-    using nvwa::apply;
-    BOOST_CHECK_EQUAL(apply(v, squared_sum), 55);
-    BOOST_CHECK_EQUAL(apply(v, SquareList(), SumList()), 55);
-    BOOST_CHECK_EQUAL(apply(v,
-                            [](const auto& x)
-                            {
-                                return nvwa::fmap(Square<int>(), x);
-                            },
-                            [](const auto& x)
-                            {
-                                return nvwa::reduce(std::plus<int>(), x);
-                            }), 55);
+    using nvwa::pipeline;
+    BOOST_CHECK_EQUAL(pipeline(v, squared_sum), 55);
+    BOOST_CHECK_EQUAL(pipeline(v, SquareList(), SumList()), 55);
+    BOOST_CHECK_EQUAL(
+        pipeline(v,
+                 [](const auto& x)
+                 {
+                     return nvwa::fmap(Square<int>(), x);
+                 },
+                 [](const auto& x)
+                 {
+                     return nvwa::reduce(std::plus<int>(), x);
+                 }),
+        55);
 
     {
         auto const id = nvwa::compose();
@@ -212,13 +214,13 @@ BOOST_AUTO_TEST_CASE(functional_test)
 
     auto inc = nvwa::compose(increase);
     BOOST_CHECK_EQUAL(nvwa::compose(inc, inc, inc)(2), 5);
-    BOOST_CHECK_EQUAL(nvwa::apply(v,
-                                  [](const std::vector<int>& v)
-                                  {
-                                      return nvwa::reduce(std::plus<int>(),
-                                                          v);
-                                  },
-                                  inc, inc),
+    BOOST_CHECK_EQUAL(nvwa::pipeline(v,
+                                     [](const std::vector<int>& v)
+                                     {
+                                         return nvwa::reduce(
+                                             std::plus<int>(), v);
+                                     },
+                                     inc, inc),
                       17);
     auto plus_1 = [](int x) { return x + 1; };
     auto mult_2 = [](int x) { return x * 2; };
