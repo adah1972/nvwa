@@ -1,5 +1,11 @@
 2016-10-14  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/debug_new.cpp (operator delete(void*, size_t)): Add for
+	C++14.
+	(operator delete[](void*, size_t)): Ditto.
+
+2016-10-14  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/functional.h (apply<>): Rename to pipeline.
 	* test/test_functional.cpp (functional_test): Change the test
 	accordingly.

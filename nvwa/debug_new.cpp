@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2016-08-03
+ * @date  2016-10-14
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -1097,6 +1097,20 @@ void operator delete[](void* ptr) _NOEXCEPT
 {
     free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, true);
 }
+
+#if __cplusplus >= 201402L
+// GCC under C++14 wants these definitions
+
+void operator delete(void* ptr, size_t) _NOEXCEPT
+{
+    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, false);
+}
+
+void operator delete[](void* ptr, size_t) _NOEXCEPT
+{
+    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, true);
+}
+#endif
 
 /**
  * Placement deallocation function.  For details, please check Section
