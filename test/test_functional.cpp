@@ -168,6 +168,7 @@ void test_out3(std::ostream& os, std::string a, const std::string& b,
 BOOST_AUTO_TEST_CASE(functional_test)
 {
     Obj guard(99);  // special guard
+    auto id = nvwa::compose();
     nvwa::optional<int> nothing;
     auto r1 = fmap(increase, nothing);
     auto r2 = fmap(increase, nvwa::make_optional(41));
@@ -182,7 +183,9 @@ BOOST_AUTO_TEST_CASE(functional_test)
                 }(inc_opt(r2)));
     assert((nvwa::detail::can_reserve<std::vector<int>,
                                       std::list<int>>::value));
-    std::vector<int> v{1, 2, 3, 4, 5};
+    int a[] = {1, 2, 3, 4, 5};
+    BOOST_CHECK_EQUAL(SumList()(a), 15);
+    std::vector<int> v = nvwa::fmap(id, a);
     std::ostringstream oss;  // boost cannot find my operator<< via ADL
     oss << v;
     BOOST_TEST_MESSAGE("Test vector is " << oss.str());
@@ -225,7 +228,6 @@ BOOST_AUTO_TEST_CASE(functional_test)
     auto plus_1 = [](int x) { return x + 1; };
     auto mult_2 = [](int x) { return x * 2; };
     BOOST_CHECK_EQUAL(nvwa::compose(plus_1, mult_2)(1), 3);
-    auto id = nvwa::compose();
     BOOST_CHECK_EQUAL(nvwa::compose(g, f, id)(1), 0);
 
     (void)sum<int, int, int, int, int>;  // GCC requires this instantiation

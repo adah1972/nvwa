@@ -1,5 +1,14 @@
 2016-10-14  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/functional.h (detail::adl_end<>): New function template
+	declaration.
+	(fmap(_Fn, const _Cont&)): Make the _Cont type work on arrays.
+	(reduce(_Fn, const _Cont&, _Rs&&)): Ditto.
+	* test/test_functional.cpp (functional_test): Add test for array
+	operations.
+
+2016-10-14  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/debug_new.cpp (operator delete(void*, size_t)): Add for
 	C++14.
 	(operator delete[](void*, size_t)): Ditto.

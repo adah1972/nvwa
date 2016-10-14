@@ -212,10 +212,13 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
 };
 
 using std::begin;
+using std::end;
 
-// Function declaration to resolve begin using argument-dependent lookup
+// Function declarations to resolve begin/end using argument-dependent lookup
 template <class _Rng>
 auto adl_begin(_Rng&& rng) -> decltype(begin(rng));
+template <class _Rng>
+auto adl_end(_Rng&& rng) -> decltype(end(rng));
 
 // Type alias to get the value type of a container or range
 template <class _Rng>
@@ -326,15 +329,12 @@ constexpr auto fmap(_Fn f, optional<_Targs>&&... args)
 template <template <typename, typename> class _OutCont = std::vector,
           template <typename> class _Alloc = std::allocator,
           typename _Fn, class _Cont>
-constexpr auto fmap(_Fn f, const _Cont& inputs) -> decltype(
-    begin(inputs), end(inputs),
-    _OutCont<std::decay_t<
-                 decltype(f(std::declval<typename _Cont::value_type>()))>,
-             _Alloc<std::decay_t<decltype(
-                 f(std::declval<typename _Cont::value_type>()))>>>())
+constexpr auto fmap(_Fn f, const _Cont& inputs)
+    -> decltype(detail::adl_begin(inputs), detail::adl_end(inputs),
+                _OutCont<detail::value_type<_Cont>,
+                         _Alloc<detail::value_type<_Cont>>>())
 {
-    typedef std::decay_t<decltype(
-        f(std::declval<typename _Cont::value_type>()))> result_type;
+    typedef detail::value_type<_Cont> result_type;
     _OutCont<result_type, _Alloc<result_type>> result;
     detail::try_reserve(
         result, inputs,
@@ -424,6 +424,8 @@ template <typename _Rs, typename _Fn, class _Cont>
 constexpr auto reduce(_Fn f, const _Cont& inputs, _Rs&& initval)
     -> decltype(f(initval, *detail::adl_begin(inputs)))
 {
+    using std::begin;
+    using std::end;
     return reduce(f, std::forward<_Rs>(initval),
                   begin(inputs), end(inputs));
 }
