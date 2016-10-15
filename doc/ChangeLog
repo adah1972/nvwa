@@ -1,5 +1,18 @@
 2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>
 
+	Use generic lambda and perfect forwarding to simplify code.
+	* nvwa/functional.h (lift_optional): Remove struct template.
+	(lift_optional<>): New function template.
+	(optional<>::reset): Change the noexcept-specification so that it
+	compiles under GCC.
+	(apply(_Fn&&, const optional<_Targs>&...)<>): Remove.
+	(apply(_Fn&&, optional<_Targs>&&...)<>): Remove.
+	(apply(_Fn&& f, _Opt&&...)<>): New function template.
+	* test/test_functional.cpp (functional_test): Update according to
+	the interface change.
+
+2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/functional.h (bad_optional_access): New class.
 	(optional<>): Rewrite to implement most of the C++17 std::optional
 	interface.
@@ -154,7 +167,7 @@
 	* nvwa/function.h (optional<>): New class template.
 	(make_optional<>): New function template.
 	(is_valid<>): New function templates.
-	(lift_optional): New struct template.
+	(lift_optional<>): New struct template.
 	(fmap<>): New function templates for optional<>.
 	(fmap<>): More rules for instantiation for containers.
 	* test/test_functional.cpp: More tests for optional<>.

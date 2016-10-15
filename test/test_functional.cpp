@@ -168,7 +168,7 @@ void test_out3(std::ostream& os, std::string a, const std::string& b,
 BOOST_AUTO_TEST_CASE(functional_test)
 {
     Obj guard(99);  // special guard
-    auto id = nvwa::compose();
+
     nvwa::optional<int> nothing;
     auto r1 = apply(increase, nothing);
     auto r2 = apply(increase, nvwa::make_optional(41));
@@ -195,15 +195,17 @@ BOOST_AUTO_TEST_CASE(functional_test)
     BOOST_CHECK_EQUAL(r3.value_or(-1), -1);
     BOOST_CHECK_EQUAL(nvwa::make_optional(42).value_or(-1), 42);
     BOOST_CHECK_EQUAL(nvwa::optional<int>().value_or(-1), -1);
-    auto const inc_opt = nvwa::lift_optional<int>::make(increase);
+    auto const inc_opt = nvwa::lift_optional(increase);
     BOOST_CHECK([](nvwa::optional<int> x) { return !x.has_value(); }
                   (inc_opt(r1)));
     BOOST_CHECK([](nvwa::optional<int> x)
                 {
                     return x.has_value() && x.value() == 43;
                 }(inc_opt(r2)));
+
     assert((nvwa::detail::can_reserve<std::vector<int>,
                                       std::list<int>>::value));
+    auto id = nvwa::compose();
     int a[] = {1, 2, 3, 4, 5};
     BOOST_CHECK_EQUAL(SumList()(a), 15);
     std::vector<int> v = nvwa::fmap(id, a);
