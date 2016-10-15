@@ -1,3 +1,19 @@
+2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Use forwarding references and perfect forwarding where appropriate.
+	* nvwa/functional.h (fmap(_Fn, const optional<_Targs>&...)<>):
+	Change to fmap(_Fn&&, const optional<_Targs>&...).
+	(fmap(_Fn, optional<_Targs>&&...)<>): Change to fmap(_Fn&&,
+	optional<_Targs>&&...).
+	(fmap(_Fn, const _Cont&)<>): Change to fmap(_Fn&&, const _Cont&).
+	(reduce(_Fn, const _Cont&)<>): Change to reduce(_Fn, const _Cont&).
+	(reduce(_Fn, _Rs&&, _Iter, _Iter)<>): Change to reduce(_Fn&&, _Rs&&,
+	_Iter, _Iter).
+	(reduce(_Fn, const _Cont&, _Rs&&)<>): Change to reduce(_Fn&&, const
+	_Cont&, _Rs&&).
+	(pipeline(_Tp&&, _Fn, _Fargs...)<>): Change to pipeline(_Tp&&,
+	_Fn&&, _Fargs&&...).
+
 2016-10-14  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/functional.h (detail::adl_end<>): New function template

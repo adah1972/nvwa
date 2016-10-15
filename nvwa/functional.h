@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-10-14
+ * @date  2016-10-15
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -282,7 +282,7 @@ struct lift_optional
  *              is invalid) or contains the output of \a f
  */
 template <typename _Fn, typename... _Targs>
-constexpr auto fmap(_Fn f, const optional<_Targs>&... args)
+constexpr auto fmap(_Fn&& f, const optional<_Targs>&... args)
 {
     typedef std::decay_t<decltype(f(args.cref()...))> result_type;
     if (is_valid(args...))
@@ -303,7 +303,7 @@ constexpr auto fmap(_Fn f, const optional<_Targs>&... args)
  *              is invalid) or contains the output of \a f
  */
 template <typename _Fn, typename... _Targs>
-constexpr auto fmap(_Fn f, optional<_Targs>&&... args)
+constexpr auto fmap(_Fn&& f, optional<_Targs>&&... args)
 {
     typedef std::decay_t<decltype(f(args.move_value()...))> result_type;
     if (is_valid(args...))
@@ -329,7 +329,7 @@ constexpr auto fmap(_Fn f, optional<_Targs>&&... args)
 template <template <typename, typename> class _OutCont = std::vector,
           template <typename> class _Alloc = std::allocator,
           typename _Fn, class _Cont>
-constexpr auto fmap(_Fn f, const _Cont& inputs)
+constexpr auto fmap(_Fn&& f, const _Cont& inputs)
     -> decltype(detail::adl_begin(inputs), detail::adl_end(inputs),
                 _OutCont<detail::value_type<_Cont>,
                          _Alloc<detail::value_type<_Cont>>>())
@@ -358,7 +358,7 @@ constexpr auto fmap(_Fn f, const _Cont& inputs)
  *                support iteration.
  */
 template <typename _Fn, class _Cont>
-constexpr auto reduce(_Fn f, const _Cont& inputs)
+constexpr auto reduce(_Fn&& f, const _Cont& inputs)
 {
     auto result = typename detail::value_type<_Cont>();
     for (const auto& item : inputs)
@@ -383,7 +383,7 @@ constexpr auto reduce(_Fn f, const _Cont& inputs)
  *               and the input container shall support iteration.
  */
 template <typename _Rs, typename _Fn, typename _Iter>
-constexpr _Rs&& reduce(_Fn f, _Rs&& value, _Iter begin, _Iter end)
+constexpr _Rs&& reduce(_Fn&& f, _Rs&& value, _Iter begin, _Iter end)
 {
     // Recursion (instead of iteration) is used in this function, as
     // _Rs may be a reference type and a result of this type cannot
@@ -391,8 +391,8 @@ constexpr _Rs&& reduce(_Fn f, _Rs&& value, _Iter begin, _Iter end)
     if (begin == end)
         return std::forward<_Rs>(value);
     _Iter current = begin;
-    return reduce(f, f(std::forward<_Rs>(value), *current),
-                  ++begin, end);
+    decltype(auto) reduced_once = f(std::forward<_Rs>(value), *current);
+    return reduce(std::forward<_Fn>(f), reduced_once, ++begin, end);
 }
 
 /**
@@ -421,12 +421,12 @@ constexpr _Rs&& reduce(_Fn f, _Rs&& value, _Iter begin, _Iter end)
  *                 and the input container shall support iteration.
  */
 template <typename _Rs, typename _Fn, class _Cont>
-constexpr auto reduce(_Fn f, const _Cont& inputs, _Rs&& initval)
+constexpr auto reduce(_Fn&& f, const _Cont& inputs, _Rs&& initval)
     -> decltype(f(initval, *detail::adl_begin(inputs)))
 {
     using std::begin;
     using std::end;
-    return reduce(f, std::forward<_Rs>(initval),
+    return reduce(std::forward<_Fn>(f), std::forward<_Rs>(initval),
                   begin(inputs), end(inputs));
 }
 
@@ -447,9 +447,10 @@ constexpr _Tp pipeline(_Tp&& data)
  * @param args  the rest functions to apply
  */
 template <typename _Tp, typename _Fn, typename... _Fargs>
-constexpr decltype(auto) pipeline(_Tp&& data, _Fn f, _Fargs... args)
+constexpr decltype(auto) pipeline(_Tp&& data, _Fn&& f, _Fargs&&... args)
 {
-    return pipeline(f(std::forward<_Tp>(data)), args...);
+    return pipeline(f(std::forward<_Tp>(data)),
+                    std::forward<_Fargs>(args)...);
 }
 
 /**
