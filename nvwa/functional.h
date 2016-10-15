@@ -374,7 +374,7 @@ void swap(optional<_Tp>& lhs,
  * @return   the lifted function
  */
 template <typename _Fn>
-auto lift_optional(_Fn f)
+auto lift_optional(_Fn&& f)
 {
     return [f](auto&&... args)
     {
@@ -560,7 +560,6 @@ constexpr decltype(auto) pipeline(_Tp&& data, _Fn&& f, _Fargs&&... args)
  *
  * @return      the forwarding function
  */
-inline
 auto compose()
 {
     return [](auto&& x) -> decltype(auto)

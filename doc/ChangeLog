@@ -1,5 +1,11 @@
 2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/functional.h (lift_optional(_Fn)<>): Change to
+	lift_optional(_Fn&&).
+	(compose): Remove the useless `inline' specifier.
+
+2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>
+
 	Use generic lambda and perfect forwarding to simplify code.
 	* nvwa/functional.h (lift_optional): Remove struct template.
 	(lift_optional<>): New function template.
