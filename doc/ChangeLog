@@ -1,5 +1,11 @@
 2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/functional.h (fmap(_Fn&&, const optional<_Targs>&...)<>):
+	Rename to apply.
+	(fmap(_Fn&&, optional<_Targs>&&...)<>): Ditto.
+
+2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>
+
 	Use forwarding references and perfect forwarding where appropriate.
 	* nvwa/functional.h (fmap(_Fn, const optional<_Targs>&...)<>):
 	Change to fmap(_Fn&&, const optional<_Targs>&...).

@@ -282,7 +282,7 @@ struct lift_optional
  *              is invalid) or contains the output of \a f
  */
 template <typename _Fn, typename... _Targs>
-constexpr auto fmap(_Fn&& f, const optional<_Targs>&... args)
+constexpr auto apply(_Fn&& f, const optional<_Targs>&... args)
 {
     typedef std::decay_t<decltype(f(args.cref()...))> result_type;
     if (is_valid(args...))
@@ -303,7 +303,7 @@ constexpr auto fmap(_Fn&& f, const optional<_Targs>&... args)
  *              is invalid) or contains the output of \a f
  */
 template <typename _Fn, typename... _Targs>
-constexpr auto fmap(_Fn&& f, optional<_Targs>&&... args)
+constexpr auto apply(_Fn&& f, optional<_Targs>&&... args)
 {
     typedef std::decay_t<decltype(f(args.move_value()...))> result_type;
     if (is_valid(args...))
