@@ -38,9 +38,12 @@
 #ifndef NVWA_FUNCTIONAL_H
 #define NVWA_FUNCTIONAL_H
 
+#include <cassert>              // assert
 #include <functional>           // std::function
 #include <iterator>             // std::begin/iterator_traits
 #include <memory>               // std::allocator
+#include <stdexcept>            // std::logic_error
+#include <string>               // std::string
 #include <type_traits>          // std::decay_t/is_const/integral_constant/...
 #include <utility>              // std::declval/forward/move
 #include <vector>               // std::vector
@@ -48,38 +51,168 @@
 
 NVWA_NAMESPACE_BEGIN
 
+/** Class for bad optional access exception. */
+class bad_optional_access : public std::logic_error
+{
+public:
+    bad_optional_access()
+        : std::logic_error("optional has no valid value now") {}
+};
+
 /**
- * Class for optional values.  It is modelled after the Maybe type in Haskell.
+ * Class for optional values.  It was initially modelled after the Maybe
+ * type in Haskell, but the interface was later changed to be more like
+ * (but not fully conformant to) the C++17 std::optional.
  *
  * @param _Tp  the optional type to store
  */
 template <typename _Tp>
 class optional
 {
-    bool is_valid_;
-    _Tp value_;
-
 public:
-    typedef _Tp value_type;
-    typedef _Tp& reference;
-    typedef const _Tp& const_reference;
-
     optional() : is_valid_(false) {}
+    optional(const optional& rhs)
+        : is_valid_(rhs.is_valid_)
+    {
+        if (is_valid_)
+            new(value_) _Tp(rhs.value());
+    }
+    optional(optional&& rhs)
+        : is_valid_(rhs.is_valid_)
+    {
+        if (is_valid_)
+            new(value_) _Tp(std::move(rhs).value());
+    }
+    optional(const _Tp& x) : is_valid_(true)
+    {
+        new(value_) _Tp(x);
+    }
+    optional(_Tp&& x) : is_valid_(true)
+    {
+        new(value_) _Tp(std::move(x));
+    }
+    ~optional()
+    {
+        if (is_valid_)
+            destroy(value_);
+    }
+
+    optional& operator=(const optional& rhs)
+    {
+        optional temp(rhs);
+        swap(temp);
+        return *this;
+    }
+    optional& operator=(optional&& rhs)
+    {
+        optional temp(std::move(rhs));
+        swap(temp);
+        return *this;
+    }
+
+    constexpr _Tp* operator->()
+    {
+        assert(is_valid_);
+        return reinterpret_cast<_Tp*>(value_);
+    }
+    constexpr const _Tp* operator->() const
+    {
+        assert(is_valid_);
+        return reinterpret_cast<const _Tp*>(value_);
+    }
+    constexpr _Tp& operator*() &
+    {
+        assert(is_valid_);
+        return *reinterpret_cast<_Tp*>(value_);
+    }
+    constexpr const _Tp& operator*() const&
+    {
+        assert(is_valid_);
+        return *reinterpret_cast<const _Tp*>(value_);
+    }
+    constexpr _Tp&& operator*() &&
+    {
+        assert(is_valid_);
+        is_valid_ = false;
+        return std::move(*reinterpret_cast<_Tp*>(value_));
+    }
+
+    bool has_value() const { return is_valid_; }
+
+    _Tp& value() &
+    {
+        if (!is_valid_)
+            throw bad_optional_access();
+        return *reinterpret_cast<_Tp*>(value_);
+    }
+    const _Tp& value() const&
+    {
+        if (!is_valid_)
+            throw bad_optional_access();
+        return *reinterpret_cast<const _Tp*>(value_);
+    }
+    _Tp&& value() &&
+    {
+        if (!is_valid_)
+            throw bad_optional_access();
+        is_valid_ = false;
+        return std::move(*reinterpret_cast<_Tp*>(value_));
+    }
+
     template <typename _Up>
-    optional(_Up&& x) : is_valid_(true), value_(std::forward<_Up>(x)) {}
-
-    bool is_valid() const { return is_valid_; }
-
-    std::enable_if_t<!std::is_reference<_Tp>{}, value_type> value() const
+    _Tp value_or(_Up&& default_value) const&
     {
-        return value_;
+        if (is_valid_)
+            return value();
+        else
+            return default_value;
     }
-    std::enable_if_t<!std::is_reference<_Tp>{}, value_type> move_value()
+    template <typename _Up>
+    _Tp value_or(_Up&& default_value) &&
     {
-        return std::move(value_);
+        if (is_valid_)
+            return value();
+        else
+            return default_value;
     }
-    reference ref() { return value_; }
-    const_reference cref() const { return value_; }
+
+    void reset() noexcept(noexcept(destroy(value_)))
+    {
+        if (is_valid_)
+        {
+            destroy(value_);
+            is_valid_ = false;
+        }
+    }
+    void swap(optional& rhs) noexcept
+    {
+        using std::swap;
+        swap(is_valid_, rhs.is_valid_);
+        swap(value_, rhs.value_);
+    }
+    template <typename... _Targs>
+    void emplace(_Targs&&... args)
+    {
+        if (is_valid_)
+            destroy(value_);
+        new(value_) _Tp(args...);
+        is_valid_ = true;
+    }
+
+private:
+    void destroy(void* ptr) noexcept(noexcept(std::declval<_Tp*>()->~_Tp()))
+    {
+        _M_destroy(ptr, std::is_trivially_destructible<_Tp>());
+    }
+    void _M_destroy(void*, std::true_type)
+    {}
+    void _M_destroy(void* ptr, std::false_type)
+    {
+        ((_Tp*)ptr)->~_Tp();
+    }
+
+    bool is_valid_;
+    char value_[sizeof(_Tp)];
 };
 
 template <typename _Tp>
@@ -89,16 +222,23 @@ constexpr optional<std::decay_t<_Tp>> make_optional(_Tp&& x)
 }
 
 template <typename _Tp>
-constexpr bool is_valid(const optional<_Tp>& x)
+constexpr bool has_value(const optional<_Tp>& x)
 {
-    return x.is_valid();
+    return x.has_value();
 }
 
 template <typename _Tp, typename... _Targs>
-constexpr bool is_valid(const optional<_Tp>& first, const
+constexpr bool has_value(const optional<_Tp>& first, const
                         optional<_Targs>&... other)
 {
-    return first.is_valid() && is_valid(other...);
+    return first.has_value() && has_value(other...);
+}
+
+template <typename _Tp>
+void swap(optional<_Tp>& lhs,
+          optional<_Tp>& rhs) noexcept(noexcept(lhs.swap(rhs)))
+{
+    lhs.swap(rhs);
 }
 
 namespace detail {
@@ -241,9 +381,9 @@ struct lift_optional
     {
         return [f](const optional<_Targs>&... args)
         {
-            typedef std::decay_t<decltype(f(args.cref()...))> result_type;
-            if (is_valid(args...))
-                return optional<result_type>(f(args.cref()...));
+            typedef std::decay_t<decltype(f(args.value()...))> result_type;
+            if (has_value(args...))
+                return optional<result_type>(f(args.value()...));
             else
                 return optional<result_type>();
         };
@@ -260,10 +400,9 @@ struct lift_optional
     {
         return [f](optional<_Targs>&&... args)
         {
-            typedef std::decay_t<decltype(f(args.move_value()...))>
-                result_type;
-            if (is_valid(args...))
-                return optional<result_type>(f(args.move_value()...));
+            typedef std::decay_t<decltype(f(args.value()...))> result_type;
+            if (has_value(args...))
+                return optional<result_type>(f(std::move(args).value()...));
             else
                 return optional<result_type>();
         };
@@ -284,9 +423,9 @@ struct lift_optional
 template <typename _Fn, typename... _Targs>
 constexpr auto apply(_Fn&& f, const optional<_Targs>&... args)
 {
-    typedef std::decay_t<decltype(f(args.cref()...))> result_type;
-    if (is_valid(args...))
-        return optional<result_type>(f(args.cref()...));
+    typedef std::decay_t<decltype(f(args.value()...))> result_type;
+    if (has_value(args...))
+        return optional<result_type>(f(args.value()...));
     else
         return optional<result_type>();
 }
@@ -305,9 +444,9 @@ constexpr auto apply(_Fn&& f, const optional<_Targs>&... args)
 template <typename _Fn, typename... _Targs>
 constexpr auto apply(_Fn&& f, optional<_Targs>&&... args)
 {
-    typedef std::decay_t<decltype(f(args.move_value()...))> result_type;
-    if (is_valid(args...))
-        return optional<result_type>(f(args.move_value()...));
+    typedef std::decay_t<decltype(f(args.value()...))> result_type;
+    if (has_value(args...))
+        return optional<result_type>(f(args.value()...));
     else
         return optional<result_type>();
 }

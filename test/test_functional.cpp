@@ -99,8 +99,8 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& data)
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const nvwa::optional<T>& data)
 {
-    if (data.is_valid())
-        os << "just " << data.cref();
+    if (data.has_value())
+        os << "just " << data.value();
     else
         os << "invalid";
     return os;
@@ -170,16 +170,37 @@ BOOST_AUTO_TEST_CASE(functional_test)
     Obj guard(99);  // special guard
     auto id = nvwa::compose();
     nvwa::optional<int> nothing;
-    auto r1 = fmap(increase, nothing);
-    auto r2 = fmap(increase, nvwa::make_optional(41));
-    BOOST_CHECK(!r1.is_valid());
-    BOOST_CHECK(r2.is_valid() && r2.value() == 42);
+    auto r1 = apply(increase, nothing);
+    auto r2 = apply(increase, nvwa::make_optional(41));
+    BOOST_CHECK(!r1.has_value());
+    BOOST_CHECK(r2.has_value() && r2.value() == 42);
+    auto r3 = r2;
+    BOOST_CHECK(r2.has_value() && r2.value() == 42);
+    BOOST_CHECK(r3.has_value() && r3.value() == 42);
+    auto r4 = std::move(r3);
+    BOOST_CHECK(!r3.has_value());
+    BOOST_CHECK(r4.has_value() && r4.value() == 42);
+    BOOST_CHECK_EQUAL(r3.value_or(-1), -1);
+    BOOST_CHECK_EQUAL(r4.value_or(-1), 42);
+    r3 = r4;
+    BOOST_CHECK_EQUAL(r3.value_or(-1), 42);
+    r3 = 43;
+    BOOST_CHECK_EQUAL(r3.value_or(-1), 43);
+    r3.emplace(44);
+    BOOST_CHECK_EQUAL(r3.value_or(-1), 44);
+    swap(r3, r4);
+    BOOST_CHECK_EQUAL(r3.value_or(-1), 42);
+    BOOST_CHECK_EQUAL(r4.value_or(-1), 44);
+    r3.reset();
+    BOOST_CHECK_EQUAL(r3.value_or(-1), -1);
+    BOOST_CHECK_EQUAL(nvwa::make_optional(42).value_or(-1), 42);
+    BOOST_CHECK_EQUAL(nvwa::optional<int>().value_or(-1), -1);
     auto const inc_opt = nvwa::lift_optional<int>::make(increase);
-    BOOST_CHECK([](nvwa::optional<int> x) { return !x.is_valid(); }
+    BOOST_CHECK([](nvwa::optional<int> x) { return !x.has_value(); }
                   (inc_opt(r1)));
     BOOST_CHECK([](nvwa::optional<int> x)
                 {
-                    return x.is_valid() && x.value() == 43;
+                    return x.has_value() && x.value() == 43;
                 }(inc_opt(r2)));
     assert((nvwa::detail::can_reserve<std::vector<int>,
                                       std::list<int>>::value));
@@ -190,7 +211,7 @@ BOOST_AUTO_TEST_CASE(functional_test)
     oss << v;
     BOOST_TEST_MESSAGE("Test vector is " << oss.str());
     oss.str(std::string());
-    oss << fmap(SquareList(), nvwa::make_optional(v));
+    oss << apply(SquareList(), nvwa::make_optional(v));
     BOOST_TEST_MESSAGE("Square list is " << oss.str());
     BOOST_CHECK_EQUAL(SumList()(v), 15);
     auto squared_sum = nvwa::compose(SumList(), SquareList());
@@ -211,7 +232,6 @@ BOOST_AUTO_TEST_CASE(functional_test)
         55);
 
     {
-        auto const id = nvwa::compose();
         Obj obj = id(Obj());
     }
 

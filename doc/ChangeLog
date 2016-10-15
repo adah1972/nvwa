@@ -1,5 +1,18 @@
 2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/functional.h (bad_optional_access): New class.
+	(optional<>): Rewrite to implement most of the C++17 std::optional
+	interface.
+	(is_valid(const optional<_Tp>&, ...)): Rename to has_value.
+	(lift_optional<>::make): Change as per the new interface.
+	(lift_optional<>::make_move): Ditto.
+	(apply(_Fn&&, const optional<_Targs>&...)): Ditto.
+	(apply(_Fn&&, optional<_Targs>&&...)): Ditto.
+	* test/test_functional.cpp (functional_test): Ditto.
+	(operator<<(std::ostream&, const optional<T>&)): Ditto.
+
+2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/functional.h (fmap(_Fn&&, const optional<_Targs>&...)<>):
 	Rename to apply.
 	(fmap(_Fn&&, optional<_Targs>&&...)<>): Ditto.
