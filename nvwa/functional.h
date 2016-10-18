@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-10-15
+ * @date  2016-10-18
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -431,12 +431,16 @@ constexpr auto apply(_Fn&& f, _Opt&&... args) -> decltype(
 template <template <typename, typename> class _OutCont = std::vector,
           template <typename> class _Alloc = std::allocator,
           typename _Fn, class _Cont>
-constexpr auto fmap(_Fn&& f, const _Cont& inputs)
-    -> decltype(detail::adl_begin(inputs), detail::adl_end(inputs),
-                _OutCont<detail::value_type<_Cont>,
-                         _Alloc<detail::value_type<_Cont>>>())
+constexpr auto fmap(_Fn&& f, const _Cont& inputs) -> decltype(
+    detail::adl_begin(inputs), detail::adl_end(inputs),
+    _OutCont<std::decay_t<
+                 decltype(f(std::declval<detail::value_type<_Cont>>()))>,
+             _Alloc<std::decay_t<decltype(
+                 f(std::declval<detail::value_type<_Cont>>()))>>>())
 {
-    typedef detail::value_type<_Cont> result_type;
+    typedef std::decay_t<decltype(
+        f(std::declval<detail::value_type<_Cont>>()))>
+        result_type;
     _OutCont<result_type, _Alloc<result_type>> result;
     detail::try_reserve(
         result, inputs,
