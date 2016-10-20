@@ -1,6 +1,15 @@
+2016-10-20  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/functional.h (fmap(_Fn&&, const _Cont&)): Change to
+	fmap(_Fn&&, _Cont&) and remove the requirement that functions of
+	type _Fn must take const reference types.
+	(reduce(_Fn&&, const _Cont&)): Change to reduce(_Fn&&, _Cont&).
+	(reduce(_Fn&&, const _Cont&, _Rs&&)): Change to reduce(_Fn&&,
+	_Cont&, _Rs&&).
+
 2016-10-18  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* nvwa/functional.h (fmap(_Fn, const _Cont&)): Fix the wrong return
+	* nvwa/functional.h (fmap(_Fn&&, const _Cont&)): Fix the wrong return
 	type introduced four days ago.
 
 2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>

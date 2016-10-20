@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-10-18
+ * @date  2016-10-20
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -431,22 +431,20 @@ constexpr auto apply(_Fn&& f, _Opt&&... args) -> decltype(
 template <template <typename, typename> class _OutCont = std::vector,
           template <typename> class _Alloc = std::allocator,
           typename _Fn, class _Cont>
-constexpr auto fmap(_Fn&& f, const _Cont& inputs) -> decltype(
+constexpr auto fmap(_Fn&& f, _Cont& inputs) -> decltype(
     detail::adl_begin(inputs), detail::adl_end(inputs),
-    _OutCont<std::decay_t<
-                 decltype(f(std::declval<detail::value_type<_Cont>>()))>,
-             _Alloc<std::decay_t<decltype(
-                 f(std::declval<detail::value_type<_Cont>>()))>>>())
+    _OutCont<
+        std::decay_t<decltype(f(*detail::adl_begin(inputs)))>,
+        _Alloc<std::decay_t<decltype(f(*detail::adl_begin(inputs)))>>>())
 {
-    typedef std::decay_t<decltype(
-        f(std::declval<detail::value_type<_Cont>>()))>
+    typedef std::decay_t<decltype(f(*detail::adl_begin(inputs)))>
         result_type;
     _OutCont<result_type, _Alloc<result_type>> result;
     detail::try_reserve(
         result, inputs,
         std::integral_constant<
             bool, detail::can_reserve<decltype(result), _Cont>::value>());
-    for (const auto& item : inputs)
+    for (auto& item : inputs)
         result.push_back(f(item));
     return result;
 }
@@ -464,10 +462,10 @@ constexpr auto fmap(_Fn&& f, const _Cont& inputs) -> decltype(
  *                support iteration.
  */
 template <typename _Fn, class _Cont>
-constexpr auto reduce(_Fn&& f, const _Cont& inputs)
+constexpr auto reduce(_Fn&& f, _Cont& inputs)
 {
     auto result = typename detail::value_type<_Cont>();
-    for (const auto& item : inputs)
+    for (auto& item : inputs)
         result = f(result, item);
     return result;
 }
@@ -527,7 +525,7 @@ constexpr _Rs&& reduce(_Fn&& f, _Rs&& value, _Iter begin, _Iter end)
  *                 and the input container shall support iteration.
  */
 template <typename _Rs, typename _Fn, class _Cont>
-constexpr auto reduce(_Fn&& f, const _Cont& inputs, _Rs&& initval)
+constexpr auto reduce(_Fn&& f, _Cont& inputs, _Rs&& initval)
     -> decltype(f(initval, *detail::adl_begin(inputs)))
 {
     using std::begin;
