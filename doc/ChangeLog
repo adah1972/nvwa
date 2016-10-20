@@ -5,7 +5,7 @@
 
 2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* nvwa/functional.h (lift_optional(_Fn)<>): Change to
+	* nvwa/functional.h (lift_optional(_Fn)): Change to
 	lift_optional(_Fn&&).
 	(compose): Remove the useless `inline' specifier.
 
@@ -16,9 +16,9 @@
 	(lift_optional<>): New function template.
 	(optional<>::reset): Change the noexcept-specification so that it
 	compiles under GCC.
-	(apply(_Fn&&, const optional<_Targs>&...)<>): Remove.
-	(apply(_Fn&&, optional<_Targs>&&...)<>): Remove.
-	(apply(_Fn&& f, _Opt&&...)<>): New function template.
+	(apply(_Fn&&, const optional<_Targs>&...)): Remove.
+	(apply(_Fn&&, optional<_Targs>&&...)): Remove.
+	(apply(_Fn&& f, _Opt&&...)): New function template.
 	* test/test_functional.cpp (functional_test): Update according to
 	the interface change.
 
@@ -37,25 +37,25 @@
 
 2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* nvwa/functional.h (fmap(_Fn&&, const optional<_Targs>&...)<>):
+	* nvwa/functional.h (fmap(_Fn&&, const optional<_Targs>&...)):
 	Rename to apply.
-	(fmap(_Fn&&, optional<_Targs>&&...)<>): Ditto.
+	(fmap(_Fn&&, optional<_Targs>&&...)): Ditto.
 
 2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Use forwarding references and perfect forwarding where appropriate.
-	* nvwa/functional.h (fmap(_Fn, const optional<_Targs>&...)<>):
+	* nvwa/functional.h (fmap(_Fn, const optional<_Targs>&...)):
 	Change to fmap(_Fn&&, const optional<_Targs>&...).
-	(fmap(_Fn, optional<_Targs>&&...)<>): Change to fmap(_Fn&&,
+	(fmap(_Fn, optional<_Targs>&&...)): Change to fmap(_Fn&&,
 	optional<_Targs>&&...).
-	(fmap(_Fn, const _Cont&)<>): Change to fmap(_Fn&&, const _Cont&).
-	(reduce(_Fn, const _Cont&)<>): Change to reduce(_Fn, const _Cont&).
-	(reduce(_Fn, _Rs&&, _Iter, _Iter)<>): Change to reduce(_Fn&&, _Rs&&,
+	(fmap(_Fn, const _Cont&)): Change to fmap(_Fn&&, const _Cont&).
+	(reduce(_Fn, const _Cont&)): Change to reduce(_Fn, const _Cont&).
+	(reduce(_Fn, _Rs&&, _Iter, _Iter)): Change to reduce(_Fn&&, _Rs&&,
 	_Iter, _Iter).
-	(reduce(_Fn, const _Cont&, _Rs&&)<>): Change to reduce(_Fn&&, const
+	(reduce(_Fn, const _Cont&, _Rs&&)): Change to reduce(_Fn&&, const
 	_Cont&, _Rs&&).
-	(pipeline(_Tp&&, _Fn, _Fargs...)<>): Change to pipeline(_Tp&&,
-	_Fn&&, _Fargs&&...).
+	(pipeline(_Tp&&, _Fn, _Fargs...)): Change to pipeline(_Tp&&, _Fn&&,
+	_Fargs&&...).
 
 2016-10-14  Wu Yongwei  <wuyongwei@gmail.com>
 
@@ -85,7 +85,7 @@
 2016-10-13  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/functional.h (detail::adl_begin): Restore its use.
-	(reduce<>(_Fn, const _Cont&, _Rs&&)): Check that adl_begin works on
+	(reduce(_Fn, const _Cont&, _Rs&&)): Check that adl_begin works on
 	_Cont to reduce potential conflicts with other overloads.
 
 2016-10-13  Wu Yongwei  <wuyongwei@gmail.com>
@@ -139,8 +139,8 @@
 	* nvwa/functional.h (detail::adl_begin<>): New function template
 	declaration.
 	(detail::value_type<>): New alias template.
-	(reduce<>(_Fn, const _Cont&)): Use detail::value_type to make the
-	code more generic.
+	(reduce(_Fn, const _Cont&)): Use detail::value_type to make the code
+	more generic.
 
 2016-09-29  Wu Yongwei  <wuyongwei@gmail.com>
 
@@ -149,8 +149,8 @@
 2016-09-29  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/functional.h (fmap(_Fn, const _Cont&)): Fix a type error.
-	(reduce<>(_Fn, const _Cont&)): Ditto.
-	(reduce<>(_Fn, _Rs&&, _Iter, _Iter)): Ditto.
+	(reduce(_Fn, const _Cont&)): Ditto.
+	(reduce(_Fn, _Rs&&, _Iter, _Iter)): Ditto.
 
 2016-08-18  Wu Yongwei  <wuyongwei@gmail.com>
 
