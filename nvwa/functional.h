@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-10-20
+ * @date  2016-10-21
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -134,7 +134,7 @@ struct curry<std::function<_Rs(_Tp)>>
 {
     typedef std::function<_Rs(_Tp)> type;
 
-    static type make(const type& f)
+    static type make(type f)
     {
         return f;
     }
@@ -147,7 +147,7 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>>
     typedef typename curry<std::function<_Rs(_Targs...)>>::type remaining_type;
     typedef std::function<remaining_type(_Tp)> type;
 
-    static type make(const std::function<_Rs(_Tp, _Targs...)>& f)
+    static type make(std::function<_Rs(_Tp, _Targs...)> f)
     {
         return [f](_Tp&& x)
         {   // Use wrapper to ensure reference types are correctly captured.
@@ -376,7 +376,7 @@ void swap(optional<_Tp>& lhs,
 template <typename _Fn>
 auto lift_optional(_Fn&& f)
 {
-    return [f](auto&&... args)
+    return [f = std::forward<_Fn>(f)](auto&&... args)
     {
         typedef std::decay_t<decltype(
             f(std::forward<decltype(args)>(args).value()...))>

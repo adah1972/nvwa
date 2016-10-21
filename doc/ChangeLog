@@ -1,3 +1,10 @@
+2016-10-21  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/functional.h (curry<>::make): Use std::function (instead of
+	its reference) to improve performance.
+	(lift_optional<>): Use perfect forwarding to optimize for
+	performance and fix a GCC compilation error.
+
 2016-10-20  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/functional.h (fmap(_Fn&&, const _Cont&)): Change to
@@ -14,14 +21,14 @@
 
 2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>
 
-	* nvwa/functional.h (lift_optional(_Fn)): Change to
-	lift_optional(_Fn&&).
+	* nvwa/functional.h (lift_optional<>): Change the parameter type
+	from _Fn to Fn&&.
 	(compose): Remove the useless `inline' specifier.
 
 2016-10-15  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Use generic lambda and perfect forwarding to simplify code.
-	* nvwa/functional.h (lift_optional): Remove struct template.
+	* nvwa/functional.h (lift_optional<>): Remove struct template.
 	(lift_optional<>): New function template.
 	(optional<>::reset): Change the noexcept-specification so that it
 	compiles under GCC.
