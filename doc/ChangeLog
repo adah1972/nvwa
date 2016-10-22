@@ -1,5 +1,10 @@
 2016-10-22  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/bool_array.cpp: Change `~0' at the left side of left shift to
+	`~0U' to suppress GCC warnings.
+
+2016-10-22  Wu Yongwei  <wuyongwei@gmail.com>
+
 	Re-implement optional to fix bugs and be more standard-conformant.
 	* nvwa/functional.h (detail::adl_swap<>): New function template
 	declaration.

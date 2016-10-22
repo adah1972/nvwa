@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2014 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2016 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @date  2014-11-29
+ * @date  2016-10-22
  */
 
 #include <limits.h>             // UINT_MAX, ULONG_MAX
@@ -200,7 +200,7 @@ bool_array::bool_array(const void* ptr, size_type size)
     size_t byte_cnt = get_num_bytes_from_bits(_M_length);
     memcpy(_M_byte_ptr, ptr, byte_cnt);
     int valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
-    _M_byte_ptr[byte_cnt - 1] &= ~(~0 << valid_bits_in_last_byte);
+    _M_byte_ptr[byte_cnt - 1] &= ~(~0U << valid_bits_in_last_byte);
 }
 
 /**
@@ -286,7 +286,7 @@ void bool_array::initialize(bool value) _NOEXCEPT
     if (value)
     {
         int valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
-        _M_byte_ptr[byte_cnt - 1] &= ~(~0 << valid_bits_in_last_byte);
+        _M_byte_ptr[byte_cnt - 1] &= ~(~0U << valid_bits_in_last_byte);
     }
 }
 
@@ -330,7 +330,7 @@ bool_array::size_type bool_array::count(size_type begin, size_type end) const
 
     byte_pos_beg = (size_t)(begin / 8);
     byte_val = _M_byte_ptr[byte_pos_beg];
-    byte_val &= ~0 << (begin % 8);
+    byte_val &= ~0U << (begin % 8);
 
     byte_pos_end = (size_t)(end / 8);
     if (byte_pos_beg < byte_pos_end)
@@ -338,7 +338,7 @@ bool_array::size_type bool_array::count(size_type begin, size_type end) const
         true_cnt = _S_bit_count[byte_val];
         byte_val = _M_byte_ptr[byte_pos_end];
     }
-    byte_val &= ~(~0 << (end % 8 + 1));
+    byte_val &= ~(~0U << (end % 8 + 1));
     true_cnt += _S_bit_count[byte_val];
 
     for (++byte_pos_beg; byte_pos_beg < byte_pos_end; ++byte_pos_beg)
@@ -377,27 +377,27 @@ bool_array::size_type bool_array::find_until(
 
     if (value)
     {
-        byte_val &= ~0 << (begin % 8);
+        byte_val &= ~0U << (begin % 8);
         for (size_t i = byte_pos_beg; i < byte_pos_end;)
         {
             if (byte_val != 0)
                 return i * 8 + _S_bit_ordinal[byte_val];
             byte_val = _M_byte_ptr[++i];
         }
-        byte_val &= ~(~0 << (end % 8 + 1));
+        byte_val &= ~(~0U << (end % 8 + 1));
         if (byte_val != 0)
             return byte_pos_end * 8 + _S_bit_ordinal[byte_val];
     }
     else
     {
-        byte_val |= ~(~0 << (begin % 8));
+        byte_val |= ~(~0U << (begin % 8));
         for (size_t i = byte_pos_beg; i < byte_pos_end;)
         {
             if (byte_val != 0xFF)
                 return i * 8 + _S_bit_ordinal[(byte)~byte_val];
             byte_val = _M_byte_ptr[++i];
         }
-        byte_val |= ~0 << (end % 8 + 1);
+        byte_val |= ~0U << (end % 8 + 1);
         if (byte_val != 0xFF)
             return byte_pos_end * 8 + _S_bit_ordinal[(byte)~byte_val];
     }
@@ -415,7 +415,7 @@ void bool_array::flip() _NOEXCEPT
     for (size_t i = 0; i < byte_cnt; ++i)
         _M_byte_ptr[i] = ~_M_byte_ptr[i];
     int valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
-    _M_byte_ptr[byte_cnt - 1] &= ~(~0 << valid_bits_in_last_byte);
+    _M_byte_ptr[byte_cnt - 1] &= ~(~0U << valid_bits_in_last_byte);
 }
 
 /**
@@ -477,7 +477,7 @@ void bool_array::merge_and(
     {   // Merge the remaining bits
         assert(end - begin < 8);
         value = rhs.get_8bits(begin, end);
-        value |= ~0 << (end - begin);
+        value |= ~0U << (end - begin);
         if (bit_offset != 0)
             value = ~(~value << bit_offset);
         _M_byte_ptr[byte_offset] &= value;
@@ -532,7 +532,7 @@ void bool_array::merge_or(
     {   // Merge the remaining bits
         assert(end - begin < 8);
         value = rhs.get_8bits(begin, end);
-        value &= ~(~0 << (end - begin));
+        value &= ~(~0U << (end - begin));
         if (bit_offset != 0)
             value = value << bit_offset;
         _M_byte_ptr[byte_offset] |= value;
@@ -577,7 +577,7 @@ void bool_array::copy_to_bitmap(void* dest, size_type begin, size_type end)
     {
         byte* last_byte_ptr = (byte*)dest +
                               get_num_bytes_from_bits(end - begin) - 1;
-        *last_byte_ptr &= ~(~0 << extra_bits);
+        *last_byte_ptr &= ~(~0U << extra_bits);
     }
 }
 
