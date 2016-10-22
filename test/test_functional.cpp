@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iterator>
 #include <list>
+#include <memory>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -177,13 +178,9 @@ BOOST_AUTO_TEST_CASE(functional_test)
     auto r3 = r2;
     BOOST_CHECK(r2.has_value() && r2.value() == 42);
     BOOST_CHECK(r3.has_value() && r3.value() == 42);
-    auto r4 = std::move(r3);
-    BOOST_CHECK(!r3.has_value());
+    auto r4 = r3;
     BOOST_CHECK(r4.has_value() && r4.value() == 42);
-    BOOST_CHECK_EQUAL(r3.value_or(-1), -1);
     BOOST_CHECK_EQUAL(r4.value_or(-1), 42);
-    r3 = r4;
-    BOOST_CHECK_EQUAL(r3.value_or(-1), 42);
     r3 = 43;
     BOOST_CHECK_EQUAL(r3.value_or(-1), 43);
     r3.emplace(44);
@@ -202,6 +199,31 @@ BOOST_AUTO_TEST_CASE(functional_test)
                 {
                     return x.has_value() && x.value() == 43;
                 }(inc_opt(r2)));
+
+    auto p1 = nvwa::make_optional(std::make_unique<int>(45));
+    BOOST_CHECK(p1.has_value());
+    BOOST_CHECK(p1->get() != nullptr);
+    BOOST_CHECK_EQUAL(**p1, 45);
+    auto p2 = std::move(p1);
+    BOOST_CHECK(p2.has_value());
+    BOOST_CHECK(p2->get() != nullptr);
+    BOOST_CHECK_EQUAL(**p2, 45);
+    BOOST_CHECK(p1.has_value());
+    BOOST_CHECK(p1->get() == nullptr);
+    BOOST_CHECK(noexcept(swap(std::declval<std::unique_ptr<int>&>(),
+                              std::declval<std::unique_ptr<int>&>())));
+    BOOST_CHECK(noexcept(swap(p1, p2)));
+    swap(p1, p2);
+    BOOST_CHECK(p1->get() != nullptr && **p1 == 45);
+    BOOST_CHECK(p2->get() == nullptr);
+
+    using namespace nvwa;
+    BOOST_CHECK(noexcept(
+        detail::adl_swap(std::declval<int&>(), std::declval<int&>())));
+    BOOST_CHECK(noexcept(int(std::move(std::declval<int&&>()))));
+    BOOST_CHECK(std::is_trivially_destructible<int>::value ||
+                std::is_nothrow_destructible<int>::value);
+    BOOST_CHECK(noexcept(r3.swap(r4)));
 
     assert((nvwa::detail::can_reserve<std::vector<int>,
                                       std::list<int>>::value));

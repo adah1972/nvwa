@@ -32,13 +32,12 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-10-21
+ * @date  2016-10-22
  */
 
 #ifndef NVWA_FUNCTIONAL_H
 #define NVWA_FUNCTIONAL_H
 
-#include <cassert>              // assert
 #include <functional>           // std::function
 #include <iterator>             // std::begin/iterator_traits
 #include <memory>               // std::allocator
@@ -175,6 +174,11 @@ template <class _Rng>
 using value_type = typename std::iterator_traits<decltype(
     adl_begin(std::declval<_Rng>()))>::value_type;
 
+using std::swap;
+
+template <typename _Tp>
+void adl_swap(_Tp& lhs, _Tp& rhs) noexcept(noexcept(swap(lhs, rhs)));
+
 } /* namespace detail */
 
 /** Class for bad optional access exception. */
@@ -196,148 +200,176 @@ template <typename _Tp>
 class optional
 {
 public:
-    optional() : is_valid_(false) {}
+    static_assert(std::is_nothrow_destructible<_Tp>::value);
+
+    optional() noexcept : pointer_(nullptr) {}
     optional(const optional& rhs)
-        : is_valid_(rhs.is_valid_)
     {
-        if (is_valid_)
-            new(value_) _Tp(rhs.value());
+        if (rhs.pointer_)
+            pointer_ = new(value_) _Tp(*rhs);
+        else
+            pointer_ = nullptr;
     }
-    optional(optional&& rhs)
-        : is_valid_(rhs.is_valid_)
+    optional(optional&& rhs) noexcept(
+        std::is_nothrow_move_constructible<_Tp>::value)
     {
-        if (is_valid_)
-            new(value_) _Tp(std::move(rhs).value());
+        if (rhs.pointer_)
+            pointer_ = new(value_) _Tp(std::move(*rhs));
+        else
+            pointer_ = nullptr;
     }
-    optional(const _Tp& x) : is_valid_(true)
+    optional(const _Tp& x)
     {
-        new(value_) _Tp(x);
+        pointer_ = new(value_) _Tp(x);
     }
-    optional(_Tp&& x) : is_valid_(true)
+    optional(_Tp&& x) noexcept(
+        std::is_nothrow_move_constructible<_Tp>::value)
     {
-        new(value_) _Tp(std::move(x));
+        pointer_ = new(value_) _Tp(std::move(x));
     }
-    ~optional()
+    ~optional() noexcept
     {
-        if (is_valid_)
-            destroy(value_);
+        if (pointer_)
+            destroy(pointer_);
     }
 
     optional& operator=(const optional& rhs)
     {
-        optional temp(rhs);
-        swap(temp);
+        if (has_value() && rhs.has_value())
+            *pointer_ = *rhs.pointer_;
+        else
+        {
+            optional temp(rhs);
+            swap(temp);
+        }
         return *this;
     }
-    optional& operator=(optional&& rhs)
+    optional& operator=(optional&& rhs) noexcept(
+        std::is_nothrow_move_assignable<_Tp>::value &&
+        std::is_nothrow_move_constructible<_Tp>::value)
     {
-        optional temp(std::move(rhs));
-        swap(temp);
+        if (has_value() && rhs.has_value())
+            *pointer_ = std::move(*rhs.pointer_);
+        else
+        {
+            optional temp(std::move(rhs));
+            swap(temp);
+        }
         return *this;
     }
 
     constexpr _Tp* operator->()
     {
-        assert(is_valid_);
-        return reinterpret_cast<_Tp*>(value_);
+        return pointer_;
     }
     constexpr const _Tp* operator->() const
     {
-        assert(is_valid_);
-        return reinterpret_cast<const _Tp*>(value_);
+        return pointer_;
     }
     constexpr _Tp& operator*() &
     {
-        assert(is_valid_);
-        return *reinterpret_cast<_Tp*>(value_);
+        return *pointer_;
     }
     constexpr const _Tp& operator*() const&
     {
-        assert(is_valid_);
-        return *reinterpret_cast<const _Tp*>(value_);
+        return *pointer_;
     }
     constexpr _Tp&& operator*() &&
     {
-        assert(is_valid_);
-        is_valid_ = false;
-        return std::move(*reinterpret_cast<_Tp*>(value_));
+        return std::move(*pointer_);
     }
 
-    bool has_value() const { return is_valid_; }
+    bool has_value() const noexcept { return pointer_ != nullptr; }
 
     _Tp& value() &
     {
-        if (!is_valid_)
+        if (!pointer_)
             throw bad_optional_access();
-        return *reinterpret_cast<_Tp*>(value_);
+        return *pointer_;
     }
     const _Tp& value() const&
     {
-        if (!is_valid_)
+        if (!pointer_)
             throw bad_optional_access();
-        return *reinterpret_cast<const _Tp*>(value_);
+        return *pointer_;
     }
     _Tp&& value() &&
     {
-        if (!is_valid_)
+        if (!pointer_)
             throw bad_optional_access();
-        is_valid_ = false;
-        return std::move(*reinterpret_cast<_Tp*>(value_));
+        return std::move(*pointer_);
     }
 
     template <typename _Up>
     _Tp value_or(_Up&& default_value) const&
     {
-        if (is_valid_)
-            return value();
+        if (pointer_)
+            return operator*();
         else
             return default_value;
     }
     template <typename _Up>
     _Tp value_or(_Up&& default_value) &&
     {
-        if (is_valid_)
-            return value();
+        if (pointer_)
+            return operator*();
         else
             return default_value;
     }
 
-    void reset() noexcept(noexcept(std::declval<_Tp*>()->~_Tp()))
+    void reset() noexcept
     {
-        if (is_valid_)
+        if (pointer_)
         {
-            destroy(value_);
-            is_valid_ = false;
+            destroy(pointer_);
+            pointer_ = nullptr;
         }
     }
-    void swap(optional& rhs) noexcept
+    void swap(optional& rhs) noexcept(
+        std::is_nothrow_move_constructible<_Tp>::value &&
+        noexcept(detail::adl_swap(std::declval<_Tp&>(),
+                                  std::declval<_Tp&>())))
     {
         using std::swap;
-        swap(is_valid_, rhs.is_valid_);
-        swap(value_, rhs.value_);
+        if (has_value())
+        {
+            if (rhs.has_value())
+                swap(*pointer_, *rhs);
+            else
+            {
+                rhs.pointer_ = new(rhs.value_) _Tp(std::move(*pointer_));
+                reset();
+            }
+        }
+        else
+        {
+            if (rhs.has_value())
+            {
+                pointer_ = new(value_) _Tp(std::move(*rhs));
+                rhs.reset();
+            }
+        }
     }
     template <typename... _Targs>
     void emplace(_Targs&&... args)
     {
-        if (is_valid_)
-            destroy(value_);
-        new(value_) _Tp(args...);
-        is_valid_ = true;
+        reset();
+        pointer_ = new(value_) _Tp(args...);
     }
 
 private:
-    void destroy(void* ptr) noexcept(noexcept(std::declval<_Tp*>()->~_Tp()))
+    void destroy(_Tp* ptr) noexcept
     {
         _M_destroy(ptr, std::is_trivially_destructible<_Tp>());
     }
-    void _M_destroy(void*, std::true_type)
+    void _M_destroy(_Tp*, std::true_type)
     {}
-    void _M_destroy(void* ptr, std::false_type)
+    void _M_destroy(_Tp* ptr, std::false_type)
     {
-        ((_Tp*)ptr)->~_Tp();
+        ptr->~_Tp();
     }
 
-    bool is_valid_;
+    _Tp* pointer_;
     char value_[sizeof(_Tp)];
 };
 
@@ -348,14 +380,14 @@ constexpr optional<std::decay_t<_Tp>> make_optional(_Tp&& x)
 }
 
 template <typename _Tp>
-constexpr bool has_value(const optional<_Tp>& x)
+constexpr bool has_value(const optional<_Tp>& x) noexcept
 {
     return x.has_value();
 }
 
 template <typename _Tp, typename... _Targs>
-constexpr bool has_value(const optional<_Tp>& first, const
-                        optional<_Targs>&... other)
+constexpr bool has_value(const optional<_Tp>& first,
+                         const optional<_Targs>&... other) noexcept
 {
     return first.has_value() && has_value(other...);
 }

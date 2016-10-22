@@ -1,3 +1,42 @@
+2016-10-22  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Re-implement optional to fix bugs and be more standard-conformant.
+	* nvwa/functional.h (detail::adl_swap<>): New function template
+	declaration.
+	(optional<>): Add static assertion about the template argument
+	requirement.
+	(optional<>::is_valid_): Remove member variable.
+	(optional<>::pointer_): New member variable (alignment issue is
+	solved for the templated object).
+	(optional<>::optional()): Mark as noexcept.
+	(optional<>::optional(optional&&)): Add noexcept-specification.
+	(optional<>::optional(_Tp&&)): Ditto.
+	(optional<>::~optional()): Mark as noexcept.
+	(optional<>::operator=(const optional&)): Change the implementation
+	as per C++17.
+	(optional<>::operator=(optional&&)): Ditto.
+	(optional<>::operator->()): Remove assertion and get rid of the
+	cast, for which GCC complained about breaking strict-aliasing rules.
+	(optional<>::operator->() const): Ditto.
+	(optional<>::operator*() &): Ditto.
+	(optional<>::operator*() const&): Ditto.
+	(optional<>::operator*() &&): Ditto.
+	(optional<>::has_value()): Mark as noexcept.
+	(optional<>::value() &): Fix the GCC complaint about breaking
+	strict-aliasing rules.
+	(optional<>::value() const&): Ditto.
+	(optional<>::value() &&): Ditto; do not mark the object is empty.
+	(optional<>::reset()): Mark as noexcept;
+	(optional<>::swap(optional&)): Change the noexcept-specification and
+	replace the previous faulty implementation.
+	(optional<>::destroy(void*)): Change to destroy(_Tp*) and modify the
+	noexcept-specification.
+	(has_value(const optional<_Tp>&)): Mark as noexcept.
+	(has_value(const optional<_Tp>&, const optional<_Targs>&...)):
+	Ditto.
+	* test/test_functional.cpp (functional_test): Update accordingly and
+	add more test cases.
+
 2016-10-21  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/functional.h (curry<>::make): Use std::function (instead of
@@ -204,7 +243,7 @@
 	* nvwa/functional.h: Use enable_if_t, remove_reference_t, and
 	decay_t from the standard library.
 	(fmap<>): Spell out the return type explicitly to allow SFINAE;
-	change the name of the first parameter.
+    change the name of the first parameter.
 	(compose): Mark as inline.
 
 2015-10-31  Wu Yongwei  <wuyongwei@gmail.com>
