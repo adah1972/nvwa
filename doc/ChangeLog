@@ -1,7 +1,7 @@
 2016-10-22  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/bool_array.cpp: Change `~0' at the left side of left shift to
-	`~0U' to suppress GCC warnings.
+	`~0U' to fix undefined behaviour (GCC warns about it).
 
 2016-10-22  Wu Yongwei  <wuyongwei@gmail.com>
 
