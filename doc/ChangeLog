@@ -1,3 +1,8 @@
+2016-10-23  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/functional.h (optional<>): Change the static assertion to be
+	C++14 compatible.
+
 2016-10-22  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/bool_array.cpp: Change `~0' at the left side of left shift to
