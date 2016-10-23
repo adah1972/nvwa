@@ -43,8 +43,9 @@
 #include <memory>               // std::allocator
 #include <stdexcept>            // std::logic_error
 #include <string>               // std::string
+#include <tuple>                // std::tuple
 #include <type_traits>          // std::decay_t/is_const/integral_constant/...
-#include <utility>              // std::declval/forward/move
+#include <utility>              // std::declval/forward/move/index_sequence
 #include <vector>               // std::vector
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
@@ -81,6 +82,46 @@ template <class _T1, class _T2>
 void try_reserve(_T1& dest, const _T2& src, std::true_type)
 {
     dest.reserve(src.size());
+}
+
+// Applies the function to indexed elements in the tuple, and combines
+// the result as a tuple.
+template <typename _Fn, class _Tuple, std::size_t... _I>
+constexpr auto tuple_fmap_impl(_Fn&& f, _Tuple&& t,
+                               std::index_sequence<_I...>)
+{
+    return std::make_tuple(f(std::get<_I>(std::forward<_Tuple>(t)))...);
+}
+
+// Applies the function to the given value and the indexed element of
+// the tuple.  It stops the recursion.
+template <typename _Rs, typename _Fn, class _Tuple>
+constexpr _Rs tuple_reduce_impl(_Fn&&, _Rs&& value, _Tuple&&,
+                                std::index_sequence<>)
+{
+    return std::forward<_Rs>(value);
+}
+
+// Recursively applies the function to the given value and indexed
+// elements of the tuple.
+template <typename _Rs, typename _Fn, class _Tuple, std::size_t _I,
+          std::size_t... _J>
+constexpr _Rs tuple_reduce_impl(_Fn&& f, _Rs&& value, _Tuple&& t,
+                                std::index_sequence<_I, _J...>)
+{
+    return tuple_reduce_impl(std::forward<_Fn>(f),
+                             f(std::forward<_Rs>(value), std::get<_I>(t)),
+                             std::forward<_Tuple>(t),
+                             std::index_sequence<_J...>());
+}
+
+// Applies the function with the indexed elements of the tuple as
+// arguments.
+template <typename _Fn, class _Tuple, std::size_t... _I>
+constexpr decltype(auto) tuple_apply_impl(_Fn&& f, _Tuple&& t,
+                                          std::index_sequence<_I...>)
+{
+    return f(std::get<_I>(std::forward<_Tuple>(t))...);
 }
 
 // Struct to wrap a function for self-reference.
@@ -448,6 +489,58 @@ constexpr auto apply(_Fn&& f, _Opt&&... args) -> decltype(
 }
 
 /**
+ * Applies the function with all elements of the typle as arguments.  It
+ * is exactly like the C++17 std::apply.
+ *
+ * @param f  the function to apply
+ * @param t  the tuple that can expand to the function arguments
+ * @return   the result of the function applied
+ */
+template <typename _Fn, class _Tuple>
+constexpr auto apply(_Fn&& f, _Tuple&& t)
+    -> decltype(detail::tuple_apply_impl(
+        std::forward<_Fn>(f),
+        std::forward<_Tuple>(t),
+        std::make_index_sequence<
+            std::tuple_size<std::decay_t<_Tuple>>::value>()))
+{
+    return detail::tuple_apply_impl(
+        std::forward<_Fn>(f),
+        std::forward<_Tuple>(t),
+        std::make_index_sequence<
+            std::tuple_size<std::decay_t<_Tuple>>::value>());
+}
+
+/**
+ * Applies a function to both elements of a pair, and makes the results
+ * a pair.
+ *
+ * @param f     the function to apply
+ * @param args  pair of arguments to pass
+ * @return      pair of results of function invocation
+ */
+template <typename _Fn, typename _T1, typename _T2>
+constexpr auto fmap(_Fn&& f, const std::pair<_T1, _T2>& args)
+{
+    return std::make_pair(f(args.first), f(args.second));
+}
+
+/**
+ * Applies a function to all elements of a tuple, and makes the results
+ * a tuple.
+ *
+ * @param f     the function to apply
+ * @param args  tuple of arguments to pass
+ * @return      tuple of results of function invocation
+ */
+template <typename _Fn, typename... _Targs>
+constexpr auto fmap(_Fn&& f, const std::tuple<_Targs...>& args)
+{
+    return detail::tuple_fmap_impl(std::forward<_Fn>(f), args,
+                                   std::index_sequence_for<_Targs...>());
+}
+
+/**
  * Applies a function to each element in the input container.
  *
  * This is similar to \c std::transform, but the style is more
@@ -480,6 +573,26 @@ constexpr auto fmap(_Fn&& f, _Cont& inputs) -> decltype(
     for (auto& item : inputs)
         result.push_back(f(item));
     return result;
+}
+
+/**
+ * Applies a function cumulatively to all elements of a tuple.
+ *
+ * @param f      the function to apply
+ * @param value  the first argument to be passed to the function
+ * @param args   the input tuple
+ * @pre          \a f shall take one argument of the result type, and
+ *               one argument of the type of the elements in \a args.
+ */
+template <typename _Rs, typename _Fn, typename... _Targs>
+constexpr auto reduce(_Fn&& f,
+                      const std::tuple<_Targs...>& args,
+                      _Rs&& value)
+{
+    return detail::tuple_reduce_impl(std::forward<_Fn>(f),
+                                     std::forward<_Rs>(value),
+                                     args,
+                                     std::index_sequence_for<_Targs...>());
 }
 
 /**
@@ -565,6 +678,39 @@ constexpr auto reduce(_Fn&& f, _Cont& inputs, _Rs&& initval)
     using std::end;
     return reduce(std::forward<_Fn>(f), std::forward<_Rs>(initval),
                   begin(inputs), end(inputs));
+}
+
+/**
+ * Makes a two-argument function accept a pair instead.
+ *
+ * @param f  a function that accepts two arguments
+ * @return   a function that accepts a pair
+ */
+template <typename _T1, typename _T2, typename _Fn>
+constexpr auto wrap_args_as_pair(_Fn&& f)
+{
+    return [f = std::forward<_Fn>(f)](const std::pair<_T1, _T2>& arg)
+        ->decltype(auto)
+    {
+        return f(arg.first, arg.second);
+    };
+}
+
+/**
+ * Makes a function accept a tuple as its arguments.  The tuple shall
+ * contain exactly the same type/number of argument as the function
+ * needs.
+ *
+ * @param f  a function that accepts two arguments
+ * @return   a function that accepts a pair
+ */
+template <typename _Tuple, typename _Fn>
+constexpr auto wrap_args_as_tuple(_Fn&& f)
+{
+    return [f = std::forward<_Fn>(f)](_Tuple&& t)->decltype(auto)
+    {
+        return apply(f, std::forward<_Tuple>(t));
+    };
 }
 
 /**
