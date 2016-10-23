@@ -419,6 +419,8 @@
 
 	* nvwa/functional.h (compose<>): Simplify its interface and
 	implementation with C++14 generic lambdas.
+	(detail::compose_ref<>): Remove.
+	(detail::compose_impl<>): Remove.
 
 2015-01-03  Wu Yongwei  <wuyongwei@gmail.com>
 
