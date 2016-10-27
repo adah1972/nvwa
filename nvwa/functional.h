@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-10-23
+ * @date  2016-10-27
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -848,7 +848,8 @@ std::function<_Rs(_Tp)> fix_curry(
  * Makes a curried function.  The returned function takes one argument
  * at a time, and return a function that takes the next argument until
  * all arguments are exhausted, in which case it returns the final
- * result.
+ * result.  This overload takes an std::function and can deduce its
+ * argument types and return type.
  *
  * @param f  the function to be curried as a \c std::function
  * @return   the curried function
@@ -863,7 +864,8 @@ auto make_curry(std::function<_Rs(_Targs...)> f)
  * Makes a curried function.  The returned function takes one argument
  * at a time, and return a function that takes the next argument until
  * all arguments are exhausted, in which case it returns the final
- * result.
+ * result.  This overload takes a pointer to function and can deduce its
+ * argument types and return type.
  *
  * @param f  the function to be curried as a function pointer
  * @return   the curried function
@@ -872,6 +874,23 @@ template <typename _Rs, typename... _Targs>
 auto make_curry(_Rs(*f)(_Targs...))
 {
     return detail::curry<std::function<_Rs(_Targs...)>>::make(f);
+}
+
+/**
+ * Makes a curried function.  The returned function takes one argument
+ * at a time, and return a function that takes the next argument until
+ * all arguments are exhausted, in which case it returns the final
+ * result.  This overload takes a generic function object, and the
+ * function type must be specified when this function template is
+ * instantiated.
+ *
+ * @param f  the function to be curried as a function pointer
+ * @return   the curried function
+ */
+template <typename _FnType, typename _Fn>
+auto make_curry(_Fn&& f)
+{
+    return detail::curry<std::function<_FnType>>::make(f);
 }
 
 NVWA_NAMESPACE_END

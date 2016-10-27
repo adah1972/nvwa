@@ -1,3 +1,7 @@
+2016-10-27  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/functional.h (make_curry(_Fn&&)): New function template.
+
 2016-10-23  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/functional.h (detail::tuple_fmap_impl<>): New function
