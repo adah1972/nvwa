@@ -541,23 +541,23 @@ constexpr auto fmap(_Fn&& f, const std::tuple<_Targs...>& args)
 }
 
 /**
- * Applies a function to each element in the input container.
+ * Applies a function to each element in the input range.
  *
  * This is similar to \c std::transform, but the style is more
  * functional and more suitable for chaining operations.
  *
  * @param f       the function to apply
- * @param inputs  the input container
+ * @param inputs  the input range
  * @pre           \a f shall take one argument of the type of the
  *                elements in \a inputs, the output container shall
- *                support \c push_back, and the input container shall
+ *                support \c push_back, and the input range shall
  *                support iteration.
  * @return        the container of results
  */
 template <template <typename, typename> class _OutCont = std::vector,
           template <typename> class _Alloc = std::allocator,
-          typename _Fn, class _Cont>
-constexpr auto fmap(_Fn&& f, _Cont& inputs) -> decltype(
+          typename _Fn, class _Rng>
+constexpr auto fmap(_Fn&& f, _Rng&& inputs) -> decltype(
     detail::adl_begin(inputs), detail::adl_end(inputs),
     _OutCont<
         std::decay_t<decltype(f(*detail::adl_begin(inputs)))>,
@@ -569,7 +569,7 @@ constexpr auto fmap(_Fn&& f, _Cont& inputs) -> decltype(
     detail::try_reserve(
         result, inputs,
         std::integral_constant<
-            bool, detail::can_reserve<decltype(result), _Cont>::value>());
+            bool, detail::can_reserve<decltype(result), _Rng>::value>());
     for (auto& item : inputs)
         result.push_back(f(item));
     return result;
@@ -596,21 +596,21 @@ constexpr auto reduce(_Fn&& f,
 }
 
 /**
- * Applies a function cumulatively to elements in the input container.
+ * Applies a function cumulatively to elements in the input range.
  *
  * This is similar to \c std::accumulate, but the style is more
  * functional and more suitable for chaining operations.
  *
  * @param f       the function to apply
- * @param inputs  the input container
+ * @param inputs  the input range
  * @pre           \a f shall take two arguments of the type of the
- *                elements in \a inputs, and the input container shall
+ *                elements in \a inputs, and the input range shall
  *                support iteration.
  */
-template <typename _Fn, class _Cont>
-constexpr auto reduce(_Fn&& f, _Cont& inputs)
+template <typename _Fn, class _Rng>
+constexpr auto reduce(_Fn&& f, _Rng&& inputs)
 {
-    auto result = typename detail::value_type<_Cont>();
+    auto result = typename detail::value_type<_Rng>();
     for (auto& item : inputs)
         result = f(result, item);
     return result;
@@ -630,7 +630,7 @@ constexpr auto reduce(_Fn&& f, _Cont& inputs)
  * @param end    end of the range
  * @pre          \a f shall take one argument of the result type, and
  *               one argument of the type of the elements in \a inputs,
- *               and the input container shall support iteration.
+ *               and the input range shall support iteration.
  */
 template <typename _Rs, typename _Fn, typename _Iter>
 constexpr _Rs&& reduce(_Fn&& f, _Rs&& value, _Iter begin, _Iter end)
@@ -646,7 +646,7 @@ constexpr _Rs&& reduce(_Fn&& f, _Rs&& value, _Iter begin, _Iter end)
 }
 
 /**
- * Applies a function cumulatively to elements in the input container.
+ * Applies a function cumulatively to elements in the input range.
  *
  * This is similar to \c std::accumulate, but the style is more
  * functional and more suitable for chaining operations.  This
@@ -664,14 +664,14 @@ constexpr _Rs&& reduce(_Fn&& f, _Rs&& value, _Iter begin, _Iter end)
  * @endcode
  *
  * @param f        the function to apply
- * @param inputs   the input container
+ * @param inputs   the input range
  * @param initval  initial value for the cumulative calculation @pre
  *                 \a f shall take one argument of the result type, and
  *                 one argument of the type of the elements in \a inputs,
- *                 and the input container shall support iteration.
+ *                 and the input range shall support iteration.
  */
-template <typename _Rs, typename _Fn, class _Cont>
-constexpr auto reduce(_Fn&& f, _Cont& inputs, _Rs&& initval)
+template <typename _Rs, typename _Fn, class _Rng>
+constexpr auto reduce(_Fn&& f, _Rng&& inputs, _Rs&& initval)
     -> decltype(f(initval, *detail::adl_begin(inputs)))
 {
     using std::begin;

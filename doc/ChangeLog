@@ -1,5 +1,13 @@
 2016-10-27  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/functional.h: Change the term `container' to `range' where
+	appropriate; change the template argument `_Cont' to `_Rng'.
+	(fmap(_Fn&&, _Cont&)): Use forward reference for the old _Cont&.
+	(reduce(_Fn&&, _Cont&)): Ditto.
+	(reduce(_Fn&&, _Cont&, _Rs&&)): Ditto.
+
+2016-10-27  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/functional.h (make_curry(_Fn&&)): New function template.
 
 2016-10-23  Wu Yongwei  <wuyongwei@gmail.com>
