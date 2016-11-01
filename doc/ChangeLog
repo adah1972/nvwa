@@ -7,7 +7,7 @@
 
 	* nvwa/functional.h: Change the term `container' to `range' where
 	appropriate; change the template argument `_Cont' to `_Rng'.
-	(fmap(_Fn&&, _Cont&)): Use forward reference for the old _Cont&.
+	(fmap(_Fn&&, _Cont&)): Use forwarding reference for the old _Cont&.
 	(reduce(_Fn&&, _Cont&)): Ditto.
 	(reduce(_Fn&&, _Cont&, _Rs&&)): Ditto.
 
