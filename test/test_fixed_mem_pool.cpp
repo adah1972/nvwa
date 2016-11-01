@@ -5,7 +5,7 @@
 
 using namespace boost::unit_test_framework;
 
-#ifdef __GNUC__
+#ifdef __clang__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-private-field"
 #endif
@@ -18,7 +18,7 @@ private:
     DECLARE_FIXED_MEM_POOL(Obj)
 };
 
-#ifdef __GNUC__
+#ifdef __clang__
 #pragma GCC diagnostic pop
 #endif
 

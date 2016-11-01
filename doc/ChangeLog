@@ -1,3 +1,8 @@
+2016-11-01  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* test/test_fixed_mem_pool.cpp: Ignore "-Wunused-private-field" only
+	with clang.
+
 2016-10-27  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/functional.h: Change the term `container' to `range' where
