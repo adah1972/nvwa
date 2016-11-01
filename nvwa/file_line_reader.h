@@ -31,7 +31,7 @@
  *
  * Header file for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2016-10-12
+ * @date  2016-11-01
  */
 
 #ifndef FILE_LINE_READER_H
@@ -60,7 +60,7 @@ public:
         typedef char*& reference;
         typedef char* value_type;
 
-        iterator() _NOEXCEPT : reader_(_NULLPTR), line_(_NULLPTR) {}
+        iterator() _NOEXCEPT : _M_reader(_NULLPTR), _M_line(_NULLPTR) {}
         explicit iterator(file_line_reader* reader);
         ~iterator();
 
@@ -76,18 +76,18 @@ public:
 
         reference operator*()
         {
-            assert(reader_ != _NULLPTR);
-            return line_;
+            assert(_M_reader != _NULLPTR);
+            return _M_line;
         }
         value_type* operator->()
         {
-            assert(reader_ != _NULLPTR);
-            return &line_;
+            assert(_M_reader != _NULLPTR);
+            return &_M_line;
         }
         iterator& operator++()
         {
-            if (!reader_->read(line_, size_, capacity_))
-                reader_ = _NULLPTR;
+            if (!_M_reader->read(_M_line, _M_size, _M_capacity))
+                _M_reader = _NULLPTR;
             return *this;
         }
         iterator operator++(int)
@@ -99,20 +99,20 @@ public:
 
         bool operator==(const iterator& rhs) const
         {
-            return reader_ == rhs.reader_;
+            return _M_reader == rhs._M_reader;
         }
         bool operator!=(const iterator& rhs) const
         {
             return !operator==(rhs);
         }
 
-        size_t size() const { return size_; }
+        size_t size() const { return _M_size; }
 
     private:
-        file_line_reader* reader_;
-        char*             line_;
-        size_t            size_;
-        size_t            capacity_;
+        file_line_reader* _M_reader;
+        char*             _M_line;
+        size_t            _M_size;
+        size_t            _M_capacity;
     };
 
     enum strip_type {
@@ -132,12 +132,12 @@ private:
     file_line_reader(const file_line_reader&) _DELETED;
     file_line_reader& operator=(const file_line_reader&) _DELETED;
 
-    FILE*  stream_;
-    char   delimiter_;
-    bool   strip_delimiter_;
-    char*  buffer_;
-    size_t read_pos_;
-    size_t size_;
+    FILE*  _M_stream;
+    char   _M_delimiter;
+    bool   _M_strip_delimiter;
+    char*  _M_buffer;
+    size_t _M_read_pos;
+    size_t _M_size;
 };
 
 inline void swap(file_line_reader::iterator& lhs,

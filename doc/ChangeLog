@@ -1,5 +1,11 @@
 2016-11-01  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/file_line_reader.h: Change the naming style of private member
+	variables for consistency.
+	* nvwa/file_line_reader.cpp: Ditto.
+
+2016-11-01  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* test/test_fixed_mem_pool.cpp: Ignore "-Wunused-private-field" only
 	with clang.
 

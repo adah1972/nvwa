@@ -31,7 +31,7 @@
  *
  * Code for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2016-10-10
+ * @date  2016-11-01
  */
 
 #include <string.h>             // memcpy
@@ -56,17 +56,17 @@ const size_t BUFFER_SIZE = 256;
  * @param reader  pointer to the file_line_reader object
  */
 file_line_reader::iterator::iterator(file_line_reader* reader)
-    : reader_(reader), size_(0)
+    : _M_reader(reader), _M_size(0)
 {
-    line_ = new char[BUFFER_SIZE];
-    capacity_ = BUFFER_SIZE;
+    _M_line = new char[BUFFER_SIZE];
+    _M_capacity = BUFFER_SIZE;
     ++*this;
 }
 
 /** Destuctor. */
 file_line_reader::iterator::~iterator()
 {
-    delete[] line_;
+    delete[] _M_line;
 }
 
 /**
@@ -76,12 +76,12 @@ file_line_reader::iterator::~iterator()
  * @param rhs  the iterator to copy from
  */
 file_line_reader::iterator::iterator(const iterator& rhs)
-    : reader_(rhs.reader_)
+    : _M_reader(rhs._M_reader)
 {
-    line_ = new char[rhs.size_ + 1];
-    size_ = rhs.size_;
-    capacity_ = size_ + 1;
-    memcpy(line_, rhs.line_, size_ + 1);
+    _M_line = new char[rhs._M_size + 1];
+    _M_size = rhs._M_size;
+    _M_capacity = _M_size + 1;
+    memcpy(_M_line, rhs._M_line, _M_size + 1);
 }
 
 /**
@@ -107,15 +107,15 @@ operator=(const iterator& rhs)
  * @param rhs  the iterator to move from
  */
 file_line_reader::iterator::iterator(iterator&& rhs) _NOEXCEPT
-    : reader_(rhs.reader_),
-      line_(rhs.line_),
-      size_(rhs.size_),
-      capacity_(rhs.capacity_)
+    : _M_reader(rhs._M_reader),
+      _M_line(rhs._M_line),
+      _M_size(rhs._M_size),
+      _M_capacity(rhs._M_capacity)
 {
-    rhs.reader_ = _NULLPTR;
-    rhs.line_ = _NULLPTR;
-    rhs.size_ = 0;
-    rhs.capacity_ = 0;
+    rhs._M_reader = _NULLPTR;
+    rhs._M_line = _NULLPTR;
+    rhs._M_size = 0;
+    rhs._M_capacity = 0;
 }
 
 /**
@@ -142,10 +142,10 @@ operator=(iterator&& rhs) _NOEXCEPT
 void file_line_reader::iterator::swap(
     file_line_reader::iterator& rhs) _NOEXCEPT
 {
-    std::swap(reader_, rhs.reader_);
-    std::swap(line_, rhs.line_);
-    std::swap(size_, rhs.size_);
-    std::swap(capacity_, rhs.capacity_);
+    std::swap(_M_reader, rhs._M_reader);
+    std::swap(_M_line, rhs._M_line);
+    std::swap(_M_size, rhs._M_size);
+    std::swap(_M_capacity, rhs._M_capacity);
 }
 
 /**
@@ -153,26 +153,26 @@ void file_line_reader::iterator::swap(
  *
  * @param stream     the file stream to read from
  * @param delimiter  the delimiter between text `lines' (default to LF)
+ * @param strip      enumerator about whether to strip the delimiter
  */
 file_line_reader::file_line_reader(FILE* stream, char delimiter,
                                    strip_type strip)
-    : stream_(stream)
-    , delimiter_(delimiter)
-    , strip_delimiter_(strip == strip_delimiter)
-    , read_pos_(0)
-    , size_(0)
+    : _M_stream(stream)
+    , _M_delimiter(delimiter)
+    , _M_strip_delimiter(strip == strip_delimiter)
+    , _M_read_pos(0)
+    , _M_size(0)
 {
-    if (delimiter == '\n') {
-        buffer_ = _NULLPTR;
-    } else {
-        buffer_ = new char[BUFFER_SIZE];
-    }
+    if (delimiter == '\n')
+        _M_buffer = _NULLPTR;
+    else
+        _M_buffer = new char[BUFFER_SIZE];
 }
 
 /** Destructor. */
 file_line_reader::~file_line_reader()
 {
-    delete[] buffer_;
+    delete[] _M_buffer;
 }
 
 static char* expand(char* data, size_t size, size_t capacity)
@@ -201,11 +201,11 @@ bool file_line_reader::read(char*& output, size_t& size, size_t& capacity)
     bool found_delimiter = false;
     size_t write_pos = 0;
 
-    if (delimiter_ == '\n')
+    if (_M_delimiter == '\n')
     {
         while (!found_delimiter)
         {
-            if (!fgets(output + write_pos, capacity - write_pos, stream_))
+            if (!fgets(output + write_pos, capacity - write_pos, _M_stream))
                 break;
             while (output[write_pos] != '\0' && output[write_pos] != '\n')
                 ++write_pos;
@@ -225,28 +225,28 @@ bool file_line_reader::read(char*& output, size_t& size, size_t& capacity)
     {
         while (!found_delimiter)
         {
-            if (read_pos_ == size_)
+            if (_M_read_pos == _M_size)
             {
-                read_pos_ = 0;
-                size_ = fread(buffer_, 1, sizeof buffer_, stream_);
-                if (size_ == 0)
+                _M_read_pos = 0;
+                _M_size = fread(_M_buffer, 1, sizeof _M_buffer, _M_stream);
+                if (_M_size == 0)
                     break;
             }
-            char ch = buffer_[read_pos_++];
+            char ch = _M_buffer[_M_read_pos++];
             if (write_pos + 1 == capacity)
             {
                 output = expand(output, write_pos, capacity * 2);
                 capacity *= 2;
             }
             output[write_pos++] = ch;
-            if (ch == delimiter_)
+            if (ch == _M_delimiter)
                 found_delimiter = true;
         }
     }
 
     if (write_pos != 0)
     {
-        if (found_delimiter && strip_delimiter_)
+        if (found_delimiter && _M_strip_delimiter)
             --write_pos;
         output[write_pos] = '\0';
         size = write_pos;
