@@ -1,5 +1,9 @@
 2016-11-01  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/functional.h: Add a comment.
+
+2016-11-01  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/file_line_reader.h: Make the name of the macro guard
 	consistent with other header files.
 

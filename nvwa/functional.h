@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-10-27
+ * @date  2016-11-01
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -217,6 +217,7 @@ using value_type = typename std::iterator_traits<decltype(
 
 using std::swap;
 
+// Function declaration to resolve swap using argument-dependent lookup
 template <typename _Tp>
 void adl_swap(_Tp& lhs, _Tp& rhs) noexcept(noexcept(swap(lhs, rhs)));
 
