@@ -34,8 +34,8 @@
  * @date  2016-11-01
  */
 
-#ifndef FILE_LINE_READER_H
-#define FILE_LINE_READER_H
+#ifndef NVWA_FILE_LINE_READER_H
+#define NVWA_FILE_LINE_READER_H
 
 #include <assert.h>             // assert
 #include <stdio.h>              // file streams
@@ -148,4 +148,4 @@ inline void swap(file_line_reader::iterator& lhs,
 
 NVWA_NAMESPACE_END
 
-#endif // FILE_LINE_READER_H
+#endif // NVWA_FILE_LINE_READER_H

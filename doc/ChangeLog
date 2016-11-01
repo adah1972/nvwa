@@ -1,5 +1,10 @@
 2016-11-01  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/file_line_reader.h: Make the name of the macro guard
+	consistent with other header files.
+
+2016-11-01  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/file_line_reader.h: Change the naming style of private member
 	variables for consistency.
 	* nvwa/file_line_reader.cpp: Ditto.
