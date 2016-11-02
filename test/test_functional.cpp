@@ -17,7 +17,7 @@ namespace /* unnamed */ {
 auto const f = [](int v) { return v - 1.f; };
 auto const g = [](float v) { return static_cast<int>(v); };
 
-int increase(int n)
+constexpr int increase(int n)
 {
     return n + 1;
 }
@@ -30,7 +30,7 @@ int fact(std::function<int(int)> f, int v)
         return v * f(v - 1);
 }
 
-int sqr(int x)
+constexpr int sqr(int x)
 {
     return x * x;
 }
@@ -59,14 +59,14 @@ struct SumList {
     }
 };
 
-template <typename T1, typename T2>
-auto sum(T1 x, T2 y)
+template <typename T>
+constexpr auto sum(T x)
 {
-    return x + y;
+    return x;
 }
 
 template <typename T1, typename T2, typename... Targ>
-auto sum(T1 x, T2 y, Targ... args)
+constexpr auto sum(T1 x, T2 y, Targ... args)
 {
     return sum(x + y, args...);
 }
@@ -277,6 +277,21 @@ BOOST_AUTO_TEST_CASE(functional_test)
     (void)sum<int, int, int, int, int>;  // GCC requires this instantiation
     auto sum_and_square = nvwa::compose(sqr, sum<int, int, int, int, int>);
     BOOST_CHECK_EQUAL(sum_and_square(1, 2, 3, 4, 5), 225);
+    auto square_and_sum_2 =
+        nvwa::compose(nvwa::wrap_args_as_pair<int, int>(std::plus<int>()),
+                      [](auto&& x) { return nvwa::fmap(sqr, x); });
+    auto square_and_sum_4 = nvwa::compose(
+        nvwa::wrap_args_as_tuple<std::tuple<int, int, int, int>>(
+            sum<int, int, int, int>),
+        [](auto&& x) { return nvwa::fmap(sqr, x); });
+    auto square_and_sum = nvwa::compose(
+        [](auto&& x) { return nvwa::reduce(std::plus<int>(), x, 0); },
+        [](auto&& x) { return nvwa::fmap(sqr, x); });
+    BOOST_CHECK_EQUAL(square_and_sum_2(std::make_pair(3, 4)), 25);
+    BOOST_CHECK_EQUAL(square_and_sum_4(std::make_tuple(1, 2, 3, 4)), 30);
+    auto t = std::make_tuple(1, 2, 3, 4, 5);
+    BOOST_CHECK_EQUAL(square_and_sum(t), 55);
+    BOOST_CHECK_EQUAL(apply(sum<int, int, int, int, int>, fmap(sqr, t)), 55);
 
     using std::function;
     typedef function<int(int)> Func;
