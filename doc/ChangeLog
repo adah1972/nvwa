@@ -1,5 +1,10 @@
 2016-11-02  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/mmap_line_reader.h: New file.
+	* nvwa/mmap_line_reader.cpp: New file.
+
+2016-11-02  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/file_line_reader.h: Update an obsolete comment.
 
 2016-11-02  Wu Yongwei  <wuyongwei@gmail.com>
