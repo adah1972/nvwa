@@ -1,5 +1,9 @@
 2016-11-02  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/file_line_reader.h: Update an obsolete comment.
+
+2016-11-02  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* test/test_functional.cpp (increase): Mark as constexpr.
 	(sqr): Ditto.
 	(sum): Ditto.

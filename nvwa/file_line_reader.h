@@ -31,7 +31,7 @@
  *
  * Header file for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2016-11-01
+ * @date  2016-11-02
  */
 
 #ifndef NVWA_FILE_LINE_READER_H
@@ -51,8 +51,7 @@ public:
     /**
      * Iterator that contains the line content.
      *
-     * The iterator \e owns the content, and the content does not contain
-     * the delimiter.
+     * The iterator \e owns the content.
      */
     class iterator  // implements InputIterator
     {
