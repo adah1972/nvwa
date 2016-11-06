@@ -691,7 +691,7 @@ template <typename _T1, typename _T2, typename _Fn>
 constexpr auto wrap_args_as_pair(_Fn&& f)
 {
     return [f = std::forward<_Fn>(f)](const std::pair<_T1, _T2>& arg)
-        ->decltype(auto)
+        -> decltype(auto)
     {
         return f(arg.first, arg.second);
     };
@@ -708,7 +708,7 @@ constexpr auto wrap_args_as_pair(_Fn&& f)
 template <typename _Tuple, typename _Fn>
 constexpr auto wrap_args_as_tuple(_Fn&& f)
 {
-    return [f = std::forward<_Fn>(f)](_Tuple&& t)->decltype(auto)
+    return [f = std::forward<_Fn>(f)](_Tuple&& t) -> decltype(auto)
     {
         return apply(f, std::forward<_Tuple>(t));
     };
