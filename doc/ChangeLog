@@ -1,3 +1,9 @@
+2016-11-06  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/functional.h (make_curry(std::function<_Rs(_Targs...)>)):
+	Move the function passed in.
+	(make_curry(_Fn&&)): Perfect-forward the function object passed in.
+
 2016-11-02  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/mmap_line_reader.h: New file.

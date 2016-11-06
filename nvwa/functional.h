@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-11-01
+ * @date  2016-11-06
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -858,7 +858,7 @@ std::function<_Rs(_Tp)> fix_curry(
 template <typename _Rs, typename... _Targs>
 auto make_curry(std::function<_Rs(_Targs...)> f)
 {
-    return detail::curry<std::function<_Rs(_Targs...)>>::make(f);
+    return detail::curry<std::function<_Rs(_Targs...)>>::make(std::move(f));
 }
 
 /**
@@ -891,7 +891,8 @@ auto make_curry(_Rs(*f)(_Targs...))
 template <typename _FnType, typename _Fn>
 auto make_curry(_Fn&& f)
 {
-    return detail::curry<std::function<_FnType>>::make(f);
+    return detail::curry<std::function<_FnType>>::make(
+        std::forward<_Fn>(f));
 }
 
 NVWA_NAMESPACE_END
