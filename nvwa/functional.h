@@ -245,41 +245,41 @@ public:
     static_assert(std::is_nothrow_destructible<_Tp>::value,
                   "optional type must be nothrow destructible");
 
-    optional() noexcept : pointer_(nullptr) {}
+    optional() noexcept : _M_pointer(nullptr) {}
     optional(const optional& rhs)
     {
-        if (rhs.pointer_)
-            pointer_ = new(value_) _Tp(*rhs);
+        if (rhs._M_pointer)
+            _M_pointer = new(_M_value) _Tp(*rhs);
         else
-            pointer_ = nullptr;
+            _M_pointer = nullptr;
     }
     optional(optional&& rhs) noexcept(
         std::is_nothrow_move_constructible<_Tp>::value)
     {
-        if (rhs.pointer_)
-            pointer_ = new(value_) _Tp(std::move(*rhs));
+        if (rhs._M_pointer)
+            _M_pointer = new(_M_value) _Tp(std::move(*rhs));
         else
-            pointer_ = nullptr;
+            _M_pointer = nullptr;
     }
     optional(const _Tp& x)
     {
-        pointer_ = new(value_) _Tp(x);
+        _M_pointer = new(_M_value) _Tp(x);
     }
     optional(_Tp&& x) noexcept(
         std::is_nothrow_move_constructible<_Tp>::value)
     {
-        pointer_ = new(value_) _Tp(std::move(x));
+        _M_pointer = new(_M_value) _Tp(std::move(x));
     }
     ~optional() noexcept
     {
-        if (pointer_)
-            destroy(pointer_);
+        if (_M_pointer)
+            destroy(_M_pointer);
     }
 
     optional& operator=(const optional& rhs)
     {
         if (has_value() && rhs.has_value())
-            *pointer_ = *rhs.pointer_;
+            *_M_pointer = *rhs._M_pointer;
         else
         {
             optional temp(rhs);
@@ -292,7 +292,7 @@ public:
         std::is_nothrow_move_constructible<_Tp>::value)
     {
         if (has_value() && rhs.has_value())
-            *pointer_ = std::move(*rhs.pointer_);
+            *_M_pointer = std::move(*rhs._M_pointer);
         else
         {
             optional temp(std::move(rhs));
@@ -303,50 +303,50 @@ public:
 
     constexpr _Tp* operator->()
     {
-        return pointer_;
+        return _M_pointer;
     }
     constexpr const _Tp* operator->() const
     {
-        return pointer_;
+        return _M_pointer;
     }
     constexpr _Tp& operator*() &
     {
-        return *pointer_;
+        return *_M_pointer;
     }
     constexpr const _Tp& operator*() const&
     {
-        return *pointer_;
+        return *_M_pointer;
     }
     constexpr _Tp&& operator*() &&
     {
-        return std::move(*pointer_);
+        return std::move(*_M_pointer);
     }
 
-    bool has_value() const noexcept { return pointer_ != nullptr; }
+    bool has_value() const noexcept { return _M_pointer != nullptr; }
 
     _Tp& value() &
     {
-        if (!pointer_)
+        if (!_M_pointer)
             throw bad_optional_access();
-        return *pointer_;
+        return *_M_pointer;
     }
     const _Tp& value() const&
     {
-        if (!pointer_)
+        if (!_M_pointer)
             throw bad_optional_access();
-        return *pointer_;
+        return *_M_pointer;
     }
     _Tp&& value() &&
     {
-        if (!pointer_)
+        if (!_M_pointer)
             throw bad_optional_access();
-        return std::move(*pointer_);
+        return std::move(*_M_pointer);
     }
 
     template <typename _Up>
     _Tp value_or(_Up&& default_value) const&
     {
-        if (pointer_)
+        if (_M_pointer)
             return operator*();
         else
             return default_value;
@@ -354,7 +354,7 @@ public:
     template <typename _Up>
     _Tp value_or(_Up&& default_value) &&
     {
-        if (pointer_)
+        if (_M_pointer)
             return operator*();
         else
             return default_value;
@@ -362,10 +362,10 @@ public:
 
     void reset() noexcept
     {
-        if (pointer_)
+        if (_M_pointer)
         {
-            destroy(pointer_);
-            pointer_ = nullptr;
+            destroy(_M_pointer);
+            _M_pointer = nullptr;
         }
     }
     void swap(optional& rhs) noexcept(
@@ -377,10 +377,11 @@ public:
         if (has_value())
         {
             if (rhs.has_value())
-                swap(*pointer_, *rhs);
+                swap(*_M_pointer, *rhs);
             else
             {
-                rhs.pointer_ = new(rhs.value_) _Tp(std::move(*pointer_));
+                rhs._M_pointer =
+                    new (rhs._M_value) _Tp(std::move(*_M_pointer));
                 reset();
             }
         }
@@ -388,7 +389,7 @@ public:
         {
             if (rhs.has_value())
             {
-                pointer_ = new(value_) _Tp(std::move(*rhs));
+                _M_pointer = new(_M_value) _Tp(std::move(*rhs));
                 rhs.reset();
             }
         }
@@ -397,7 +398,7 @@ public:
     void emplace(_Targs&&... args)
     {
         reset();
-        pointer_ = new(value_) _Tp(args...);
+        _M_pointer = new(_M_value) _Tp(args...);
     }
 
 private:
@@ -412,8 +413,8 @@ private:
         ptr->~_Tp();
     }
 
-    _Tp* pointer_;
-    char value_[sizeof(_Tp)];
+    _Tp* _M_pointer;
+    char _M_value[sizeof(_Tp)];
 };
 
 template <typename _Tp>
