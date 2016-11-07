@@ -31,7 +31,7 @@
  *
  * C++11 feature detection macros and workarounds.
  *
- * @date  2016-10-10
+ * @date  2016-11-07
  */
 
 #ifndef NVWA_CXX11_H
@@ -308,7 +308,11 @@
 #define _NOEXCEPT noexcept
 #define _NOEXCEPT_(x) noexcept(x)
 #else
+#ifdef _MSC_VER
 #define _NOEXCEPT throw ()
+#else
+#define _NOEXCEPT throw()
+#endif
 #define _NOEXCEPT_(x)
 #endif
 

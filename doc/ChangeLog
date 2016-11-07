@@ -1,5 +1,10 @@
 2016-11-07  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/c++11.h (_NOEXCEPT): Make its definition compatible with both
+	MSVC and Clang without warnings.
+
+2016-11-07  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/mmap_line_reader.cpp (mmap_line_reader::read): Simplify
 	slightly.
 
