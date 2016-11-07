@@ -31,7 +31,7 @@
  *
  * Code for mmap_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2016-11-02
+ * @date  2016-11-07
  */
 
 #include <errno.h>              // errno
@@ -122,7 +122,6 @@ bool mmap_line_reader::read(std::string& output, off_t& offset)
     if (offset == _M_size)
         return false;
 
-    output.clear();
     off_t pos = offset;
     bool found_delimiter = false;
     while (pos < _M_size)
@@ -135,7 +134,7 @@ bool mmap_line_reader::read(std::string& output, off_t& offset)
         }
     }
 
-    output.append(_M_mmap_ptr + offset,
+    output.assign(_M_mmap_ptr + offset,
                   pos - offset - (found_delimiter && _M_strip_delimiter));
     offset = pos;
     return true;
