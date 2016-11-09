@@ -1,3 +1,8 @@
+2016-11-09  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/mmap_line_reader.cpp: Add a missing header file stdio.h,
+	which is needed for snprintf.
+
 2016-11-07  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/c++11.h (_NOEXCEPT): Make its definition compatible with both

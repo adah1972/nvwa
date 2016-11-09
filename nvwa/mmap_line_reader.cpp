@@ -31,18 +31,19 @@
  *
  * Code for mmap_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2016-11-07
+ * @date  2016-11-09
  */
 
 #include <errno.h>              // errno
 #include <fcntl.h>              // open
+#include <stdio.h>              // snprintf
 #include <string.h>             // strerror
 #include <unistd.h>             // close
 #include <sys/mman.h>           // mmap/munmap
 #include <sys/stat.h>           // fstat
 #include <stdexcept>            // std::runtime_error
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // _NOEXCEPT/_NULLPTR
+#include "c++11.h"              // _NULLPTR
 #include "mmap_line_reader.h"   // mmap_line_reader
 
 NVWA_NAMESPACE_BEGIN
