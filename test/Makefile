@@ -37,7 +37,7 @@ LD  = $(CXX) $(CXXFLAGS) $(TARGET_ARCH)
 INCLUDE  = -I..
 CFLAGS   = -W -Wall
 CXXFLAGS = -std=c++14 $(CFLAGS)
-CPPFLAGS = -D_DEBUG $(INCLUDE)
+CPPFLAGS = -D_DEBUG -DBOOST_TEST_DYN_LINK $(INCLUDE)
 
 OBJS     = $(CXXFILES:.cpp=.o)
 DEPS     = $(patsubst %.o,%.dep,$(OBJS))
