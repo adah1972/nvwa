@@ -35,7 +35,7 @@ endif
 LD  = $(CXX) $(CXXFLAGS) $(TARGET_ARCH)
 
 INCLUDE  = -I..
-CFLAGS   = -W -Wall
+CFLAGS   = -W -Wall -Wfatal-errors
 CXXFLAGS = -std=c++14 $(CFLAGS)
 CPPFLAGS = -D_DEBUG -DBOOST_TEST_DYN_LINK $(INCLUDE)
 

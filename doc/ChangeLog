@@ -1,7 +1,11 @@
+2017-03-22  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* test/Makefile (CFLAGS): Add `-Wfatal-errors'.
+
 2017-01-10  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Make dynamic linking of Boost test libraries the default.
-	* test/Makefile: Add `-DBOOST_TEST_DYN_LINK'.
+	* test/Makefile (CPPFLAGS): Add `-DBOOST_TEST_DYN_LINK'.
 
 2016-11-09  Wu Yongwei  <wuyongwei@gmail.com>
 
