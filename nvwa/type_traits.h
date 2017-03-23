@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2013-2017 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Type traits in the C++11 style but usable across main compilers.
  *
- * @date  2013-04-22
+ * @date  2017-03-23
  */
 
 #ifndef NVWA_TYPE_TRAITS_H
@@ -85,7 +85,7 @@ struct is_trivially_destructible
 NVWA_NAMESPACE_END
 
 // GCC 4 has good TR1 support.
-#elif defined(__GNUC__) && (__GNUC__ >= 4)
+#elif defined(__GNUC__) && (__GNUC__ >= 4) && !defined(__clang__)
 
 # include <tr1/type_traits>
 
