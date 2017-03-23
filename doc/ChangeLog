@@ -1,5 +1,21 @@
 2017-03-23  Wu Yongwei  <wuyongwei@gmail.com>
 
+	Add typedefs to make the iterator types satisfy InputIterator, and
+	remove noexcept where exceptions potentially can occur.
+	* nvwa/file_line_reader.h: Add doc comments for strip_type.
+	(file_line_reader::iterator::difference_type): New typedef.
+	(file_line_reader::iterator::pointer_type): Ditto.
+	(file_line_reader::iterator::iterator_category): Ditto.
+	* nvwa/mmap_line_reader.h: Add doc comments for strip_type.
+	(mmap_line_reader::iterator::difference_type): New typedef.
+	(mmap_line_reader::iterator::pointer_type): Ditto.
+	(mmap_line_reader::iterator::iterator_category): Ditto.
+	(mmap_line_reader::iterator::iterator()): Remove _NOEXCEPT.
+	(mmap_line_reader::iterator::iterator(mmap_line_reader*)): Ditto.
+	(mmap_line_reader::end() const): Ditto.
+
+2017-03-23  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/type_traits.h: Do not enable TR1 type_traits on Clang.
 
 2017-03-23  Wu Yongwei  <wuyongwei@gmail.com>

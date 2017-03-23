@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2016 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2016-2017 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Header file for mmap_line_reader, an easy-to-use line-based file reader.
  * It is implemented with the POSIX mmap API.
  *
- * @date  2016-11-02
+ * @date  2017-03-23
  */
 
 #ifndef NVWA_MMAP_LINE_READER_H
@@ -40,9 +40,10 @@
 
 #include <assert.h>             // assert
 #include <unistd.h>             // off_t
+#include <iterator>             // std::input_iterator_tag
 #include <string>               // std::string
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // _NOEXCEPT/_NULLPTR
+#include "c++11.h"              // _NULLPTR
 
 NVWA_NAMESPACE_BEGIN
 
@@ -54,11 +55,14 @@ public:
     class iterator  // implements InputIterator
     {
     public:
-        typedef std::string& reference;
-        typedef std::string value_type;
+        typedef int                     difference_type;
+        typedef std::string             value_type;
+        typedef value_type*             pointer_type;
+        typedef value_type&             reference;
+        typedef std::input_iterator_tag iterator_category;
 
-        iterator() _NOEXCEPT : _M_reader(_NULLPTR) {}
-        explicit iterator(mmap_line_reader* reader) _NOEXCEPT
+        iterator() : _M_reader(_NULLPTR) {}
+        explicit iterator(mmap_line_reader* reader)
             : _M_reader(reader) , _M_offset(0) {}
 
         reference operator*()
@@ -99,9 +103,11 @@ public:
         std::string       _M_line;
     };
 
-    enum strip_type {
-        strip_delimiter,
-        no_strip_delimiter,
+    /** Enumeration of whether the delimiter should be stripped. */
+    enum strip_type
+    {
+        strip_delimiter,     ///< The delimiter should be stripped
+        no_strip_delimiter,  ///< The delimiter should be retained
     };
 
     explicit mmap_line_reader(const char* path, char delimiter = '\n',
@@ -111,7 +117,7 @@ public:
     ~mmap_line_reader();
 
     iterator begin() { return iterator(this); }
-    iterator end() const _NOEXCEPT { return iterator(); }
+    iterator end() const { return iterator(); }
 
     bool read(std::string& output, off_t& offset);
 

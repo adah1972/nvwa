@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2016 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2016-2017 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2016-11-02
+ * @date  2017-03-23
  */
 
 #ifndef NVWA_FILE_LINE_READER_H
@@ -39,6 +39,7 @@
 
 #include <assert.h>             // assert
 #include <stdio.h>              // file streams
+#include <iterator>             // std::input_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++11.h"              // _NOEXCEPT/_NULLPTR
 
@@ -56,8 +57,11 @@ public:
     class iterator  // implements InputIterator
     {
     public:
-        typedef char*& reference;
-        typedef char* value_type;
+        typedef int                     difference_type;
+        typedef char*                   value_type;
+        typedef value_type*             pointer_type;
+        typedef value_type&             reference;
+        typedef std::input_iterator_tag iterator_category;
 
         iterator() _NOEXCEPT : _M_reader(_NULLPTR), _M_line(_NULLPTR) {}
         explicit iterator(file_line_reader* reader);
@@ -78,7 +82,7 @@ public:
             assert(_M_reader != _NULLPTR);
             return _M_line;
         }
-        value_type* operator->()
+        pointer_type operator->()
         {
             assert(_M_reader != _NULLPTR);
             return &_M_line;
@@ -114,9 +118,11 @@ public:
         size_t            _M_capacity;
     };
 
-    enum strip_type {
-        strip_delimiter,
-        no_strip_delimiter,
+    /** Enumeration of whether the delimiter should be stripped. */
+    enum strip_type
+    {
+        strip_delimiter,     ///< The delimiter should be stripped
+        no_strip_delimiter,  ///< The delimiter should be retained
     };
 
     explicit file_line_reader(FILE* stream, char delimiter = '\n',
