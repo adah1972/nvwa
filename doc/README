@@ -50,9 +50,9 @@ Contents
 
    A replacement of std::vector<bool>.  I wrote it before I knew of
    vector<bool>, or I might not have written it at all.  However, it is
-   faster than any vector<bool> implementation I know, and it has
-   members like at, set, reset, flip, and count.  I myself find "count"
-   very useful.
+   faster than many vector<bool> implementations (your mileage may
+   vary), and it has members like at, set, reset, flip, and count.  I
+   myself find "count" very useful.
 
   * c++11.h
 
@@ -158,6 +158,18 @@ Contents
    producer does not try to queue an element when the queue is already
    full, no lock is needed for the queue operations.
 
+  * file_line_reader.cpp
+  * file_line_reader.h
+
+   This is one of the line reading classes I implemented modelling the
+   Python approach.  They make reading lines from a file a simple loop.
+   This specific class allows reading from a traditional FILE*.
+   Cf. istream_line_reader.h and mmap_line_reader.h.
+   
+   See the following blog for the motivation and example code:
+
+   https://yongweiwu.wordpress.com/2016/11/12/performance-of-my-line-readers/
+
   * fixed_mem_pool.h
 
    A memory pool implementation that requires initialization (allocates
@@ -166,11 +178,55 @@ Contents
    after initialization.  Macros are provided to easily make a class use
    pooled new/delete.
 
+  * functional.h
+
+   This is my test bed for functional programming.  If you are into
+   functional programming, check it out.  It includes functional
+   programming patterns like:
+
+   - map
+   - reduce
+   - compose
+   - fixed-point combinator
+   - curry
+   - optional
+   
+   My blogs on functional programming may be helpful:
+
+   https://yongweiwu.wordpress.com/2014/12/07/study-notes-functional-programming-with-cplusplus/
+   https://yongweiwu.wordpress.com/2014/12/14/y-combinator-and-cplusplus/
+   https://yongweiwu.wordpress.com/2014/12/29/type-deduction-and-my-reference-mistakes/
+   https://yongweiwu.wordpress.com/2015/01/03/generic-lambdas-and-the-compose-function/
+
+  * istream_line_reader.h
+
+   This is one of the line reading classes I implemented modelling the
+   Python approach.  They make reading lines from a file a simple loop.
+   This specific class allows reading from an input stream.
+   Cf. file_line_reader.h and mmap_line_reader.h.
+   
+   See the following blogs for the motivation and example code:
+
+   https://yongweiwu.wordpress.com/2016/08/16/python-yield-and-cplusplus-coroutines/
+   https://yongweiwu.wordpress.com/2016/11/12/performance-of-my-line-readers/
+
   * mem_pool_base.cpp
   * mem_pool_base.h
 
    A class solely to be inherited by memory pool implementations.  It is
    used by static_mem_pool and fixed_mem_pool.
+
+  * mmap_line_reader.cpp
+  * mmap_line_reader.h
+
+   This is one of the line reading classes I implemented modelling the
+   Python approach.  They make reading lines from a file a simple loop.
+   This specific class allows reading from an on-disk file via memory-
+   mapped file I/O.  Cf. istream_line_reader.h and file_line_reader.h.
+   
+   See the following blog for the motivation and example code:
+
+   https://yongweiwu.wordpress.com/2016/11/12/performance-of-my-line-readers/
 
   * object_level_lock.h
 
@@ -202,13 +258,16 @@ Contents
 
   * type_traits.h
 
-   This file was separated from fc_queue.h.  Type traits was not
+   This file was separated from fc_queue.h.  Type traits were not
    standardized until C++11, and, in addition, there were late changes
    in the trait names that did not go into even the 2012 releases of
    MSVC and GCC.  So I made a nvwa::is_trivially_destructible that can
-   work across main compilers.  I may add more traits later as need be.
+   work across main compilers.
+
+   In the post-C++11 world, this is no longer useful.  Use of this file
+   is deprecated.
 
 
-$Id$
+$Id: README,v 1.22 2017/03/23 14:40:09 adah Exp $
 
 vim:autoindent:expandtab:formatoptions=tcqlm:textwidth=72:

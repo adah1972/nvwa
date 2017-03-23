@@ -1,5 +1,11 @@
 2017-03-23  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* doc/README: Update information about bool_array,
+	istream_line_reader, file_line_reader, mmap_line_reader,
+	type_traits.h, and functional.h.
+
+2017-03-23  Wu Yongwei  <wuyongwei@gmail.com>
+
 	Add typedefs to make the iterator types satisfy InputIterator, and
 	remove noexcept where exceptions potentially can occur.
 	* nvwa/file_line_reader.h: Add doc comments for strip_type.
