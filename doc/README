@@ -52,7 +52,7 @@ Contents
    vector<bool>, or I might not have written it at all.  However, it is
    faster than many vector<bool> implementations (your mileage may
    vary), and it has members like at, set, reset, flip, and count.  I
-   myself find "count" very useful.
+   personally find "count" very useful.
 
   * c++11.h
 
@@ -102,10 +102,10 @@ Contents
 
    NOTE for Mac OS X users: If you use OS X 10.7 or later, you may need
    to add "-Wl,-no_pie" at the end of the command line.  By default OS X
-   will now create position-independent executables, and the OS will
-   load a PIE at a random address each time it is executed, making it
-   difficult to convert the address to symbols.  (I Googled a while for
-   a way to get the base address of a process, but could not find
+   will now create position-independent executables (PIE), and the OS
+   will load a PIE at a random address each time it is executed, making
+   it difficult to convert the address to symbols.  (I Googled a while
+   for a way to get the base address of a process, but could not find
    working code.  If you know how to do it right, drop me a message.)
 
    With an idea from Greg Herlihy's post in comp.lang.c++.moderated, the
@@ -126,18 +126,18 @@ Contents
   * fast_mutex.h
 
    The threading transparent layer simulating a non-recursive mutex.  It
-   supports POSIX threads and Win32 threads currently, as well as a
-   no-threads mode.  Unlike Loki and some other libraries, threading
-   mode is not to be specified in code, but detected from the
-   environment.  It will automatically switch on multi-threading when
-   the "-MT"/"-MD" option of MSVC, the "-mthreads" option of MinGW GCC,
-   or the "-pthread" option of GCC under POSIX environments, is used.
-   One advantage of the current implementation is that the construction
-   and destruction of a static object using a static fast_mutex not yet
-   constructed or already destroyed are allowed to work (with
-   lock/unlock operations ignored), and there are re-entry checks for
-   lock/unlock operations when the preprocessing symbol _DEBUG is
-   defined.
+   supports C++11 mutex, POSIX mutex, and Win32 critical section, as
+   well as a no-threads mode.  Unlike Loki and some other libraries,
+   threading mode is not to be specified in code, but detected from the
+   environment.  It will automatically switch on multi-threading mode
+   (inter-thread exclusion) when the "-MT"/"-MD" option of MSVC, the
+   "-mthreads" option of MinGW GCC, or the "-pthread" option of GCC
+   under POSIX environments, is used.  One advantage of the current
+   implementation is that the construction and destruction of a static
+   object using a static fast_mutex not yet constructed or already
+   destroyed are allowed to work (with lock/unlock operations ignored),
+   and there are re-entry checks for lock/unlock operations when the
+   preprocessing symbol _DEBUG is defined.
 
   * fc_queue.h
 
@@ -268,6 +268,6 @@ Contents
    is deprecated.
 
 
-$Id: README,v 1.22 2017/03/23 14:40:09 adah Exp $
+$Id: README,v 1.23 2017/03/26 11:05:31 adah Exp $
 
 vim:autoindent:expandtab:formatoptions=tcqlm:textwidth=72:
