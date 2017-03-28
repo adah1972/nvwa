@@ -152,9 +152,9 @@ public:
     {
         return _M_children.end();
     }
-    bool empty() const
+    bool has_child() const
     {
-        return _M_children.empty();
+        return !_M_children.empty();
     }
     template <typename... Args>
     void set_children(Args&&... args)
@@ -514,8 +514,8 @@ public:
             auto curr = root;
             for (;;)
             {
-                if (curr->empty())
-                    break;  // No children
+                if (!curr->has_child())
+                    break;
                 auto left_child = curr->cbegin();
                 auto next_child = left_child;
                 if (next_child != curr->cend())

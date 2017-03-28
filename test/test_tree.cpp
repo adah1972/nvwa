@@ -12,11 +12,11 @@ namespace /* unnamed */ {
 template <typename Tree>
 void traverse_in_order_recursively(Tree& node, std::ostream& os)
 {
-    if (!node->empty() && node->child(0)) {
+    if (node->has_child() && node->child(0)) {
         traverse_in_order_recursively(node->child(0), os);
     }
     os << node->value() << ' ';
-    if (node->empty()) {
+    if (!node->has_child()) {
         return;
     }
     auto it = node->begin();

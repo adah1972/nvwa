@@ -1,5 +1,13 @@
 2017-03-28  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/tree.h (tree<>::empty()): Remove.
+	(tree<>::has_child()): New function.
+	(in_order_iteration<>::iterator::find_leftmost_child): Substitute
+	has_child for empty.
+	* test/test_tree.cpp (traverse_in_order_recursively<>): Ditto.
+
+2017-03-28  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/tree.h (breadth_first_iteration<>::iterator::operator++()):
 	Use null() to make the code intent clear.
 
