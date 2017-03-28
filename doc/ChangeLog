@@ -1,3 +1,11 @@
+2017-03-28  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/tree.h (breadth_first_iteration<>::iter_impl<>): Change to
+	nested class iterator; add/change typedefs and fix a const
+	specification problem to make iterator satisfy ForwardIterator.
+	(depth_first_iteration<>::iter_impl<>): Ditto.
+	(in_order_iteration<>::iter_impl<>): Ditto.
+
 2017-03-26  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* doc/README: Improve some descriptions.

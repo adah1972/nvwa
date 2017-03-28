@@ -32,7 +32,7 @@
  * A generic tree class template and the traversal utilities.  Using
  * this file requires a C++11-compliant compiler.
  *
- * @date  2017-03-22
+ * @date  2017-03-28
  */
 
 #ifndef NVWA_TREE_H
@@ -234,15 +234,17 @@ template <typename _Tree>
 class breadth_first_iteration
 {
 public:
-    template <typename _Pointer>
-    class iter_impl
+    class iterator
     {
     public:
-        typedef _Pointer                           pointer;
-        typedef decltype(*std::declval<pointer>()) reference;
+        typedef int                       difference_type;
+        typedef _Tree                     value_type;
+        typedef _Tree*                    pointer_type;
+        typedef _Tree&                    reference;
+        typedef std::forward_iterator_tag iterator_category;
 
-        iter_impl() {}
-        iter_impl(pointer root)
+        iterator() {}
+        iterator(pointer_type root)
             : _M_this_level({root})
         {
             _M_current = _M_this_level.begin();
@@ -253,12 +255,12 @@ public:
             assert(!empty());
             return **_M_current;
         }
-        pointer operator->() const
+        pointer_type operator->() const
         {
             assert(!empty());
             return &*_M_current;
         }
-        iter_impl& operator++()
+        iterator& operator++()
         {
             assert(!empty());
             for (auto& child : **_M_current)
@@ -273,9 +275,9 @@ public:
             }
             return *this;
         }
-        iter_impl operator++(int)
+        iterator operator++(int)
         {
-            iter_impl temp(*this);
+            iterator temp(*this);
             ++*this;
             return temp;
         }
@@ -283,23 +285,20 @@ public:
         {
             return _M_current == _M_this_level.end();
         }
-        bool operator==(const iter_impl& rhs)
+        bool operator==(const iterator& rhs) const
         {
             return (empty() && rhs.empty()) || _M_current == rhs._M_current;
         }
-        bool operator!=(const iter_impl& rhs)
+        bool operator!=(const iterator& rhs) const
         {
             return !operator==(rhs);
         }
 
     private:
-        typename std::vector<pointer>::iterator _M_current;
-        std::vector<pointer>                    _M_this_level;
-        std::vector<pointer>                    _M_next_level;
+        typename std::vector<pointer_type>::iterator _M_current;
+        std::vector<pointer_type>                    _M_this_level;
+        std::vector<pointer_type>                    _M_next_level;
     };
-
-    typedef _Tree*             pointer;
-    typedef iter_impl<pointer> iterator;
 
     breadth_first_iteration(_Tree& root)
         : _M_root(&root)
@@ -315,7 +314,7 @@ public:
     }
 
 private:
-    pointer _M_root;
+    _Tree* _M_root;
 };
 
 /**
@@ -327,27 +326,29 @@ template <typename _Tree>
 class depth_first_iteration
 {
 public:
-    template <typename _Pointer>
-    class iter_impl
+    class iterator
     {
     public:
-        typedef _Pointer                           pointer;
-        typedef decltype(*std::declval<pointer>()) reference;
+        typedef int                       difference_type;
+        typedef _Tree                     value_type;
+        typedef _Tree*                    pointer_type;
+        typedef _Tree&                    reference;
+        typedef std::forward_iterator_tag iterator_category;
 
-        iter_impl() : _M_current(nullptr) {}
-        iter_impl(pointer root) : _M_current(root) {}
+        iterator() : _M_current(nullptr) {}
+        iterator(pointer_type root) : _M_current(root) {}
 
         reference operator*() const
         {
             assert(!empty());
             return *_M_current;
         }
-        pointer operator->() const
+        pointer_type operator->() const
         {
             assert(!empty());
             return _M_current;
         }
-        iter_impl& operator++()
+        iterator& operator++()
         {
             assert(!empty());
             _M_stack.push(
@@ -373,9 +374,9 @@ public:
             }
             return *this;
         }
-        iter_impl operator++(int)
+        iterator operator++(int)
         {
-            iter_impl temp(*this);
+            iterator temp(*this);
             ++*this;
             return temp;
         }
@@ -383,24 +384,21 @@ public:
         {
             return _M_current == nullptr;
         }
-        bool operator==(const iter_impl& rhs)
+        bool operator==(const iterator& rhs) const
         {
             return (empty() && rhs.empty()) || _M_current == rhs._M_current;
         }
-        bool operator!=(const iter_impl& rhs)
+        bool operator!=(const iterator& rhs) const
         {
             return !operator==(rhs);
         }
 
     private:
-        pointer _M_current;
+        pointer_type _M_current;
         std::stack<std::pair<typename _Tree::const_iterator,
                              typename _Tree::const_iterator>>
             _M_stack;
     };
-
-    typedef _Tree*             pointer;
-    typedef iter_impl<pointer> iterator;
 
     depth_first_iteration(_Tree& root)
         : _M_root(&root)
@@ -416,7 +414,7 @@ public:
     }
 
 private:
-    pointer _M_root;
+    _Tree* _M_root;
 };
 
 /**
@@ -428,15 +426,17 @@ template <typename _Tree>
 class in_order_iteration
 {
 public:
-    template <typename _Pointer>
-    class iter_impl
+    class iterator
     {
     public:
-        typedef _Pointer                           pointer;
-        typedef decltype(*std::declval<pointer>()) reference;
+        typedef int                       difference_type;
+        typedef _Tree                     value_type;
+        typedef _Tree*                    pointer_type;
+        typedef _Tree&                    reference;
+        typedef std::forward_iterator_tag iterator_category;
 
-        iter_impl() : _M_current(nullptr) {}
-        iter_impl(pointer root)
+        iterator() : _M_current(nullptr) {}
+        iterator(pointer_type root)
         {
             _M_current = find_leftmost_child(root);
         }
@@ -446,12 +446,12 @@ public:
             assert(!empty());
             return *_M_current;
         }
-        pointer operator->() const
+        pointer_type operator->() const
         {
             assert(!empty());
             return _M_current;
         }
-        iter_impl& operator++()
+        iterator& operator++()
         {
             assert(!empty());
             for (;;)
@@ -488,9 +488,9 @@ public:
             }
             return *this;
         }
-        iter_impl operator++(int)
+        iterator operator++(int)
         {
-            iter_impl temp(*this);
+            iterator temp(*this);
             ++*this;
             return temp;
         }
@@ -498,17 +498,17 @@ public:
         {
             return _M_current == nullptr;
         }
-        bool operator==(const iter_impl& rhs)
+        bool operator==(const iterator& rhs) const
         {
             return (empty() && rhs.empty()) || _M_current == rhs._M_current;
         }
-        bool operator!=(const iter_impl& rhs)
+        bool operator!=(const iterator& rhs) const
         {
             return !operator==(rhs);
         }
 
     private:
-        pointer find_leftmost_child(pointer root)
+        pointer_type find_leftmost_child(pointer_type root)
         {
             using std::make_tuple;
             auto curr = root;
@@ -536,15 +536,12 @@ public:
             return curr;
         }
 
-        pointer _M_current;
-        std::stack<std::tuple<pointer,
+        pointer_type _M_current;
+        std::stack<std::tuple<pointer_type,
                               typename _Tree::const_iterator,
                               typename _Tree::const_iterator>>
             _M_stack;
     };
-
-    typedef _Tree*             pointer;
-    typedef iter_impl<pointer> iterator;
 
     in_order_iteration(_Tree& root)
         : _M_root(&root)
@@ -560,7 +557,7 @@ public:
     }
 
 private:
-    pointer _M_root;
+    _Tree* _M_root;
 };
 
 template <typename _Tree>
