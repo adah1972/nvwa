@@ -1,5 +1,10 @@
 2017-03-28  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* nvwa/tree.h (breadth_first_iteration<>::iterator::operator++()):
+	Use null() to make the code intent clear.
+
+2017-03-28  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/tree.h (breadth_first_iteration<>::iter_impl<>): Change to
 	nested class iterator; add/change typedefs and fix a const
 	specification problem to make iterator satisfy ForwardIterator.

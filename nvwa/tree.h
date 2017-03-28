@@ -265,7 +265,7 @@ public:
             assert(!empty());
             for (auto& child : **_M_current)
             {
-                if (child != typename _Tree::tree_ptr())
+                if (child != _Tree::null())
                     _M_next_level.push_back(&*child);
             }
             if (++_M_current == _M_this_level.end())
