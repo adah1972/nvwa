@@ -65,14 +65,32 @@ void test_tree()
     BOOST_CHECK_EQUAL(oss.str(), "6 4 2 1 3 5 7 9 8 10 ");
 
     oss.str("");
-    for (auto& node : traverse_in_order(*root)) {
-        oss << node.value() << ' ';
-        node.value() *= 2;
+    auto traverser = traverse_in_order(*root);
+    auto it = traverser.begin();
+    auto it2 = traverser.end();
+    int i = 0;
+    while (it != traverser.end()) {
+        oss << it->value() << ' ';
+        ++it;
+        if (++i == 5) {
+            it2 = it;
+        }
     }
     BOOST_TEST_MESSAGE("In-order traversal:      " << oss.str());
     BOOST_CHECK_EQUAL(oss.str(), "1 2 3 4 5 6 7 8 9 10 ");
 
     oss.str("");
+    while (it2 != traverser.end()) {
+        oss << it2->value() << ' ';
+        ++it2;
+    }
+    BOOST_TEST_MESSAGE("Traversal from middle:   " << oss.str());
+    BOOST_CHECK_EQUAL(oss.str(), "6 7 8 9 10 ");
+
+    oss.str("");
+    for (auto& node : traverse_in_order(*root)) {
+        node.value() *= 2;
+    }
     traverse_in_order_recursively(root, oss);
     BOOST_TEST_MESSAGE("All values are doubled:  " << oss.str());
     BOOST_CHECK_EQUAL(oss.str(), "2 4 6 8 10 12 14 16 18 20 ");
