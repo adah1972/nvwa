@@ -58,7 +58,7 @@ enum class storage_policy
 };
 
 #ifndef NVWA_TREE_DEFAULT_STORAGE_POLICY
-#define NVWA_TREE_DEFAULT_STORAGE_POLICY storage_policy::unique
+#define NVWA_TREE_DEFAULT_STORAGE_POLICY storage_policy::shared
 #endif
 
 /** Declaration of policy class to generate the smart pointer type. */
