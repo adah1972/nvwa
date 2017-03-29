@@ -1,5 +1,10 @@
 2017-03-29  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* misc/Doxyfile (PROJECT_NUMBER): Increase to 1.1.
+	(INPUT): Add new files recently added.
+
+2017-03-29  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* doc/README: Move to README.
 	* README: Move from doc/README.
 
