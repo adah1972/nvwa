@@ -1,9 +1,28 @@
+2017-03-29  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* doc/README: Move to README.
+	* README: Move from doc/README.
+
+2017-03-29  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* doc/README: Add information about tree.h.
+
+2017-03-29  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/tree.h (NVWA_TREE_DEFAULT_STORAGE_POLICY): Change to
+	storage_policy::shared.
+
+2017-03-29  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* test/test_tree.cpp (test_tree<>): Add test that an iterator can be
+	copied and traversal can be done repeatedly.
+
 2017-03-28  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* nvwa/tree.h (tree<>::empty()): Remove.
 	(tree<>::has_child()): New function.
 	(in_order_iteration<>::iterator::find_leftmost_child): Substitute
-	has_child for empty.
+	`has_child' for `empty'.
 	* test/test_tree.cpp (traverse_in_order_recursively<>): Ditto.
 
 2017-03-28  Wu Yongwei  <wuyongwei@gmail.com>

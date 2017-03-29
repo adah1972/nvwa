@@ -256,6 +256,15 @@ Contents
 
    http://nvwa.sourceforge.net/article/static_mem_pool.htm
 
+  * tree.h
+
+   A generic tree class template along with traversal utilities.
+   Besides the usual template argument of value type, it has an
+   additional argument of storage policy, which can be either unique or
+   shared.  Traversal utility classed are provided so that traversing a
+   tree can be simply done in a range-based for loop.  The test code,
+   test/test_tree.cpp, shows its basic usage.
+
   * type_traits.h
 
    This file was separated from fc_queue.h.  Type traits were not
@@ -268,6 +277,6 @@ Contents
    is deprecated.
 
 
-$Id: README,v 1.23 2017/03/26 11:05:31 adah Exp $
+$Id: README,v 1.1 2017/03/29 14:08:55 adah Exp $
 
 vim:autoindent:expandtab:formatoptions=tcqlm:textwidth=72:
