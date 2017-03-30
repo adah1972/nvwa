@@ -100,6 +100,15 @@ void test_tree()
     traverse_in_order_recursively(root, oss);
     BOOST_TEST_MESSAGE("One leaf is dropped:     " << oss.str());
     BOOST_CHECK_EQUAL(oss.str(), "2 4 8 10 12 14 16 18 20 ");
+
+    oss.str("");
+    root = create_tree<Policy>(1);
+    root->set_children(create_tree<Policy>(2), create_tree<Policy>(3));
+    for (auto& node : traverse_breadth_first(*root)) {
+        oss << node.value() << ' ';
+    }
+    BOOST_TEST_MESSAGE("Testing set_children");
+    BOOST_CHECK_EQUAL(oss.str(), "1 2 3 ");
 }
 
 } /* unnamed namespace */

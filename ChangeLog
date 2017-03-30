@@ -1,5 +1,9 @@
 2017-03-30  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* test/test_tree (test_tree<>): Add test for set_children.
+
+2017-03-30  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/tree.h (push_back(tree_ptr&&)): Correct the wrong return
 	type.
 	(push_back(const tree_ptr&)): New function (enabled only when the
