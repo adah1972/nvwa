@@ -108,6 +108,45 @@ BOOST_AUTO_TEST_CASE(tree_test)
 {
     BOOST_TEST_MESSAGE("Testing with unique ownership");
     test_tree<storage_policy::unique>();
+
     BOOST_TEST_MESSAGE("Testing with shared ownership");
     test_tree<storage_policy::shared>();
+
+    BOOST_TEST_MESSAGE("Testing push_back");
+    {
+        std::ostringstream oss;
+        auto root = create_tree<storage_policy::unique>(
+            2, create_tree<storage_policy::unique>(1));
+        auto leaf = create_tree<storage_policy::unique>(3);
+        root->push_back(std::move(leaf));
+        BOOST_CHECK(leaf == (tree<int, storage_policy::unique>::null()));
+        for (auto& node : traverse_in_order(*root)) {
+            oss << node.value() << ' ';
+        }
+        BOOST_CHECK_EQUAL(oss.str(), "1 2 3 ");
+    }
+    {
+        std::ostringstream oss;
+        auto root = create_tree<storage_policy::shared>(
+            2, create_tree<storage_policy::shared>(1));
+        auto leaf = create_tree<storage_policy::shared>(3);
+        root->push_back(std::move(leaf));
+        BOOST_CHECK(leaf == (tree<int, storage_policy::shared>::null()));
+        for (auto& node : traverse_in_order(*root)) {
+            oss << node.value() << ' ';
+        }
+        BOOST_CHECK_EQUAL(oss.str(), "1 2 3 ");
+    }
+    {
+        std::ostringstream oss;
+        auto root = create_tree<storage_policy::shared>(
+            2, create_tree<storage_policy::shared>(1));
+        auto leaf = create_tree<storage_policy::shared>(3);
+        root->push_back(leaf);
+        BOOST_CHECK(leaf != (tree<int, storage_policy::shared>::null()));
+        for (auto& node : traverse_in_order(*root)) {
+            oss << node.value() << ' ';
+        }
+        BOOST_CHECK_EQUAL(oss.str(), "1 2 3 ");
+    }
 }

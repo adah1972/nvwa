@@ -1,3 +1,11 @@
+2017-03-30  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* nvwa/tree.h (push_back(tree_ptr&&)): Correct the wrong return
+	type.
+	(push_back(const tree_ptr&)): New function (enabled only when the
+	storage policy is shared).
+	* test/test_tree (tree_test): Add test for push_back.
+
 2017-03-29  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* misc/Doxyfile (PROJECT_NUMBER): Increase to 1.1.
