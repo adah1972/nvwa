@@ -1,3 +1,14 @@
+2017-04-03  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Update C++11 feature detection macros for MSVC.
+	* nvwa/c++11.h (HAVE_CXX11_EXPLICIT_CONVERSION): Define to 1 if
+	Visual C++ 2015 or later is detected.
+	(HAVE_CXX11_NOEXCEPT): Ditto.
+	(HAVE_CXX11_THREAD_LOCAL): Ditto.
+	(HAVE_CXX11_UNICODE_LITERAL): Ditto.
+	(HAVE_CXX11_GENERALIZED_INITIALIZER): Define to 1 if Visual C++ 2013
+	or later is detected.
+
 2017-03-30  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* test/test_tree (test_tree<>): Add test for set_children.

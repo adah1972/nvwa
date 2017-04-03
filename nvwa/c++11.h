@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2013-2016 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2013-2017 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * C++11 feature detection macros and workarounds.
  *
- * @date  2016-11-07
+ * @date  2017-04-03
  */
 
 #ifndef NVWA_CXX11_H
@@ -103,6 +103,7 @@
 #if !defined(HAVE_CXX11_EXPLICIT_CONVERSION)
 #if NVWA_CXX11_MODE && \
     (__has_feature(cxx_explicit_conversions) || \
+     (defined(_MSC_VER) && _MSC_VER >= 1900) || \
      (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 405))
 #define HAVE_CXX11_EXPLICIT_CONVERSION 1
 #else
@@ -139,6 +140,7 @@
 #if !defined(HAVE_CXX11_GENERALIZED_INITIALIZER)
 #if NVWA_CXX11_MODE && \
     (__has_feature(cxx_generalized_initializers) || \
+     (defined(_MSC_VER) && _MSC_VER >= 1800) || \
      (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 404))
 #define HAVE_CXX11_GENERALIZED_INITIALIZER 1
 #else
@@ -175,6 +177,7 @@
 #if !defined(HAVE_CXX11_NOEXCEPT)
 #if NVWA_CXX11_MODE && \
     (__has_feature(cxx_noexcept) || \
+     (defined(_MSC_VER) && _MSC_VER >= 1900) || \
      (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 406))
 #define HAVE_CXX11_NOEXCEPT 1
 #else
@@ -255,6 +258,7 @@
 #if !defined(HAVE_CXX11_THREAD_LOCAL)
 #if NVWA_CXX11_MODE && \
     (__has_feature(cxx_thread_local) || \
+     (defined(_MSC_VER) && _MSC_VER >= 1900) || \
      (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 408))
 #define HAVE_CXX11_THREAD_LOCAL 1
 #else
@@ -276,6 +280,7 @@
 #if !defined(HAVE_CXX11_UNICODE_LITERAL)
 #if NVWA_CXX11_MODE && \
     (__has_feature(cxx_unicode_literals) || \
+     (defined(_MSC_VER) && _MSC_VER >= 1900) || \
      (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 405))
 #define HAVE_CXX11_UNICODE_LITERAL 1
 #else
