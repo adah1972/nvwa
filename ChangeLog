@@ -466,7 +466,7 @@
 	* nvwa/functional.h: Use enable_if_t, remove_reference_t, and
 	decay_t from the standard library.
 	(fmap<>): Spell out the return type explicitly to allow SFINAE;
-    change the name of the first parameter.
+	change the name of the first parameter.
 	(compose): Mark as inline.
 
 2015-10-31  Wu Yongwei  <wuyongwei@gmail.com>
