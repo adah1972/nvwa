@@ -1,5 +1,9 @@
 2017-04-09  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* LICENCE: New file.
+
+2017-04-09  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* nvwa/Doxyfile (DOT_IMAGE_FORMAT): Change to `svg'.
 
 2017-04-09  Wu Yongwei  <wuyongwei@gmail.com>
