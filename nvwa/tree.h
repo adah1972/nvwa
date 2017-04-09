@@ -32,7 +32,7 @@
  * A generic tree class template and the traversal utilities.  Using
  * this file requires a C++11-compliant compiler.
  *
- * @date  2017-03-30
+ * @date  2017-04-09
  */
 
 #ifndef NVWA_TREE_H
@@ -43,7 +43,7 @@
 #include <memory>               // std::unique_ptr/shared_ptr
 #include <stack>                // std::stack
 #include <tuple>                // std::tuple/make_tuple
-#include <type_traits>          // std::decay/enable_if
+#include <type_traits>          // std::decay
 #include <utility>              // std::declval/forward/move/pair/...
 #include <vector>               // std::vector
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
@@ -120,15 +120,9 @@ public:
     {
         return _M_children[index];
     }
-    void push_back(tree_ptr&& ptr)
+    void push_back(tree_ptr ptr)
     {
         _M_children.push_back(std::move(ptr));
-    }
-    template <storage_policy _Py = _Policy>
-    typename std::enable_if<_Py == storage_policy::shared, void>::type
-    push_back(const tree_ptr& ptr)
-    {
-        _M_children.push_back(ptr);
     }
     void pop_back()
     {

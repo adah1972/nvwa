@@ -1,3 +1,10 @@
+2017-04-09  Wu Yongwei  <wuyongwei@gmail.com>
+
+	Simplify code with passing by value.
+	* nvwa/tree.h (push_back(tree_ptr&&)): Change to
+	push_back(tree_ptr).
+	(push_back(const tree_ptr&)): Remove.
+
 2017-04-03  Wu Yongwei  <wuyongwei@gmail.com>
 
 	Update C++11 feature detection macros for MSVC.
