@@ -2,7 +2,7 @@
 
 # Recommended tool versions and notes:
 #
-#   * Graphviz 2.38
+#   * Graphviz 2.40
 #
 #     This new version works well for me
 #
@@ -10,14 +10,13 @@
 #
 #     1.5.3+ have wrong output in some diagrams
 #
-#   * Doxygen 1.5.8/1.6.2/1.8.10 for HTML output 
+#   * Doxygen 1.5.8/1.6.2/1.8.13 for HTML output 
 #
 #     1.5.9 has broken link on "More..."
 #     1.6.0/1 left-aligns the project name
 #     1.6.3 has issues with included-by graphs
 #
-#     I personally do not quite like the look of output of 1.8, but it
-#     has good support for C++11
+#     Please notice that only Doxygen 1.8 has good support for C++11
 #
 
 # Intermediate Doxyfile
@@ -95,10 +94,11 @@ mv -f ../static_mem_pool.h ../nvwa/
 # Remove the intermediate Doxyfile
 rm $DOXYFILE_TMP
 
-# Remove the space between -> and * in Doxygen pre-1.5.5 versions
+# Remove the space between -> and * in some Doxygen versions
 cd ../doc/html
 echo "Postprocessing HTML files"
 grepsedfile 'operator-&gt; \*' 'operator-\&gt;*' *.html
+grepsedfile 'operator-> \*' 'operator-\&gt;*' *.html
 cd ../../misc
 
 # Make LaTeX documents
