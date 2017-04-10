@@ -10,7 +10,7 @@
 #
 #     1.5.3+ have wrong output in some diagrams
 #
-#   * Doxygen 1.5.8/1.6.2/1.8.13 for HTML output 
+#   * Doxygen 1.5.8/1.6.2/1.8.13 for HTML output
 #
 #     1.5.9 has broken link on "More..."
 #     1.6.0/1 left-aligns the project name
@@ -44,8 +44,8 @@ if [ "$DOXYGEN" = "" ]; then
   DOXYGEN=doxygen
 fi
 
-HIDE_FUNCTIONAL_H=NO
-$DOXYGEN --version | grep '^1\.\(5\|6\)\.' > /dev/null && HIDE_FUNCTIONAL_H=YES
+OLD_DOXYGEN_VER=NO
+$DOXYGEN --version | grep '^1\.\(5\|6\)\.' > /dev/null && OLD_DOXYGEN_VER=YES
 
 # Determine Doxygen options
 if [ "$PDF_HYPERLINKS" = "" ]; then
@@ -81,15 +81,19 @@ if [ "$GENERATE_LATEX" = "YES" ]; then
 else
   sedfile 's/\(GENERATE_LATEX *=\).*/\1 NO/'  $DOXYFILE_TMP
 fi
-if [ "$HIDE_FUNCTIONAL_H" = "YES" ]; then
+if [ "$OLD_DOXYGEN_VER" = "YES" ]; then
   sedfile 's/ \(.*nvwa\/functional\.h\)/#\1/' $DOXYFILE_TMP
 fi
 
 # Work around an expression that will confuse Doxygen
-mv -i ../nvwa/static_mem_pool.h ..
-sed 's/(_Gid < 0)/true/' ../static_mem_pool.h >../nvwa/static_mem_pool.h
+if [ "$OLD_DOXYGEN_VER" = "YES" ]; then
+  mv -i ../nvwa/static_mem_pool.h ..
+  sed 's/(_Gid < 0)/true/' ../static_mem_pool.h >../nvwa/static_mem_pool.h
+fi
 $DOXYGEN $DOXYFILE_TMP
-mv -f ../static_mem_pool.h ../nvwa/
+if [ "$OLD_DOXYGEN_VER" = "YES" ]; then
+  mv -f ../static_mem_pool.h ../nvwa/
+fi
 
 # Remove the intermediate Doxyfile
 rm $DOXYFILE_TMP

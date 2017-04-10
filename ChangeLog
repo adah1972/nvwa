@@ -1,5 +1,10 @@
 2017-04-10  Wu Yongwei  <wuyongwei@gmail.com>
 
+	* misc/doxit.sh: Eliminate an old workaround on new Doxygen
+	versions.
+
+2017-04-10  Wu Yongwei  <wuyongwei@gmail.com>
+
 	* misc/doxit.sh: Solve a problem with HTML output of `operator->*';
 	update comments.
 
