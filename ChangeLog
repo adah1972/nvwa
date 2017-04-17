@@ -1,3 +1,10 @@
+2017-04-17  Wu Yongwei  <wuyongwei@gmail.com>
+
+	* misc/release.sh: Accommodate recent changes and generate both the
+	Unix and Windows packages.
+	(VER): Increase to 1.1.
+	* misc/release.bat: Remove.
+
 2017-04-10  Wu Yongwei  <wuyongwei@gmail.com>
 
 	* misc/doxit.sh: Eliminate an old workaround on new Doxygen
