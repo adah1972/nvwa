@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2009-2016 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2009-2017 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2016-10-10
+ * @date  2017-04-23
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -41,14 +41,13 @@
 #include <stddef.h>             // ptrdiff_t/size_t/NULL
 #include <memory>               // std::allocator
 #include <new>                  // placement new
+#include <type_traits>          // std::is_trivially_destructible
+#include <utility>              // std::declval/move/swap
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // _NOEXCEPT/_NOEXCEPT_/_NULLPTR
-#include "type_traits.h"        // nvwa::is_trivially_destructible
+#include "c++11.h"              // C++11 feature detection
 
-#if NVWA_CXX11_MODE
-#include <utility>              // std::swap/std::declval
-#else
-#include <algorithm>            // std::swap
+#if !(NVWA_CXX11_MODE && HAVE_CXX11_NOEXCEPT && HAVE_CXX11_NULLPTR)
+#error "C++11 support not detected"
 #endif
 
 NVWA_NAMESPACE_BEGIN
@@ -76,6 +75,23 @@ public:
     typedef const value_type*   const_pointer;
     typedef value_type&         reference;
     typedef const value_type&   const_reference;
+
+    /**
+     * Default-constructor that creates an empty queue.
+     *
+     * It is not very useful, except as the target of an assignment.
+     *
+     * @post            The following conditions will hold:
+     *                  - <code>empty()</code>
+     *                  - <code>full()</code>
+     *                  - <code>capacity() == 0</code>
+     *                  - <code>size() == 0</code>
+     */
+    fc_queue() noexcept(noexcept(allocator_type()))
+    {
+        _M_head = _M_tail = _M_begin = nullptr;
+        _M_end = _M_begin + 1;
+    }
 
     /**
      * Constructor that creates the queue with a maximum size (capacity).
@@ -115,9 +131,19 @@ public:
     fc_queue(const fc_queue& rhs);
 
     /**
+     * Move-constructor that moves all elements from another queue.
+     *
+     * @param rhs  the queue to move from
+     * @post       If the allocator does not throw on move, this queue
+     *             will have the same elements as the original \a rhs.
+     */
+    fc_queue(fc_queue&& rhs) noexcept(
+        noexcept(allocator_type(std::declval<allocator_type&&>())));
+
+    /**
      * Destructor.  It erases all elements and frees memory.
      */
-    ~fc_queue()
+    ~fc_queue() noexcept(noexcept(destroy(_M_head)))
     {
         while (_M_head != _M_tail)
         {
@@ -146,11 +172,29 @@ public:
     }
 
     /**
+     * Assignment operator that moves all elements from another queue.
+     *
+     * @param rhs  the queue to move from
+     * @post       If assignment is successful (no exception is thrown
+     *             during memory allocation and element copy), this queue
+     *             will have the same elements as \a rhs.  Otherwise this
+     *             queue is unchanged (strong exception safety is
+     *             guaranteed).
+     */
+    fc_queue& operator=(fc_queue&& rhs) noexcept(
+        noexcept(allocator_type(std::declval<allocator_type&&>())))
+    {
+        fc_queue temp(std::move(rhs));
+        swap(temp);
+        return *this;
+    }
+
+    /**
      * Checks whether the queue is empty (containing no elements).
      *
      * @return  \c true if it is empty; \c false otherwise
      */
-    bool empty() const _NOEXCEPT
+    bool empty() const noexcept
     {
         return _M_head == _M_tail;
     }
@@ -161,7 +205,7 @@ public:
      *
      * @return  \c true if it is full; \c false otherwise
      */
-    bool full() const _NOEXCEPT
+    bool full() const noexcept
     {
         return _M_head == increment(_M_tail);
     }
@@ -171,7 +215,7 @@ public:
      *
      * @return  the maximum number of allowed elements in the queue
      */
-    size_type capacity() const _NOEXCEPT
+    size_type capacity() const noexcept
     {
         return _M_end - _M_begin - 1;
     }
@@ -181,7 +225,7 @@ public:
      *
      * @return  the number of existing elements in the queue
      */
-    size_type size() const _NOEXCEPT
+    size_type size() const noexcept
     {
         ptrdiff_t dist = _M_tail - _M_head;
         if (dist < 0)
@@ -192,6 +236,7 @@ public:
     /**
      * Gets the first element in the queue.
      *
+     * @pre     the queue is not empty
      * @return  reference to the first element
      */
     reference front()
@@ -203,6 +248,7 @@ public:
     /**
      * Gets the first element in the queue.
      *
+     * @pre     the queue is not empty
      * @return  const reference to the first element
      */
     const_reference front() const
@@ -214,6 +260,7 @@ public:
     /**
      * Gets the last element in the queue.
      *
+     * @pre     the queue is not empty
      * @return  reference to the last element
      */
     reference back()
@@ -225,6 +272,7 @@ public:
     /**
      * Gets the last element in the queue.
      *
+     * @pre     the queue is not empty
      * @return  const reference to the last element
      */
     const_reference back() const
@@ -238,6 +286,7 @@ public:
      * will be discarded if the queue is full.
      *
      * @param value  the value to be inserted
+     * @pre          <code>capacity() > 0</code>
      * @post         <code>size() <= capacity() && back() == value</code>,
      *               unless an exception is thrown, in which case this
      *               queue is unchanged (strong exception safety is
@@ -245,7 +294,28 @@ public:
      */
     void push(const value_type& value)
     {
+        assert(capacity() > 0);
         construct(_M_tail, value);
+        if (full())
+            pop();
+        _M_tail = increment(_M_tail);
+    }
+
+    /**
+     * Inserts a new element at the end of the queue.  The first element
+     * will be discarded if the queue is full.
+     *
+     * @param value  the value to be inserted
+     * @pre          <code>capacity() > 0</code>
+     * @post         <code>size() <= capacity() && back() == value</code>,
+     *               unless an exception is thrown, in which case this
+     *               queue is unchanged (strong exception safety is
+     *               guaranteed).
+     */
+    void push(value_type&& value)
+    {
+        assert(capacity() > 0);
+        construct(_M_tail, std::move(value));
         if (full())
             pop();
         _M_tail = increment(_M_tail);
@@ -295,8 +365,8 @@ public:
      *             guarantee.
      */
     void swap(fc_queue& rhs)
-        _NOEXCEPT_(noexcept(std::swap(std::declval<allocator_type&>(),
-                                      std::declval<allocator_type&>())))
+        noexcept(noexcept(std::swap(std::declval<allocator_type&>(),
+                                    std::declval<allocator_type&>())))
     {
         using std::swap;
         swap(_M_alloc, rhs._M_alloc);
@@ -324,14 +394,14 @@ protected:
     allocator_type  _M_alloc;
 
 protected:
-    pointer increment(pointer ptr) const _NOEXCEPT
+    pointer increment(pointer ptr) const noexcept
     {
         ++ptr;
         if (ptr == _M_end)
             ptr = _M_begin;
         return ptr;
     }
-    pointer decrement(pointer ptr) const _NOEXCEPT
+    pointer decrement(pointer ptr) const noexcept
     {
         if (ptr == _M_begin)
             ptr = _M_end;
@@ -341,15 +411,19 @@ protected:
     {
         new (ptr) _Tp(value);
     }
-    void destroy(void* ptr) _NOEXCEPT_(noexcept(std::declval<_Tp*>()->~_Tp()))
+    void construct(void* ptr, _Tp&& value)
     {
-        _M_destroy(ptr, is_trivially_destructible<_Tp>());
+        new (ptr) _Tp(std::move(value));
+    }
+    void destroy(void* ptr) noexcept(noexcept(std::declval<_Tp*>()->~_Tp()))
+    {
+        _M_destroy(ptr, std::is_trivially_destructible<_Tp>());
     }
 
 private:
-    void _M_destroy(void*, true_type)
+    void _M_destroy(void*, std::true_type)
     {}
-    void _M_destroy(void* ptr, false_type)
+    void _M_destroy(void* ptr, std::false_type)
     {
         ((_Tp*)ptr)->~_Tp();
     }
@@ -357,7 +431,7 @@ private:
 
 template <class _Tp, class _Alloc>
 fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
-    : _M_head(_NULLPTR), _M_tail(_NULLPTR), _M_begin(_NULLPTR)
+    : _M_head(nullptr), _M_tail(nullptr), _M_begin(nullptr)
 {
     fc_queue temp(rhs.capacity(), rhs.get_allocator());
     pointer ptr = rhs._M_head;
@@ -367,6 +441,19 @@ fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
         ptr = rhs.increment(ptr);
     }
     swap(temp);
+}
+
+template <class _Tp, class _Alloc>
+fc_queue<_Tp, _Alloc>::fc_queue(fc_queue&& rhs) noexcept(
+    noexcept(allocator_type(std::declval<allocator_type&&>())))
+{
+    _M_alloc = std::move(rhs._M_alloc);
+    _M_head = rhs._M_head;
+    _M_tail = rhs._M_tail;
+    _M_begin = rhs._M_begin;
+    _M_end = rhs._M_end;
+    rhs._M_head = rhs._M_tail = rhs._M_begin = nullptr;
+    rhs._M_end = rhs._M_begin + 1;
 }
 
 /**
@@ -381,7 +468,7 @@ fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
  */
 template <class _Tp, class _Alloc>
 void swap(fc_queue<_Tp, _Alloc>& lhs, fc_queue<_Tp, _Alloc>& rhs)
-    _NOEXCEPT_(noexcept(lhs.swap(rhs)))
+    noexcept(noexcept(lhs.swap(rhs)))
 {
     lhs.swap(rhs);
 }
