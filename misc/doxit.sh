@@ -19,6 +19,25 @@
 #     Please notice that only Doxygen 1.8 has good support for C++11
 #
 
+function grepsedfile {
+  if [ "$#" -le 2 ]; then
+    return 0
+  fi
+  EXP=$1
+  REP=$2
+  shift 2
+  FILES=`grep -l "$EXP" "$@"`
+  if [ "$?" -ne 0 ]; then
+    return $?
+  fi
+  if [ -z "$FILES" ]; then
+    return 0
+  fi
+  echo "$FILES"
+  sed -i '' "s/$EXP/$REP/g" $FILES
+  return $?
+}
+
 # Intermediate Doxyfile
 DOXYFILE_TMP=nvwa.dox
 
