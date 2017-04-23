@@ -19,6 +19,11 @@
 #     Please notice that only Doxygen 1.8 has good support for C++11
 #
 
+case $(sed --version 2>&1) in
+  *GNU*) sed_i () { sed -E -i "$@"; };;
+  *) sed_i () { sed -E -i '' "$@"; };;
+esac
+
 function grepsedfile {
   if [ "$#" -le 2 ]; then
     return 0
@@ -34,7 +39,7 @@ function grepsedfile {
     return 0
   fi
   echo "$FILES"
-  sed -E -i '' "s/$EXP/$REP/g" $FILES
+  sed_i "s/$EXP/$REP/g" $FILES
   return $?
 }
 
@@ -86,22 +91,22 @@ fi
 # Set the options in the intermediate Doxyfile
 cp -p Doxyfile $DOXYFILE_TMP
 if [ "$GENERATE_LATEX" = "YES" ]; then
-  sed -E -i '' 's/(GENERATE_LATEX *=).*/\1 YES/' $DOXYFILE_TMP
+  sed_i 's/(GENERATE_LATEX *=).*/\1 YES/' $DOXYFILE_TMP
   if [ "$PDF_HYPERLINKS" = "YES" ]; then
-    sed -E -i '' 's/(PDF_HYPERLINKS *=).*/\1 YES/' $DOXYFILE_TMP
+    sed_i 's/(PDF_HYPERLINKS *=).*/\1 YES/' $DOXYFILE_TMP
   else
-    sed -E -i '' 's/(PDF_HYPERLINKS *=).*/\1 NO/'  $DOXYFILE_TMP
+    sed_i 's/(PDF_HYPERLINKS *=).*/\1 NO/'  $DOXYFILE_TMP
   fi
   if [ "$USE_PDFLATEX" = "YES" ]; then
-    sed -E -i '' 's/(USE_PDFLATEX *=).*/\1 YES/' $DOXYFILE_TMP
+    sed_i 's/(USE_PDFLATEX *=).*/\1 YES/' $DOXYFILE_TMP
   else
-    sed -E -i '' 's/(USE_PDFLATEX *=).*/\1 NO/'  $DOXYFILE_TMP
+    sed_i 's/(USE_PDFLATEX *=).*/\1 NO/'  $DOXYFILE_TMP
   fi
 else
-  sed -E -i '' 's/(GENERATE_LATEX *=).*/\1 NO/'  $DOXYFILE_TMP
+  sed_i 's/(GENERATE_LATEX *=).*/\1 NO/'  $DOXYFILE_TMP
 fi
 if [ "$OLD_DOXYGEN_VER" = "YES" ]; then
-  sed -E -i '' 's/ (.*nvwa\/functional\.h)/#\1/' $DOXYFILE_TMP
+  sed_i 's/ (.*nvwa\/functional\.h)/#\1/' $DOXYFILE_TMP
 fi
 
 # Work around an expression that will confuse Doxygen
