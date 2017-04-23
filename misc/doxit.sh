@@ -86,22 +86,22 @@ fi
 # Set the options in the intermediate Doxyfile
 cp -p Doxyfile $DOXYFILE_TMP
 if [ "$GENERATE_LATEX" = "YES" ]; then
-  sed -i '' 's/\(GENERATE_LATEX *=\).*/\1 YES/' $DOXYFILE_TMP
+  sed -E -i '' 's/(GENERATE_LATEX *=).*/\1 YES/' $DOXYFILE_TMP
   if [ "$PDF_HYPERLINKS" = "YES" ]; then
-    sed -i '' 's/\(PDF_HYPERLINKS *=\).*/\1 YES/' $DOXYFILE_TMP
+    sed -E -i '' 's/(PDF_HYPERLINKS *=).*/\1 YES/' $DOXYFILE_TMP
   else
-    sed -i '' 's/\(PDF_HYPERLINKS *=\).*/\1 NO/'  $DOXYFILE_TMP
+    sed -E -i '' 's/(PDF_HYPERLINKS *=).*/\1 NO/'  $DOXYFILE_TMP
   fi
   if [ "$USE_PDFLATEX" = "YES" ]; then
-    sed -i '' 's/\(USE_PDFLATEX *=\).*/\1 YES/' $DOXYFILE_TMP
+    sed -E -i '' 's/(USE_PDFLATEX *=).*/\1 YES/' $DOXYFILE_TMP
   else
-    sed -i '' 's/\(USE_PDFLATEX *=\).*/\1 NO/'  $DOXYFILE_TMP
+    sed -E -i '' 's/(USE_PDFLATEX *=).*/\1 NO/'  $DOXYFILE_TMP
   fi
 else
-  sed -i '' 's/\(GENERATE_LATEX *=\).*/\1 NO/'  $DOXYFILE_TMP
+  sed -E -i '' 's/(GENERATE_LATEX *=).*/\1 NO/'  $DOXYFILE_TMP
 fi
 if [ "$OLD_DOXYGEN_VER" = "YES" ]; then
-  sed -i '' 's/ \(.*nvwa\/functional\.h\)/#\1/' $DOXYFILE_TMP
+  sed -E -i '' 's/ (.*nvwa\/functional\.h)/#\1/' $DOXYFILE_TMP
 fi
 
 # Work around an expression that will confuse Doxygen
@@ -155,7 +155,7 @@ if [ "$GENERATE_LATEX" = "YES" ]; then
       # Work around a bug in Doxygen 1.5.1 when PDF_HYPERLINKS=YES.
       # It is fixed in Doxygen 1.5.3, so the following line will be
       # commented out or removed in the future.
-      grepsedfile '\(subsubsection\[[^]]*\)\[\]' '\1[\\mbox{]}' *.tex
+      grepsedfile '(subsubsection\[[^]]*)\[\]' '\1[\\mbox{]}' *.tex
     fi
 
     # USE_PDFLATEX=NO (option "pdf2") may not work the first time it is
