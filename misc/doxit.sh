@@ -26,7 +26,7 @@ function grepsedfile {
   EXP=$1
   REP=$2
   shift 2
-  FILES=`grep -l "$EXP" "$@"`
+  FILES=`grep -E -l "$EXP" "$@"`
   if [ "$?" -ne 0 ]; then
     return $?
   fi
@@ -34,7 +34,7 @@ function grepsedfile {
     return 0
   fi
   echo "$FILES"
-  sed -i '' "s/$EXP/$REP/g" $FILES
+  sed -E -i '' "s/$EXP/$REP/g" $FILES
   return $?
 }
 
@@ -120,8 +120,7 @@ rm $DOXYFILE_TMP
 # Remove the space between -> and * in some Doxygen versions
 cd ../doc/html
 echo "Postprocessing HTML files"
-grepsedfile 'operator-&gt; \*' 'operator-\&gt;*' *.html
-grepsedfile 'operator-> \*' 'operator-\&gt;*' *.html
+grepsedfile 'operator-&gt; \*|operator-> \*' 'operator-\&gt;*' *.html
 cd ../../misc
 
 # Make LaTeX documents
