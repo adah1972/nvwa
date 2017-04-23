@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2016 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2017 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Code for mmap_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2016-11-09
+ * @date  2017-04-23
  */
 
 #include <errno.h>              // errno
@@ -76,7 +76,7 @@ mmap_line_reader::mmap_line_reader(const char* path, char delimiter,
 /**
  * Constructor.
  *
- * @param path       a file descriptor
+ * @param fd         a file descriptor
  * @param delimiter  the delimiter between text `lines' (default to LF)
  * @param strip      enumerator about whether to strip the delimiter
  */
