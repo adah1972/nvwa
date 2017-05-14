@@ -32,7 +32,7 @@
  * A generic tree class template and the traversal utilities.  Using
  * this file requires a C++11-compliant compiler.
  *
- * @date  2017-04-09
+ * @date  2017-05-14
  */
 
 #ifndef NVWA_TREE_H
@@ -50,7 +50,7 @@
 
 NVWA_NAMESPACE_BEGIN
 
-/** _Policy class for how to store members. */
+/** Policy class for how to store members. */
 enum class storage_policy
 {
     unique,  ///< Members are directly owned
@@ -306,11 +306,11 @@ public:
     }
     iterator begin()
     {
-        return iterator(_M_root);
+        return {_M_root};
     }
     iterator end()
     {
-        return iterator();
+        return {};
     }
 
 private:
@@ -406,11 +406,11 @@ public:
     }
     iterator begin()
     {
-        return iterator(_M_root);
+        return {_M_root};
     }
     iterator end()
     {
-        return iterator();
+        return {};
     }
 
 private:
@@ -549,33 +549,21 @@ public:
     }
     iterator begin()
     {
-        return iterator(_M_root);
+        return {_M_root};
     }
     iterator end()
     {
-        return iterator();
+        return {};
     }
 
 private:
     _Tree* _M_root;
 };
 
-template <typename _Tree>
-breadth_first_iteration<_Tree> traverse_breadth_first(_Tree& root)
+template <template <typename> class _Iteration, typename _Tree>
+_Iteration<_Tree> traverse(_Tree& root)
 {
-    return breadth_first_iteration<_Tree>(root);
-}
-
-template <typename _Tree>
-depth_first_iteration<_Tree> traverse_depth_first(_Tree& root)
-{
-    return depth_first_iteration<_Tree>(root);
-}
-
-template <typename _Tree>
-in_order_iteration<_Tree> traverse_in_order(_Tree& root)
-{
-    return in_order_iteration<_Tree>(root);
+    return {root};
 }
 
 NVWA_NAMESPACE_END
