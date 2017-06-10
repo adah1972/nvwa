@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2014-2016 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2014-2017 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2016-11-06
+ * @date  2017-06-10
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -381,7 +381,7 @@ public:
             else
             {
                 rhs._M_pointer =
-                    new (rhs._M_value) _Tp(std::move(*_M_pointer));
+                    new(rhs._M_value) _Tp(std::move(*_M_pointer));
                 reset();
             }
         }
@@ -398,7 +398,8 @@ public:
     void emplace(_Targs&&... args)
     {
         reset();
-        _M_pointer = new(_M_value) _Tp(args...);
+        _M_pointer =
+            new(_M_value) _Tp(std::forward<decltype(args)>(args)...);
     }
 
 private:
