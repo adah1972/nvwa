@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2017-05-14
+ * @date  2017-06-10
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -39,7 +39,7 @@
 
 #include <assert.h>             // assert
 #include <stddef.h>             // ptrdiff_t/size_t/NULL
-#include <memory>               // std::allocator
+#include <memory>               // std::allocator/allocator_traits
 #include <new>                  // placement new
 #include <type_traits>          // std::is_trivially_destructible
 #include <utility>              // std::declval/move/swap
@@ -64,17 +64,18 @@ NVWA_NAMESPACE_BEGIN
  *                Destructible, and \a _Alloc shall meet the allocator
  *                requirements (Table 28 in the C++11 spec).
  */
-template <class _Tp, class _Alloc = std::allocator<_Tp> >
+template <class _Tp, class _Alloc = std::allocator<_Tp>>
 class fc_queue
 {
 public:
-    typedef _Tp                 value_type;
-    typedef _Alloc              allocator_type;
-    typedef size_t              size_type;
-    typedef value_type*         pointer;
-    typedef const value_type*   const_pointer;
-    typedef value_type&         reference;
-    typedef const value_type&   const_reference;
+    typedef _Tp                            value_type;
+    typedef _Alloc                         allocator_type;
+    typedef std::allocator_traits<_Alloc>  alloc_traits;
+    typedef size_t                         size_type;
+    typedef value_type*                    pointer;
+    typedef const value_type*              const_pointer;
+    typedef value_type&                    reference;
+    typedef const value_type&              const_reference;
 
     /**
      * Default-constructor that creates an empty queue.
@@ -285,37 +286,19 @@ public:
      * Inserts a new element at the end of the queue.  The first element
      * will be discarded if the queue is full.
      *
-     * @param value  the value to be inserted
-     * @pre          <code>capacity() > 0</code>
-     * @post         <code>size() <= capacity() && back() == value</code>,
-     *               unless an exception is thrown, in which case this
-     *               queue is unchanged (strong exception safety is
-     *               guaranteed).
+     * @param args  arguments to construct a new element
+     * @pre         <code>capacity() > 0</code>
+     * @post        <code>size() <= capacity() && back() == value</code>,
+     *              unless an exception is thrown, in which case this
+     *              queue is unchanged (strong exception safety is
+     *              guaranteed).
      */
-    void push(const value_type& value)
+    template <typename... _Targs>
+    void push(_Targs&&... args)
     {
         assert(capacity() > 0);
-        construct(_M_tail, value);
-        if (full())
-            pop();
-        _M_tail = increment(_M_tail);
-    }
-
-    /**
-     * Inserts a new element at the end of the queue.  The first element
-     * will be discarded if the queue is full.
-     *
-     * @param value  the value to be inserted
-     * @pre          <code>capacity() > 0</code>
-     * @post         <code>size() <= capacity() && back() == value</code>,
-     *               unless an exception is thrown, in which case this
-     *               queue is unchanged (strong exception safety is
-     *               guaranteed).
-     */
-    void push(value_type&& value)
-    {
-        assert(capacity() > 0);
-        construct(_M_tail, std::move(value));
+        alloc_traits::construct(_M_alloc, _M_tail,
+                                std::forward<decltype(args)>(args)...);
         if (full())
             pop();
         _M_tail = increment(_M_tail);
@@ -406,14 +389,6 @@ protected:
         if (ptr == _M_begin)
             ptr = _M_end;
         return --ptr;
-    }
-    void construct(void* ptr, const _Tp& value)
-    {
-        new (ptr) _Tp(value);
-    }
-    void construct(void* ptr, _Tp&& value)
-    {
-        new (ptr) _Tp(std::move(value));
     }
     void destroy(void* ptr) noexcept(noexcept(std::declval<_Tp*>()->~_Tp()))
     {
