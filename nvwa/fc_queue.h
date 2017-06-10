@@ -68,14 +68,14 @@ template <class _Tp, class _Alloc = std::allocator<_Tp>>
 class fc_queue
 {
 public:
-    typedef _Tp                             value_type;
-    typedef _Alloc                          allocator_type;
-    typedef std::allocator_traits<_Alloc>   allocator_traits;
-    typedef typename _Alloc::size_type      size_type;
-    typedef typename _Alloc::pointer        pointer;
-    typedef typename _Alloc::const_pointer  const_pointer;
-    typedef value_type&                     reference;
-    typedef const value_type&               const_reference;
+    typedef _Tp                                       value_type;
+    typedef _Alloc                                    allocator_type;
+    typedef std::allocator_traits<_Alloc>             allocator_traits;
+    typedef typename allocator_traits::size_type      size_type;
+    typedef typename allocator_traits::pointer        pointer;
+    typedef typename allocator_traits::const_pointer  const_pointer;
+    typedef value_type&                               reference;
+    typedef const value_type&                         const_reference;
 
     /**
      * Default-constructor that creates an empty queue.
@@ -228,7 +228,7 @@ public:
      */
     size_type size() const noexcept
     {
-        ptrdiff_t dist = _M_tail - _M_head;
+        typename allocator_traits::difference_type dist = _M_tail - _M_head;
         if (dist < 0)
             dist += _M_end - _M_begin;
         return dist;
