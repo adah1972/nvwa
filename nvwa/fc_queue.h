@@ -68,14 +68,14 @@ template <class _Tp, class _Alloc = std::allocator<_Tp>>
 class fc_queue
 {
 public:
-    typedef _Tp                            value_type;
-    typedef _Alloc                         allocator_type;
-    typedef std::allocator_traits<_Alloc>  alloc_traits;
-    typedef size_t                         size_type;
-    typedef value_type*                    pointer;
-    typedef const value_type*              const_pointer;
-    typedef value_type&                    reference;
-    typedef const value_type&              const_reference;
+    typedef _Tp                             value_type;
+    typedef _Alloc                          allocator_type;
+    typedef std::allocator_traits<_Alloc>   allocator_traits;
+    typedef typename _Alloc::size_type      size_type;
+    typedef typename _Alloc::pointer        pointer;
+    typedef typename _Alloc::const_pointer  const_pointer;
+    typedef value_type&                     reference;
+    typedef const value_type&               const_reference;
 
     /**
      * Default-constructor that creates an empty queue.
@@ -148,7 +148,7 @@ public:
     {
         while (_M_head != _M_tail)
         {
-            destroy(_M_head);
+            destroy(trueaddress(_M_head));
             _M_head = increment(_M_head);
         }
         if (_M_begin)
@@ -297,8 +297,8 @@ public:
     void push(_Targs&&... args)
     {
         assert(capacity() > 0);
-        alloc_traits::construct(_M_alloc, _M_tail,
-                                std::forward<decltype(args)>(args)...);
+        allocator_traits::construct(_M_alloc, trueaddress(_M_tail),
+                                    std::forward<decltype(args)>(args)...);
         if (full())
             pop();
         _M_tail = increment(_M_tail);
@@ -314,7 +314,7 @@ public:
     void pop()
     {
         assert(!empty());
-        destroy(_M_head);
+        destroy(trueaddress(_M_head));
         _M_head = increment(_M_head);
     }
 
@@ -393,6 +393,10 @@ protected:
     void destroy(void* ptr) noexcept(noexcept(std::declval<_Tp*>()->~_Tp()))
     {
         _M_destroy(ptr, std::is_trivially_destructible<_Tp>());
+    }
+    static _Tp* trueaddress(pointer ptr)
+    {
+        return ptr == nullptr ? nullptr : std::addressof(*ptr);
     }
 
 private:
