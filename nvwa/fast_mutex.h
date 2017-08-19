@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2015 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2017 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * A fast mutex implementation for POSIX, Win32, and modern C++.
  *
- * @date  2015-05-19
+ * @date  2017-08-19
  */
 
 #ifndef NVWA_FAST_MUTEX_H
@@ -206,8 +206,8 @@ NVWA_NAMESPACE_BEGIN
             _M_mtx_impl.unlock();
         }
     private:
-        fast_mutex(const fast_mutex&);
-        fast_mutex& operator=(const fast_mutex&);
+        fast_mutex(const fast_mutex&) _DELETED;
+        fast_mutex& operator=(const fast_mutex&) _DELETED;
     };
 NVWA_NAMESPACE_END
 # elif defined(NVWA_PTHREADS)
@@ -280,8 +280,8 @@ NVWA_NAMESPACE_BEGIN
             ::pthread_mutex_unlock(&_M_mtx_impl);
         }
     private:
-        fast_mutex(const fast_mutex&);
-        fast_mutex& operator=(const fast_mutex&);
+        fast_mutex(const fast_mutex&) _DELETED;
+        fast_mutex& operator=(const fast_mutex&) _DELETED;
     };
 NVWA_NAMESPACE_END
 # elif defined(NVWA_WIN32THREADS)
@@ -352,8 +352,8 @@ NVWA_NAMESPACE_BEGIN
             ::LeaveCriticalSection(&_M_mtx_impl);
         }
     private:
-        fast_mutex(const fast_mutex&);
-        fast_mutex& operator=(const fast_mutex&);
+        fast_mutex(const fast_mutex&) _DELETED;
+        fast_mutex& operator=(const fast_mutex&) _DELETED;
     };
 NVWA_NAMESPACE_END
 # elif defined(NVWA_NOTHREADS)
@@ -398,8 +398,8 @@ NVWA_NAMESPACE_BEGIN
 #       endif
         }
     private:
-        fast_mutex(const fast_mutex&);
-        fast_mutex& operator=(const fast_mutex&);
+        fast_mutex(const fast_mutex&) _DELETED;
+        fast_mutex& operator=(const fast_mutex&) _DELETED;
     };
 NVWA_NAMESPACE_END
 # endif // Definition of class fast_mutex
@@ -419,8 +419,8 @@ public:
         _M_mtx.unlock();
     }
 private:
-    fast_mutex_autolock(const fast_mutex_autolock&);
-    fast_mutex_autolock& operator=(const fast_mutex_autolock&);
+    fast_mutex_autolock(const fast_mutex_autolock&) _DELETED;
+    fast_mutex_autolock& operator=(const fast_mutex_autolock&) _DELETED;
 };
 NVWA_NAMESPACE_END
 
