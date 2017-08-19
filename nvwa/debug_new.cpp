@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2016 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2017 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2016-10-14
+ * @date  2017-08-19
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -898,9 +898,10 @@ void debug_new_recorder::_M_process(void* usr_ptr)
     if (usr_ptr == _NULLPTR)
         return;
 
-    // In an expression `new NonPODType[size]', the pointer returned is
-    // not the pointer returned by operator new[], but offset by size_t
-    // to leave room for the size.  It needs to be compensated here.
+    // In an expression `new NonPODType[size]', the pointer returned
+    // is not the pointer returned by operator new[], but offset by
+    // sizeof(size_t) to leave room for the size.  It needs to be
+    // compensated for here.
     size_t offset = (char*)usr_ptr - (char*)_NULLPTR;
     if (offset % PLATFORM_MEM_ALIGNMENT != 0) {
         offset -= sizeof(size_t);
