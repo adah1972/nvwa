@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2017-08-19
+ * @date  2017-09-01
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -1037,7 +1037,7 @@ void* operator new[](size_t size, const char* file, int line)
  *              insufficient (#_DEBUG_NEW_STD_OPER_NEW is 0)
  * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
  */
-void* operator new(size_t size) throw(std::bad_alloc)
+void* operator new(size_t size)
 {
     return operator new(size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
@@ -1050,7 +1050,7 @@ void* operator new(size_t size) throw(std::bad_alloc)
  *              insufficient (#_DEBUG_NEW_STD_OPER_NEW is 0)
  * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
  */
-void* operator new[](size_t size) throw(std::bad_alloc)
+void* operator new[](size_t size)
 {
     return operator new[](size, (char*)_DEBUG_NEW_CALLER_ADDRESS, 0);
 }
