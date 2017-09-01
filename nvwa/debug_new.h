@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2015 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2017 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @date  2015-10-25
+ * @date  2017-09-01
  */
 
 #ifndef NVWA_DEBUG_NEW_H
@@ -166,6 +166,7 @@ class debug_new_recorder
     const char* _M_file;
     const int   _M_line;
     void _M_process(void* ptr);
+
 public:
     /**
      * Constructor to remember the call context.  The information will
@@ -181,9 +182,10 @@ public:
      */
     template <class _Tp> _Tp* operator->*(_Tp* ptr)
     { _M_process(ptr); return ptr; }
+
 private:
-    debug_new_recorder(const debug_new_recorder&);
-    debug_new_recorder& operator=(const debug_new_recorder&);
+    debug_new_recorder(const debug_new_recorder&) _DELETED;
+    debug_new_recorder& operator=(const debug_new_recorder&) _DELETED;
 };
 
 /**
