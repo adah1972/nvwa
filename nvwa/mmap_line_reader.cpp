@@ -29,9 +29,10 @@
 /**
  * @file  mmap_line_reader.cpp
  *
- * Code for mmap_line_reader, an easy-to-use line-based file reader.
+ * Code for mmap_line_reader_base, common base for easy-to-use
+ * line-based file readers.
  *
- * @date  2017-04-23
+ * @date  2017-09-08
  */
 
 #include <errno.h>              // errno
@@ -44,16 +45,22 @@
 #include <stdexcept>            // std::runtime_error
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++11.h"              // _NULLPTR
-#include "mmap_line_reader.h"   // mmap_line_reader
+#include "mmap_line_reader.h"   // mmap_line_reader_base
 
-NVWA_NAMESPACE_BEGIN
+namespace {
 
-static void throw_runtime_error(const char* reason)
+void throw_runtime_error(const char* reason)
 {
     char msg[80];
     snprintf(msg, sizeof msg, "%s failed: %s", reason, strerror(errno));
     throw std::runtime_error(msg);
 }
+
+} /* unnamed namespace */
+
+NVWA_NAMESPACE_BEGIN
+
+namespace detail {
 
 /**
  * Constructor.
@@ -62,8 +69,9 @@ static void throw_runtime_error(const char* reason)
  * @param delimiter  the delimiter between text `lines' (default to LF)
  * @param strip      enumerator about whether to strip the delimiter
  */
-mmap_line_reader::mmap_line_reader(const char* path, char delimiter,
-                                   strip_type strip)
+mmap_line_reader_base::mmap_line_reader_base(const char* path,
+                                             char        delimiter,
+                                             strip_type  strip)
     : _M_delimiter(delimiter)
     , _M_strip_delimiter(strip == strip_delimiter)
 {
@@ -80,7 +88,8 @@ mmap_line_reader::mmap_line_reader(const char* path, char delimiter,
  * @param delimiter  the delimiter between text `lines' (default to LF)
  * @param strip      enumerator about whether to strip the delimiter
  */
-mmap_line_reader::mmap_line_reader(int fd, char delimiter, strip_type strip)
+mmap_line_reader_base::mmap_line_reader_base(int fd, char delimiter,
+                                             strip_type strip)
     : _M_fd(fd)
     , _M_delimiter(delimiter)
     , _M_strip_delimiter(strip == strip_delimiter)
@@ -89,7 +98,7 @@ mmap_line_reader::mmap_line_reader(int fd, char delimiter, strip_type strip)
 }
 
 /** Destructor. */
-mmap_line_reader::~mmap_line_reader()
+mmap_line_reader_base::~mmap_line_reader_base()
 {
     munmap(_M_mmap_ptr, _M_size);
     close(_M_fd);
@@ -98,7 +107,7 @@ mmap_line_reader::~mmap_line_reader()
 /**
  * Initializes the object.  It gets the file size and mmaps the whole file.
  */
-void mmap_line_reader::initialize()
+void mmap_line_reader_base::initialize()
 {
     struct stat s;
     if (fstat(_M_fd, &s) < 0)
@@ -110,35 +119,6 @@ void mmap_line_reader::initialize()
     _M_size = s.st_size;
 }
 
-/**
- * Reads content from the mmaped file.
- *
- * @param[out]    output  string to receive the line
- * @param[in,out] offset  offset of reading pos on entry; end offset on exit
- * @return                \c true if line content is returned; \c false
- *                        otherwise
- */
-bool mmap_line_reader::read(std::string& output, off_t& offset)
-{
-    if (offset == _M_size)
-        return false;
-
-    off_t pos = offset;
-    bool found_delimiter = false;
-    while (pos < _M_size)
-    {
-        char ch = _M_mmap_ptr[pos++];
-        if (ch == _M_delimiter)
-        {
-            found_delimiter = true;
-            break;
-        }
-    }
-
-    output.assign(_M_mmap_ptr + offset,
-                  pos - offset - (found_delimiter && _M_strip_delimiter));
-    offset = pos;
-    return true;
-}
+} /* namespace detail */
 
 NVWA_NAMESPACE_END

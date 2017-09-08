@@ -29,10 +29,10 @@
 /**
  * @file  mmap_line_reader.h
  *
- * Header file for mmap_line_reader, an easy-to-use line-based file reader.
- * It is implemented with the POSIX mmap API.
+ * Header file for mmap_line_reader and mmap_line_reader_sv, easy-to-use
+ * line-based file readers.  It is implemented with the POSIX mmap API.
  *
- * @date  2017-03-23
+ * @date  2017-09-08
  */
 
 #ifndef NVWA_MMAP_LINE_READER_H
@@ -41,28 +41,65 @@
 #include <assert.h>             // assert
 #include <unistd.h>             // off_t
 #include <iterator>             // std::input_iterator_tag
-#include <string>               // std::string
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++11.h"              // _NULLPTR
 
+#include <string>               // std::string
+#if __cplusplus >= 201703L
+#include <string_view>          // std::string_view
+#endif
+
 NVWA_NAMESPACE_BEGIN
 
-/** Class to allow iteration over all lines of a mmappable file. */
-class mmap_line_reader
+namespace detail {
+
+class mmap_line_reader_base
+{
+public:
+    /** Enumeration of whether the delimiter should be stripped. */
+    enum strip_type
+    {
+        strip_delimiter,     ///< The delimiter should be stripped
+        no_strip_delimiter,  ///< The delimiter should be retained
+    };
+
+    explicit mmap_line_reader_base(const char* path, char delimiter,
+                                   strip_type strip);
+    explicit mmap_line_reader_base(int fd, char delimiter,
+                                   strip_type strip);
+    ~mmap_line_reader_base();
+
+protected:
+    void initialize();
+
+    int   _M_fd;
+    char  _M_delimiter;
+    bool  _M_strip_delimiter;
+    char* _M_mmap_ptr;
+    off_t _M_size;
+
+private:
+    mmap_line_reader_base(const mmap_line_reader_base&) _DELETED;
+    mmap_line_reader_base& operator=(const mmap_line_reader_base&) _DELETED;
+};
+
+/** Class template to allow iteration over all lines of a mmappable file. */
+template <typename _Tp>
+class basic_mmap_line_reader : public mmap_line_reader_base
 {
 public:
     /** Iterator that contains the line content. */
     class iterator  // implements InputIterator
     {
     public:
-        typedef int                     difference_type;
-        typedef std::string             value_type;
+        typedef _Tp                     value_type;
         typedef value_type*             pointer_type;
         typedef value_type&             reference;
+        typedef int                     difference_type;
         typedef std::input_iterator_tag iterator_category;
 
         iterator() : _M_reader(_NULLPTR) {}
-        explicit iterator(mmap_line_reader* reader)
+        explicit iterator(basic_mmap_line_reader* reader)
             : _M_reader(reader) , _M_offset(0) {}
 
         reference operator*()
@@ -98,41 +135,68 @@ public:
         }
 
     private:
-        mmap_line_reader* _M_reader;
-        off_t             _M_offset;
-        std::string       _M_line;
+        basic_mmap_line_reader* _M_reader;
+        off_t                   _M_offset;
+        value_type              _M_line;
     };
 
-    /** Enumeration of whether the delimiter should be stripped. */
-    enum strip_type
-    {
-        strip_delimiter,     ///< The delimiter should be stripped
-        no_strip_delimiter,  ///< The delimiter should be retained
-    };
-
-    explicit mmap_line_reader(const char* path, char delimiter = '\n',
-                              strip_type strip = strip_delimiter);
-    explicit mmap_line_reader(int fd, char delimiter = '\n',
-                              strip_type strip = strip_delimiter);
-    ~mmap_line_reader();
+    explicit basic_mmap_line_reader(const char* path, char delimiter = '\n',
+                                    strip_type strip = strip_delimiter)
+        : mmap_line_reader_base(path, delimiter, strip) {}
+    explicit basic_mmap_line_reader(int fd, char delimiter = '\n',
+                                    strip_type strip = strip_delimiter)
+        : mmap_line_reader_base(fd, delimiter, strip) {}
+    ~basic_mmap_line_reader() {}
 
     iterator begin() { return iterator(this); }
     iterator end() const { return iterator(); }
 
-    bool read(std::string& output, off_t& offset);
+    bool read(_Tp& output, off_t& offset);
 
 private:
-    mmap_line_reader(const mmap_line_reader&) _DELETED;
-    mmap_line_reader& operator=(const mmap_line_reader&) _DELETED;
-
-    void initialize();
-
-    int   _M_fd;
-    char  _M_delimiter;
-    bool  _M_strip_delimiter;
-    char* _M_mmap_ptr;
-    off_t _M_size;
+    basic_mmap_line_reader(const basic_mmap_line_reader&) _DELETED;
+    basic_mmap_line_reader& operator=(const basic_mmap_line_reader&) _DELETED;
 };
+
+/**
+ * Reads content from the mmaped file.
+ *
+ * @param[out]    output  object to receive the line
+ * @param[in,out] offset  offset of reading pos on entry; end offset on exit
+ * @return                \c true if line content is returned; \c false
+ *                        otherwise
+ */
+template <typename _Tp>
+bool basic_mmap_line_reader<_Tp>::read(_Tp& output, off_t& offset)
+{
+    if (offset == _M_size)
+        return false;
+
+    off_t pos = offset;
+    bool found_delimiter = false;
+    while (pos < _M_size)
+    {
+        char ch = _M_mmap_ptr[pos++];
+        if (ch == _M_delimiter)
+        {
+            found_delimiter = true;
+            break;
+        }
+    }
+
+    output = std::move(
+        _Tp(_M_mmap_ptr + offset,
+            pos - offset - (found_delimiter && _M_strip_delimiter)));
+    offset = pos;
+    return true;
+}
+
+} /* namespace detail */
+
+using mmap_line_reader    = detail::basic_mmap_line_reader<std::string>;
+#if __cplusplus >= 201703L
+using mmap_line_reader_sv = detail::basic_mmap_line_reader<std::string_view>;
+#endif
 
 NVWA_NAMESPACE_END
 
