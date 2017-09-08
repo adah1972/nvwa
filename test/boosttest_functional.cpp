@@ -171,8 +171,8 @@ BOOST_AUTO_TEST_CASE(functional_test)
     Obj guard(99);  // special guard
 
     nvwa::optional<int> nothing;
-    auto r1 = apply(increase, nothing);
-    auto r2 = apply(increase, nvwa::make_optional(41));
+    auto r1 = nvwa::apply(increase, nothing);
+    auto r2 = nvwa::apply(increase, nvwa::make_optional(41));
     BOOST_CHECK(!r1.has_value());
     BOOST_CHECK(r2.has_value() && r2.value() == 42);
     auto r3 = r2;
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE(functional_test)
     oss << v;
     BOOST_TEST_MESSAGE("Test vector is " << oss.str());
     oss.str(std::string());
-    oss << apply(SquareList(), nvwa::make_optional(v));
+    oss << nvwa::apply(SquareList(), nvwa::make_optional(v));
     BOOST_TEST_MESSAGE("Square list is " << oss.str());
     BOOST_CHECK_EQUAL(SumList()(v), 15);
     auto squared_sum = nvwa::compose(SumList(), SquareList());
@@ -291,7 +291,8 @@ BOOST_AUTO_TEST_CASE(functional_test)
     BOOST_CHECK_EQUAL(square_and_sum_4(std::make_tuple(1, 2, 3, 4)), 30);
     auto t = std::make_tuple(1, 2, 3, 4, 5);
     BOOST_CHECK_EQUAL(square_and_sum(t), 55);
-    BOOST_CHECK_EQUAL(apply(sum<int, int, int, int, int>, fmap(sqr, t)), 55);
+    BOOST_CHECK_EQUAL(
+        nvwa::apply(sum<int, int, int, int, int>, fmap(sqr, t)), 55);
 
     using std::function;
     typedef function<int(int)> Func;

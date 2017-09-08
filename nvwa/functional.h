@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2017-06-10
+ * @date  2017-09-08
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -712,7 +712,7 @@ constexpr auto wrap_args_as_tuple(_Fn&& f)
 {
     return [f = std::forward<_Fn>(f)](_Tuple&& t) -> decltype(auto)
     {
-        return apply(f, std::forward<_Tuple>(t));
+        return nvwa::apply(f, std::forward<_Tuple>(t));
     };
 }
 
