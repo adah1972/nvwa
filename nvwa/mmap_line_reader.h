@@ -32,7 +32,7 @@
  * Header file for mmap_line_reader and mmap_line_reader_sv, easy-to-use
  * line-based file readers.  It is implemented with the POSIX mmap API.
  *
- * @date  2017-09-08
+ * @date  2017-09-09
  */
 
 #ifndef NVWA_MMAP_LINE_READER_H
@@ -42,10 +42,10 @@
 #include <unistd.h>             // off_t
 #include <iterator>             // std::input_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // _NULLPTR
+#include "c++11.h"              // NVWA_USES_CXX17/_NULLPTR
 
 #include <string>               // std::string
-#if __cplusplus >= 201703L
+#if NVWA_USES_CXX17
 #include <string_view>          // std::string_view
 #endif
 
@@ -194,7 +194,7 @@ bool basic_mmap_line_reader<_Tp>::read(_Tp& output, off_t& offset)
 } /* namespace detail */
 
 using mmap_line_reader    = detail::basic_mmap_line_reader<std::string>;
-#if __cplusplus >= 201703L
+#if NVWA_USES_CXX17
 using mmap_line_reader_sv = detail::basic_mmap_line_reader<std::string_view>;
 #endif
 
