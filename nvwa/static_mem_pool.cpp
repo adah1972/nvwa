@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2013 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2017 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,13 +31,13 @@
  *
  * Non-template and non-inline code for the `static' memory pool.
  *
- * @date  2013-03-01
+ * @date  2017-09-09
  */
 
+#include "static_mem_pool.h"    // nvwa::static_mem_pool_set
 #include <algorithm>            // std::for_each
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "cont_ptr_utils.h"     // nvwa::delete_object
-#include "static_mem_pool.h"    // nvwa::static_mem_pool_set
 
 NVWA_NAMESPACE_BEGIN
 

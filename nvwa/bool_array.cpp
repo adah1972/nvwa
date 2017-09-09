@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2016 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2017 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,14 +31,14 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @date  2016-10-22
+ * @date  2017-09-09
  */
 
+#include "bool_array.h"         // bool_array
 #include <limits.h>             // UINT_MAX, ULONG_MAX
 #include <string.h>             // memset/memcpy
 #include <algorithm>            // std::swap
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "bool_array.h"         // bool_array
 #include "c++11.h"              // _NULLPTR
 #include "static_assert.h"      // STATIC_ASSERT
 

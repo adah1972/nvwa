@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2016 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2016-2017 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,13 +31,13 @@
  *
  * Code for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2016-11-01
+ * @date  2017-09-09
  */
 
+#include "file_line_reader.h"   // file_line_reader
 #include <string.h>             // memcpy
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++11.h"              // _NOEXCEPT/_NULLPTR
-#include "file_line_reader.h"   // file_line_reader
 
 #if NVWA_CXX11_MODE
 #include <utility>              // std::swap

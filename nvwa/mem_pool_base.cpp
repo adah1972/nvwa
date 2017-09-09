@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2014 Wu Yongwei <adah at users dot sourceforge dot net>
+ * Copyright (C) 2004-2017 Wu Yongwei <adah at users dot sourceforge dot net>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,8 +31,10 @@
  *
  * Implementation for the memory pool base.
  *
- * @date  2014-11-29
+ * @date  2017-09-09
  */
+
+#include "mem_pool_base.h"      // nvwa::mem_pool_base
 
 #if defined(_MEM_POOL_USE_MALLOC)
 #include <stdlib.h>             // malloc/free
@@ -41,7 +43,6 @@
 #endif
 
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "mem_pool_base.h"      // nvwa::mem_pool_base
 
 NVWA_NAMESPACE_BEGIN
 

@@ -32,20 +32,20 @@
  * Code for mmap_line_reader_base, common base for easy-to-use
  * line-based file readers.
  *
- * @date  2017-09-08
+ * @date  2017-09-09
  */
 
+#include "mmap_line_reader.h"   // mmap_line_reader_base
 #include <errno.h>              // errno
 #include <fcntl.h>              // open
 #include <stdio.h>              // snprintf
 #include <string.h>             // strerror
-#include <unistd.h>             // close
 #include <sys/mman.h>           // mmap/munmap
 #include <sys/stat.h>           // fstat
+#include <unistd.h>             // close
 #include <stdexcept>            // std::runtime_error
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++11.h"              // _NULLPTR
-#include "mmap_line_reader.h"   // mmap_line_reader_base
 
 namespace {
 
