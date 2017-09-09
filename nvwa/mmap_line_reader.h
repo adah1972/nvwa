@@ -193,9 +193,9 @@ bool basic_mmap_line_reader<_Tp>::read(_Tp& output, off_t& offset)
 
 } /* namespace detail */
 
-using mmap_line_reader    = detail::basic_mmap_line_reader<std::string>;
+typedef detail::basic_mmap_line_reader<std::string>      mmap_line_reader;
 #if NVWA_USES_CXX17
-using mmap_line_reader_sv = detail::basic_mmap_line_reader<std::string_view>;
+typedef detail::basic_mmap_line_reader<std::string_view> mmap_line_reader_sv;
 #endif
 
 NVWA_NAMESPACE_END
