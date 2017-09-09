@@ -60,6 +60,14 @@
 #define NVWA_CXX11_MODE 0
 #endif
 
+// Detect whether C++17 features can be used.
+#if __cplusplus >= 201703L || \
+    (defined(_MSC_VER) && _MSC_VER >= 1910 && _MSVC_LANG > 201402)
+#define NVWA_USES_CXX17 1
+#else
+#define NVWA_USES_CXX17 0
+#endif
+
 
 /* Feature checks */
 
