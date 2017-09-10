@@ -63,8 +63,19 @@ void throw_runtime_error(const char* reason)
 #if NVWA_UNIX
     snprintf(msg, sizeof msg, "%s failed: %s", reason, strerror(errno));
 #else
-    snprintf(msg, sizeof msg, "%s failed: Windows error %08lx", reason,
-             GetLastError());
+    char buffer[72];
+    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,
+                   NULL,
+                   GetLastError(),
+                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                   buffer,
+                   sizeof buffer,
+                   NULL);
+    int len = snprintf(msg, sizeof msg, "%s failed: %s", reason, buffer);
+    if (len >= sizeof msg)
+        len = sizeof msg - 1;
+    if (msg[len - 1] == '\n')
+        msg[len - 1] = '\0';
 #endif
     throw std::runtime_error(msg);
 }
