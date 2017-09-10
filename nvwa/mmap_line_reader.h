@@ -116,8 +116,9 @@ public:
         no_strip_delimiter,  ///< The delimiter should be retained
     };
 
-    explicit basic_mmap_line_reader(const char* path, char delimiter = '\n',
-                                    strip_type strip = strip_delimiter)
+    explicit basic_mmap_line_reader(const char* path,
+                                    char        delimiter = '\n',
+                                    strip_type  strip = strip_delimiter)
         : mmap_reader_base(path)
         , _M_delimiter(delimiter)
         , _M_strip_delimiter(strip == strip_delimiter)
@@ -134,7 +135,8 @@ public:
     }
 #endif
 #if NVWA_UNIX
-    explicit basic_mmap_line_reader(int fd, char delimiter = '\n',
+    explicit basic_mmap_line_reader(int        fd,
+                                    char       delimiter = '\n',
                                     strip_type strip = strip_delimiter)
         : mmap_reader_base(fd)
         , _M_delimiter(delimiter)
