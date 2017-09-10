@@ -77,8 +77,6 @@ NVWA_NAMESPACE_BEGIN
  * Constructor.
  *
  * @param path       path to the file to open
- * @param delimiter  the delimiter between text `lines' (default to LF)
- * @param strip      enumerator about whether to strip the delimiter
  */
 mmap_reader_base::mmap_reader_base(const char* path)
 {
@@ -86,7 +84,7 @@ mmap_reader_base::mmap_reader_base(const char* path)
     _M_fd = open(path, O_RDONLY);
     if (_M_fd < 0)
         throw_runtime_error("open");
-#else
+#else // NVWA_UNIX
     _M_file_handle = CreateFileA(
             path,
             GENERIC_READ,
@@ -97,9 +95,31 @@ mmap_reader_base::mmap_reader_base(const char* path)
             NULL);
     if (_M_file_handle == INVALID_HANDLE_VALUE)
         throw_runtime_error("CreateFile");
-#endif
+#endif // NVWA_UNIX
     initialize();
 }
+
+#if NVWA_WINDOWS
+/**
+ * Constructor.
+ *
+ * @param path       path to the file to open
+ */
+mmap_reader_base::mmap_reader_base(const wchar_t* path)
+{
+    _M_file_handle = CreateFileW(
+            path,
+            GENERIC_READ,
+            FILE_SHARE_READ,
+            NULL,
+            OPEN_EXISTING,
+            FILE_ATTRIBUTE_NORMAL,
+            NULL);
+    if (_M_file_handle == INVALID_HANDLE_VALUE)
+        throw_runtime_error("CreateFile");
+    initialize();
+}
+#endif // NVWA_WINDOWS
 
 #if NVWA_UNIX
 /**

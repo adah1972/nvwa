@@ -123,6 +123,17 @@ public:
         , _M_strip_delimiter(strip == strip_delimiter)
     {
     }
+#if NVWA_WINDOWS
+    explicit basic_mmap_line_reader(const wchar_t* path,
+                                    char           delimiter = '\n',
+                                    strip_type     strip = strip_delimiter)
+        : mmap_reader_base(path)
+        , _M_delimiter(delimiter)
+        , _M_strip_delimiter(strip == strip_delimiter)
+    {
+    }
+#endif
+#if NVWA_UNIX
     explicit basic_mmap_line_reader(int fd, char delimiter = '\n',
                                     strip_type strip = strip_delimiter)
         : mmap_reader_base(fd)
@@ -130,6 +141,7 @@ public:
         , _M_strip_delimiter(strip == strip_delimiter)
     {
     }
+#endif
     ~basic_mmap_line_reader()
     {
     }

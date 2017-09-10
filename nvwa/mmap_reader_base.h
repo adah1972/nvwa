@@ -50,6 +50,9 @@ class mmap_reader_base
 {
 public:
     explicit mmap_reader_base(const char* path);
+#if NVWA_WINDOWS
+    explicit mmap_reader_base(const wchar_t* path);
+#endif
 #if NVWA_UNIX
     explicit mmap_reader_base(int fd);
 #endif

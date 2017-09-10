@@ -174,10 +174,18 @@ public:
         : mmap_reader_base(path)
     {
     }
+#if NVWA_WINDOWS
+    explicit basic_mmap_byte_reader(const wchar_t* path)
+        : mmap_reader_base(path)
+    {
+    }
+#endif
+#if NVWA_UNIX
     explicit basic_mmap_byte_reader(int fd)
         : mmap_reader_base(fd)
     {
     }
+#endif
     ~basic_mmap_byte_reader()
     {
     }
