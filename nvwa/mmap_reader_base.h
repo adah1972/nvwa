@@ -30,7 +30,7 @@
  * @file  mmap_reader_base.h
  *
  * Header file for mmap_reader_base, common base for mmap-based file
- * readers.  It is implemented with the POSIX mmap API.
+ * readers.  It currently supports POSIX and Win32.
  *
  * @date  2017-09-10
  */
@@ -39,15 +39,9 @@
 #define NVWA_MMAP_READER_BASE_H
 
 #include <assert.h>             // assert
-#include <unistd.h>             // off_t
+#include <sys/types.h>          // off_t
 #include <iterator>             // std::input_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // NVWA_USES_CXX17/_NULLPTR
-
-#include <string>               // std::string
-#if NVWA_USES_CXX17
-#include <string_view>          // std::string_view
-#endif
 
 NVWA_NAMESPACE_BEGIN
 
@@ -55,19 +49,26 @@ class mmap_reader_base
 {
 public:
     explicit mmap_reader_base(const char* path);
+#if NVWA_UNIX
     explicit mmap_reader_base(int fd);
+#endif
     ~mmap_reader_base();
 
 protected:
-    void initialize();
-
-    int   _M_fd;
-    char* _M_mmap_ptr;
-    off_t _M_size;
+    char*         _M_mmap_ptr;
+    off_t         _M_size;
+#if NVWA_UNIX
+    int           _M_fd;
+#else
+    void*         _M_file_handle;
+    void*         _M_map_handle;
+#endif
 
 private:
     mmap_reader_base(const mmap_reader_base&) _DELETED;
     mmap_reader_base& operator=(const mmap_reader_base&) _DELETED;
+
+    void initialize();
 };
 
 NVWA_NAMESPACE_END

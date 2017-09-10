@@ -29,30 +29,43 @@
 /**
  * @file  mmap_line_reader.cpp
  *
- * Code for mmap_reader_base, common base for mmap-based file readers.
- * It is implemented with the POSIX mmap API.
+ * Code for mmap_reader_base, common base for memory-mapped file readers.
+ * It is implemented with POSIX and Win32 APIs.
  *
  * @date  2017-09-10
  */
 
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
+#include <stdio.h>              // snprintf
+#include <stdexcept>            // std::runtime_error
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++11.h"              // _NULLPTR
+
+#if NVWA_UNIX
 #include <errno.h>              // errno
 #include <fcntl.h>              // open
-#include <stdio.h>              // snprintf
 #include <string.h>             // strerror
 #include <sys/mman.h>           // mmap/munmap
 #include <sys/stat.h>           // fstat
 #include <unistd.h>             // close
-#include <stdexcept>            // std::runtime_error
-#include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // _NULLPTR
+#elif NVWA_WINDOWS
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>            // Win32 API
+#else
+#error "Unrecognized platform"
+#endif
 
 namespace {
 
 void throw_runtime_error(const char* reason)
 {
     char msg[80];
+#if NVWA_UNIX
     snprintf(msg, sizeof msg, "%s failed: %s", reason, strerror(errno));
+#else
+    snprintf(msg, sizeof msg, "%s failed: Windows error %08lx", reason,
+             GetLastError());
+#endif
     throw std::runtime_error(msg);
 }
 
@@ -69,12 +82,26 @@ NVWA_NAMESPACE_BEGIN
  */
 mmap_reader_base::mmap_reader_base(const char* path)
 {
+#if NVWA_UNIX
     _M_fd = open(path, O_RDONLY);
     if (_M_fd < 0)
         throw_runtime_error("open");
+#else
+    _M_file_handle = CreateFileA(
+            path,
+            GENERIC_READ,
+            FILE_SHARE_READ,
+            NULL,
+            OPEN_EXISTING,
+            FILE_ATTRIBUTE_NORMAL,
+            NULL);
+    if (_M_file_handle == INVALID_HANDLE_VALUE)
+        throw_runtime_error("CreateFile");
+#endif
     initialize();
 }
 
+#if NVWA_UNIX
 /**
  * Constructor.
  *
@@ -87,12 +114,19 @@ mmap_reader_base::mmap_reader_base(int fd)
 {
     initialize();
 }
+#endif
 
 /** Destructor. */
 mmap_reader_base::~mmap_reader_base()
 {
+#if NVWA_UNIX
     munmap(_M_mmap_ptr, _M_size);
     close(_M_fd);
+#else
+    UnmapViewOfFile(_M_mmap_ptr);
+    CloseHandle(_M_map_handle);
+    CloseHandle(_M_file_handle);
+#endif
 }
 
 /**
@@ -100,6 +134,7 @@ mmap_reader_base::~mmap_reader_base()
  */
 void mmap_reader_base::initialize()
 {
+#if NVWA_UNIX
     struct stat s;
     if (fstat(_M_fd, &s) < 0)
         throw_runtime_error("fstat");
@@ -108,6 +143,31 @@ void mmap_reader_base::initialize()
         throw_runtime_error("mmap");
     _M_mmap_ptr = static_cast<char*>(ptr);
     _M_size = s.st_size;
+#else
+    DWORD file_size_high;
+    DWORD file_size_low = GetFileSize(_M_file_handle, &file_size_high);
+    if (file_size_low == INVALID_FILE_SIZE)
+        throw_runtime_error("GetFileSize");
+    if (file_size_high != 0 || file_size_low >= 0x80000000)
+        throw_runtime_error(
+            "Does not support files that are larger than 2GB on Windows");
+    _M_map_handle = CreateFileMapping(
+            _M_file_handle,
+            NULL,
+            PAGE_READONLY,
+            file_size_high,
+            file_size_low,
+            NULL);
+    if (_M_map_handle == NULL)
+        throw_runtime_error("CreateFileMapping");
+    _M_mmap_ptr = static_cast<char*>(MapViewOfFile(
+            _M_map_handle,
+            FILE_MAP_READ,
+            0,
+            0,
+            file_size_low));
+    _M_size = file_size_low;
+#endif
 }
 
 NVWA_NAMESPACE_END

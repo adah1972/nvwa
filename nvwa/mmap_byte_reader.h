@@ -30,6 +30,7 @@
  * @file  mmap_byte_reader.h
  *
  * Header file for mmap_byte_reader, an easy-to-use byte-based file reader.
+ * It is implemented with memory-mapped file APIs.
  *
  * @date  2017-09-10
  */
@@ -38,8 +39,7 @@
 #define NVWA_MMAP_BYTE_READER_H
 
 #include <assert.h>             // assert
-#include <stddef.h>             // size_t
-#include <unistd.h>             // off_t
+#include <sys/types.h>          // off_t
 #include <iterator>             // std::random_access_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
@@ -56,7 +56,7 @@ public:
     typedef const value_type&  reference;
     typedef const value_type&  const_reference;
     typedef off_t              difference_type;
-    typedef size_t             size_type;
+    typedef off_t              size_type;
 
     /** Iterator over the bytes. */
     class iterator  // implements RandomAccessIterator
@@ -155,11 +155,11 @@ public:
         }
         bool operator<=(const iterator& rhs) const
         {
-            return !(_M_offset > rhs._M_offset);
+            return !operator>(rhs);
         }
         bool operator>=(const iterator& rhs) const
         {
-            return !(_M_offset < rhs._M_offset);
+            return !operator<(rhs);
         }
 
     private:
