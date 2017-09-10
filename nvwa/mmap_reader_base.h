@@ -42,6 +42,7 @@
 #include <sys/types.h>          // off_t
 #include <iterator>             // std::input_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++11.h"              // _DELETED
 
 NVWA_NAMESPACE_BEGIN
 

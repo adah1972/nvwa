@@ -42,6 +42,7 @@
 #include <sys/types.h>          // off_t
 #include <iterator>             // std::random_access_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++11.h"              // _DELETED
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
 
 NVWA_NAMESPACE_BEGIN
