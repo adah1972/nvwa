@@ -29,13 +29,13 @@
 /**
  * @file  mmap_line_reader.cpp
  *
- * Code for mmap_line_reader_base, common base for easy-to-use
- * line-based file readers.
+ * Code for mmap_reader_base, common base for mmap-based file readers.
+ * It is implemented with the POSIX mmap API.
  *
- * @date  2017-09-09
+ * @date  2017-09-10
  */
 
-#include "mmap_line_reader.h"   // mmap_line_reader_base
+#include "mmap_reader_base.h"   // nvwa::mmap_reader_base
 #include <errno.h>              // errno
 #include <fcntl.h>              // open
 #include <stdio.h>              // snprintf
@@ -60,8 +60,6 @@ void throw_runtime_error(const char* reason)
 
 NVWA_NAMESPACE_BEGIN
 
-namespace detail {
-
 /**
  * Constructor.
  *
@@ -69,11 +67,7 @@ namespace detail {
  * @param delimiter  the delimiter between text `lines' (default to LF)
  * @param strip      enumerator about whether to strip the delimiter
  */
-mmap_line_reader_base::mmap_line_reader_base(const char* path,
-                                             char        delimiter,
-                                             strip_type  strip)
-    : _M_delimiter(delimiter)
-    , _M_strip_delimiter(strip == strip_delimiter)
+mmap_reader_base::mmap_reader_base(const char* path)
 {
     _M_fd = open(path, O_RDONLY);
     if (_M_fd < 0)
@@ -88,17 +82,14 @@ mmap_line_reader_base::mmap_line_reader_base(const char* path,
  * @param delimiter  the delimiter between text `lines' (default to LF)
  * @param strip      enumerator about whether to strip the delimiter
  */
-mmap_line_reader_base::mmap_line_reader_base(int fd, char delimiter,
-                                             strip_type strip)
+mmap_reader_base::mmap_reader_base(int fd)
     : _M_fd(fd)
-    , _M_delimiter(delimiter)
-    , _M_strip_delimiter(strip == strip_delimiter)
 {
     initialize();
 }
 
 /** Destructor. */
-mmap_line_reader_base::~mmap_line_reader_base()
+mmap_reader_base::~mmap_reader_base()
 {
     munmap(_M_mmap_ptr, _M_size);
     close(_M_fd);
@@ -107,7 +98,7 @@ mmap_line_reader_base::~mmap_line_reader_base()
 /**
  * Initializes the object.  It gets the file size and mmaps the whole file.
  */
-void mmap_line_reader_base::initialize()
+void mmap_reader_base::initialize()
 {
     struct stat s;
     if (fstat(_M_fd, &s) < 0)
@@ -118,7 +109,5 @@ void mmap_line_reader_base::initialize()
     _M_mmap_ptr = static_cast<char*>(ptr);
     _M_size = s.st_size;
 }
-
-} /* namespace detail */
 
 NVWA_NAMESPACE_END

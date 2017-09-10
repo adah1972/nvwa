@@ -43,6 +43,7 @@
 #include <iterator>             // std::input_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++11.h"              // NVWA_USES_CXX17/_NULLPTR
+#include "mmap_reader_base.h"   // nvwa::mmap_reader_base
 
 #include <string>               // std::string
 #if NVWA_USES_CXX17
@@ -51,41 +52,9 @@
 
 NVWA_NAMESPACE_BEGIN
 
-namespace detail {
-
-class mmap_line_reader_base
-{
-public:
-    /** Enumeration of whether the delimiter should be stripped. */
-    enum strip_type
-    {
-        strip_delimiter,     ///< The delimiter should be stripped
-        no_strip_delimiter,  ///< The delimiter should be retained
-    };
-
-    explicit mmap_line_reader_base(const char* path, char delimiter,
-                                   strip_type strip);
-    explicit mmap_line_reader_base(int fd, char delimiter,
-                                   strip_type strip);
-    ~mmap_line_reader_base();
-
-protected:
-    void initialize();
-
-    int   _M_fd;
-    char  _M_delimiter;
-    bool  _M_strip_delimiter;
-    char* _M_mmap_ptr;
-    off_t _M_size;
-
-private:
-    mmap_line_reader_base(const mmap_line_reader_base&) _DELETED;
-    mmap_line_reader_base& operator=(const mmap_line_reader_base&) _DELETED;
-};
-
 /** Class template to allow iteration over all lines of a mmappable file. */
 template <typename _Tp>
-class basic_mmap_line_reader : public mmap_line_reader_base
+class basic_mmap_line_reader : public mmap_reader_base
 {
 public:
     /** Iterator that contains the line content. */
@@ -140,13 +109,30 @@ public:
         value_type              _M_line;
     };
 
+    /** Enumeration of whether the delimiter should be stripped. */
+    enum strip_type
+    {
+        strip_delimiter,     ///< The delimiter should be stripped
+        no_strip_delimiter,  ///< The delimiter should be retained
+    };
+
     explicit basic_mmap_line_reader(const char* path, char delimiter = '\n',
                                     strip_type strip = strip_delimiter)
-        : mmap_line_reader_base(path, delimiter, strip) {}
+        : mmap_reader_base(path)
+        , _M_delimiter(delimiter)
+        , _M_strip_delimiter(strip == strip_delimiter)
+    {
+    }
     explicit basic_mmap_line_reader(int fd, char delimiter = '\n',
                                     strip_type strip = strip_delimiter)
-        : mmap_line_reader_base(fd, delimiter, strip) {}
-    ~basic_mmap_line_reader() {}
+        : mmap_reader_base(fd)
+        , _M_delimiter(delimiter)
+        , _M_strip_delimiter(strip == strip_delimiter)
+    {
+    }
+    ~basic_mmap_line_reader()
+    {
+    }
 
     iterator begin() { return iterator(this); }
     iterator end() const { return iterator(); }
@@ -156,6 +142,9 @@ public:
 private:
     basic_mmap_line_reader(const basic_mmap_line_reader&) _DELETED;
     basic_mmap_line_reader& operator=(const basic_mmap_line_reader&) _DELETED;
+
+    char  _M_delimiter;
+    bool  _M_strip_delimiter;
 };
 
 /**
@@ -190,11 +179,9 @@ bool basic_mmap_line_reader<_Tp>::read(_Tp& output, off_t& offset)
     return true;
 }
 
-} /* namespace detail */
-
-typedef detail::basic_mmap_line_reader<std::string>      mmap_line_reader;
+typedef basic_mmap_line_reader<std::string>      mmap_line_reader;
 #if NVWA_USES_CXX17
-typedef detail::basic_mmap_line_reader<std::string_view> mmap_line_reader_sv;
+typedef basic_mmap_line_reader<std::string_view> mmap_line_reader_sv;
 #endif
 
 NVWA_NAMESPACE_END
