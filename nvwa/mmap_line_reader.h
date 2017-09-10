@@ -32,7 +32,7 @@
  * Header file for mmap_line_reader and mmap_line_reader_sv, easy-to-use
  * line-based file readers.  It is implemented with the POSIX mmap API.
  *
- * @date  2017-09-09
+ * @date  2017-09-10
  */
 
 #ifndef NVWA_MMAP_LINE_READER_H
@@ -184,9 +184,8 @@ bool basic_mmap_line_reader<_Tp>::read(_Tp& output, off_t& offset)
         }
     }
 
-    output = std::move(
-        _Tp(_M_mmap_ptr + offset,
-            pos - offset - (found_delimiter && _M_strip_delimiter)));
+    output = _Tp(_M_mmap_ptr + offset,
+                 pos - offset - (found_delimiter && _M_strip_delimiter));
     offset = pos;
     return true;
 }
