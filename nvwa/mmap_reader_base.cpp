@@ -32,11 +32,12 @@
  * Code for mmap_reader_base, common base for memory-mapped file readers.
  * It is implemented with POSIX and Win32 APIs.
  *
- * @date  2017-09-10
+ * @date  2017-09-12
  */
 
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
 #include <stdio.h>              // snprintf
+#include <stdint.h>             // SIZE_MAX
 #include <stdexcept>            // std::runtime_error
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++11.h"              // _NULLPTR
@@ -169,6 +170,8 @@ void mmap_reader_base::initialize()
     struct stat s;
     if (fstat(_M_fd, &s) < 0)
         throw_runtime_error("fstat");
+    if (sizeof s.st_size > sizeof(size_t) && s.st_size > SIZE_MAX)
+        throw std::runtime_error("file size is too big");
     void* ptr = mmap(_NULLPTR, s.st_size, PROT_READ, MAP_SHARED, _M_fd, 0);
     if (ptr == MAP_FAILED)
         throw_runtime_error("mmap");
@@ -179,9 +182,16 @@ void mmap_reader_base::initialize()
     DWORD file_size_low = GetFileSize(_M_file_handle, &file_size_high);
     if (file_size_low == INVALID_FILE_SIZE)
         throw_runtime_error("GetFileSize");
-    if (file_size_high != 0 || file_size_low >= 0x80000000)
-        throw_runtime_error(
-            "Does not support files that are larger than 2GB on Windows");
+    if (file_size_high == 0)
+        _M_size = file_size_low;
+    else
+    {
+#ifdef _WIN64
+        _M_size = (SIZE_T(file_size_high) << 32) + file_size_low;
+#else
+        throw std::runtime_error("file size is too big");
+#endif
+    }
     _M_map_handle = CreateFileMapping(
             _M_file_handle,
             NULL,
@@ -196,8 +206,9 @@ void mmap_reader_base::initialize()
             FILE_MAP_READ,
             0,
             0,
-            file_size_low));
-    _M_size = file_size_low;
+            _M_size));
+    if (_M_mmap_ptr == NULL)
+        throw_runtime_error("MapViewOfFile");
 #endif
 }
 

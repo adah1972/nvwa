@@ -39,7 +39,7 @@
 #define NVWA_MMAP_LINE_READER_H
 
 #include <assert.h>             // assert
-#include <sys/types.h>          // off_t
+#include <stddef.h>             // ptrdiff_t/size_t
 #include <iterator>             // std::input_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++11.h"              // NVWA_USES_CXX17/_DELETED/_NULLPTR
@@ -64,7 +64,7 @@ public:
         typedef _Tp                     value_type;
         typedef value_type*             pointer_type;
         typedef value_type&             reference;
-        typedef off_t                   difference_type;
+        typedef ptrdiff_t               difference_type;
         typedef std::input_iterator_tag iterator_category;
 
         iterator() : _M_reader(_NULLPTR) {}
@@ -105,7 +105,7 @@ public:
 
     private:
         basic_mmap_line_reader* _M_reader;
-        off_t                   _M_offset;
+        size_t                  _M_offset;
         value_type              _M_line;
     };
 
@@ -151,7 +151,7 @@ public:
     iterator begin() { return iterator(this); }
     iterator end() const { return iterator(); }
 
-    bool read(_Tp& output, off_t& offset);
+    bool read(_Tp& output, size_t& offset);
 
 private:
     basic_mmap_line_reader(const basic_mmap_line_reader&) _DELETED;
@@ -170,12 +170,12 @@ private:
  *                        otherwise
  */
 template <typename _Tp>
-bool basic_mmap_line_reader<_Tp>::read(_Tp& output, off_t& offset)
+bool basic_mmap_line_reader<_Tp>::read(_Tp& output, size_t& offset)
 {
     if (offset == _M_size)
         return false;
 
-    off_t pos = offset;
+    size_t pos = offset;
     bool found_delimiter = false;
     while (pos < _M_size)
     {

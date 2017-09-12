@@ -32,14 +32,13 @@
  * Header file for mmap_byte_reader, an easy-to-use byte-based file reader.
  * It is implemented with memory-mapped file APIs.
  *
- * @date  2017-09-10
+ * @date  2017-09-12
  */
 
 #ifndef NVWA_MMAP_BYTE_READER_H
 #define NVWA_MMAP_BYTE_READER_H
 
-#include <assert.h>             // assert
-#include <sys/types.h>          // off_t
+#include <stddef.h>             // ptrdiff_t/size_t
 #include <iterator>             // std::random_access_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++11.h"              // _DELETED
@@ -56,8 +55,6 @@ public:
     typedef const value_type*  pointer_type;
     typedef const value_type&  reference;
     typedef const value_type&  const_reference;
-    typedef off_t              difference_type;
-    typedef off_t              size_type;
 
     /** Iterator over the bytes. */
     class iterator  // implements RandomAccessIterator
@@ -67,11 +64,11 @@ public:
         typedef const value_type*               pointer_type;
         typedef const value_type&               reference;
         typedef const value_type&               const_reference;
-        typedef off_t                           difference_type;
+        typedef ptrdiff_t                       difference_type;
         typedef std::random_access_iterator_tag iterator_category;
 
         explicit iterator(const basic_mmap_byte_reader* reader,
-                          off_t offset = 0)
+                          size_t offset = 0)
             : _M_reader(reader)
             , _M_offset(offset)
         {
@@ -165,7 +162,7 @@ public:
 
     private:
         const basic_mmap_byte_reader* _M_reader;
-        off_t                         _M_offset;
+        size_t                        _M_offset;
     };
 
     typedef iterator const_iterator;
@@ -193,9 +190,8 @@ public:
     iterator begin() const { return iterator(this); }
     iterator end() const { return iterator(this, _M_size); }
 
-    reference get(off_t offset) const
+    reference get(size_t offset) const
     {
-        assert(offset >=0 && offset <= _M_size);
         return reinterpret_cast<reference>(_M_mmap_ptr[offset]);
     }
 
