@@ -36,7 +36,6 @@
  */
 
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
-#include <stdio.h>              // snprintf
 #include <stdint.h>             // SIZE_MAX
 #include <stdexcept>            // std::runtime_error
 #include <string>               // std::string
