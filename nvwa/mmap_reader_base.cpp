@@ -32,13 +32,15 @@
  * Code for mmap_reader_base, common base for memory-mapped file readers.
  * It is implemented with POSIX and Win32 APIs.
  *
- * @date  2017-09-12
+ * @date  2017-09-23
  */
 
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
 #include <stdio.h>              // snprintf
 #include <stdint.h>             // SIZE_MAX
 #include <stdexcept>            // std::runtime_error
+#include <string>               // std::string
+#include <system_error>         // std::system_error
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++11.h"              // _NULLPTR
 
@@ -58,27 +60,22 @@
 
 namespace {
 
-void throw_runtime_error(const char* reason)
+void throw_system_error(const char* reason)
 {
-    char msg[80];
+    std::string msg(reason);
+    msg += " failed";
 #if NVWA_UNIX
-    snprintf(msg, sizeof msg, "%s failed: %s", reason, strerror(errno));
+# ifdef _GLIBCXX_SYSTEM_ERROR
+    // Follow GCC/libstdc++ behaviour
+    std::error_code ec(errno, std::generic_category());
+# else
+    std::error_code ec(errno, std::system_category());
+# endif
 #else
-    char buffer[72];
-    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,
-                   NULL,
-                   GetLastError(),
-                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                   buffer,
-                   sizeof buffer,
-                   NULL);
-    int len = snprintf(msg, sizeof msg, "%s failed: %s", reason, buffer);
-    if (len >= sizeof msg)
-        len = sizeof msg - 1;
-    if (msg[len - 1] == '\n')
-        msg[len - 1] = '\0';
+    std::error_code ec(GetLastError(), std::system_category());
 #endif
-    throw std::runtime_error(msg);
+
+    throw std::system_error(ec, msg);
 }
 
 } /* unnamed namespace */
@@ -95,7 +92,7 @@ mmap_reader_base::mmap_reader_base(const char* path)
 #if NVWA_UNIX
     _M_fd = open(path, O_RDONLY);
     if (_M_fd < 0)
-        throw_runtime_error("open");
+        throw_system_error("open");
 #else // NVWA_UNIX
     _M_file_handle = CreateFileA(
             path,
@@ -106,7 +103,7 @@ mmap_reader_base::mmap_reader_base(const char* path)
             FILE_ATTRIBUTE_NORMAL,
             NULL);
     if (_M_file_handle == INVALID_HANDLE_VALUE)
-        throw_runtime_error("CreateFile");
+        throw_system_error("CreateFile");
 #endif // NVWA_UNIX
     initialize();
 }
@@ -128,7 +125,7 @@ mmap_reader_base::mmap_reader_base(const wchar_t* path)
             FILE_ATTRIBUTE_NORMAL,
             NULL);
     if (_M_file_handle == INVALID_HANDLE_VALUE)
-        throw_runtime_error("CreateFile");
+        throw_system_error("CreateFile");
     initialize();
 }
 #endif // NVWA_WINDOWS
@@ -169,19 +166,19 @@ void mmap_reader_base::initialize()
 #if NVWA_UNIX
     struct stat s;
     if (fstat(_M_fd, &s) < 0)
-        throw_runtime_error("fstat");
+        throw_system_error("fstat");
     if (sizeof s.st_size > sizeof(size_t) && s.st_size > SIZE_MAX)
         throw std::runtime_error("file size is too big");
     void* ptr = mmap(_NULLPTR, s.st_size, PROT_READ, MAP_SHARED, _M_fd, 0);
     if (ptr == MAP_FAILED)
-        throw_runtime_error("mmap");
+        throw_system_error("mmap");
     _M_mmap_ptr = static_cast<char*>(ptr);
     _M_size = s.st_size;
 #else
     DWORD file_size_high;
     DWORD file_size_low = GetFileSize(_M_file_handle, &file_size_high);
     if (file_size_low == INVALID_FILE_SIZE)
-        throw_runtime_error("GetFileSize");
+        throw_system_error("GetFileSize");
     if (file_size_high == 0)
         _M_size = file_size_low;
     else
@@ -200,7 +197,7 @@ void mmap_reader_base::initialize()
             file_size_low,
             NULL);
     if (_M_map_handle == NULL)
-        throw_runtime_error("CreateFileMapping");
+        throw_system_error("CreateFileMapping");
     _M_mmap_ptr = static_cast<char*>(MapViewOfFile(
             _M_map_handle,
             FILE_MAP_READ,
@@ -208,7 +205,7 @@ void mmap_reader_base::initialize()
             0,
             _M_size));
     if (_M_mmap_ptr == NULL)
-        throw_runtime_error("MapViewOfFile");
+        throw_system_error("MapViewOfFile");
 #endif
 }
 
