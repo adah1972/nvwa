@@ -32,7 +32,7 @@
  * Code for mmap_reader_base, common base for memory-mapped file readers.
  * It is implemented with POSIX and Win32 APIs.
  *
- * @date  2017-09-23
+ * @date  2017-09-24
  */
 
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
@@ -174,26 +174,23 @@ void mmap_reader_base::initialize()
     _M_mmap_ptr = static_cast<char*>(ptr);
     _M_size = s.st_size;
 #else
-    DWORD file_size_high;
-    DWORD file_size_low = GetFileSize(_M_file_handle, &file_size_high);
-    if (file_size_low == INVALID_FILE_SIZE)
-        throw_system_error("GetFileSize");
-    if (file_size_high == 0)
-        _M_size = file_size_low;
-    else
-    {
+    LARGE_INTEGER file_size;
+    if (!GetFileSizeEx(_M_file_handle, &file_size))
+        throw_system_error("GetFileSizeEx");
 #ifdef _WIN64
-        _M_size = (SIZE_T(file_size_high) << 32) + file_size_low;
+    _M_size = file_size.QuadPart;
 #else
+    if (file_size.HighPart == 0)
+        _M_size = file_size.LowPart;
+    else
         throw std::runtime_error("file size is too big");
 #endif
-    }
     _M_map_handle = CreateFileMapping(
             _M_file_handle,
             NULL,
             PAGE_READONLY,
-            file_size_high,
-            file_size_low,
+            file_size.HighPart,
+            file_size.LowPart,
             NULL);
     if (_M_map_handle == NULL)
         throw_system_error("CreateFileMapping");
