@@ -163,8 +163,8 @@ Contents
 
    This is one of the line reading classes I implemented modelling the
    Python approach.  They make reading lines from a file a simple loop.
-   This specific class allows reading from a traditional FILE*.
-   Cf. istream_line_reader.h and mmap_line_reader.h.
+   This implementation allows reading from a traditional FILE*.
+   Cf. istream_line_reader.h, mmap_byte_reader.h, and mmap_line_reader.h.
    
    See the following blog for the motivation and example code:
 
@@ -202,7 +202,7 @@ Contents
 
    This is one of the line reading classes I implemented modelling the
    Python approach.  They make reading lines from a file a simple loop.
-   This specific class allows reading from an input stream.
+   This implementation allows reading from an input stream.
    Cf. file_line_reader.h and mmap_line_reader.h.
    
    See the following blogs for the motivation and example code:
@@ -216,17 +216,30 @@ Contents
    A class solely to be inherited by memory pool implementations.  It is
    used by static_mem_pool and fixed_mem_pool.
 
-  * mmap_line_reader.cpp
+  * mmap_byte_reader.h
+
+   This file contains the byte reading class template I implemented
+   modelling the Python approach.  It makes reading characters from a
+   file a simple loop.  This implementation uses memory-mapped file I/O.
+   Cf. mmap_line_reader.h.
+
   * mmap_line_reader.h
 
-   This is one of the line reading classes I implemented modelling the
-   Python approach.  They make reading lines from a file a simple loop.
-   This specific class allows reading from an on-disk file via memory-
-   mapped file I/O.  Cf. istream_line_reader.h and file_line_reader.h.
+   This file contains the line reading class template I implemented
+   modelling the Python approach.  It makes reading lines from a file a
+   simple loop.  This implementation uses memory-mapped file I/O.  Cf.
+   istream_line_reader.h, file_line_reader.h, and mmap_byte_reader.h.
    
    See the following blog for the motivation and example code:
 
    https://yongweiwu.wordpress.com/2016/11/12/performance-of-my-line-readers/
+   https://yongweiwu.wordpress.com/2017/09/14/c-cxx-performance-mmap-and-string_view/
+
+  * mmap_reader_base.cpp
+  * mmap_reader_base.h
+
+   A class that wraps the difference of memory-mapped file I/O between
+   Unix and Windows.  It is used by mmap_byte_reader and mmap_line_reader.
 
   * object_level_lock.h
 
