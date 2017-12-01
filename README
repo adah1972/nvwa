@@ -278,16 +278,5 @@ Contents
    tree can be simply done in a range-based for loop.  The test code,
    test/test_tree.cpp, shows its basic usage.
 
-  * type_traits.h
-
-   This file was separated from fc_queue.h.  Type traits were not
-   standardized until C++11, and, in addition, there were late changes
-   in the trait names that did not go into even the 2012 releases of
-   MSVC and GCC.  So I made a nvwa::is_trivially_destructible that can
-   work across main compilers.
-
-   In the post-C++11 world, this is no longer useful.  Use of this file
-   is deprecated.
-
 
 vim:autoindent:expandtab:formatoptions=tcqlm:textwidth=72:
