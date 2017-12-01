@@ -5,8 +5,8 @@ The Name
   Nvwa ("v" is pronounced like the French "u"), is one of the most
   ancient Chinese goddesses.  She was said to have created human beings,
   and, when the evil god Gong-gong crashed himself upon one of the
-  pillars that support the sky and made a hole in it, she mended the sky
-  with five-coloured stones.
+  pillars that supported the sky and made a hole in it, she mended the
+  sky with five-coloured stones.
 
   I thought of the name Nvwa by analogy with Loki.  Since it is so small
   a project and it contains utilities instead of a complete framework, I
@@ -17,27 +17,25 @@ Code Organization
 
   Nvwa versions prior to 1.0 did not use a namespace.  It looked to me
   overkill to use a namespace in this small project.  However, having
-  had more project experience and seen more good examples, I have
-  changed my mind.  All nvwa functions and global variables are now
-  inside the namespace "nvwa".
+  had more project experience and seen more good examples, I changed my
+  mind.  All nvwa functions and global variables were moved into the
+  namespace "nvwa".
 
-  This said, I do not want to break backward compatibility abruptly.
+  This said, I did not want to break backward compatibility abruptly.
   First, people are still able to disable the namespace by defining the
   macro NVWA_USE_NAMESPACE to 0 (not really recommended, though).
-  Second, I still use the quotation mark (") to include header files
+  Second, I still used the quotation mark (") to include header files
   internally so that old users do not have to change the include
   directory (again, not recommended and intended to help the transition
-  only).  Third, I have not changed most of the macro names -- that
-  would break existing code and could do more harm than good now.  In
+  only).  Third, I did not change most of the macro names -- that would
+  break existing code and could do more harm than good now.  In
   addition, I am not a fan of macro prefixes anyway.
 
-  Overall, I am quite happy with the changes: some code is simplified,
-  and in many cases I do not have to use the uglified names to avoid
-  potential name conflicts.  The changes also do not mean anything to
-  new users.  You just need to follow the modern C++ way.  You should
-  add the root directory of this project to your include directory
-  (there should be a "nvwa" directory inside it with the source files).
-  To include the header file, use "#include <nvwa/...>".
+  The changes do not mean anything to new users.  You just need to
+  follow the modern C++ way.  You should add the root directory of this
+  project to your include directory (there should be a "nvwa" directory
+  inside it with the source files).  To include the header file, use
+  "#include <nvwa/...>".
 
 
 Contents
