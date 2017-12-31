@@ -256,6 +256,17 @@ Contents
    (+) and set_difference (-) algorithms but no corresponding += and -=
    operations available.
 
+  * split.h
+
+   Implementation of a split routine that allows efficient and lazy
+   split of a string (or string_view).  It takes advantage of the C++17
+   string_view, and the split result can be either used on the fly or
+   returned as a vector.
+
+   While the ranges library provides a similar function, it does not yet
+   use string_view, and compiling with ranges is typically much slower
+   -- of course, it is much more powerful as well.
+
   * static_mem_pool.cpp
   * static_mem_pool.h
 
