@@ -170,9 +170,9 @@ BOOST_AUTO_TEST_CASE(functional_test)
 {
     Obj guard(99);  // special guard
 
-    nvwa::optional<int> nothing;
-    auto r1 = nvwa::apply(increase, nothing);
-    auto r2 = nvwa::apply(increase, nvwa::make_optional(41));
+    constexpr nvwa::optional<int> nothing;
+    constexpr auto r1 = nvwa::apply(increase, nothing);
+    constexpr auto r2 = nvwa::apply(increase, nvwa::make_optional(41));
     BOOST_CHECK(!r1.has_value());
     BOOST_CHECK(r2.has_value() && r2.value() == 42);
     auto r3 = r2;
@@ -208,14 +208,13 @@ BOOST_AUTO_TEST_CASE(functional_test)
     BOOST_CHECK(p2.has_value());
     BOOST_CHECK(p2->get() != nullptr);
     BOOST_CHECK_EQUAL(**p2, 45);
-    BOOST_CHECK(p1.has_value());
-    BOOST_CHECK(p1->get() == nullptr);
+    BOOST_CHECK(!p1.has_value());
     BOOST_CHECK(noexcept(swap(std::declval<std::unique_ptr<int>&>(),
                               std::declval<std::unique_ptr<int>&>())));
     BOOST_CHECK(noexcept(swap(p1, p2)));
     swap(p1, p2);
     BOOST_CHECK(p1->get() != nullptr && **p1 == 45);
-    BOOST_CHECK(p2->get() == nullptr);
+    BOOST_CHECK(!p2.has_value());
 
     using namespace nvwa;
     BOOST_CHECK(noexcept(

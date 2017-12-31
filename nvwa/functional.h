@@ -32,12 +32,13 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2017-09-08
+ * @date  2017-12-31
  */
 
 #ifndef NVWA_FUNCTIONAL_H
 #define NVWA_FUNCTIONAL_H
 
+#include <cassert>              // assert
 #include <functional>           // std::function
 #include <iterator>             // std::begin/iterator_traits
 #include <memory>               // std::allocator
@@ -231,6 +232,106 @@ public:
         : std::logic_error("optional has no valid value now") {}
 };
 
+template <typename _Tp, bool = std::is_trivially_destructible<_Tp>::value>
+class optional_base;
+
+template <typename _Tp>
+class optional_base<_Tp, false>
+{
+public:
+    typedef _Tp value_type;
+
+    constexpr optional_base() : _M_dummy(), _M_engaged(false) {}
+    constexpr explicit optional_base(const _Tp& x)
+        : _M_value(x)
+        , _M_engaged(true)
+    {}
+    constexpr explicit optional_base(_Tp&& x) noexcept
+        : _M_value(std::move(x))
+        , _M_engaged(true)
+    {}
+    constexpr optional_base(const optional_base& rhs)
+        : _M_engaged(rhs._M_engaged)
+    {
+        if (rhs._M_engaged)
+            new(&_M_value) _Tp(rhs._M_value);
+    }
+    constexpr optional_base(optional_base&& rhs) noexcept
+        : _M_engaged(rhs._M_engaged)
+    {
+        if (rhs._M_engaged)
+        {
+            new(&_M_value) _Tp(std::move(rhs._M_value));
+            rhs.reset();
+        }
+    }
+    ~optional_base()
+    {
+        if (_M_engaged)
+            _M_value.~_Tp();
+    }
+    void reset() noexcept
+    {
+        if (_M_engaged)
+        {
+            _M_value.~_Tp();
+            _M_engaged = false;
+        }
+    }
+
+protected:
+    union
+    {
+        char       _M_dummy;
+        value_type _M_value;
+    };
+    bool _M_engaged;
+};
+
+template <typename _Tp>
+class optional_base<_Tp, true>
+{
+public:
+    typedef _Tp value_type;
+
+    constexpr optional_base() : _M_dummy(), _M_engaged(false) {}
+    constexpr explicit optional_base(const _Tp& x)
+        : _M_value(x)
+        , _M_engaged(true)
+    {}
+    constexpr explicit optional_base(_Tp&& x) noexcept
+        : _M_value(std::move(x))
+        , _M_engaged(true)
+    {}
+    constexpr optional_base(const optional_base& rhs)
+        : _M_engaged(rhs._M_engaged)
+    {
+        if (rhs._M_engaged)
+            new(&_M_value) _Tp(rhs._M_value);
+    }
+    constexpr optional_base(optional_base&& rhs) noexcept
+        : _M_engaged(rhs._M_engaged)
+    {
+        if (rhs._M_engaged)
+        {
+            new(&_M_value) _Tp(std::move(rhs._M_value));
+            rhs.reset();
+        }
+    }
+    void reset() noexcept
+    {
+        _M_engaged = false;
+    }
+
+protected:
+    union
+    {
+        char _M_dummy;
+        value_type _M_value;
+    };
+    bool _M_engaged;
+};
+
 /**
  * Class for optional values.  It was initially modelled after the Maybe
  * type in Haskell, but the interface was later changed to be more like
@@ -239,135 +340,110 @@ public:
  * @param _Tp  the optional type to store
  */
 template <typename _Tp>
-class optional
+class optional : public optional_base<_Tp>
 {
 public:
     static_assert(std::is_nothrow_destructible<_Tp>::value,
                   "optional type must be nothrow destructible");
 
-    optional() noexcept : _M_pointer(nullptr) {}
-    optional(const optional& rhs)
-    {
-        if (rhs._M_pointer)
-            _M_pointer = new(_M_value) _Tp(*rhs);
-        else
-            _M_pointer = nullptr;
-    }
-    optional(optional&& rhs) noexcept(
+    constexpr optional() noexcept {}
+    constexpr optional(const optional& rhs) : optional_base<_Tp>(rhs) {}
+    constexpr optional(optional&& rhs) noexcept(
         std::is_nothrow_move_constructible<_Tp>::value)
-    {
-        if (rhs._M_pointer)
-            _M_pointer = new(_M_value) _Tp(std::move(*rhs));
-        else
-            _M_pointer = nullptr;
-    }
-    optional(const _Tp& x)
-    {
-        _M_pointer = new(_M_value) _Tp(x);
-    }
-    optional(_Tp&& x) noexcept(
+        : optional_base<_Tp>(std::move(rhs))
+    {}
+    constexpr optional(const _Tp& x) : optional_base<_Tp>(x) {}
+    constexpr optional(_Tp&& x) noexcept(
         std::is_nothrow_move_constructible<_Tp>::value)
-    {
-        _M_pointer = new(_M_value) _Tp(std::move(x));
-    }
-    ~optional() noexcept
-    {
-        if (_M_pointer)
-            destroy(_M_pointer);
-    }
-
+        : optional_base<_Tp>(std::move(x))
+    {}
     optional& operator=(const optional& rhs)
     {
-        if (has_value() && rhs.has_value())
-            *_M_pointer = *rhs._M_pointer;
-        else
-        {
-            optional temp(rhs);
-            swap(temp);
-        }
+        using std::swap;
+        optional temp(rhs);
+        swap(*this, temp);
         return *this;
     }
     optional& operator=(optional&& rhs) noexcept(
         std::is_nothrow_move_assignable<_Tp>::value &&
         std::is_nothrow_move_constructible<_Tp>::value)
     {
-        if (has_value() && rhs.has_value())
-            *_M_pointer = std::move(*rhs._M_pointer);
-        else
-        {
-            optional temp(std::move(rhs));
-            swap(temp);
-        }
+        using std::swap;
+        optional temp(std::move(rhs));
+        swap(*this, temp);
         return *this;
     }
 
     constexpr _Tp* operator->()
     {
-        return _M_pointer;
+        assert(this->_M_engaged);
+        return &this->_M_value;
     }
     constexpr const _Tp* operator->() const
     {
-        return _M_pointer;
+        assert(this->_M_engaged);
+        return &this->_M_value;
     }
     constexpr _Tp& operator*() &
     {
-        return *_M_pointer;
+        assert(this->_M_engaged);
+        return this->_M_value;
     }
     constexpr const _Tp& operator*() const&
     {
-        return *_M_pointer;
+        assert(this->_M_engaged);
+        return this->_M_value;
     }
     constexpr _Tp&& operator*() &&
     {
-        return std::move(*_M_pointer);
+        assert(this->_M_engaged);
+        return std::move(this->_M_value);
     }
 
-    bool has_value() const noexcept { return _M_pointer != nullptr; }
+    constexpr bool has_value() const noexcept
+    {
+        return this->_M_engaged;
+    }
 
-    _Tp& value() &
+    constexpr _Tp& value() &
     {
-        if (!_M_pointer)
+        if (this->_M_engaged)
+            return this->_M_value;
+        else
             throw bad_optional_access();
-        return *_M_pointer;
     }
-    const _Tp& value() const&
+    constexpr const _Tp& value() const&
     {
-        if (!_M_pointer)
+        if (this->_M_engaged)
+            return this->_M_value;
+        else
             throw bad_optional_access();
-        return *_M_pointer;
     }
-    _Tp&& value() &&
+    constexpr _Tp&& value() &&
     {
-        if (!_M_pointer)
+        if (this->_M_engaged)
+            return std::move(this->_M_value);
+        else
             throw bad_optional_access();
-        return std::move(*_M_pointer);
     }
 
     template <typename _Up>
-    _Tp value_or(_Up&& default_value) const&
+    constexpr _Tp value_or(_Up&& default_value) const&
     {
-        if (_M_pointer)
-            return operator*();
+        if (this->_M_engaged)
+            return this->_M_value;
         else
             return default_value;
     }
     template <typename _Up>
-    _Tp value_or(_Up&& default_value) &&
+    constexpr _Tp value_or(_Up&& default_value) &&
     {
-        if (_M_pointer)
-            return operator*();
+        if (this->_M_engaged)
+            return std::move(this->_M_value);
         else
             return default_value;
     }
 
-    void reset() noexcept
-    {
-        if (_M_pointer)
-        {
-            destroy(_M_pointer);
-            _M_pointer = nullptr;
-        }
-    }
     void swap(optional& rhs) noexcept(
         std::is_nothrow_move_constructible<_Tp>::value &&
         noexcept(detail::adl_swap(std::declval<_Tp&>(),
@@ -377,45 +453,24 @@ public:
         if (has_value())
         {
             if (rhs.has_value())
-                swap(*_M_pointer, *rhs);
+                swap(this->_M_value, rhs._M_value);
             else
-            {
-                rhs._M_pointer =
-                    new(rhs._M_value) _Tp(std::move(*_M_pointer));
-                reset();
-            }
+                new(&rhs) optional(std::move(*this));
         }
         else
         {
             if (rhs.has_value())
-            {
-                _M_pointer = new(_M_value) _Tp(std::move(*rhs));
-                rhs.reset();
-            }
+                new(this) optional(std::move(rhs));
         }
     }
     template <typename... _Targs>
     void emplace(_Targs&&... args)
     {
-        reset();
-        _M_pointer =
-            new(_M_value) _Tp(std::forward<decltype(args)>(args)...);
+        this->reset();
+        new (&this->_M_value)
+            _Tp(std::forward<decltype(args)>(args)...);
+        this->_M_engaged = true;
     }
-
-private:
-    void destroy(_Tp* ptr) noexcept
-    {
-        _M_destroy(ptr, std::is_trivially_destructible<_Tp>());
-    }
-    void _M_destroy(_Tp*, std::true_type)
-    {}
-    void _M_destroy(_Tp* ptr, std::false_type)
-    {
-        ptr->~_Tp();
-    }
-
-    _Tp* _M_pointer;
-    char _M_value[sizeof(_Tp)];
 };
 
 template <typename _Tp>
