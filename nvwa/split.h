@@ -27,7 +27,7 @@
  */
 
 /**
- * @file  split_iter.h
+ * @file  split.h
  *
  * Header file for an efficient, lazy split function, when using ranges
  * seems an overkill.
@@ -39,7 +39,7 @@
  * }
  * @endcode
  *
- * @date  2017-12-30
+ * @date  2017-12-31
  */
 
 #ifndef NVWA_SPLIT_H
@@ -47,7 +47,9 @@
 
 #include <assert.h>             // assert
 #include <iterator>             // std::input_iterator_tag
+#include <string>               // std::basic_string
 #include <string_view>          // std::basic_string_view
+#include <vector>               // std::vector
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
 NVWA_NAMESPACE_BEGIN
@@ -148,6 +150,7 @@ public:
         , _M_delimiter(delimiter)
     {
     }
+
     iterator begin() const
     {
         return iterator(_M_src, _M_delimiter);
@@ -155,6 +158,21 @@ public:
     constexpr iterator end() const noexcept
     {
         return iterator();
+    }
+
+    std::vector<std::basic_string<_Char>> to_vector() const
+    {
+        std::vector<std::basic_string<_Char>> result;
+        for (const auto& sv : *this)
+            result.emplace_back(sv);
+        return result;
+    }
+    std::vector<std::basic_string_view<_Char>> to_vector_sv() const
+    {
+        std::vector<std::basic_string_view<_Char>> result;
+        for (const auto& sv : *this)
+            result.push_back(sv);
+        return result;
     }
 
 private:
