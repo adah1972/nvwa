@@ -58,7 +58,7 @@ NVWA_NAMESPACE_BEGIN
  * Class to allow iteration over split items from the input.
  *
  * @param _StringType     either string or string_view (or something similar)
- * @param _DelimiterType  the same type of \a _StringType or its character
+ * @param _DelimiterType  the same type as \a _StringType or its character
  *                        type (other types may cause unpredictable results)
  */
 template <typename _StringType, typename _DelimiterType>
@@ -206,7 +206,8 @@ private:
 };
 
 /**
- * Splits a string (or string_view) into lazy views.
+ * Splits a string (or string_view) into lazy views.  The source input shall
+ * remain unchanged when the generated basic_split_view is used in anyway.
  *
  * @param src        the source input to be split
  * @param delimiter  delimiter used to split \a src; its type should be
