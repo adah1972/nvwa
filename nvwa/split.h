@@ -55,9 +55,12 @@
 NVWA_NAMESPACE_BEGIN
 
 /** Class to allow iteration over split items from the input. */
-template <typename _CharContainer, typename _Char>
+template <typename _StringType>
 class basic_split_view {
 public:
+    typedef _StringType                      string_type;
+    typedef typename string_type::value_type char_type;
+
     /**
      * Iterator over the split items.
      *
@@ -66,19 +69,19 @@ public:
     class iterator  // implements InputIterator
     {
     public:
-        typedef int                           difference_type;
-        typedef std::basic_string_view<_Char> value_type;
-        typedef value_type*                   pointer_type;
-        typedef value_type&                   reference;
-        typedef std::input_iterator_tag       iterator_category;
+        typedef int                               difference_type;
+        typedef std::basic_string_view<char_type> value_type;
+        typedef value_type*                       pointer_type;
+        typedef value_type&                       reference;
+        typedef std::input_iterator_tag           iterator_category;
 
         constexpr iterator() noexcept
             : _M_src(nullptr)
-            , _M_pos(_CharContainer::npos)
+            , _M_pos(string_type::npos)
             , _M_delimiter('\0')
         {
         }
-        explicit iterator(const _CharContainer& src, _Char delimiter)
+        explicit iterator(const string_type& src, char_type delimiter)
             : _M_src(&src)
             , _M_pos(0)
             , _M_delimiter(delimiter)
@@ -99,7 +102,7 @@ public:
         iterator& operator++()
         {
             assert(_M_src != nullptr);
-            if (_M_pos == _CharContainer::npos)
+            if (_M_pos == string_type::npos)
             {
                 _M_src = nullptr;
             }
@@ -107,14 +110,14 @@ public:
             {
                 size_t last_pos = _M_pos;
                 _M_pos = _M_src->find(_M_delimiter, _M_pos);
-                if (_M_pos != _CharContainer::npos)
+                if (_M_pos != string_type::npos)
                 {
-                    _M_cur = std::basic_string_view<_Char>(
+                    _M_cur = std::basic_string_view<char_type>(
                         _M_src->data() + last_pos, _M_pos - last_pos);
                     ++_M_pos;
                 }
                 else
-                    _M_cur = std::basic_string_view<_Char>(
+                    _M_cur = std::basic_string_view<char_type>(
                         _M_src->data() + last_pos,
                         _M_src->size() - last_pos);
             }
@@ -138,14 +141,14 @@ public:
         }
 
     private:
-        const _CharContainer* _M_src;
-        size_t                _M_pos;
-        value_type            _M_cur;
-        _Char                 _M_delimiter;
+        const string_type* _M_src;
+        size_t             _M_pos;
+        value_type         _M_cur;
+        char_type          _M_delimiter;
     };
 
-    constexpr explicit basic_split_view(const _CharContainer& src,
-                                        _Char delimiter) noexcept
+    constexpr explicit basic_split_view(const string_type& src,
+                                        char_type delimiter) noexcept
         : _M_src(src)
         , _M_delimiter(delimiter)
     {
@@ -160,31 +163,32 @@ public:
         return iterator();
     }
 
-    std::vector<std::basic_string<_Char>> to_vector() const
+    std::vector<std::basic_string<char_type>> to_vector() const
     {
-        std::vector<std::basic_string<_Char>> result;
+        std::vector<std::basic_string<char_type>> result;
         for (const auto& sv : *this)
             result.emplace_back(sv);
         return result;
     }
-    std::vector<std::basic_string_view<_Char>> to_vector_sv() const
+    std::vector<std::basic_string_view<char_type>> to_vector_sv() const
     {
-        std::vector<std::basic_string_view<_Char>> result;
+        std::vector<std::basic_string_view<char_type>> result;
         for (const auto& sv : *this)
             result.push_back(sv);
         return result;
     }
 
 private:
-    const _CharContainer& _M_src;
-    _Char                 _M_delimiter;
+    const _StringType& _M_src;
+    char_type          _M_delimiter;
 };
 
-template <typename _CharContainer, typename _Char>
-constexpr basic_split_view<_CharContainer, _Char>
-split(const _CharContainer& src, _Char delimiter) noexcept
+template <typename _StringType>
+constexpr basic_split_view<_StringType>
+split(const _StringType& src,
+      typename _StringType::value_type delimiter) noexcept
 {
-    return basic_split_view<_CharContainer, _Char>(src, delimiter);
+    return basic_split_view<_StringType>(src, delimiter);
 }
 
 NVWA_NAMESPACE_END
