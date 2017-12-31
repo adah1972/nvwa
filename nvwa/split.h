@@ -55,10 +55,11 @@
 NVWA_NAMESPACE_BEGIN
 
 /** Class to allow iteration over split items from the input. */
-template <typename _StringType>
+template <typename _StringType, typename _DelimiterType>
 class basic_split_view {
 public:
     typedef _StringType                      string_type;
+    typedef _DelimiterType                   delimiter_type;
     typedef typename string_type::value_type char_type;
 
     /**
@@ -78,10 +79,10 @@ public:
         constexpr iterator() noexcept
             : _M_src(nullptr)
             , _M_pos(string_type::npos)
-            , _M_delimiter('\0')
+            , _M_delimiter(delimiter_type())
         {
         }
-        explicit iterator(const string_type& src, char_type delimiter)
+        explicit iterator(const string_type& src, delimiter_type delimiter)
             : _M_src(&src)
             , _M_pos(0)
             , _M_delimiter(delimiter)
@@ -108,13 +109,19 @@ public:
             }
             else
             {
-                size_t last_pos = _M_pos;
+                auto last_pos = _M_pos;
                 _M_pos = _M_src->find(_M_delimiter, _M_pos);
                 if (_M_pos != string_type::npos)
                 {
                     _M_cur = std::basic_string_view<char_type>(
                         _M_src->data() + last_pos, _M_pos - last_pos);
-                    ++_M_pos;
+
+                    // Hack: typeid(delimiter_type) == typeid(char_type)) is
+                    // really wanted, but not valid as of C++17
+                    if constexpr (sizeof(delimiter_type) == sizeof(char_type))
+                        ++_M_pos;
+                    else
+                        _M_pos += _M_delimiter.size();
                 }
                 else
                     _M_cur = std::basic_string_view<char_type>(
@@ -141,14 +148,14 @@ public:
         }
 
     private:
-        const string_type* _M_src;
-        size_t             _M_pos;
-        value_type         _M_cur;
-        char_type          _M_delimiter;
+        const string_type*              _M_src;
+        typename string_type::size_type _M_pos;
+        value_type                      _M_cur;
+        delimiter_type                  _M_delimiter;
     };
 
     constexpr explicit basic_split_view(const string_type& src,
-                                        char_type delimiter) noexcept
+                                        delimiter_type delimiter) noexcept
         : _M_src(src)
         , _M_delimiter(delimiter)
     {
@@ -179,16 +186,15 @@ public:
     }
 
 private:
-    const _StringType& _M_src;
-    char_type          _M_delimiter;
+    const string_type& _M_src;
+    delimiter_type     _M_delimiter;
 };
 
-template <typename _StringType>
-constexpr basic_split_view<_StringType>
-split(const _StringType& src,
-      typename _StringType::value_type delimiter) noexcept
+template <typename _StringType, typename _DelimiterType>
+constexpr basic_split_view<_StringType, _DelimiterType>
+split(const _StringType& src, _DelimiterType delimiter) noexcept
 {
-    return basic_split_view<_StringType>(src, delimiter);
+    return basic_split_view<_StringType, _DelimiterType>(src, delimiter);
 }
 
 NVWA_NAMESPACE_END
