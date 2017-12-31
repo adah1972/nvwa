@@ -54,7 +54,13 @@
 
 NVWA_NAMESPACE_BEGIN
 
-/** Class to allow iteration over split items from the input. */
+/**
+ * Class to allow iteration over split items from the input.
+ *
+ * @param _StringType     either string or string_view (or something similar)
+ * @param _DelimiterType  the same type of \a _StringType or its character
+ *                        type (other types may cause unpredictable results)
+ */
 template <typename _StringType, typename _DelimiterType>
 class basic_split_view {
 public:
@@ -154,6 +160,13 @@ public:
         delimiter_type                  _M_delimiter;
     };
 
+    /**
+     * Constructor.
+     *
+     * @param src        the source input to be split
+     * @param delimiter  delimiter used to split \a src; its type should be
+     *                   the same as that of \a src, or its character type
+     */
     constexpr explicit basic_split_view(const string_type& src,
                                         delimiter_type delimiter) noexcept
         : _M_src(src)
@@ -170,6 +183,7 @@ public:
         return iterator();
     }
 
+    /** Converts the view to a string vector. */
     std::vector<std::basic_string<char_type>> to_vector() const
     {
         std::vector<std::basic_string<char_type>> result;
@@ -177,6 +191,7 @@ public:
             result.emplace_back(sv);
         return result;
     }
+    /** Converts the view to a string_view vector. **/
     std::vector<std::basic_string_view<char_type>> to_vector_sv() const
     {
         std::vector<std::basic_string_view<char_type>> result;
@@ -190,6 +205,13 @@ private:
     delimiter_type     _M_delimiter;
 };
 
+/**
+ * Splits a string (or string_view) into lazy views.
+ *
+ * @param src        the source input to be split
+ * @param delimiter  delimiter used to split \a src; its type should be
+ *                   the same as that of \a src, or its character type
+ */
 template <typename _StringType, typename _DelimiterType>
 constexpr basic_split_view<_StringType, _DelimiterType>
 split(const _StringType& src, _DelimiterType delimiter) noexcept

@@ -92,8 +92,12 @@ INPUT                  = ../nvwa/_nvwa.h \
                          ../nvwa/istream_line_reader.h \
                          ../nvwa/file_line_reader.h \
                          ../nvwa/file_line_reader.cpp \
+                         ../nvwa/mmap_byte_reader.h \
                          ../nvwa/mmap_line_reader.h \
                          ../nvwa/mmap_line_reader.cpp \
+                         ../nvwa/mmap_reader_base.h \
+                         ../nvwa/mmap_reader_base.cpp \
+                         ../nvwa/split.h \
                          ../nvwa/tree.h \
                          ../nvwa/functional.h
 INPUT_ENCODING         = UTF-8
