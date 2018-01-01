@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2014-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2014-2018 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2017-12-31
+ * @date  2018-01-01
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -342,9 +342,14 @@ protected:
 template <typename _Tp>
 class optional : public optional_base<_Tp>
 {
-public:
     static_assert(std::is_nothrow_destructible<_Tp>::value,
                   "optional type must be nothrow destructible");
+
+    using optional_base<_Tp>::_M_value;
+    using optional_base<_Tp>::_M_engaged;
+
+public:
+    using optional_base<_Tp>::reset;
 
     constexpr optional() noexcept {}
     constexpr optional(const optional& rhs) : optional_base<_Tp>(rhs) {}
@@ -376,53 +381,53 @@ public:
 
     constexpr _Tp* operator->()
     {
-        assert(this->_M_engaged);
-        return &this->_M_value;
+        assert(_M_engaged);
+        return &_M_value;
     }
     constexpr const _Tp* operator->() const
     {
-        assert(this->_M_engaged);
-        return &this->_M_value;
+        assert(_M_engaged);
+        return &_M_value;
     }
     constexpr _Tp& operator*() &
     {
-        assert(this->_M_engaged);
-        return this->_M_value;
+        assert(_M_engaged);
+        return _M_value;
     }
     constexpr const _Tp& operator*() const&
     {
-        assert(this->_M_engaged);
-        return this->_M_value;
+        assert(_M_engaged);
+        return _M_value;
     }
     constexpr _Tp&& operator*() &&
     {
-        assert(this->_M_engaged);
-        return std::move(this->_M_value);
+        assert(_M_engaged);
+        return std::move(_M_value);
     }
 
     constexpr bool has_value() const noexcept
     {
-        return this->_M_engaged;
+        return _M_engaged;
     }
 
     constexpr _Tp& value() &
     {
-        if (this->_M_engaged)
-            return this->_M_value;
+        if (_M_engaged)
+            return _M_value;
         else
             throw bad_optional_access();
     }
     constexpr const _Tp& value() const&
     {
-        if (this->_M_engaged)
-            return this->_M_value;
+        if (_M_engaged)
+            return _M_value;
         else
             throw bad_optional_access();
     }
     constexpr _Tp&& value() &&
     {
-        if (this->_M_engaged)
-            return std::move(this->_M_value);
+        if (_M_engaged)
+            return std::move(_M_value);
         else
             throw bad_optional_access();
     }
@@ -430,16 +435,16 @@ public:
     template <typename _Up>
     constexpr _Tp value_or(_Up&& default_value) const&
     {
-        if (this->_M_engaged)
-            return this->_M_value;
+        if (_M_engaged)
+            return _M_value;
         else
             return default_value;
     }
     template <typename _Up>
     constexpr _Tp value_or(_Up&& default_value) &&
     {
-        if (this->_M_engaged)
-            return std::move(this->_M_value);
+        if (_M_engaged)
+            return std::move(_M_value);
         else
             return default_value;
     }
@@ -453,7 +458,7 @@ public:
         if (has_value())
         {
             if (rhs.has_value())
-                swap(this->_M_value, rhs._M_value);
+                swap(_M_value, rhs._M_value);
             else
                 new(&rhs) optional(std::move(*this));
         }
@@ -466,10 +471,9 @@ public:
     template <typename... _Targs>
     void emplace(_Targs&&... args)
     {
-        this->reset();
-        new (&this->_M_value)
-            _Tp(std::forward<decltype(args)>(args)...);
-        this->_M_engaged = true;
+        reset();
+        new (&_M_value) _Tp(std::forward<decltype(args)>(args)...);
+        _M_engaged = true;
     }
 };
 
