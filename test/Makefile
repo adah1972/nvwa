@@ -36,7 +36,7 @@ LD  = $(CXX) $(CXXFLAGS) $(TARGET_ARCH)
 
 INCLUDE  = -I..
 CFLAGS   = -W -Wall -Wfatal-errors
-CXXFLAGS = -std=c++14 $(CFLAGS)
+CXXFLAGS = -std=c++1z $(CFLAGS)
 CPPFLAGS = -D_DEBUG -DBOOST_TEST_DYN_LINK $(INCLUDE)
 VPATH    = ../nvwa
 
