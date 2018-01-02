@@ -2,7 +2,7 @@
 
 The Name
 
-  Nvwa ("v" is pronounced like the French "u"), is one of the most
+  Nvwa ("v" is pronounced like the French "u") is one of the most
   ancient Chinese goddesses.  She was said to have created human beings,
   and, when the evil god Gong-gong crashed himself upon one of the
   pillars that supported the sky and made a hole in it, she mended the
@@ -57,8 +57,8 @@ Contents
    Detection macros for certain features of C++11 that might be of
    interest to code/library writers.  I have used existing online
    resources, and I have tested them on popular platforms and compilers
-   that I have access to (Windows, OS X, and Linux; MSVC, Clang, and
-   GCC), but of course not all versions or all combinations.  Patches
+   that I have access to (Windows, Linux, and macOS; MSVC, GCC, and
+   Clang), but of course not all versions or all combinations.  Patches
    are welcome for corrections and amendments.
 
   * class_level_lock.h
@@ -66,9 +66,7 @@ Contents
    The Loki ClassLevelLockable adapted to use the fast_mutex layer.  One
    minor divergence from Loki is that the template has an additional
    template parameter _RealLock to boost the performance in non-locking
-   scenarios.  Unless HAVE_CLASS_TEMPLATE_PARTIAL_SPECIALIZATION is
-   explicitly defined to 0, this is enabled automatically.  Cf.
-   object_level_lock.h.
+   scenarios.  Cf. object_level_lock.h.
 
   * cont_ptr_utils.h
 
@@ -98,13 +96,14 @@ Contents
    converted with addr2line (or atos on a Mac) on the fly.  This makes
    memory tracing much easier.
 
-   NOTE for Mac OS X users: If you use OS X 10.7 or later, you may need
-   to add "-Wl,-no_pie" at the end of the command line.  By default OS X
-   will now create position-independent executables (PIE), and the OS
-   will load a PIE at a random address each time it is executed, making
-   it difficult to convert the address to symbols.  (I Googled a while
-   for a way to get the base address of a process, but could not find
-   working code.  If you know how to do it right, drop me a message.)
+   NOTE for macOS users: Unless you were still using Snow Leopard or
+   earlier, you would need to add "-Wl,-no_pie" at the end of the
+   command line.  By default macOS will now create position-independent
+   executables (PIE), and the OS will load a PIE at a random address
+   each time it is executed, making it difficult to convert the address
+   to symbols.  (I Googled a while for a way to get the base address of
+   a process, but could not find working code.  If you know how to do it
+   right, drop me a message.)
 
    With an idea from Greg Herlihy's post in comp.lang.c++.moderated, the
    implementation was much improved in 2007.  The most significant
@@ -166,7 +165,7 @@ Contents
    
    See the following blog for the motivation and example code:
 
-   https://yongweiwu.wordpress.com/2016/11/12/performance-of-my-line-readers/
+   https://tinyurl.com/cpp-line-readers
 
   * fixed_mem_pool.h
 
@@ -191,10 +190,10 @@ Contents
    
    My blogs on functional programming may be helpful:
 
-   https://yongweiwu.wordpress.com/2014/12/07/study-notes-functional-programming-with-cplusplus/
-   https://yongweiwu.wordpress.com/2014/12/14/y-combinator-and-cplusplus/
-   https://yongweiwu.wordpress.com/2014/12/29/type-deduction-and-my-reference-mistakes/
-   https://yongweiwu.wordpress.com/2015/01/03/generic-lambdas-and-the-compose-function/
+   https://tinyurl.com/cpp-functional-notes
+   https://tinyurl.com/cpp-y-combinator
+   https://tinyurl.com/cpp-type-deduction
+   https://tinyurl.com/generic-lambdas-compose
 
   * istream_line_reader.h
 
@@ -205,8 +204,8 @@ Contents
    
    See the following blogs for the motivation and example code:
 
-   https://yongweiwu.wordpress.com/2016/08/16/python-yield-and-cplusplus-coroutines/
-   https://yongweiwu.wordpress.com/2016/11/12/performance-of-my-line-readers/
+   https://tinyurl.com/cpp-coroutines
+   https://tinyurl.com/cpp-line-readers
 
   * mem_pool_base.cpp
   * mem_pool_base.h
@@ -228,10 +227,10 @@ Contents
    simple loop.  This implementation uses memory-mapped file I/O.  Cf.
    istream_line_reader.h, file_line_reader.h, and mmap_byte_reader.h.
    
-   See the following blog for the motivation and example code:
+   See the following blogs for the motivation and example code:
 
-   https://yongweiwu.wordpress.com/2016/11/12/performance-of-my-line-readers/
-   https://yongweiwu.wordpress.com/2017/09/14/c-cxx-performance-mmap-and-string_view/
+   https://tinyurl.com/cpp-line-readers
+   https://tinyurl.com/mmap-string-view
 
   * mmap_reader_base.cpp
   * mmap_reader_base.h
