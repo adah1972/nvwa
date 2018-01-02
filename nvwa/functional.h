@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2018-01-01
+ * @date  2018-01-02
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -551,7 +551,7 @@ constexpr auto apply(_Fn&& f, _Opt&&... args) -> decltype(
 }
 
 /**
- * Applies the function with all elements of the typle as arguments.  It
+ * Applies the function with all elements of the tuple as arguments.  It
  * is exactly like the C++17 std::apply.
  *
  * @param f  the function to apply
