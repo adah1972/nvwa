@@ -695,7 +695,7 @@ constexpr auto reduce(_Fn&& f, _Rng&& inputs)
  *               and the input range shall support iteration.
  */
 template <typename _Rs, typename _Fn, typename _Iter>
-constexpr _Rs&& reduce(_Fn&& f, _Rs&& value, _Iter begin, _Iter end)
+constexpr _Rs reduce(_Fn&& f, _Rs&& value, _Iter begin, _Iter end)
 {
     // Recursion (instead of iteration) is used in this function, as
     // _Rs may be a reference type and a result of this type cannot
