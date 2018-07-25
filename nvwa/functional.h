@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2018-01-02
+ * @date  2018-07-25
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -326,7 +326,7 @@ public:
 protected:
     union
     {
-        char _M_dummy;
+        char       _M_dummy;
         value_type _M_value;
     };
     bool _M_engaged;
