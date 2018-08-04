@@ -262,9 +262,10 @@ struct new_ptr_list_t
     char            file[_DEBUG_NEW_FILENAME_LEN]; ///< File name of the caller
 #endif
     void*           addr;       ///< Address of the caller to \e new
+    void*           data;
     };
     unsigned        line   :31; ///< Line number of the caller; or \c 0
-    unsigned        is_array:1; ///< Non-zero iff <em>new[]</em> is used
+    bool        is_array; ///< Non-zero iff <em>new[]</em> is used
 #if _DEBUG_NEW_REMEMBER_STACK_TRACE
     void**          stacktrace; ///< Pointer to stack trace information
 #endif
@@ -650,6 +651,8 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
         ptr->next = &new_ptr_list;
         new_ptr_list.prev->next = ptr;
         new_ptr_list.prev = ptr;
+        ptr->data = usr_ptr;
+
     }
 #if _DEBUG_NEW_TAILCHECK
     memset((char*)usr_ptr + size, _DEBUG_NEW_TAILCHECK_CHAR,
@@ -736,6 +739,8 @@ static void free_pointer(void* usr_ptr, void* addr, bool is_array)
         ptr->magic = 0;
         ptr->prev->next = ptr->next;
         ptr->next->prev = ptr->prev;
+        ptr->data = nullptr;
+
     }
     if (new_verbose_flag)
     {
@@ -801,6 +806,22 @@ int check_leaks()
                 print_position(ptr->addr, ptr->line);
 
             fprintf(new_output_fp, ")\n");
+            fprintf(new_output_fp, "[");
+            char *data = static_cast<char *>(ptr->data);
+            for(unsigned long i = 0; i < ptr->size; i++){
+                if(data[i] == 0) {
+                    fprintf(new_output_fp, "'\\0'");
+                } else {
+                    fprintf(new_output_fp, "%c", data[i]);
+                }
+
+            }
+            fprintf(new_output_fp, "]\n[");
+            for(unsigned long i = 0; i < ptr->size; i++){
+                fprintf(new_output_fp, "%X",data[i]);
+            }
+            fprintf(new_output_fp, "]\n");
+
 
 #if _DEBUG_NEW_REMEMBER_STACK_TRACE
             if (ptr->stacktrace != _NULLPTR)
