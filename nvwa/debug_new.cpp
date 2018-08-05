@@ -35,10 +35,10 @@
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
-#include <assert.h>             // assert
-#include <stdio.h>              // fprintf/stderr
-#include <stdlib.h>             // abort
-#include <string.h>             // strcpy/strncpy/sprintf
+#include <cassert>             // assert
+#include <cstdio>              // fprintf/stderr
+#include <cstdlib>             // abort
+#include <cstring>             // strcpy/strncpy/sprintf
 #include "_nvwa.h"              // NVWA macros
 
 #if NVWA_UNIX
@@ -254,6 +254,7 @@ struct new_ptr_list_t
     new_ptr_list_t* next;       ///< Pointer to the next memory block
     new_ptr_list_t* prev;       ///< Pointer to the previous memory block
     size_t          size;       ///< Size of the memory block
+    void*           data;       ///< Pointer to Data
     union
     {
 #if _DEBUG_NEW_FILENAME_LEN == 0
@@ -288,6 +289,7 @@ static new_ptr_list_t new_ptr_list = {
     &new_ptr_list,
     &new_ptr_list,
     0,
+    _NULLPTR,
     {
 #if _DEBUG_NEW_FILENAME_LEN == 0
         _NULLPTR
@@ -611,7 +613,7 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
     else
         ptr->addr = (void*)file;
 #endif
-    ptr->line = line;
+    ptr->line = static_cast<unsigned int>(line);
 #if _DEBUG_NEW_REMEMBER_STACK_TRACE
     ptr->stacktrace = _NULLPTR;
 
@@ -641,7 +643,7 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
         }
     }
 #endif
-    ptr->is_array = is_array;
+    ptr->is_array = static_cast<unsigned int>(is_array);
     ptr->size = size;
     ptr->magic = DEBUG_NEW_MAGIC;
     {
@@ -650,6 +652,8 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
         ptr->next = &new_ptr_list;
         new_ptr_list.prev->next = ptr;
         new_ptr_list.prev = ptr;
+        ptr->data = usr_ptr;
+
     }
 #if _DEBUG_NEW_TAILCHECK
     memset((char*)usr_ptr + size, _DEBUG_NEW_TAILCHECK_CHAR,
@@ -699,7 +703,7 @@ static void free_pointer(void* usr_ptr, void* addr, bool is_array)
         fflush(new_output_fp);
         _DEBUG_NEW_ERROR_ACTION;
     }
-    if (is_array != ptr->is_array)
+    if (is_array != static_cast<bool>(ptr->is_array))
     {
         const char* msg;
         if (is_array)
@@ -710,7 +714,7 @@ static void free_pointer(void* usr_ptr, void* addr, bool is_array)
         fprintf(new_output_fp,
                 "%s: pointer %p (size %lu)\n\tat ",
                 msg,
-                (char*)ptr + ALIGNED_LIST_ITEM_SIZE,
+                static_cast<void *>((char*)ptr + ALIGNED_LIST_ITEM_SIZE),
                 (unsigned long)ptr->size);
         print_position(addr, 0);
         fprintf(new_output_fp, "\n\toriginally allocated at ");
@@ -736,6 +740,8 @@ static void free_pointer(void* usr_ptr, void* addr, bool is_array)
         ptr->magic = 0;
         ptr->prev->next = ptr->next;
         ptr->next->prev = ptr->prev;
+        ptr->data = _NULLPTR;
+
     }
     if (new_verbose_flag)
     {
@@ -743,14 +749,13 @@ static void free_pointer(void* usr_ptr, void* addr, bool is_array)
         fprintf(new_output_fp,
                 "delete%s: freed %p (size %lu, %lu bytes still allocated)\n",
                 is_array ? "[]" : "",
-                (char*)ptr + ALIGNED_LIST_ITEM_SIZE,
+                static_cast<void *>((char*)ptr + ALIGNED_LIST_ITEM_SIZE),
                 (unsigned long)ptr->size, (unsigned long)total_mem_alloc);
     }
 #if _DEBUG_NEW_REMEMBER_STACK_TRACE
     free(ptr->stacktrace);
 #endif
     free(ptr);
-    return;
 }
 
 /**
@@ -773,7 +778,7 @@ int check_leaks()
         {
             fprintf(new_output_fp,
                     "warning: heap data corrupt near %p\n",
-                    usr_ptr);
+                    (void *) usr_ptr);
         }
 #if _DEBUG_NEW_TAILCHECK
         if (!check_tail(ptr))
@@ -792,7 +797,7 @@ int check_leaks()
         {
             fprintf(new_output_fp,
                     "Leaked object at %p (size %lu, ",
-                    usr_ptr,
+                    (void *) usr_ptr,
                     (unsigned long)ptr->size);
 
             if (ptr->line != 0)
@@ -801,6 +806,23 @@ int check_leaks()
                 print_position(ptr->addr, ptr->line);
 
             fprintf(new_output_fp, ")\n");
+            if(ptr->data != _NULLPTR) {
+                fprintf(new_output_fp, "Data:\n{\n");
+                char *data = static_cast<char *>(ptr->data);
+                for(unsigned long i = 0; i < ptr->size; i++){
+                    if(data[i] == 0) {
+                        fprintf(new_output_fp, "'\\0'");
+                    } else {
+                        fprintf(new_output_fp, "%c", data[i]);
+                    }
+
+                }
+                fprintf(new_output_fp, "\n}\n[");
+                for(unsigned long i = 0; i < ptr->size; i++){
+                    fprintf(new_output_fp, "%02X ",data[i]);
+                }
+                fprintf(new_output_fp, "]\n");
+            }
 
 #if _DEBUG_NEW_REMEMBER_STACK_TRACE
             if (ptr->stacktrace != _NULLPTR)
@@ -856,7 +878,7 @@ int check_mem_corruption()
 #endif
             fprintf(new_output_fp,
                     "Heap data corrupt near %p (size %lu, ",
-                    usr_ptr,
+                    (void *) usr_ptr,
                     (unsigned long)ptr->size);
 #if _DEBUG_NEW_TAILCHECK
         }
@@ -937,7 +959,7 @@ void debug_new_recorder::_M_process(void* usr_ptr)
     strncpy(ptr->file, _M_file, _DEBUG_NEW_FILENAME_LEN - 1)
             [_DEBUG_NEW_FILENAME_LEN - 1] = '\0';
 #endif
-    ptr->line = _M_line;
+    ptr->line = (unsigned int) _M_line;
 #if _DEBUG_NEW_REMEMBER_STACK_TRACE == 2
     free(ptr->stacktrace);
     ptr->stacktrace = _NULLPTR;
