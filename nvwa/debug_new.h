@@ -38,7 +38,7 @@
 #define NVWA_DEBUG_NEW_H
 
 #include <new>                  // size_t/std::bad_alloc
-#include <stdio.h>              // FILE
+#include <cstdio>              // FILE
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++11.h"              // _NOEXCEPT
 
