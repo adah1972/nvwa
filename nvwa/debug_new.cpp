@@ -254,6 +254,7 @@ struct new_ptr_list_t
     new_ptr_list_t* next;       ///< Pointer to the next memory block
     new_ptr_list_t* prev;       ///< Pointer to the previous memory block
     size_t          size;       ///< Size of the memory block
+    void*           data;       ///< Pointer to Data
     union
     {
 #if _DEBUG_NEW_FILENAME_LEN == 0
@@ -262,8 +263,6 @@ struct new_ptr_list_t
     char            file[_DEBUG_NEW_FILENAME_LEN]; ///< File name of the caller
 #endif
     void*           addr;       ///< Address of the caller to \e new
-    void*           data;       ///< Pointer to Data
-
     };
     unsigned        line   :31; ///< Line number of the caller; or \c 0
     unsigned        is_array:1; ///< Non-zero iff <em>new[]</em> is used
@@ -290,6 +289,7 @@ static new_ptr_list_t new_ptr_list = {
     &new_ptr_list,
     &new_ptr_list,
     0,
+    _NULLPTR,
     {
 #if _DEBUG_NEW_FILENAME_LEN == 0
         _NULLPTR
