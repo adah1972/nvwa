@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2013-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2013-2018 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Common definitions for preprocessing.
  *
- * @date  2015-10-28
+ * @date  2018-11-15
  */
 
 #ifndef NVWA_NVWA_H
@@ -108,5 +108,29 @@
 #define NVWA_WINDOWS 0
 #endif
 #endif // NVWA_WINDOWS
+
+#ifndef NVWA_CLANG
+#if defined(__clang__)
+#define NVWA_CLANG 1
+#else
+#define NVWA_CLANG 0
+#endif
+#endif // NVWA_CLANG
+
+#ifndef NVWA_GCC
+#if defined(__GNUC__) && !defined(__clang__)
+#define NVWA_GCC 1
+#else
+#define NVWA_GCC 0
+#endif
+#endif // NVWA_GCC
+
+#ifndef NVWA_APPLE_CLANG
+#if defined(__clang__) && defined(__apple_build_version__)
+#define NVWA_APPLE_CLANG 1
+#else
+#define NVWA_APPLE_CLANG 0
+#endif
+#endif // NVWA_APPLE_CLANG
 
 #endif // NVWA_NVWA_H
