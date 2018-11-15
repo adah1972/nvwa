@@ -32,14 +32,14 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2018-07-25
+ * @date  2018-11-15
  */
 
 #ifndef NVWA_FUNCTIONAL_H
 #define NVWA_FUNCTIONAL_H
 
 #include <cassert>              // assert
-#include <functional>           // std::function
+#include <functional>           // std::function/ref
 #include <iterator>             // std::begin/iterator_traits
 #include <memory>               // std::allocator
 #include <stdexcept>            // std::logic_error
@@ -124,6 +124,27 @@ constexpr decltype(auto) tuple_apply_impl(_Fn&& f, _Tuple&& t,
 {
     return f(std::get<_I>(std::forward<_Tuple>(t))...);
 }
+
+// Y combinator as presented by Yegor Derevenets in P0200R0
+// <url:http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0200r0.html>
+template <typename _Fn>
+class y_combinator_result {
+public:
+    template <typename _Tp>
+    explicit y_combinator_result(_Tp&& f)
+        : _M_fn(std::forward<_Tp>(f))
+    {
+    }
+
+    template <typename... _Targs>
+    decltype(auto) operator()(_Targs&&... args) const
+    {
+        return _M_fn(std::ref(*this), std::forward<_Targs>(args)...);
+    }
+
+private:
+    _Fn _M_fn;
+};
 
 // Struct to wrap a function for self-reference.
 template <typename _Fn>
@@ -840,6 +861,20 @@ auto compose(_Fn f, _Fargs... args)
     {
         return f(compose(args...)(std::forward<decltype(x)>(x)...));
     };
+}
+
+/**
+ * Generates the fixed point using the solution by Yegor Derevenets.
+ * This function takes a non-curried function of two or more parameters.
+ *
+ * @param f  the second-order function to combine with
+ * @return   the fixed point
+ */
+template <typename _Fn>
+auto fix_fast(_Fn&& f)
+{
+    return detail::y_combinator_result<std::decay_t<_Fn>>(
+        std::forward<_Fn>(f));
 }
 
 /**
