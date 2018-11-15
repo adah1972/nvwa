@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2018 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,12 +31,12 @@
  *
  * Template class to check validity duing compile time (adapted from Loki).
  *
- * @date  2013-09-07
+ * @date  2018-11-15
  */
 
 #ifndef STATIC_ASSERT
 
-#include "c++11.h"
+#include "c++_features.h"
 
 #if HAVE_CXX11_STATIC_ASSERT
 

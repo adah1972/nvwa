@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2018 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2014-11-29
+ * @date  2018-11-15
  */
 
 #ifndef NVWA_BOOL_ARRAY_H
@@ -43,7 +43,7 @@
 #include <stdexcept>            // std::out_of_range
 #include <string>               // for exception constructors
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // _NOEXCEPT/_NULLPTR
+#include "c++_features.h"       // _NOEXCEPT/_NULLPTR
 
 NVWA_NAMESPACE_BEGIN
 

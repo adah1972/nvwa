@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2018 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,14 +31,14 @@
  *
  * A fast mutex implementation for POSIX, Win32, and modern C++.
  *
- * @date  2017-09-01
+ * @date  2018-11-15
  */
 
 #ifndef NVWA_FAST_MUTEX_H
 #define NVWA_FAST_MUTEX_H
 
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // HAVE_CXX11_MUTEX/_DELETED
+#include "c++_features.h"       // HAVE_CXX11_MUTEX/_DELETED
 
 # if !defined(_NOTHREADS)
 #   if !defined(NVWA_USE_CXX11_MUTEX) && HAVE_CXX11_MUTEX != 0 && \

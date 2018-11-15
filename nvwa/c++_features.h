@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2013-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2013-2018 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -27,15 +27,15 @@
  */
 
 /**
- * @file  c++11.h
+ * @file  c++_features.h
  *
- * C++11 feature detection macros and workarounds.
+ * Modern C++ feature detection macros and workarounds.
  *
- * @date  2017-04-03
+ * @date  2018-11-15
  */
 
-#ifndef NVWA_CXX11_H
-#define NVWA_CXX11_H
+#ifndef NVWA_CXX_FEATURES_H
+#define NVWA_CXX_FEATURES_H
 
 // Only Clang provides these macros; they need to be defined as follows
 // to get a valid expression in preprocessing by other compilers.
@@ -345,4 +345,4 @@
 #endif
 #endif
 
-#endif // NVWA_CXX11_H
+#endif // NVWA_CXX_FEATURES_H

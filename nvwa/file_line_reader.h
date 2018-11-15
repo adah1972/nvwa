@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2016-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2016-2018 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2017-03-23
+ * @date  2018-11-15
  */
 
 #ifndef NVWA_FILE_LINE_READER_H
@@ -41,7 +41,7 @@
 #include <stdio.h>              // file streams
 #include <iterator>             // std::input_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // _NOEXCEPT/_NULLPTR
+#include "c++_features.h"       // _NOEXCEPT/_NULLPTR
 
 NVWA_NAMESPACE_BEGIN
 

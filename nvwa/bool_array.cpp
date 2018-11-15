@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2018 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @date  2017-09-09
+ * @date  2018-11-15
  */
 
 #include "bool_array.h"         // bool_array
@@ -39,7 +39,7 @@
 #include <string.h>             // memset/memcpy
 #include <algorithm>            // std::swap
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // _NULLPTR
+#include "c++_features.h"       // _NULLPTR
 #include "static_assert.h"      // STATIC_ASSERT
 
 NVWA_NAMESPACE_BEGIN

@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2009-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2009-2018 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2017-06-10
+ * @date  2018-11-15
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -44,7 +44,7 @@
 #include <type_traits>          // std::is_trivially_destructible
 #include <utility>              // std::declval/move/swap
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // C++11 feature detection
+#include "c++_features.h"       // C++11 feature detection
 
 #if !(NVWA_CXX11_MODE && HAVE_CXX11_NOEXCEPT && HAVE_CXX11_NULLPTR)
 #error "C++11 support not detected"

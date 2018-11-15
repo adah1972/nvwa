@@ -32,7 +32,7 @@
  * Code for mmap_reader_base, common base for memory-mapped file readers.
  * It is implemented with POSIX and Win32 APIs.
  *
- * @date  2018-09-30
+ * @date  2018-11-15
  */
 
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
@@ -41,7 +41,7 @@
 #include <string>               // std::string
 #include <system_error>         // std::system_error
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // _NULLPTR
+#include "c++_features.h"       // _NULLPTR
 
 #if NVWA_UNIX
 #include <errno.h>              // errno

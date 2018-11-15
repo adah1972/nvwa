@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2018 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Header file for mmap_reader_base, common base for mmap-based file
  * readers.  It currently supports POSIX and Win32.
  *
- * @date  2017-09-12
+ * @date  2018-11-15
  */
 
 #ifndef NVWA_MMAP_READER_BASE_H
@@ -41,7 +41,7 @@
 #include <stddef.h>             // ptrdiff_t/size_t
 #include <iterator>             // std::input_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++11.h"              // _DELETED
+#include "c++_features.h"       // _DELETED
 
 NVWA_NAMESPACE_BEGIN
 

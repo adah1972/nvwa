@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2018 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2017-09-09
+ * @date  2018-11-15
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -59,7 +59,7 @@
 #include <windows.h>            // CaptureStackBackTrace
 #endif
 
-#include "c++11.h"              // _NOEXCEPT/_NULLPTR
+#include "c++_features.h"       // _NOEXCEPT/_NULLPTR
 #include "fast_mutex.h"         // nvwa::fast_mutex
 #include "static_assert.h"      // STATIC_ASSERT
 
