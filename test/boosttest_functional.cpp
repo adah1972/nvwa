@@ -312,10 +312,18 @@ BOOST_AUTO_TEST_CASE(functional_test)
     auto const fac2 = nvwa::fix_curry(almost_fac);
     auto const fac3 = nvwa::fix_simple<int, int>(fact);
     auto const fac4 = nvwa::fix_curry(almost_fac2);
+    auto const fac5 = nvwa::fix_fast([](auto f, int n) -> int
+    {
+        if (n <= 1)
+            return 1;
+        else
+            return n * f(n - 1);
+    });
     BOOST_CHECK_EQUAL(fac1(5), 120);
     BOOST_CHECK_EQUAL(fac2(5), 120);
     BOOST_CHECK_EQUAL(fac3(5), 120);
     BOOST_CHECK_EQUAL(fac4(5), 120);
+    BOOST_CHECK_EQUAL(fac5(5), 120);
 
     Obj obj1(1);
     auto const middle = nvwa::make_curry(test_curry)(obj1)(Obj(2));
