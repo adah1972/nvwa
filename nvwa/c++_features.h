@@ -31,7 +31,7 @@
  *
  * Modern C++ feature detection macros and workarounds.
  *
- * @date  2018-11-15
+ * @date  2018-11-16
  */
 
 #ifndef NVWA_CXX_FEATURES_H
@@ -62,7 +62,7 @@
 
 // Detect whether C++17 features can be used.
 #if __cplusplus >= 201703L || \
-    (defined(_MSC_VER) && _MSC_VER >= 1910 && _MSVC_LANG > 201402)
+    (defined(_MSC_VER) && _MSC_VER >= 1910 && _MSVC_LANG >= 201703)
 #define NVWA_USES_CXX17 1
 #else
 #define NVWA_USES_CXX17 0
@@ -293,6 +293,17 @@
 #define HAVE_CXX11_UNICODE_LITERAL 1
 #else
 #define HAVE_CXX11_UNICODE_LITERAL 0
+#endif
+#endif
+
+#if !defined(HAVE_CXX17_STRING_VIEW)
+#if NVWA_USES_CXX17 && \
+    (__has_include(<string_view>) || \
+     (defined(_MSC_VER) && _MSC_VER >= 1910) || \
+     (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 700))
+#define HAVE_CXX17_STRING_VIEW 1
+#else
+#define HAVE_CXX17_STRING_VIEW 0
 #endif
 #endif
 
