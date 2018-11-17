@@ -31,11 +31,16 @@
  *
  * Modern C++ feature detection macros and workarounds.
  *
- * @date  2018-11-16
+ * @date  2018-11-17
  */
 
 #ifndef NVWA_CXX_FEATURES_H
 #define NVWA_CXX_FEATURES_H
+
+#include "_nvwa.h"
+#if NVWA_APPLE
+#include <Availability.h>
+#endif
 
 // Only Clang provides these macros; they need to be defined as follows
 // to get a valid expression in preprocessing by other compilers.
@@ -66,6 +71,16 @@
 #define NVWA_USES_CXX17 1
 #else
 #define NVWA_USES_CXX17 0
+#endif
+
+// Apple Clang 10 cripples certain C++17 features on macOS prior to 10.14.
+#if NVWA_USES_CXX17 && NVWA_APPLE_CLANG && \
+    __apple_build_version__ >= 10000000 && \
+    defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
+    __MAC_OS_X_VERSION_MIN_REQUIRED < 101400
+#define NVWA_USES_CRIPPLED_CLANG 1
+#else
+#define NVWA_USES_CRIPPLED_CLANG 0
 #endif
 
 
@@ -304,6 +319,39 @@
 #define HAVE_CXX17_STRING_VIEW 1
 #else
 #define HAVE_CXX17_STRING_VIEW 0
+#endif
+#endif
+
+#if !defined(HAVE_CXX17_ANY)
+#if NVWA_USES_CXX17 && \
+    ((__has_include(<any>) && !NVWA_USES_CRIPPLED_CLANG) || \
+     (defined(_MSC_VER) && _MSC_VER >= 1910) || \
+     (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 700))
+#define HAVE_CXX17_ANY 1
+#else
+#define HAVE_CXX17_ANY 0
+#endif
+#endif
+
+#if !defined(HAVE_CXX17_OPTIONAL)
+#if NVWA_USES_CXX17 && \
+    ((__has_include(<optional>) && !NVWA_USES_CRIPPLED_CLANG) || \
+     (defined(_MSC_VER) && _MSC_VER >= 1910) || \
+     (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 700))
+#define HAVE_CXX17_OPTIONAL 1
+#else
+#define HAVE_CXX17_OPTIONAL 0
+#endif
+#endif
+
+#if !defined(HAVE_CXX17_VARIANT)
+#if NVWA_USES_CXX17 && \
+    ((__has_include(<variant>) && !NVWA_USES_CRIPPLED_CLANG) || \
+     (defined(_MSC_VER) && _MSC_VER >= 1910) || \
+     (defined(__GNUC__) && __GNUC__ * 100 + __GNUC_MINOR__ >= 700))
+#define HAVE_CXX17_VARIANT 1
+#else
+#define HAVE_CXX17_VARIANT 0
 #endif
 #endif
 
