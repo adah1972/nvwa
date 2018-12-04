@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2018-11-15
+ * @date  2018-12-04
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -170,6 +170,7 @@ template <typename _Tp>
 struct safe_wrapper<_Tp, true>
 {
     safe_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
+#if !defined(_MSC_VER)
     template <typename _Up = _Tp>
     std::enable_if_t<std::is_rvalue_reference<_Up>{}, std::decay_t<_Tp>>
     get() const
@@ -182,6 +183,15 @@ struct safe_wrapper<_Tp, true>
     {
         return value;
     }
+#else
+    // MSVC does not like the templated code above; using a simpler but
+    // potentially less efficient member function below
+    std::decay_t<_Tp>
+    get() const
+    {
+        return value;
+    }
+#endif
     std::decay_t<_Tp> value;
 };
 
