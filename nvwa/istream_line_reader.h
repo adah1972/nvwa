@@ -74,7 +74,7 @@ public:
     {
     public:
         typedef int                     difference_type;
-        typedef std::string             value_type;
+        typedef const std::string       value_type;
         typedef value_type*             pointer_type;
         typedef value_type&             reference;
         typedef std::input_iterator_tag iterator_category;
