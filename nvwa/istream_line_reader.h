@@ -47,7 +47,7 @@
  * and has since been modified to satisfy the \c InputIterator concept,
  * along with other minor changes.
  *
- * @date  2018-11-15
+ * @date  2018-12-15
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
@@ -124,13 +124,17 @@ public:
         std::string   _M_line;
     };
 
+    istream_line_reader() _NOEXCEPT
+        : _M_stream(_NULLPTR)
+    {
+    }
     explicit istream_line_reader(std::istream& is) _NOEXCEPT
-        : _M_stream(is)
+        : _M_stream(&is)
     {
     }
     iterator begin()
     {
-        return iterator(_M_stream);
+        return iterator(*_M_stream);
     }
     iterator end() const
     {
@@ -138,7 +142,7 @@ public:
     }
 
 private:
-    std::istream& _M_stream;
+    std::istream* _M_stream;
 };
 
 NVWA_NAMESPACE_END
