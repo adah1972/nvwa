@@ -32,7 +32,7 @@
  * Header file for mmap_line_reader and mmap_line_reader_sv, easy-to-use
  * line-based file readers.  It is implemented with memory-mapped file APIs.
  *
- * @date  2018-11-16
+ * @date  2018-12-16
  */
 
 #ifndef NVWA_MMAP_LINE_READER_H
@@ -62,8 +62,8 @@ public:
     {
     public:
         typedef _Tp                     value_type;
-        typedef value_type*             pointer_type;
-        typedef value_type&             reference;
+        typedef const value_type*       pointer_type;
+        typedef const value_type&       reference;
         typedef ptrdiff_t               difference_type;
         typedef std::input_iterator_tag iterator_category;
 
@@ -71,12 +71,12 @@ public:
         explicit iterator(basic_mmap_line_reader* reader)
             : _M_reader(reader) , _M_offset(0) {}
 
-        reference operator*()
+        reference operator*() const
         {
             assert(_M_reader != _NULLPTR);
             return _M_line;
         }
-        pointer_type operator->()
+        pointer_type operator->() const
         {
             assert(_M_reader != _NULLPTR);
             return &_M_line;
