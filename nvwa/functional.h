@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2018-12-04
+ * @date  2018-12-16
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -663,7 +663,7 @@ constexpr auto fmap(_Fn&& f, _Rng&& inputs) -> decltype(
         result, inputs,
         std::integral_constant<
             bool, detail::can_reserve<decltype(result), _Rng>::value>());
-    for (auto& item : inputs)
+    for (auto&& item : inputs)
         result.push_back(f(item));
     return result;
 }
@@ -704,7 +704,7 @@ template <typename _Fn, class _Rng>
 constexpr auto reduce(_Fn&& f, _Rng&& inputs)
 {
     auto result = typename detail::value_type<_Rng>();
-    for (auto& item : inputs)
+    for (auto&& item : inputs)
         result = f(result, item);
     return result;
 }
