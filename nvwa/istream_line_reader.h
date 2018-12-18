@@ -47,7 +47,7 @@
  * and has since been modified to satisfy the \c InputIterator concept,
  * along with other minor changes.
  *
- * @date  2018-12-16
+ * @date  2018-12-18
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
@@ -56,6 +56,7 @@
 #include <assert.h>             // assert
 #include <istream>              // std::istream
 #include <iterator>             // std::input_iterator_tag
+#include <stdexcept>            // std::runtime_error
 #include <string>               // std::string
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++_features.h"       // _NOEXCEPT/_NULLPTR
@@ -134,6 +135,10 @@ public:
     }
     iterator begin()
     {
+        if (!_M_stream)
+            throw std::logic_error("input stream is null");
+        if (_M_stream->fail())
+            throw std::runtime_error("input stream error");
         return iterator(*_M_stream);
     }
     iterator end() const
