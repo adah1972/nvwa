@@ -48,11 +48,11 @@ DEPS_BOOSTTEST     = $(patsubst %.o,%.dep,$(OBJS_BOOSTTEST))
 LIBS_BOOSTTEST     = -lboost_unit_test_framework
 TARGET_BOOSTTEST   = boost_test$(EXEEXT)
 
-CXXFILES_TESTCXX11 = test_c++11.cpp
+CXXFILES_TESTCXX11 = test_c++_features.cpp
 OBJS_TESTCXX11     = $(CXXFILES_TESTCXX11:.cpp=.o)
 DEPS_TESTCXX11     = $(patsubst %.o,%.dep,$(OBJS_TESTCXX11))
 LIBS_TESTCXX11     =
-TARGET_TESTCXX11   = test_c++11$(EXEEXT)
+TARGET_TESTCXX11   = test_c++_features$(EXEEXT)
 
 .PHONY: all clean
 
