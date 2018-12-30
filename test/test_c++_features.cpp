@@ -1,4 +1,4 @@
-#include "nvwa/c++11.h"
+#include "nvwa/c++_features.h"
 #include <iomanip>
 #include <iostream>
 
@@ -33,6 +33,10 @@ int main()
     DISPLAY_FEATURE(HAVE_CXX11_THREAD_LOCAL);
     DISPLAY_FEATURE(HAVE_CXX11_TYPE_TRAITS);
     DISPLAY_FEATURE(HAVE_CXX11_UNICODE_LITERAL);
+    DISPLAY_FEATURE(HAVE_CXX17_STRING_VIEW);
+    DISPLAY_FEATURE(HAVE_CXX17_ANY);
+    DISPLAY_FEATURE(HAVE_CXX17_OPTIONAL);
+    DISPLAY_FEATURE(HAVE_CXX17_VARIANT);
 
     cout << endl;
     cout << right;
