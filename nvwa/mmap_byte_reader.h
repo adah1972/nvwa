@@ -32,7 +32,7 @@
  * Header file for mmap_byte_reader, an easy-to-use byte-based file reader.
  * It is implemented with memory-mapped file APIs.
  *
- * @date  2018-11-15
+ * @date  2018-12-30
  */
 
 #ifndef NVWA_MMAP_BYTE_READER_H
@@ -74,11 +74,11 @@ public:
         {
         }
 
-        reference operator*()
+        reference operator*() const
         {
             return _M_reader->get(_M_offset);
         }
-        pointer_type operator->()
+        pointer_type operator->() const
         {
             return &_M_reader->get(_M_offset);
         }
