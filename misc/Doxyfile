@@ -125,6 +125,7 @@ INPUT                  = ../nvwa/_nvwa.h \
                          ../nvwa/file_line_reader.cpp \
                          ../nvwa/mmap_byte_reader.h \
                          ../nvwa/mmap_line_reader.h \
+                         ../nvwa/mmap_line_view.h \
                          ../nvwa/mmap_reader_base.h \
                          ../nvwa/mmap_reader_base.cpp \
                          ../nvwa/split.h \
