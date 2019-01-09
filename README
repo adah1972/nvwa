@@ -232,6 +232,12 @@ Contents
    https://tinyurl.com/cpp-line-readers
    https://tinyurl.com/mmap-string-view
 
+  * mmap_line_view.h
+
+   A mmap_line_view is similar to mmap_line_reader_sv defined in
+   mmap_line_reader.h, but it has gone an extra mile to satisfy the View
+   concept (to be introduced in C++20).  It can be trivially copied.
+
   * mmap_reader_base.cpp
   * mmap_reader_base.h
 
