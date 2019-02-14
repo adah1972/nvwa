@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2013-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2013-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Modern C++ feature detection macros and workarounds.
  *
- * @date  2018-11-17
+ * @date  2019-02-14
  */
 
 #ifndef NVWA_CXX_FEATURES_H
@@ -42,8 +42,11 @@
 #include <Availability.h>
 #endif
 
-// Only Clang provides these macros; they need to be defined as follows
-// to get a valid expression in preprocessing by other compilers.
+// Only Clang provides all these macros; they need to be defined as follows
+// to get a valid expression in preprocessing when not available.
+#ifndef __has_cpp_attribute
+#define __has_cpp_attribute(x) 0
+#endif
 #ifndef __has_extension
 #define __has_extension(x) 0
 #endif
@@ -402,6 +405,16 @@
 #else
 #define _THREAD_LOCAL __thread
 #endif
+#endif
+
+#if NVWA_USES_CXX17
+#define _FALLTHROUGH [[fallthrough]]
+#elif defined(__clang__) && __has_cpp_attribute(clang::fallthrough)
+#define _FALLTHROUGH [[clang::fallthrough]]
+#elif defined(__GNUC__) && __GNUC__ >= 7
+#define _FALLTHROUGH __attribute__ ((fallthrough))
+#else
+#define _FALLTHROUGH
 #endif
 
 #endif // NVWA_CXX_FEATURES_H
