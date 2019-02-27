@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(split_test)
         std::ostringstream oss;
         oss << *it;
         BOOST_CHECK_EQUAL(oss.str(), result_s[i]);
-        BOOST_CHECK_EQUAL(nvwa::split(*it, '=').to_vector_sv().size(), 2);
+        BOOST_CHECK_EQUAL(nvwa::split(*it, '=').to_vector_sv().size(), 2U);
         ++i;
     }
     BOOST_CHECK(it == end);

@@ -167,8 +167,8 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
     nvwa::fc_queue<int> s;
     BOOST_CHECK(s.empty());
     BOOST_CHECK(s.full());
-    BOOST_CHECK_EQUAL(s.capacity(), 0);
-    BOOST_CHECK_EQUAL(s.size(), 0);
+    BOOST_CHECK_EQUAL(s.capacity(), 0U);
+    BOOST_CHECK_EQUAL(s.size(), 0U);
     s = q;
     BOOST_CHECK(!q.empty());
     BOOST_CHECK(!q.full());
@@ -178,17 +178,17 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
     BOOST_CHECK(!s.full());
     BOOST_CHECK_EQUAL(s.front(), 5);
     BOOST_CHECK_EQUAL(s.back(), 5);
-    BOOST_CHECK_EQUAL(s.capacity(), 4);
-    BOOST_CHECK_EQUAL(s.size(), 1);
+    BOOST_CHECK_EQUAL(s.capacity(), 4U);
+    BOOST_CHECK_EQUAL(s.size(), 1U);
     s = nvwa::fc_queue<int>(5);
     BOOST_CHECK(s.empty());
     BOOST_CHECK(!s.full());
-    BOOST_CHECK_EQUAL(s.capacity(), 5);
-    BOOST_CHECK_EQUAL(s.size(), 0);
+    BOOST_CHECK_EQUAL(s.capacity(), 5U);
+    BOOST_CHECK_EQUAL(s.size(), 0U);
     s.push(1);
     BOOST_CHECK_EQUAL(s.front(), 1);
     BOOST_CHECK_EQUAL(s.back(), 1);
-    BOOST_CHECK_EQUAL(s.size(), 1);
+    BOOST_CHECK_EQUAL(s.size(), 1U);
 
     check_type<int>();
     check_type<Obj>();
