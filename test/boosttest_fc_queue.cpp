@@ -1,5 +1,8 @@
 #include "nvwa/fc_queue.h"
+#include <chrono>
+#include <functional>
 #include <iostream>
+#include <thread>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
@@ -41,7 +44,46 @@ void check_type()
                 << std::is_nothrow_destructible<test_type>::value);
 }
 
+const int LOOPS = 1'000'000;
+bool parallel_test_failed = false;
+
+void add_to_queue(nvwa::fc_queue<int>& q)
+{
+    int stop_count = 0;
+    for (int i = 0; i < LOOPS; ++i) {
+        while (q.full()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            if (parallel_test_failed) {
+                return;
+            }
+            ++stop_count;
+        }
+        q.push(i);
+    }
+    BOOST_TEST_MESSAGE(stop_count << " stops during enqueueing");
 }
+
+void read_and_check_queue(nvwa::fc_queue<int>& q)
+{
+    int stop_count = 0;
+    for (int i = 0; i < LOOPS; ++i) {
+        while (q.empty()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            ++stop_count;
+        }
+        if (i != q.front()) {
+            BOOST_ERROR("Failure on " << i << "th read: "
+                        "Expected " << i << ", got " << q.front());
+            parallel_test_failed = true;
+            break;
+        }
+        q.pop();
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    BOOST_TEST_MESSAGE(stop_count << " stops during dequeueing");
+}
+
+} /* unnamed namespace */
 
 BOOST_AUTO_TEST_CASE(fc_queue_test)
 {
@@ -150,4 +192,14 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
 
     check_type<int>();
     check_type<Obj>();
+}
+
+BOOST_AUTO_TEST_CASE(fc_queue_parallel_test)
+{
+    nvwa::fc_queue<int> q(1000);
+    std::thread enqueue_thread(add_to_queue, std::ref(q));
+    std::thread dequeue_thread(read_and_check_queue, std::ref(q));
+    enqueue_thread.join();
+    dequeue_thread.join();
+    BOOST_CHECK(!parallel_test_failed);
 }
