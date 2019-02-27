@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2009-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2009-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2018-11-15
+ * @date  2019-02-27
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -39,7 +39,7 @@
 
 #include <assert.h>             // assert
 #include <stddef.h>             // ptrdiff_t/size_t/NULL
-#include <memory>               // std::allocator/allocator_traits
+#include <memory>               // std::addressof/allocator/allocator_traits
 #include <new>                  // placement new
 #include <type_traits>          // std::is_trivially_destructible
 #include <utility>              // std::declval/move/swap
@@ -56,7 +56,7 @@ NVWA_NAMESPACE_BEGIN
  * Class to represent a fixed-capacity queue.  This class has an
  * interface close to \c std::queue, but it allows very efficient and
  * lockless one-producer, one-consumer access, as long as the producer
- * does not try to queue an element when the queue is already full.
+ * does not try to enqueue an element when the queue is already full.
  *
  * @param _Tp     the type of elements in the queue
  * @param _Alloc  allocator to use for memory management
@@ -148,7 +148,7 @@ public:
     {
         while (_M_head != _M_tail)
         {
-            destroy(trueaddress(_M_head));
+            destroy(std::addressof(*_M_head));
             _M_head = increment(_M_head);
         }
         if (_M_begin)
@@ -297,7 +297,7 @@ public:
     void push(_Targs&&... args)
     {
         assert(capacity() > 0);
-        allocator_traits::construct(_M_alloc, trueaddress(_M_tail),
+        allocator_traits::construct(_M_alloc, std::addressof(*_M_tail),
                                     std::forward<decltype(args)>(args)...);
         if (full())
             pop();
@@ -314,7 +314,7 @@ public:
     void pop()
     {
         assert(!empty());
-        destroy(trueaddress(_M_head));
+        destroy(std::addressof(*_M_head));
         _M_head = increment(_M_head);
     }
 
@@ -390,19 +390,16 @@ protected:
             ptr = _M_end;
         return --ptr;
     }
-    void destroy(void* ptr) noexcept(noexcept(std::declval<_Tp*>()->~_Tp()))
+    static void destroy(void* ptr)
+        noexcept(noexcept(std::declval<_Tp*>()->~_Tp()))
     {
         _M_destroy(ptr, std::is_trivially_destructible<_Tp>());
     }
-    static _Tp* trueaddress(pointer ptr)
-    {
-        return ptr == nullptr ? nullptr : std::addressof(*ptr);
-    }
 
 private:
-    void _M_destroy(void*, std::true_type)
+    static void _M_destroy(void*, std::true_type)
     {}
-    void _M_destroy(void* ptr, std::false_type)
+    static void _M_destroy(void* ptr, std::false_type)
     {
         ((_Tp*)ptr)->~_Tp();
     }
