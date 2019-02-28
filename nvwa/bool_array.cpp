@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @date  2018-11-15
+ * @date  2019-02-28
  */
 
 #include "bool_array.h"         // bool_array
@@ -210,13 +210,10 @@ bool_array::bool_array(const void* ptr, size_type size)
  * @throw bad_alloc  memory is insufficient
  */
 bool_array::bool_array(const bool_array& rhs)
+    : _M_byte_ptr(_NULLPTR), _M_length(0)
 {
     if (rhs.size() == 0)
-    {
-        _M_byte_ptr = _NULLPTR;
-        _M_length = 0;
         return;
-    }
     if (!create(rhs.size()))
         throw std::bad_alloc();
     memcpy(_M_byte_ptr, rhs._M_byte_ptr, (size_t)((_M_length - 1) / 8) + 1);
