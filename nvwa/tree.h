@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -351,8 +351,9 @@ public:
         iterator& operator++()
         {
             assert(!empty());
-            _M_stack.push(
-                std::make_pair(_M_current->cbegin(), _M_current->cend()));
+            if (_M_current->cbegin() != _M_current->cend())
+                _M_stack.push(std::make_pair(_M_current->cbegin(),
+                                             _M_current->cend()));
             for (;;)
             {
                 if (_M_stack.empty())
@@ -462,22 +463,22 @@ public:
                     _M_current = nullptr;
                     break;
                 }
-                auto& top  = _M_stack.top();
-                auto& node = std::get<0>(top);
-                auto& next = std::get<1>(top);
-                auto& end  = std::get<2>(top);
-                if (node != nullptr)
+                auto& top = _M_stack.top();
+                auto& curr       = std::get<0>(top);
+                auto& next_child = std::get<1>(top);
+                auto& end_child  = std::get<2>(top);
+                if (curr != nullptr)
                 {
-                    _M_current = node;
-                    node = nullptr;  // Mark as traversed
+                    _M_current = curr;
+                    curr = nullptr;  // Mark as traversed
                     break;
                 }
                 else
                 {
                     // Iterate over non-leftmost children
-                    while (next != end)
+                    while (next_child != end_child)
                     {
-                        auto it = next++;
+                        auto it = next_child++;
                         if (*it)
                         {
                             _M_current = find_leftmost_child(&**it);

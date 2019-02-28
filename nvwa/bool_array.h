@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2018-11-15
+ * @date  2019-02-28
  */
 
 #ifndef NVWA_BOOL_ARRAY_H
@@ -199,7 +199,7 @@ inline bool bool_array::_Element<_Byte_type>::operator=(bool value)
 template <typename _Byte_type>
 inline bool_array::_Element<_Byte_type>::operator bool() const
 {
-    return *(_M_byte_ptr + _M_byte_pos) & (1 << _M_bit_pos) ? true : false;
+    return bool(*(_M_byte_ptr + _M_byte_pos) & (1 << _M_bit_pos));
 }
 
 /**
@@ -258,7 +258,7 @@ inline bool bool_array::at(size_type pos) const
         throw std::out_of_range("invalid bool_array position");
     byte_pos = (size_t)(pos / 8);
     bit_pos  = (size_t)(pos % 8);
-    return *(_M_byte_ptr + byte_pos) & (1 << bit_pos) ? true : false;
+    return bool(*(_M_byte_ptr + byte_pos) & (1 << bit_pos));
 }
 
 /**
