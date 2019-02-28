@@ -388,7 +388,7 @@ public:
         }
         bool operator==(const iterator& rhs) const
         {
-            return (empty() && rhs.empty()) || _M_current == rhs._M_current;
+            return _M_current == rhs._M_current;
         }
         bool operator!=(const iterator& rhs) const
         {
@@ -502,7 +502,7 @@ public:
         }
         bool operator==(const iterator& rhs) const
         {
-            return (empty() && rhs.empty()) || _M_current == rhs._M_current;
+            return _M_current == rhs._M_current;
         }
         bool operator!=(const iterator& rhs) const
         {
