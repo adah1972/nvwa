@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2014-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2014-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2018-12-16
+ * @date  2019-02-28
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -160,7 +160,7 @@ template <typename _Tp,
                              std::is_const<std::remove_reference_t<_Tp>>{})>
 struct safe_wrapper
 {
-    safe_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
+    explicit safe_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
     _Tp get() const { return value; }
     _Tp value;
 };
@@ -169,7 +169,7 @@ struct safe_wrapper
 template <typename _Tp>
 struct safe_wrapper<_Tp, true>
 {
-    safe_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
+    explicit safe_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
 #if !defined(_MSC_VER)
     template <typename _Up = _Tp>
     std::enable_if_t<std::is_rvalue_reference<_Up>{}, std::decay_t<_Tp>>
