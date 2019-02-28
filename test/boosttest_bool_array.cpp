@@ -28,6 +28,14 @@ BOOST_AUTO_TEST_CASE(bool_array_test)
     BOOST_CHECK_EQUAL(ba.at(99), true);
     BOOST_REQUIRE_THROW(ba.at(100), std::out_of_range);
 
+    nvwa::bool_array ba2(ba);
+    BOOST_CHECK_EQUAL(ba2.at(0), true);
+    BOOST_CHECK_EQUAL(ba2[1], true);
+    BOOST_CHECK_EQUAL(ba2[2], true);
+    BOOST_CHECK_EQUAL(ba2[5], false);
+    BOOST_CHECK_EQUAL(ba2.at(6), false);
+    BOOST_CHECK_EQUAL(ba2.at(99), true);
+
     BOOST_TEST_MESSAGE("is_nothrow_constructible is "
                 << std::is_nothrow_constructible<nvwa::bool_array>::value);
     BOOST_TEST_MESSAGE("is_nothrow_default_constructible is "
