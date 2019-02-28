@@ -32,7 +32,7 @@
  * A generic tree class template and the traversal utilities.  Using
  * this file requires a C++11-compliant compiler.
  *
- * @date  2017-05-14
+ * @date  2019-02-28
  */
 
 #ifndef NVWA_TREE_H
@@ -244,7 +244,7 @@ public:
         typedef std::forward_iterator_tag iterator_category;
 
         iterator() {}
-        iterator(pointer_type root)
+        explicit iterator(pointer_type root)
             : _M_this_level({root})
         {
             _M_current = _M_this_level.begin();
@@ -300,17 +300,17 @@ public:
         std::vector<pointer_type>                    _M_next_level;
     };
 
-    breadth_first_iteration(_Tree& root)
+    explicit breadth_first_iteration(_Tree& root)
         : _M_root(&root)
     {
     }
     iterator begin()
     {
-        return {_M_root};
+        return iterator{_M_root};
     }
     iterator end()
     {
-        return {};
+        return iterator{};
     }
 
 private:
@@ -336,7 +336,7 @@ public:
         typedef std::forward_iterator_tag iterator_category;
 
         iterator() : _M_current(nullptr) {}
-        iterator(pointer_type root) : _M_current(root) {}
+        explicit iterator(pointer_type root) : _M_current(root) {}
 
         reference operator*() const
         {
@@ -361,11 +361,11 @@ public:
                     break;
                 }
                 auto& top = _M_stack.top();
-                auto& next = top.first;
-                auto& end = top.second;
-                if (next != end)
+                auto& next_node = top.first;
+                auto& end_node = top.second;
+                if (next_node != end_node)
                 {
-                    _M_current = &**next++;
+                    _M_current = &**next_node++;
                     if (_M_current != nullptr)
                         break;
                 }
@@ -400,17 +400,17 @@ public:
             _M_stack;
     };
 
-    depth_first_iteration(_Tree& root)
+    explicit depth_first_iteration(_Tree& root)
         : _M_root(&root)
     {
     }
     iterator begin()
     {
-        return {_M_root};
+        return iterator{_M_root};
     }
     iterator end()
     {
-        return {};
+        return iterator{};
     }
 
 private:
@@ -436,7 +436,7 @@ public:
         typedef std::forward_iterator_tag iterator_category;
 
         iterator() : _M_current(nullptr) {}
-        iterator(pointer_type root)
+        explicit iterator(pointer_type root)
         {
             _M_current = find_leftmost_child(root);
         }
@@ -543,17 +543,17 @@ public:
             _M_stack;
     };
 
-    in_order_iteration(_Tree& root)
+    explicit in_order_iteration(_Tree& root)
         : _M_root(&root)
     {
     }
     iterator begin()
     {
-        return {_M_root};
+        return iterator{_M_root};
     }
     iterator end()
     {
-        return {};
+        return iterator{};
     }
 
 private:
@@ -563,7 +563,7 @@ private:
 template <template <typename> class _Iteration, typename _Tree>
 _Iteration<_Tree> traverse(_Tree& root)
 {
-    return {root};
+    return _Iteration<_Tree>{root};
 }
 
 NVWA_NAMESPACE_END
