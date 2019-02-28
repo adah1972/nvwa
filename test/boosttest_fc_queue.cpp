@@ -189,6 +189,17 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
     BOOST_CHECK_EQUAL(s.front(), 1);
     BOOST_CHECK_EQUAL(s.back(), 1);
     BOOST_CHECK_EQUAL(s.size(), 1U);
+    s.push(2);
+    BOOST_CHECK_EQUAL(s.front(), 1);
+    BOOST_CHECK_EQUAL(s.back(), 2);
+    BOOST_CHECK_EQUAL(s.size(), 2U);
+
+    swap(q, s);
+    BOOST_CHECK_EQUAL(q.front(), 1);
+    BOOST_CHECK_EQUAL(q.back(), 2);
+    BOOST_CHECK_EQUAL(q.size(), 2U);
+    BOOST_CHECK_EQUAL(s.front(), 5);
+    BOOST_CHECK_EQUAL(s.back(), 5);
 
     check_type<int>();
     check_type<Obj>();
