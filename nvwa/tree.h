@@ -365,7 +365,8 @@ public:
                 auto& end_node = top.second;
                 if (next_node != end_node)
                 {
-                    _M_current = &**next_node++;
+                    _M_current = &**next_node;
+                    ++next_node;
                     if (_M_current != nullptr)
                         break;
                 }
