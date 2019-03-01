@@ -155,6 +155,14 @@ Contents
    producer does not try to queue an element when the queue is already
    full, no lock is needed for the queue operations.
 
+   I have recently also switched to using C++11 atomic variables in
+   fc_queue.  Previously the code worked for me, but at least
+   theoretically it was not safe: compilers may optimize the code in
+   unexpected ways, and multiple processors may cause surprises too.
+   There is a problem after the change, though.  Using the old interface
+   is not optimal now in the producer-consumer scenario, and two new
+   read/write functions are provided to make it work more efficiently.
+
   * file_line_reader.cpp
   * file_line_reader.h
 

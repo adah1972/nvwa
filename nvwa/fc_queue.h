@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2019-02-27
+ * @date  2019-03-01
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -39,6 +39,7 @@
 
 #include <assert.h>             // assert
 #include <stddef.h>             // ptrdiff_t/size_t/NULL
+#include <atomic>               // std::atomic
 #include <memory>               // std::addressof/allocator/allocator_traits
 #include <new>                  // placement new
 #include <type_traits>          // std::is_trivially_destructible
@@ -48,6 +49,10 @@
 
 #if !(NVWA_CXX11_MODE && HAVE_CXX11_NOEXCEPT && HAVE_CXX11_NULLPTR)
 #error "C++11 support not detected"
+#endif
+
+#ifndef NVWA_FC_QUEUE_USE_ATOMIC
+#define NVWA_FC_QUEUE_USE_ATOMIC 1
 #endif
 
 NVWA_NAMESPACE_BEGIN
@@ -76,6 +81,7 @@ public:
     typedef typename allocator_traits::const_pointer  const_pointer;
     typedef value_type&                               reference;
     typedef const value_type&                         const_reference;
+    typedef std::atomic<pointer>                      atomic_pointer;
 
     /**
      * Default-constructor that creates an empty queue.
@@ -89,9 +95,11 @@ public:
      *                  - <code>size() == 0</code>
      */
     fc_queue() noexcept(noexcept(allocator_type()))
+        : _M_head(nullptr)
+        , _M_tail(nullptr)
+        , _M_begin(nullptr)
+        , _M_end(_M_begin + 1)
     {
-        _M_head = _M_tail = _M_begin = nullptr;
-        _M_end = _M_begin + 1;
     }
 
     /**
@@ -118,7 +126,8 @@ public:
             throw std::bad_alloc();
         _M_begin = _M_alloc.allocate(max_size + 1);
         _M_end = _M_begin + max_size + 1;
-        _M_head = _M_tail = _M_begin;
+        _M_head = _M_begin;
+        _M_tail = _M_begin;
     }
 
     /**
@@ -146,10 +155,12 @@ public:
      */
     ~fc_queue() noexcept(noexcept(std::declval<_Tp*>()->~_Tp()))
     {
-        while (_M_head != _M_tail)
+        pointer ptr = _M_head;
+        pointer tail = _M_tail;
+        while (ptr != tail)
         {
-            destroy(std::addressof(*_M_head));
-            _M_head = increment(_M_head);
+            destroy(std::addressof(*ptr));
+            self_increment(ptr);
         }
         if (_M_begin)
             _M_alloc.deallocate(_M_begin, _M_end - _M_begin);
@@ -301,7 +312,7 @@ public:
                                     std::forward<decltype(args)>(args)...);
         if (full())
             pop();
-        _M_tail = increment(_M_tail);
+        self_increment(_M_tail);
     }
 
     /**
@@ -315,7 +326,74 @@ public:
     {
         assert(!empty());
         destroy(std::addressof(*_M_head));
-        _M_head = increment(_M_head);
+        self_increment(_M_head);
+    }
+
+    /**
+     * Inserts a new element at the end of the queue when the queue is
+     * not full.  This is more performant than separate calls to \c
+     * full() and \c push(), especially when C++11 atomics are used.
+     *
+     * @param args  arguments to construct a new element
+     * @return      \c true if the new element is successfully inserted;
+     *              \c false if the queue is full
+     * @pre         <code>capacity() > 0</code>
+     * @post        <code>size() <= capacity() && back() == value</code>,
+     *              unless an exception is thrown or the queue is full,
+     *              in which case this queue is unchanged (strong
+     *              exception safety is guaranteed).
+     */
+    template <typename... _Targs>
+    bool write(_Targs&&... args)
+    {
+        assert(capacity() > 0);
+#if NVWA_FC_QUEUE_USE_ATOMIC
+        auto tail = _M_tail.load(std::memory_order_relaxed);
+        auto new_tail = increment(tail);
+        if (new_tail == _M_head.load(std::memory_order_acquire))
+            return false;
+        allocator_traits::construct(_M_alloc, std::addressof(*tail),
+                                    std::forward<decltype(args)>(args)...);
+        _M_tail.store(new_tail, std::memory_order_release);
+#else
+        auto new_tail = increment(_M_tail);
+        if (new_tail == _M_head)
+            return false;
+        allocator_traits::construct(_M_alloc, std::addressof(*_M_tail),
+                                    std::forward<decltype(args)>(args)...);
+        _M_tail = new_tail;
+#endif
+        return true;
+    }
+
+    /**
+     * Moves the first element in the queue to the destination when the
+     * queue is not empty.  This is more performant than separate calls
+     * to \c empty(), \c front(), and \c pop(), especially when C++11
+     * atomics are used.  Strong exception safety is guaranteed, if move
+     * assignment of the value type does not throw.
+     *
+     * @param[out] dest  destination to store the element
+     * @return           \c true if an element is moved out of the
+     *                   queue; \c false if the queue is empty
+     */
+    bool read(reference dest)
+    {
+#if NVWA_FC_QUEUE_USE_ATOMIC
+        auto head = _M_head.load(std::memory_order_relaxed);
+        if (head == _M_tail.load(std::memory_order_acquire))
+            return false;
+        dest = std::move(*head);
+        destroy(std::addressof(*head));
+        _M_head.store(increment(head), std::memory_order_release);
+#else
+        if (empty())
+            return false;
+        dest = std::move(*_M_head);
+        destroy(std::addressof(*_M_head));
+        self_increment(_M_head);
+#endif
+        return true;
     }
 
     /**
@@ -328,11 +406,12 @@ public:
     bool contains(const value_type& value) const
     {
         pointer ptr = _M_head;
-        while (ptr != _M_tail)
+        pointer tail = _M_tail;
+        while (ptr != tail)
         {
             if (*ptr == value)
                 return true;
-            ptr = increment(ptr);
+            self_increment(ptr);
         }
         return false;
     }
@@ -352,11 +431,11 @@ public:
                                     std::declval<allocator_type&>())))
     {
         using std::swap;
+        swap_pointer(_M_head,  rhs._M_head);
+        swap_pointer(_M_tail,  rhs._M_tail);
+        swap_pointer(_M_begin, rhs._M_begin);
+        swap_pointer(_M_end,   rhs._M_end);
         swap(_M_alloc, rhs._M_alloc);
-        swap(_M_head,  rhs._M_head);
-        swap(_M_tail,  rhs._M_tail);
-        swap(_M_begin, rhs._M_begin);
-        swap(_M_end,   rhs._M_end);
     }
 
     /**
@@ -370,8 +449,13 @@ public:
     }
 
 protected:
+#if NVWA_FC_QUEUE_USE_ATOMIC
+    atomic_pointer  _M_head;
+    atomic_pointer  _M_tail;
+#else
     pointer         _M_head;
     pointer         _M_tail;
+#endif
     pointer         _M_begin;
     pointer         _M_end;
     allocator_type  _M_alloc;
@@ -390,10 +474,38 @@ protected:
             ptr = _M_end;
         return --ptr;
     }
+    void self_increment(pointer& ptr) const noexcept
+    {
+        ptr = increment(ptr);
+    }
+    void self_decrement(pointer& ptr) const noexcept
+    {
+        ptr = decrement(ptr);
+    }
+    void self_increment(atomic_pointer& ptr) const noexcept
+    {
+        ptr = increment(ptr.load(std::memory_order_relaxed));
+    }
+    void self_decrement(atomic_pointer& ptr) const noexcept
+    {
+        ptr = decrement(ptr.load(std::memory_order_relaxed));
+    }
     static void destroy(void* ptr)
         noexcept(noexcept(std::declval<_Tp*>()->~_Tp()))
     {
         _M_destroy(ptr, std::is_trivially_destructible<_Tp>());
+    }
+    static void swap_pointer(pointer& lhs, pointer& rhs) noexcept
+    {
+        using std::swap;
+        swap(lhs, rhs);
+    }
+    static void swap_pointer(atomic_pointer& lhs,
+                             atomic_pointer& rhs) noexcept
+    {
+        pointer temp = lhs.load(std::memory_order_relaxed);
+        lhs = rhs.load(std::memory_order_relaxed);
+        rhs = temp;
     }
 
 private:
@@ -424,11 +536,18 @@ fc_queue<_Tp, _Alloc>::fc_queue(fc_queue&& rhs) noexcept(
     noexcept(allocator_type(std::declval<allocator_type&&>())))
 {
     _M_alloc = std::move(rhs._M_alloc);
+#if NVWA_FC_QUEUE_USE_ATOMIC
+    _M_head = rhs._M_head.load(std::memory_order_relaxed);
+    _M_tail = rhs._M_tail.load(std::memory_order_relaxed);
+#else
     _M_head = rhs._M_head;
     _M_tail = rhs._M_tail;
+#endif
     _M_begin = rhs._M_begin;
     _M_end = rhs._M_end;
-    rhs._M_head = rhs._M_tail = rhs._M_begin = nullptr;
+    rhs._M_head = nullptr;
+    rhs._M_tail = nullptr;
+    rhs._M_begin = nullptr;
     rhs._M_end = rhs._M_begin + 1;
 }
 

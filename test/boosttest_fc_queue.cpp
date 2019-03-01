@@ -8,6 +8,7 @@
 #include <utility>
 #include <boost/core/demangle.hpp>
 #include <boost/test/unit_test.hpp>
+#include "nvwa/pctimer.h"
 
 using namespace boost::unit_test_framework;
 
@@ -44,8 +45,8 @@ void check_type()
                 << std::is_nothrow_destructible<test_type>::value);
 }
 
-const int LOOPS = 1'000'000;
-bool parallel_test_failed = false;
+const int LOOPS = 10'000'000;
+std::atomic<bool> parallel_test_failed = false;
 
 void add_to_queue(nvwa::fc_queue<int>& q)
 {
@@ -78,6 +79,41 @@ void read_and_check_queue(nvwa::fc_queue<int>& q)
             break;
         }
         q.pop();
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    BOOST_TEST_MESSAGE(stop_count << " stops during dequeueing");
+}
+
+void add_to_queue2(nvwa::fc_queue<int>& q)
+{
+    int stop_count = 0;
+    for (int i = 0; i < LOOPS; ++i) {
+        while (!q.write(i)) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            if (parallel_test_failed) {
+                return;
+            }
+            ++stop_count;
+        }
+    }
+    BOOST_TEST_MESSAGE(stop_count << " stops during enqueueing");
+}
+
+void read_and_check_queue2(nvwa::fc_queue<int>& q)
+{
+    int stop_count = 0;
+    for (int i = 0; i < LOOPS; ++i) {
+        int value;
+        while (!q.read(value)) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            ++stop_count;
+        }
+        if (i != value) {
+            BOOST_ERROR("Failure on " << i << "th read: "
+                        "Expected " << i << ", got " << q.front());
+            parallel_test_failed = true;
+            break;
+        }
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     BOOST_TEST_MESSAGE(stop_count << " stops during dequeueing");
@@ -207,10 +243,28 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
 
 BOOST_AUTO_TEST_CASE(fc_queue_parallel_test)
 {
-    nvwa::fc_queue<int> q(1000);
+    parallel_test_failed = false;
+    nvwa::fc_queue<int> q(100'000);
+    auto t1 = nvwa::pctimer();
     std::thread enqueue_thread(add_to_queue, std::ref(q));
     std::thread dequeue_thread(read_and_check_queue, std::ref(q));
     enqueue_thread.join();
     dequeue_thread.join();
     BOOST_CHECK(!parallel_test_failed);
+    auto t2 = nvwa::pctimer();
+    BOOST_TEST_MESSAGE("Test took " << (t2 - t1) << " seconds");
+}
+
+BOOST_AUTO_TEST_CASE(fc_queue_parallel_test2)
+{
+    parallel_test_failed = false;
+    nvwa::fc_queue<int> q(100'000);
+    auto t1 = nvwa::pctimer();
+    std::thread enqueue_thread(add_to_queue2, std::ref(q));
+    std::thread dequeue_thread(read_and_check_queue2, std::ref(q));
+    enqueue_thread.join();
+    dequeue_thread.join();
+    BOOST_CHECK(!parallel_test_failed);
+    auto t2 = nvwa::pctimer();
+    BOOST_TEST_MESSAGE("Test took " << (t2 - t1) << " seconds");
 }
