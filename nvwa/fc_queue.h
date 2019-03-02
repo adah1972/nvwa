@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2019-03-01
+ * @date  2019-03-02
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -504,8 +504,9 @@ protected:
                              atomic_pointer& rhs) noexcept
     {
         pointer temp = lhs.load(std::memory_order_relaxed);
-        lhs = rhs.load(std::memory_order_relaxed);
-        rhs = temp;
+        lhs.store(rhs.load(std::memory_order_relaxed),
+                  std::memory_order_relaxed);
+        rhs.store(temp, std::memory_order_relaxed);
     }
 
 private:
@@ -523,7 +524,8 @@ fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
 {
     fc_queue temp(rhs.capacity(), rhs.get_allocator());
     pointer ptr = rhs._M_head;
-    while (ptr != rhs._M_tail)
+    pointer tail = rhs._M_tail;
+    while (ptr != tail)
     {
         temp.push(*ptr);
         ptr = rhs.increment(ptr);
@@ -537,16 +539,20 @@ fc_queue<_Tp, _Alloc>::fc_queue(fc_queue&& rhs) noexcept(
 {
     _M_alloc = std::move(rhs._M_alloc);
 #if NVWA_FC_QUEUE_USE_ATOMIC
-    _M_head = rhs._M_head.load(std::memory_order_relaxed);
-    _M_tail = rhs._M_tail.load(std::memory_order_relaxed);
+    _M_head.store(rhs._M_head.load(std::memory_order_relaxed),
+                  std::memory_order_relaxed);
+    _M_tail.store(rhs._M_tail.load(std::memory_order_relaxed),
+                  std::memory_order_relaxed);
+    rhs._M_head.store(nullptr, std::memory_order_relaxed);
+    rhs._M_tail.store(nullptr, std::memory_order_relaxed);
 #else
     _M_head = rhs._M_head;
     _M_tail = rhs._M_tail;
+    rhs._M_head = nullptr;
+    rhs._M_tail = nullptr;
 #endif
     _M_begin = rhs._M_begin;
     _M_end = rhs._M_end;
-    rhs._M_head = nullptr;
-    rhs._M_tail = nullptr;
     rhs._M_begin = nullptr;
     rhs._M_end = rhs._M_begin + 1;
 }
