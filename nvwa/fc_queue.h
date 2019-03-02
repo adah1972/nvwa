@@ -295,7 +295,8 @@ public:
 
     /**
      * Inserts a new element at the end of the queue.  The first element
-     * will be discarded if the queue is full.
+     * will be discarded if the queue is full.  The behaviour is
+     * different from \c write().
      *
      * @param args  arguments to construct a new element
      * @pre         <code>capacity() > 0</code>
@@ -303,6 +304,7 @@ public:
      *              unless an exception is thrown, in which case this
      *              queue is unchanged (strong exception safety is
      *              guaranteed).
+     * @see write
      */
     template <typename... _Targs>
     void push(_Targs&&... args)
@@ -321,6 +323,7 @@ public:
      * @pre   This queue is not empty.
      * @post  One element is discarded at the front, \c size() is
      *        decremented by one, and \c full() is \c false.
+     * @see read
      */
     void pop()
     {
@@ -342,6 +345,7 @@ public:
      *              unless an exception is thrown or the queue is full,
      *              in which case this queue is unchanged (strong
      *              exception safety is guaranteed).
+     * @see push
      */
     template <typename... _Targs>
     bool write(_Targs&&... args)
@@ -376,6 +380,7 @@ public:
      * @param[out] dest  destination to store the element
      * @return           \c true if an element is moved out of the
      *                   queue; \c false if the queue is empty
+     * @see pop
      */
     bool read(reference dest)
     {
