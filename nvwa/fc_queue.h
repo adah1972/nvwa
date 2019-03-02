@@ -436,11 +436,11 @@ public:
                                     std::declval<allocator_type&>())))
     {
         using std::swap;
+        swap(_M_alloc, rhs._M_alloc);
         swap_pointer(_M_head,  rhs._M_head);
         swap_pointer(_M_tail,  rhs._M_tail);
         swap_pointer(_M_begin, rhs._M_begin);
         swap_pointer(_M_end,   rhs._M_end);
-        swap(_M_alloc, rhs._M_alloc);
     }
 
     /**
