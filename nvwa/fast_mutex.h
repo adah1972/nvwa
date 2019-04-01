@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * A fast mutex implementation for POSIX, Win32, and modern C++.
  *
- * @date  2018-11-15
+ * @date  2019-04-01
  */
 
 #ifndef NVWA_FAST_MUTEX_H
@@ -146,11 +146,6 @@
 # if NVWA_USE_CXX11_MUTEX != 0
 #   include <mutex>
 NVWA_NAMESPACE_BEGIN
-/**
- * Macro alias to `volatile' semantics.  Here it is truly volatile since
- * it is in a multi-threaded (C++11) environment.
- */
-#   define __VOLATILE volatile
     /**
      * Class for non-reentrant fast mutexes.  This is the implementation
      * using the C++11 mutex.
@@ -213,11 +208,6 @@ NVWA_NAMESPACE_END
 # elif defined(NVWA_PTHREADS)
 #   include <pthread.h>
 NVWA_NAMESPACE_BEGIN
-/**
- * Macro alias to `volatile' semantics.  Here it is truly volatile since
- * it is in a multi-threaded (POSIX threads) environment.
- */
-#   define __VOLATILE volatile
     /**
      * Class for non-reentrant fast mutexes.  This is the implementation
      * for POSIX threads.
@@ -290,11 +280,6 @@ NVWA_NAMESPACE_END
 #   endif /* WIN32_LEAN_AND_MEAN */
 #   include <windows.h>
 NVWA_NAMESPACE_BEGIN
-/**
- * Macro alias to `volatile' semantics.  Here it is truly volatile since
- * it is in a multi-threaded (Win32 threads) environment.
- */
-#   define __VOLATILE volatile
     /**
      * Class for non-reentrant fast mutexes.  This is the implementation
      * for Win32 threads.
@@ -358,11 +343,6 @@ NVWA_NAMESPACE_BEGIN
 NVWA_NAMESPACE_END
 # elif defined(NVWA_NOTHREADS)
 NVWA_NAMESPACE_BEGIN
-/**
- * Macro alias to `volatile' semantics.  Here it is not truly volatile
- * since it is in a single-threaded environment.
- */
-#   define __VOLATILE
     /**
      * Class for non-reentrant fast mutexes.  This is the null
      * implementation for single-threaded environments.
