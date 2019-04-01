@@ -19,6 +19,7 @@ BOOST_AUTO_TEST_CASE(bool_array_test)
     ba.set(6);
     BOOST_CHECK_EQUAL(ba.at(5), true);
     BOOST_CHECK_EQUAL(ba[6], true);
+    BOOST_CHECK_EQUAL(ba.count(), 2);
     ba.flip();
     BOOST_CHECK_EQUAL(ba.at(0), true);
     BOOST_CHECK_EQUAL(ba[1], true);
@@ -26,6 +27,7 @@ BOOST_AUTO_TEST_CASE(bool_array_test)
     BOOST_CHECK_EQUAL(ba[5], false);
     BOOST_CHECK_EQUAL(ba.at(6), false);
     BOOST_CHECK_EQUAL(ba.at(99), true);
+    BOOST_CHECK_EQUAL(ba.count(), 98);
     BOOST_REQUIRE_THROW(ba.at(100), std::out_of_range);
 
     nvwa::bool_array ba2(ba);
@@ -35,6 +37,7 @@ BOOST_AUTO_TEST_CASE(bool_array_test)
     BOOST_CHECK_EQUAL(ba2[5], false);
     BOOST_CHECK_EQUAL(ba2.at(6), false);
     BOOST_CHECK_EQUAL(ba2.at(99), true);
+    BOOST_CHECK_EQUAL(ba2.count(), 98);
 
     BOOST_TEST_MESSAGE("is_nothrow_constructible is "
                 << std::is_nothrow_constructible<nvwa::bool_array>::value);
