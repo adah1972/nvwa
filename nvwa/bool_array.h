@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2019-02-28
+ * @date  2019-04-01
  */
 
 #ifndef NVWA_BOOL_ARRAY_H
@@ -150,10 +150,8 @@ public:
 private:
     byte get_8bits(size_type offset, size_type end) const;
 
-    byte*           _M_byte_ptr;
-    size_type       _M_length;
-    static byte     _S_bit_count[256];
-    static byte     _S_bit_ordinal[256];
+    byte*      _M_byte_ptr;
+    size_type  _M_length;
 };
 
 
