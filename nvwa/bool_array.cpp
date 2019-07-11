@@ -31,13 +31,14 @@
  *
  * Code for class bool_array (packed boolean array).
  *
- * @date  2019-04-01
+ * @date  2019-07-11
  */
 
 #include "bool_array.h"         // bool_array
 #include <limits.h>             // UINT_MAX, ULONG_MAX
 #include <string.h>             // memset/memcpy
 #include <algorithm>            // std::swap
+#include <utility>              // std::make_integer_sequence
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++_features.h"       // _NULLPTR
 #include "static_assert.h"      // STATIC_ASSERT
