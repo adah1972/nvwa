@@ -52,9 +52,9 @@ Contents
    vary), and it has members like at, set, reset, flip, and count.  I
    personally find "count" very useful.
 
-  * c++11.h
+  * c++_features.h
 
-   Detection macros for certain features of C++11 that might be of
+   Detection macros for certain modern C++ features that might be of
    interest to code/library writers.  I have used existing online
    resources, and I have tested them on popular platforms and compilers
    that I have access to (Windows, Linux, and macOS; MSVC, GCC, and
