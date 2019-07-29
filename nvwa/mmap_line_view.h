@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -33,7 +33,7 @@
  * satisfies the View concept.  It is implemented with memory-mapped file
  * APIs.
  *
- * @date  2018-12-25
+ * @date  2019-07-29
  */
 
 #ifndef NVWA_MMAP_LINE_VIEW_H
@@ -59,7 +59,7 @@ public:
     {
     public:
         typedef _Tp                       value_type;
-        typedef const value_type*         pointer_type;
+        typedef const value_type*         pointer;
         typedef const value_type&         reference;
         typedef ptrdiff_t                 difference_type;
         typedef std::forward_iterator_tag iterator_category;
@@ -77,7 +77,7 @@ public:
             assert(_M_reader != nullptr);
             return _M_line;
         }
-        pointer_type operator->() const
+        pointer operator->() const
         {
             assert(_M_reader != nullptr);
             return &_M_line;

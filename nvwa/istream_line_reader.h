@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -47,7 +47,7 @@
  * and has since been modified to satisfy the \c InputIterator concept,
  * along with other minor changes.
  *
- * @date  2018-12-18
+ * @date  2019-07-29
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
@@ -76,7 +76,7 @@ public:
     public:
         typedef int                     difference_type;
         typedef std::string             value_type;
-        typedef const value_type*       pointer_type;
+        typedef const value_type*       pointer;
         typedef const value_type&       reference;
         typedef std::input_iterator_tag iterator_category;
 
@@ -91,7 +91,7 @@ public:
             assert(_M_stream != _NULLPTR);
             return _M_line;
         }
-        pointer_type operator->() const
+        pointer operator->() const
         {
             assert(_M_stream != _NULLPTR);
             return &_M_line;

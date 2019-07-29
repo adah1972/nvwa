@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Header file for mmap_byte_reader, an easy-to-use byte-based file reader.
  * It is implemented with memory-mapped file APIs.
  *
- * @date  2018-12-30
+ * @date  2019-07-29
  */
 
 #ifndef NVWA_MMAP_BYTE_READER_H
@@ -52,7 +52,7 @@ class basic_mmap_byte_reader : public mmap_reader_base
 {
 public:
     typedef _Tp                value_type;
-    typedef const value_type*  pointer_type;
+    typedef const value_type*  pointer;
     typedef const value_type&  reference;
     typedef const value_type&  const_reference;
 
@@ -61,7 +61,7 @@ public:
     {
     public:
         typedef _Tp                             value_type;
-        typedef const value_type*               pointer_type;
+        typedef const value_type*               pointer;
         typedef const value_type&               reference;
         typedef const value_type&               const_reference;
         typedef ptrdiff_t                       difference_type;
@@ -78,7 +78,7 @@ public:
         {
             return _M_reader->get(_M_offset);
         }
-        pointer_type operator->() const
+        pointer operator->() const
         {
             return &_M_reader->get(_M_offset);
         }

@@ -78,7 +78,7 @@ public:
     public:
         typedef int                               difference_type;
         typedef std::basic_string_view<char_type> value_type;
-        typedef value_type*                       pointer_type;
+        typedef value_type*                       pointer;
         typedef value_type&                       reference;
         typedef std::input_iterator_tag           iterator_category;
 
@@ -101,7 +101,7 @@ public:
             assert(_M_src != nullptr);
             return _M_cur;
         }
-        pointer_type operator->() noexcept
+        pointer operator->() noexcept
         {
             assert(_M_src != nullptr);
             return &_M_cur;

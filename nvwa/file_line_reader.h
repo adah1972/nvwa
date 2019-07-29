@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2016-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2016-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2018-11-15
+ * @date  2019-07-29
  */
 
 #ifndef NVWA_FILE_LINE_READER_H
@@ -59,7 +59,7 @@ public:
     public:
         typedef int                     difference_type;
         typedef char*                   value_type;
-        typedef value_type*             pointer_type;
+        typedef value_type*             pointer;
         typedef value_type&             reference;
         typedef std::input_iterator_tag iterator_category;
 
@@ -82,7 +82,7 @@ public:
             assert(_M_reader != _NULLPTR);
             return _M_line;
         }
-        pointer_type operator->()
+        pointer operator->()
         {
             assert(_M_reader != _NULLPTR);
             return &_M_line;

@@ -239,12 +239,12 @@ public:
     public:
         typedef int                       difference_type;
         typedef _Tree                     value_type;
-        typedef _Tree*                    pointer_type;
+        typedef _Tree*                    pointer;
         typedef _Tree&                    reference;
         typedef std::forward_iterator_tag iterator_category;
 
         iterator() {}
-        explicit iterator(pointer_type root)
+        explicit iterator(pointer root)
             : _M_this_level({root})
         {
             _M_current = _M_this_level.begin();
@@ -255,7 +255,7 @@ public:
             assert(!empty());
             return **_M_current;
         }
-        pointer_type operator->() const
+        pointer operator->() const
         {
             assert(!empty());
             return &*_M_current;
@@ -295,9 +295,9 @@ public:
         }
 
     private:
-        typename std::vector<pointer_type>::iterator _M_current;
-        std::vector<pointer_type>                    _M_this_level;
-        std::vector<pointer_type>                    _M_next_level;
+        typename std::vector<pointer>::iterator _M_current;
+        std::vector<pointer>                    _M_this_level;
+        std::vector<pointer>                    _M_next_level;
     };
 
     explicit breadth_first_iteration(_Tree& root)
@@ -331,19 +331,19 @@ public:
     public:
         typedef int                       difference_type;
         typedef _Tree                     value_type;
-        typedef _Tree*                    pointer_type;
+        typedef _Tree*                    pointer;
         typedef _Tree&                    reference;
         typedef std::forward_iterator_tag iterator_category;
 
         iterator() : _M_current(nullptr) {}
-        explicit iterator(pointer_type root) : _M_current(root) {}
+        explicit iterator(pointer root) : _M_current(root) {}
 
         reference operator*() const
         {
             assert(!empty());
             return *_M_current;
         }
-        pointer_type operator->() const
+        pointer operator->() const
         {
             assert(!empty());
             return _M_current;
@@ -396,7 +396,7 @@ public:
         }
 
     private:
-        pointer_type _M_current;
+        pointer _M_current;
         std::stack<std::pair<typename _Tree::const_iterator,
                              typename _Tree::const_iterator>>
             _M_stack;
@@ -433,12 +433,12 @@ public:
     public:
         typedef int                       difference_type;
         typedef _Tree                     value_type;
-        typedef _Tree*                    pointer_type;
+        typedef _Tree*                    pointer;
         typedef _Tree&                    reference;
         typedef std::forward_iterator_tag iterator_category;
 
         iterator() : _M_current(nullptr) {}
-        explicit iterator(pointer_type root)
+        explicit iterator(pointer root)
         {
             _M_current = find_leftmost_child(root);
         }
@@ -448,7 +448,7 @@ public:
             assert(!empty());
             return *_M_current;
         }
-        pointer_type operator->() const
+        pointer operator->() const
         {
             assert(!empty());
             return _M_current;
@@ -510,7 +510,7 @@ public:
         }
 
     private:
-        pointer_type find_leftmost_child(pointer_type root)
+        pointer find_leftmost_child(pointer root)
         {
             using std::make_tuple;
             auto curr = root;
@@ -538,8 +538,8 @@ public:
             return curr;
         }
 
-        pointer_type _M_current;
-        std::stack<std::tuple<pointer_type,
+        pointer _M_current;
+        std::stack<std::tuple<pointer,
                               typename _Tree::const_iterator,
                               typename _Tree::const_iterator>>
             _M_stack;
