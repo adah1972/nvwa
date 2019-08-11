@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2019-02-28
+ * @date  2019-08-11
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -834,7 +834,7 @@ constexpr decltype(auto) pipeline(_Tp&& data, _Fn&& f, _Fargs&&... args)
  *
  * @return      the forwarding function
  */
-auto compose()
+inline auto compose()
 {
     return [](auto&& x) -> decltype(auto)
     {
