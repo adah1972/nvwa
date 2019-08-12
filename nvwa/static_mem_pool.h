@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @date  2018-11-15
+ * @date  2019-08-12
  */
 
 #ifndef NVWA_STATIC_MEM_POOL_H
@@ -44,7 +44,7 @@
 #include <assert.h>             // assert
 #include <stddef.h>             // size_t/NULL
 #include "_nvwa.h"              // NVWA/NVWA_NAMESPACE_*
-#include "c++_features.h"       // _NOEXCEPT/_NULLPTR/_OVERRIDE
+#include "c++_features.h"       // _DELETED/_NOEXCEPT/_NULLPTR/_OVERRIDE
 #include "class_level_lock.h"   // nvwa::class_level_lock
 #include "mem_pool_base.h"      // nvwa::mem_pool_base
 
@@ -209,8 +209,8 @@ private:
     static mem_pool_base::_Block_list* _S_memory_block_p;
 
     /* Forbid their use */
-    static_mem_pool(const static_mem_pool&);
-    const static_mem_pool& operator=(const static_mem_pool&);
+    static_mem_pool(const static_mem_pool&) _DELETED;
+    const static_mem_pool& operator=(const static_mem_pool&) _DELETED;
 };
 
 template <size_t _Sz, int _Gid> bool
