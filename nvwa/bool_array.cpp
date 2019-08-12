@@ -164,7 +164,7 @@ bool_array::bool_array(const bool_array& rhs)
         return;
     if (!create(rhs.size()))
         throw std::bad_alloc();
-    memcpy(_M_byte_ptr, rhs._M_byte_ptr, (size_t)((_M_length - 1) / 8) + 1);
+    memcpy(_M_byte_ptr, rhs._M_byte_ptr, (_M_length - 1) / 8 + 1);
 }
 
 /**
@@ -273,11 +273,11 @@ bool_array::size_type bool_array::count(size_type begin, size_type end) const
     size_t byte_pos_beg, byte_pos_end;
     byte byte_val;
 
-    byte_pos_beg = (size_t)(begin / 8);
+    byte_pos_beg = begin / 8;
     byte_val = _M_byte_ptr[byte_pos_beg];
     byte_val &= ~0U << (begin % 8);
 
-    byte_pos_end = (size_t)(end / 8);
+    byte_pos_end = end / 8;
     if (byte_pos_beg < byte_pos_end)
     {
         true_cnt = _S_bit_count._M_bit_count[byte_val];
@@ -316,8 +316,8 @@ bool_array::size_type bool_array::find_until(
         throw std::out_of_range("invalid bool_array range");
     --end;
 
-    size_t byte_pos_beg = (size_t)(begin / 8);
-    size_t byte_pos_end = (size_t)(end / 8);
+    size_t byte_pos_beg = begin / 8;
+    size_t byte_pos_end = end / 8;
     byte byte_val = _M_byte_ptr[byte_pos_beg];
 
     if (value)
@@ -402,8 +402,8 @@ void bool_array::merge_and(
     if (offset + (end - begin) > _M_length)
         throw std::out_of_range("destination overflown");
 
-    size_t byte_offset = (size_t)(offset / 8);
-    size_t bit_offset = (size_t)(offset % 8);
+    size_t byte_offset = offset / 8;
+    size_t bit_offset = offset % 8;
     byte value;
     if (bit_offset != 0 && begin + 8 - bit_offset <= end)
     {   // Merge the first byte (in destination), if it is partial and
@@ -457,8 +457,8 @@ void bool_array::merge_or(
     if (offset + (end - begin) > _M_length)
         throw std::out_of_range("destination overflown");
 
-    size_t byte_offset = (size_t)(offset / 8);
-    size_t bit_offset = (size_t)(offset % 8);
+    size_t byte_offset = offset / 8;
+    size_t bit_offset = offset % 8;
     byte value;
     if (bit_offset != 0 && begin + 8 - bit_offset <= end)
     {   // Merge the first byte (in destination), if it is partial and
