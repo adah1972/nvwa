@@ -102,8 +102,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = ../nvwa/_nvwa.h \
-                         ../nvwa/c++_features.h \
+INPUT                  = ../nvwa/c++_features.h \
                          ../nvwa/fast_mutex.h \
                          ../nvwa/class_level_lock.h \
                          ../nvwa/object_level_lock.h \
