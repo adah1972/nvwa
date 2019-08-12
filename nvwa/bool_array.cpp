@@ -121,7 +121,6 @@ auto _S_bit_ordinal =
  * @throw bad_alloc     memory is insufficient
  */
 bool_array::bool_array(size_type size)
-    : _M_byte_ptr(_NULLPTR), _M_length(0)
 {
     if (size == 0)
         throw std::out_of_range("invalid bool_array size");
@@ -138,7 +137,6 @@ bool_array::bool_array(size_type size)
  * @throw bad_alloc     memory is insufficient
  */
 bool_array::bool_array(const void* ptr, size_type size)
-    : _M_byte_ptr(_NULLPTR), _M_length(0)
 {
     if (size == 0)
         throw std::out_of_range("invalid bool_array size");
@@ -158,7 +156,6 @@ bool_array::bool_array(const void* ptr, size_type size)
  * @throw bad_alloc  memory is insufficient
  */
 bool_array::bool_array(const bool_array& rhs)
-    : _M_byte_ptr(_NULLPTR), _M_length(0)
 {
     if (rhs.size() == 0)
         return;

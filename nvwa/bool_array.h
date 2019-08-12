@@ -150,8 +150,8 @@ public:
 private:
     byte get_8bits(size_type offset, size_type end) const;
 
-    byte*      _M_byte_ptr;
-    size_type  _M_length;
+    byte*      _M_byte_ptr{_NULLPTR};
+    size_type  _M_length{0};
 };
 
 
@@ -203,7 +203,7 @@ inline bool_array::_Element<_Byte_type>::operator bool() const
 /**
  * Constructs an empty bool_array.
  */
-inline bool_array::bool_array() _NOEXCEPT : _M_byte_ptr(_NULLPTR), _M_length(0)
+inline bool_array::bool_array() _NOEXCEPT
 {
 }
 
