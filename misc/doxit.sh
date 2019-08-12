@@ -122,10 +122,16 @@ fi
 # Remove the intermediate Doxyfile
 rm $DOXYFILE_TMP
 
-# Remove the space between -> and * in some Doxygen versions
 cd ../doc/html
+
+# Remove the space between -> and * in some Doxygen versions
 echo "Postprocessing HTML files"
 grepsedfile 'operator-&gt; \*|operator-> \*' 'operator-\&gt;*' *.html
+
+# Remove the titles in SVG files, which could be distracting
+echo "Postprocessing SVG files"
+sed_i '/^<title>[^<>]+<\/title>$/d' *.svg
+
 cd ../../misc
 
 # Make LaTeX documents
