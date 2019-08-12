@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2019-08-11
+ * @date  2019-08-12
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -272,7 +272,7 @@ class optional_base<_Tp, false>
 public:
     typedef _Tp value_type;
 
-    constexpr optional_base() : _M_dummy(), _M_engaged(false) {}
+    constexpr optional_base() noexcept : _M_dummy(), _M_engaged(false) {}
     constexpr explicit optional_base(const _Tp& x)
         : _M_value(x)
         , _M_engaged(true)
@@ -325,7 +325,7 @@ class optional_base<_Tp, true>
 public:
     typedef _Tp value_type;
 
-    constexpr optional_base() : _M_dummy(), _M_engaged(false) {}
+    constexpr optional_base() noexcept : _M_dummy(), _M_engaged(false) {}
     constexpr explicit optional_base(const _Tp& x)
         : _M_value(x)
         , _M_engaged(true)
@@ -382,7 +382,7 @@ class optional : public optional_base<_Tp>
 public:
     using optional_base<_Tp>::reset;
 
-    constexpr optional() noexcept {}
+    constexpr optional() noexcept = default;
     constexpr optional(const optional& rhs) : optional_base<_Tp>(rhs) {}
     constexpr optional(optional&& rhs) noexcept(
         std::is_nothrow_move_constructible<_Tp>::value)
