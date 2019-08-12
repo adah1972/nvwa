@@ -41,7 +41,6 @@
 #include <algorithm>            // std::swap
 #include <utility>              // std::make_integer_sequence
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // _NULLPTR
 #include "static_assert.h"      // STATIC_ASSERT
 
 NVWA_NAMESPACE_BEGIN
@@ -185,7 +184,7 @@ bool_array& bool_array::operator=(const bool_array& rhs)
  *              memory is insufficient; \c true if \a size has a
  *              suitable value and memory allocation is successful.
  */
-bool bool_array::create(size_type size) _NOEXCEPT
+bool bool_array::create(size_type size) noexcept
 {
     if (size == 0)
         return false;
@@ -204,7 +203,7 @@ bool bool_array::create(size_type size) _NOEXCEPT
 
     size_t byte_cnt = get_num_bytes_from_bits(size);
     byte* byte_ptr = (byte*)malloc(byte_cnt);
-    if (byte_ptr == _NULLPTR)
+    if (byte_ptr == nullptr)
         return false;
 
     if (_M_byte_ptr)
@@ -220,7 +219,7 @@ bool bool_array::create(size_type size) _NOEXCEPT
  *
  * @param value  the boolean value to assign to all elements
  */
-void bool_array::initialize(bool value) _NOEXCEPT
+void bool_array::initialize(bool value) noexcept
 {
     assert(_M_byte_ptr);
     size_t byte_cnt = get_num_bytes_from_bits(_M_length);
@@ -237,7 +236,7 @@ void bool_array::initialize(bool value) _NOEXCEPT
  *
  * @return  the count of \c true elements
  */
-bool_array::size_type bool_array::count() const _NOEXCEPT
+bool_array::size_type bool_array::count() const noexcept
 {
     assert(_M_byte_ptr);
     size_type true_cnt = 0;
@@ -353,7 +352,7 @@ bool_array::size_type bool_array::find_until(
 /**
  * Changes all \c true elements to \c false, and \c false ones to \c true.
  */
-void bool_array::flip() _NOEXCEPT
+void bool_array::flip() noexcept
 {
     assert(_M_byte_ptr);
     size_t byte_cnt = get_num_bytes_from_bits(_M_length);
@@ -368,7 +367,7 @@ void bool_array::flip() _NOEXCEPT
  *
  * @param rhs  another bool_array to exchange content with
  */
-void bool_array::swap(bool_array& rhs) _NOEXCEPT
+void bool_array::swap(bool_array& rhs) noexcept
 {
     std::swap(_M_byte_ptr, rhs._M_byte_ptr);
     std::swap(_M_length,   rhs._M_length);

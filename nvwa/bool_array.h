@@ -43,7 +43,6 @@
 #include <stdexcept>            // std::out_of_range
 #include <string>               // for exception constructors
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // _NOEXCEPT/_NULLPTR
 
 NVWA_NAMESPACE_BEGIN
 
@@ -108,7 +107,7 @@ public:
     static const size_type npos = (size_type)-1;
 #endif
 
-    bool_array() _NOEXCEPT;
+    bool_array() noexcept;
     explicit bool_array(size_type size);
     bool_array(const void* ptr, size_type size);
     ~bool_array();
@@ -116,8 +115,8 @@ public:
     bool_array(const bool_array& rhs);
     bool_array& operator=(const bool_array& rhs);
 
-    bool create(size_type size) _NOEXCEPT;
-    void initialize(bool value) _NOEXCEPT;
+    bool create(size_type size) noexcept;
+    void initialize(bool value) noexcept;
 
     reference operator[](size_type pos);
     const_reference operator[](size_type pos) const;
@@ -126,15 +125,15 @@ public:
     void reset(size_type pos);
     void set(size_type pos);
 
-    size_type size() const _NOEXCEPT;
-    size_type count() const _NOEXCEPT;
+    size_type size() const noexcept;
+    size_type count() const noexcept;
     size_type count(size_type begin, size_type end = npos) const;
     size_type find(bool value, size_type offset = 0) const;
     size_type find(bool value, size_type offset, size_type count) const;
     size_type find_until(bool value, size_type begin, size_type end) const;
 
-    void flip() _NOEXCEPT;
-    void swap(bool_array& rhs) _NOEXCEPT;
+    void flip() noexcept;
+    void swap(bool_array& rhs) noexcept;
     void merge_and(const bool_array& rhs,
                    size_type begin = 0,
                    size_type end = npos,
@@ -150,7 +149,7 @@ public:
 private:
     byte get_8bits(size_type offset, size_type end) const;
 
-    byte*      _M_byte_ptr{_NULLPTR};
+    byte*      _M_byte_ptr{nullptr};
     size_type  _M_length{0};
 };
 
@@ -203,16 +202,14 @@ inline bool_array::_Element<_Byte_type>::operator bool() const
 /**
  * Constructs an empty bool_array.
  */
-inline bool_array::bool_array() _NOEXCEPT
-{
-}
+inline bool_array::bool_array() noexcept = default;
 
 /**
  * Destroys the bool_array and releases memory.
  */
 inline bool_array::~bool_array()
 {
-    if (_M_byte_ptr != _NULLPTR)
+    if (_M_byte_ptr != nullptr)
         free(_M_byte_ptr);
 }
 
@@ -296,7 +293,7 @@ inline void bool_array::set(size_type pos)
  *
  * @return  the number of bits of the bool_array
  */
-inline bool_array::size_type bool_array::size() const _NOEXCEPT
+inline bool_array::size_type bool_array::size() const noexcept
 {
     return _M_length;
 }
@@ -353,7 +350,7 @@ inline size_t bool_array::get_num_bytes_from_bits(size_type num_bits)
  * @param lhs  the first bool_array to exchange
  * @param rhs  the second bool_array to exchange
  */
-inline void swap(bool_array& lhs, bool_array& rhs) _NOEXCEPT
+inline void swap(bool_array& lhs, bool_array& rhs) noexcept
 {
     lhs.swap(rhs);
 }
