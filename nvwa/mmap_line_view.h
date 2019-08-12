@@ -33,7 +33,7 @@
  * satisfies the View concept.  It is implemented with memory-mapped file
  * APIs.
  *
- * @date  2019-07-29
+ * @date  2019-08-12
  */
 
 #ifndef NVWA_MMAP_LINE_VIEW_H
@@ -64,7 +64,7 @@ public:
         typedef ptrdiff_t                 difference_type;
         typedef std::forward_iterator_tag iterator_category;
 
-        iterator() : _M_reader(nullptr) {}
+        iterator() = default;
         explicit iterator(basic_mmap_line_view* reader)
             : _M_reader(reader)
             , _M_offset(0)
@@ -105,7 +105,7 @@ public:
         }
 
     private:
-        basic_mmap_line_view* _M_reader;
+        basic_mmap_line_view* _M_reader{nullptr};
         size_t                _M_offset;
         value_type            _M_line;
     };
@@ -117,9 +117,7 @@ public:
         no_strip_delimiter,  ///< The delimiter should be retained
     };
 
-    basic_mmap_line_view()
-    {
-    }
+    basic_mmap_line_view() = default;
     explicit basic_mmap_line_view(const char* path, char delimiter = '\n',
                                   strip_type strip = strip_delimiter)
         : _M_reader_base{std::make_shared<mmap_reader_base>(path)}
@@ -146,9 +144,7 @@ public:
     {
     }
 #endif
-    ~basic_mmap_line_view()
-    {
-    }
+    ~basic_mmap_line_view() = default;
 
     basic_mmap_line_view(const basic_mmap_line_view&) = default;
     basic_mmap_line_view& operator=(const basic_mmap_line_view&) = default;
