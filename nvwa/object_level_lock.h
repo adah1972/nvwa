@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -34,7 +34,7 @@
  * href="http://www.awprofessional.com/articles/article.asp?p=25298">
  * "Multithreading and the C++ Type System"</a> for the ideas behind.
  *
- * @date  2013-03-01
+ * @date  2019-08-12
  */
 
 #ifndef NVWA_OBJECT_LEVEL_LOCK_H
@@ -42,6 +42,7 @@
 
 #include "fast_mutex.h"         // nvwa::fast_mutex/_NOTHREADS
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++_features.h"       // _DELETED
 
 NVWA_NAMESPACE_BEGIN
 
@@ -106,8 +107,8 @@ NVWA_NAMESPACE_BEGIN
         {
             const object_level_lock& _M_host;
 
-            lock(const lock&);
-            lock& operator=(const lock&);
+            lock(const lock&) _DELETED;
+            lock& operator=(const lock&) _DELETED;
         public:
             explicit lock(const object_level_lock& host) : _M_host(host)
             {

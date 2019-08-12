@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * In essence Loki ClassLevelLockable re-engineered to use a fast_mutex class.
  *
- * @date  2017-11-25
+ * @date  2019-08-12
  */
 
 #ifndef NVWA_CLASS_LEVEL_LOCK_H
@@ -39,6 +39,7 @@
 
 #include "fast_mutex.h"         // nvwa::fast_mutex/_NOTHREADS
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++_features.h"       // _DELETE
 
 NVWA_NAMESPACE_BEGIN
 
@@ -84,8 +85,8 @@ NVWA_NAMESPACE_BEGIN
         /** Type that provides locking/unlocking semantics. */
         class lock
         {
-            lock(const lock&);
-            lock& operator=(const lock&);
+            lock(const lock&) _DELETED;
+            lock& operator=(const lock&) _DELETED;
         public:
             lock()
             {
