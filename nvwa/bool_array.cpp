@@ -29,9 +29,10 @@
 /**
  * @file  bool_array.cpp
  *
- * Code for class bool_array (packed boolean array).
+ * Code for class bool_array (packed boolean array).  The current code
+ * requires a C++14-compliant compiler.
  *
- * @date  2019-07-11
+ * @date  2019-08-12
  */
 
 #include "bool_array.h"         // bool_array
@@ -72,7 +73,7 @@ template <int... _V>
 struct bit_count_t
 {
     unsigned char _M_bit_count[sizeof...(_V)] = {
-        count_bits(_V)...
+        static_cast<unsigned char>(count_bits(_V))...
     };
 };
 
@@ -80,7 +81,7 @@ template <int... _V>
 struct bit_ordinal_t
 {
     unsigned char _M_bit_ordinal[sizeof...(_V)] = {
-        first_bit_one_offset(_V)...
+        static_cast<unsigned char>(first_bit_one_offset(_V))...
     };
 };
 
