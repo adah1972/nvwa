@@ -32,7 +32,7 @@
  * Code for class bool_array (packed boolean array).  The current code
  * requires a C++14-compliant compiler.
  *
- * @date  2019-08-12
+ * @date  2019-08-13
  */
 
 #include "bool_array.h"         // bool_array
@@ -266,7 +266,8 @@ bool_array::size_type bool_array::count(size_type begin, size_type end) const
     --end;
 
     size_type true_cnt = 0;
-    size_t byte_pos_beg, byte_pos_end;
+    size_t byte_pos_beg;
+    size_t byte_pos_end;
     byte byte_val;
 
     byte_pos_beg = begin / 8;

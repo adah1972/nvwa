@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2019-08-12
+ * @date  2019-08-13
  */
 
 #ifndef NVWA_BOOL_ARRAY_H
@@ -248,11 +248,10 @@ inline bool_array::const_reference bool_array::operator[](size_type pos) const
  */
 inline bool bool_array::at(size_type pos) const
 {
-    size_t byte_pos, bit_pos;
     if (pos >= _M_length)
         throw std::out_of_range("invalid bool_array position");
-    byte_pos = pos / 8;
-    bit_pos  = pos % 8;
+    size_t byte_pos = pos / 8;
+    size_t bit_pos  = pos % 8;
     return bool(*(_M_byte_ptr + byte_pos) & (1 << bit_pos));
 }
 
@@ -264,11 +263,10 @@ inline bool bool_array::at(size_type pos) const
  */
 inline void bool_array::reset(size_type pos)
 {
-    size_t byte_pos, bit_pos;
     if (pos >= _M_length)
         throw std::out_of_range("invalid bool_array position");
-    byte_pos = pos / 8;
-    bit_pos  = pos % 8;
+    size_t byte_pos = pos / 8;
+    size_t bit_pos  = pos % 8;
     *(_M_byte_ptr + byte_pos) &= ~(1 << bit_pos);
 }
 
@@ -280,11 +278,10 @@ inline void bool_array::reset(size_type pos)
  */
 inline void bool_array::set(size_type pos)
 {
-    size_t byte_pos, bit_pos;
     if (pos >= _M_length)
         throw std::out_of_range("invalid bool_array position");
-    byte_pos = pos / 8;
-    bit_pos  = pos % 8;
+    size_t byte_pos = pos / 8;
+    size_t bit_pos  = pos % 8;
     *(_M_byte_ptr + byte_pos) |= 1 << bit_pos;
 }
 
