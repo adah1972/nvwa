@@ -685,7 +685,7 @@ static void free_pointer(void* usr_ptr, void* addr, bool is_array)
         fflush(new_output_fp);
         _DEBUG_NEW_ERROR_ACTION;
     }
-    if (is_array != ptr->is_array) {
+    if ((unsigned)is_array != ptr->is_array) {
         const char* msg;
         if (is_array) {
             msg = "delete[] after new";
