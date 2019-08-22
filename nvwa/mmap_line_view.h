@@ -30,8 +30,8 @@
  * @file  mmap_line_view.h
  *
  * Header file for mmap_line_view, easy-to-use line-based file readers that
- * satisfies the View concept.  It is implemented with memory-mapped file
- * APIs.
+ * satisfies the View concept.  It is similar to mmap_line_reader_sv
+ * otherwise, and using it requires a C++17-compliant compiler.
  *
  * @date  2019-08-22
  */
