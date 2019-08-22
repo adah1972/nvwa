@@ -98,10 +98,10 @@ mmap_reader_base::mmap_reader_base(const char* path)
             path,
             GENERIC_READ,
             FILE_SHARE_READ,
-            NULL,
+            _NULLPTR,
             OPEN_EXISTING,
             FILE_ATTRIBUTE_NORMAL,
-            NULL);
+            _NULLPTR);
     if (_M_file_handle == INVALID_HANDLE_VALUE) {
         throw_system_error("CreateFile");
     }
@@ -121,10 +121,10 @@ mmap_reader_base::mmap_reader_base(const wchar_t* path)
             path,
             GENERIC_READ,
             FILE_SHARE_READ,
-            NULL,
+            _NULLPTR,
             OPEN_EXISTING,
             FILE_ATTRIBUTE_NORMAL,
-            NULL);
+            _NULLPTR);
     if (_M_file_handle == INVALID_HANDLE_VALUE) {
         throw_system_error("CreateFile");
     }
@@ -195,12 +195,12 @@ void mmap_reader_base::initialize()
 #endif
     _M_map_handle = CreateFileMapping(
             _M_file_handle,
-            NULL,
+            _NULLPTR,
             PAGE_READONLY,
             file_size.HighPart,
             file_size.LowPart,
-            NULL);
-    if (_M_map_handle == NULL) {
+            _NULLPTR);
+    if (_M_map_handle == _NULLPTR) {
         throw_system_error("CreateFileMapping");
     }
     _M_mmap_ptr = static_cast<char*>(MapViewOfFile(
@@ -209,7 +209,7 @@ void mmap_reader_base::initialize()
             0,
             0,
             _M_size));
-    if (_M_mmap_ptr == NULL) {
+    if (_M_mmap_ptr == _NULLPTR) {
         throw_system_error("MapViewOfFile");
     }
 #endif
