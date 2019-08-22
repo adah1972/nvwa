@@ -40,7 +40,7 @@
 
 #include <assert.h>             // assert
 #include <stddef.h>             // ptrdiff_t/size_t
-#include <iterator>             // std::input_iterator_tag
+#include <iterator>             // std::forward_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++_features.h"       // HAVE_CXX17_STRING_VIEW/_DELETED/_NULLPTR
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
@@ -57,13 +57,13 @@ template <typename _Tp>
 class basic_mmap_line_reader : public mmap_reader_base {
 public:
     /** Iterator that contains the line content. */
-    class iterator {  // implements InputIterator
+    class iterator {  // implements ForwardIterator
     public:
-        typedef _Tp                     value_type;
-        typedef const value_type*       pointer;
-        typedef const value_type&       reference;
-        typedef ptrdiff_t               difference_type;
-        typedef std::input_iterator_tag iterator_category;
+        typedef _Tp                       value_type;
+        typedef const value_type*         pointer;
+        typedef const value_type&         reference;
+        typedef ptrdiff_t                 difference_type;
+        typedef std::forward_iterator_tag iterator_category;
 
         iterator() : _M_reader(_NULLPTR) {}
         explicit iterator(basic_mmap_line_reader* reader)
