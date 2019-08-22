@@ -32,7 +32,7 @@
  * A generic tree class template and the traversal utilities.  Using
  * this file requires a C++11-compliant compiler.
  *
- * @date  2019-02-28
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_TREE_H
@@ -51,8 +51,7 @@
 NVWA_NAMESPACE_BEGIN
 
 /** Policy class for how to store members. */
-enum class storage_policy
-{
+enum class storage_policy {
     unique,  ///< Members are directly owned
     shared,  ///< Members may be shared and passed around
 };
@@ -67,15 +66,13 @@ struct smart_ptr;
 
 /** Partial specialization to get std::unique_ptr. */
 template <typename _Tp>
-struct smart_ptr<_Tp, storage_policy::unique>
-{
+struct smart_ptr<_Tp, storage_policy::unique> {
     typedef std::unique_ptr<_Tp> type;
 };
 
 /** Partial specialization to get std::shared_ptr. */
 template <typename _Tp>
-struct smart_ptr<_Tp, storage_policy::shared>
-{
+struct smart_ptr<_Tp, storage_policy::shared> {
     typedef std::shared_ptr<_Tp> type;
 };
 
@@ -84,8 +81,7 @@ struct smart_ptr<_Tp, storage_policy::shared>
  */
 template <typename _Tp,
           storage_policy _Policy = NVWA_TREE_DEFAULT_STORAGE_POLICY>
-class tree
-{
+class tree {
 public:
     typedef _Tp                                     value_type;
     typedef typename smart_ptr<tree, _Policy>::type tree_ptr;
@@ -231,11 +227,9 @@ create_tree(_Tp&& value, Args&&... args)
  * current traversal level has undefined behaviour.
  */
 template <typename _Tree>
-class breadth_first_iteration
-{
+class breadth_first_iteration {
 public:
-    class iterator
-    {
+    class iterator {
     public:
         typedef int                       difference_type;
         typedef _Tree                     value_type;
@@ -263,13 +257,12 @@ public:
         iterator& operator++()
         {
             assert(!empty());
-            for (auto& child : **_M_current)
-            {
-                if (child != _Tree::null())
+            for (auto& child : **_M_current) {
+                if (child != _Tree::null()) {
                     _M_next_level.push_back(&*child);
+                }
             }
-            if (++_M_current == _M_this_level.end())
-            {
+            if (++_M_current == _M_this_level.end()) {
                 _M_this_level = std::move(_M_next_level);
                 _M_current = _M_this_level.begin();
             }
@@ -323,11 +316,9 @@ private:
  * already been traversed has undefined behaviour.
  */
 template <typename _Tree>
-class depth_first_iteration
-{
+class depth_first_iteration {
 public:
-    class iterator
-    {
+    class iterator {
     public:
         typedef int                       difference_type;
         typedef _Tree                     value_type;
@@ -351,28 +342,27 @@ public:
         iterator& operator++()
         {
             assert(!empty());
-            if (_M_current->cbegin() != _M_current->cend())
+            if (_M_current->cbegin() != _M_current->cend()) {
                 _M_stack.push(std::make_pair(_M_current->cbegin(),
                                              _M_current->cend()));
-            for (;;)
-            {
-                if (_M_stack.empty())
-                {
+            }
+            for (;;) {
+                if (_M_stack.empty()) {
                     _M_current = nullptr;
                     break;
                 }
                 auto& top = _M_stack.top();
                 auto& next_node = top.first;
                 auto& end_node = top.second;
-                if (next_node != end_node)
-                {
+                if (next_node != end_node) {
                     _M_current = &**next_node;
                     ++next_node;
-                    if (_M_current != nullptr)
+                    if (_M_current != nullptr) {
                         break;
-                }
-                else
+                    }
+                } else {
                     _M_stack.pop();
+                }
             }
             return *this;
         }
@@ -425,11 +415,9 @@ private:
  * been traversed has undefined behaviour.
  */
 template <typename _Tree>
-class in_order_iteration
-{
+class in_order_iteration {
 public:
-    class iterator
-    {
+    class iterator {
     public:
         typedef int                       difference_type;
         typedef _Tree                     value_type;
@@ -456,10 +444,8 @@ public:
         iterator& operator++()
         {
             assert(!empty());
-            for (;;)
-            {
-                if (_M_stack.empty())
-                {
+            for (;;) {
+                if (_M_stack.empty()) {
                     _M_current = nullptr;
                     break;
                 }
@@ -467,20 +453,15 @@ public:
                 auto& curr       = std::get<0>(top);
                 auto& next_child = std::get<1>(top);
                 auto& end_child  = std::get<2>(top);
-                if (curr != nullptr)
-                {
+                if (curr != nullptr) {
                     _M_current = curr;
                     curr = nullptr;  // Mark as traversed
                     break;
-                }
-                else
-                {
+                } else {
                     // Iterate over non-leftmost children
-                    while (next_child != end_child)
-                    {
+                    while (next_child != end_child) {
                         auto it = next_child++;
-                        if (*it)
-                        {
+                        if (*it) {
                             _M_current = find_leftmost_child(&**it);
                             return *this;
                         }
@@ -514,22 +495,20 @@ public:
         {
             using std::make_tuple;
             auto curr = root;
-            for (;;)
-            {
-                if (!curr->has_child())
+            for (;;) {
+                if (!curr->has_child()) {
                     break;
+                }
                 auto left_child = curr->cbegin();
                 auto next_child = left_child;
-                if (next_child != curr->cend())
+                if (next_child != curr->cend()) {
                     ++next_child;
-                if (*left_child)
-                {
+                }
+                if (*left_child) {
                     _M_stack.push(
                         make_tuple(curr, next_child, curr->cend()));
                     curr = &**left_child;
-                }
-                else
-                {
+                } else {
                     _M_stack.push(
                         make_tuple(nullptr, next_child, curr->cend()));
                     break;

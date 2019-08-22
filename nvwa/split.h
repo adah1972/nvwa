@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -39,7 +39,7 @@
  * }
  * @endcode
  *
- * @date  2017-12-31
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_SPLIT_H
@@ -73,8 +73,7 @@ public:
      *
      * The iterator \e owns the content.
      */
-    class iterator  // implements InputIterator
-    {
+    class iterator {  // implements InputIterator
     public:
         typedef int                               difference_type;
         typedef std::basic_string_view<char_type> value_type;
@@ -109,30 +108,28 @@ public:
         iterator& operator++()
         {
             assert(_M_src != nullptr);
-            if (_M_pos == string_type::npos)
-            {
+            if (_M_pos == string_type::npos) {
                 _M_src = nullptr;
-            }
-            else
-            {
+            } else {
                 auto last_pos = _M_pos;
                 _M_pos = _M_src->find(_M_delimiter, _M_pos);
-                if (_M_pos != string_type::npos)
-                {
+                if (_M_pos != string_type::npos) {
                     _M_cur = std::basic_string_view<char_type>(
                         _M_src->data() + last_pos, _M_pos - last_pos);
 
                     // Hack: typeid(delimiter_type) == typeid(char_type)) is
                     // really wanted, but not valid as of C++17
-                    if constexpr (sizeof(delimiter_type) == sizeof(char_type))
+                    if constexpr (sizeof(delimiter_type) ==
+                                  sizeof(char_type)) {
                         ++_M_pos;
-                    else
+                    } else {
                         _M_pos += _M_delimiter.size();
-                }
-                else
+                    }
+                } else {
                     _M_cur = std::basic_string_view<char_type>(
                         _M_src->data() + last_pos,
                         _M_src->size() - last_pos);
+                }
             }
             return *this;
         }
@@ -187,16 +184,18 @@ public:
     std::vector<std::basic_string<char_type>> to_vector() const
     {
         std::vector<std::basic_string<char_type>> result;
-        for (const auto& sv : *this)
+        for (const auto& sv : *this) {
             result.emplace_back(sv);
+        }
         return result;
     }
     /** Converts the view to a string_view vector. **/
     std::vector<std::basic_string_view<char_type>> to_vector_sv() const
     {
         std::vector<std::basic_string_view<char_type>> result;
-        for (const auto& sv : *this)
+        for (const auto& sv : *this) {
             result.push_back(sv);
+        }
         return result;
     }
 

@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Function to get a high-resolution timer for Win32/Cygwin/Unix.
  *
- * @date  2015-09-20
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_PCTIMER_H
@@ -64,8 +64,7 @@ __inline pctimer_t pctimer(void)
     static LARGE_INTEGER pcount, pcfreq;
     static int initflag;
 
-    if (!initflag)
-    {
+    if (!initflag) {
         QueryPerformanceFrequency(&pcfreq);
         initflag++;
     }

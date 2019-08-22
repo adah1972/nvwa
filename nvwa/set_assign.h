@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Definition of template functions set_assign_union and set_assign_difference.
  *
- * @date  2013-03-01
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_SET_ASSIGN_H
@@ -49,23 +49,20 @@ _Container& set_assign_union(_Container& dest,
 {
     typename _Container::iterator first_dest = dest.begin();
     typename _Container::iterator  last_dest = dest.end();
-    while (first_dest != last_dest && first != last)
-    {
-        if (*first_dest < *first)
+    while (first_dest != last_dest && first != last) {
+        if (*first_dest < *first) {
             ++first_dest;
-        else if (*first < *first_dest)
-        {
+        } else if (*first < *first_dest) {
             dest.insert(first_dest, *first);
             ++first;
-        }
-        else    // *first_dest == *first
-        {
+        } else {  // *first_dest == *first
             ++first_dest;
             ++first;
         }
     }
-    if (first != last)
+    if (first != last) {
         std::copy(first, last, inserter(dest, last_dest));
+    }
     return dest;
 }
 
@@ -77,23 +74,20 @@ _Container& set_assign_union(_Container& dest,
 {
     typename _Container::iterator first_dest = dest.begin();
     typename _Container::iterator  last_dest = dest.end();
-    while (first_dest != last_dest && first != last)
-    {
-        if (comp(*first_dest, *first))
+    while (first_dest != last_dest && first != last) {
+        if (comp(*first_dest, *first)) {
             ++first_dest;
-        else if (comp(*first, *first_dest))
-        {
+        } else if (comp(*first, *first_dest)) {
             dest.insert(first_dest, *first);
             ++first;
-        }
-        else    // *first_dest is equivalent to *first
-        {
+        } else {  // *first_dest is equivalent to *first
             ++first_dest;
             ++first;
         }
     }
-    if (first != last)
+    if (first != last) {
         std::copy(first, last, inserter(dest, last_dest));
+    }
     return dest;
 }
 
@@ -104,14 +98,12 @@ _Container& set_assign_difference(_Container& dest,
 {
     typename _Container::iterator first_dest = dest.begin();
     typename _Container::iterator  last_dest = dest.end();
-    while (first_dest != last_dest && first != last)
-    {
-        if (*first_dest < *first)
+    while (first_dest != last_dest && first != last) {
+        if (*first_dest < *first) {
             ++first_dest;
-        else if (*first < *first_dest)
+        } else if (*first < *first_dest) {
             ++first;
-        else  // *first == *first_dest
-        {
+        } else {  // *first == *first_dest
             dest.erase(first_dest++);
             ++first;
         }
@@ -127,14 +119,12 @@ _Container& set_assign_difference(_Container& dest,
 {
     typename _Container::iterator first_dest = dest.begin();
     typename _Container::iterator  last_dest = dest.end();
-    while (first_dest != last_dest && first != last)
-    {
-        if (comp(*first_dest, *first))
+    while (first_dest != last_dest && first != last) {
+        if (comp(*first_dest, *first)) {
             ++first_dest;
-        else if (comp(*first, *first_dest))
+        } else if (comp(*first, *first_dest)) {
             ++first;
-        else    // *first_dest is equivalent to *first
-        {
+        } else {  // *first_dest is equivalent to *first
             dest.erase(first_dest++);
             ++first;
         }

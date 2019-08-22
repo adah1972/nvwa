@@ -31,7 +31,7 @@
  *
  * Header file for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2019-07-29
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_FILE_LINE_READER_H
@@ -46,16 +46,14 @@
 NVWA_NAMESPACE_BEGIN
 
 /** Class to allow iteration over all lines of a text file. */
-class file_line_reader
-{
+class file_line_reader {
 public:
     /**
      * Iterator that contains the line content.
      *
      * The iterator \e owns the content.
      */
-    class iterator  // implements InputIterator
-    {
+    class iterator {  // implements InputIterator
     public:
         typedef int                     difference_type;
         typedef char*                   value_type;
@@ -89,8 +87,9 @@ public:
         }
         iterator& operator++()
         {
-            if (!_M_reader->read(_M_line, _M_size, _M_capacity))
+            if (!_M_reader->read(_M_line, _M_size, _M_capacity)) {
                 _M_reader = _NULLPTR;
+            }
             return *this;
         }
         iterator operator++(int)
@@ -119,8 +118,7 @@ public:
     };
 
     /** Enumeration of whether the delimiter should be stripped. */
-    enum strip_type
-    {
+    enum strip_type {
         strip_delimiter,     ///< The delimiter should be stripped
         no_strip_delimiter,  ///< The delimiter should be retained
     };

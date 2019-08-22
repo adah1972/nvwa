@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2019-08-12
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -57,8 +57,7 @@ namespace detail {
 // Struct to check whether _T1 has a suitable reserve member function
 // and _T2 has a suitable size member function.
 template <class _T1, class _T2>
-struct can_reserve
-{
+struct can_reserve {
     struct good { char dummy; };
     struct bad { char dummy[2]; };
     template <class _Up, void   (_Up::*)(size_t)> struct _SFINAE1 {};
@@ -148,8 +147,7 @@ private:
 
 // Struct to wrap a function for self-reference.
 template <typename _Fn>
-struct self_ref_func
-{
+struct self_ref_func {
     std::function<_Fn(self_ref_func)> fn;
 };
 
@@ -158,8 +156,7 @@ template <typename _Tp,
           bool _Deep_copy = std::is_rvalue_reference<_Tp>{} ||
                             (std::is_lvalue_reference<_Tp>{} &&
                              std::is_const<std::remove_reference_t<_Tp>>{})>
-struct safe_wrapper
-{
+struct safe_wrapper {
     explicit safe_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
     _Tp get() const { return value; }
     _Tp value;
@@ -167,8 +164,7 @@ struct safe_wrapper
 
 // Partial specialization that copies the object used by the reference.
 template <typename _Tp>
-struct safe_wrapper<_Tp, true>
-{
+struct safe_wrapper<_Tp, true> {
     explicit safe_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
 #if !defined(_MSC_VER)
     template <typename _Up = _Tp>
@@ -202,8 +198,7 @@ struct curry;
 
 // Termination of currying, which returns the original function.
 template <typename _Rs, typename _Tp>
-struct curry<std::function<_Rs(_Tp)>>
-{
+struct curry<std::function<_Rs(_Tp)>> {
     typedef std::function<_Rs(_Tp)> type;
 
     static type make(type f)
@@ -214,8 +209,7 @@ struct curry<std::function<_Rs(_Tp)>>
 
 // Recursion template to curry functions with more than one parameter.
 template <typename _Rs, typename _Tp, typename... _Targs>
-struct curry<std::function<_Rs(_Tp, _Targs...)>>
-{
+struct curry<std::function<_Rs(_Tp, _Targs...)>> {
     typedef typename curry<std::function<_Rs(_Targs...)>>::type remaining_type;
     typedef std::function<remaining_type(_Tp)> type;
 
@@ -256,8 +250,7 @@ void adl_swap(_Tp& lhs, _Tp& rhs) noexcept(noexcept(swap(lhs, rhs)));
 } /* namespace detail */
 
 /** Class for bad optional access exception. */
-class bad_optional_access : public std::logic_error
-{
+class bad_optional_access : public std::logic_error {
 public:
     bad_optional_access()
         : std::logic_error("optional has no valid value now") {}
@@ -267,8 +260,7 @@ template <typename _Tp, bool = std::is_trivially_destructible<_Tp>::value>
 class optional_base;
 
 template <typename _Tp>
-class optional_base<_Tp, false>
-{
+class optional_base<_Tp, false> {
 public:
     typedef _Tp value_type;
 
@@ -284,35 +276,34 @@ public:
     constexpr optional_base(const optional_base& rhs)
         : _M_engaged(rhs._M_engaged)
     {
-        if (rhs._M_engaged)
+        if (rhs._M_engaged) {
             new(&_M_value) _Tp(rhs._M_value);
+        }
     }
     constexpr optional_base(optional_base&& rhs) noexcept
         : _M_engaged(rhs._M_engaged)
     {
-        if (rhs._M_engaged)
-        {
+        if (rhs._M_engaged) {
             new(&_M_value) _Tp(std::move(rhs._M_value));
             rhs.reset();
         }
     }
     ~optional_base()
     {
-        if (_M_engaged)
+        if (_M_engaged) {
             _M_value.~_Tp();
+        }
     }
     void reset() noexcept
     {
-        if (_M_engaged)
-        {
+        if (_M_engaged) {
             _M_value.~_Tp();
             _M_engaged = false;
         }
     }
 
 protected:
-    union
-    {
+    union {
         char       _M_dummy;
         value_type _M_value;
     };
@@ -320,8 +311,7 @@ protected:
 };
 
 template <typename _Tp>
-class optional_base<_Tp, true>
-{
+class optional_base<_Tp, true> {
 public:
     typedef _Tp value_type;
 
@@ -337,14 +327,14 @@ public:
     constexpr optional_base(const optional_base& rhs)
         : _M_engaged(rhs._M_engaged)
     {
-        if (rhs._M_engaged)
+        if (rhs._M_engaged) {
             new(&_M_value) _Tp(rhs._M_value);
+        }
     }
     constexpr optional_base(optional_base&& rhs) noexcept
         : _M_engaged(rhs._M_engaged)
     {
-        if (rhs._M_engaged)
-        {
+        if (rhs._M_engaged) {
             new(&_M_value) _Tp(std::move(rhs._M_value));
             rhs.reset();
         }
@@ -371,8 +361,7 @@ protected:
  * @param _Tp  the optional type to store
  */
 template <typename _Tp>
-class optional : public optional_base<_Tp>
-{
+class optional : public optional_base<_Tp> {
     static_assert(std::is_nothrow_destructible<_Tp>::value,
                   "optional type must be nothrow destructible");
 
@@ -443,41 +432,46 @@ public:
 
     constexpr _Tp& value() &
     {
-        if (_M_engaged)
+        if (_M_engaged) {
             return _M_value;
-        else
+        } else {
             throw bad_optional_access();
+        }
     }
     constexpr const _Tp& value() const&
     {
-        if (_M_engaged)
+        if (_M_engaged) {
             return _M_value;
-        else
+        } else {
             throw bad_optional_access();
+        }
     }
     constexpr _Tp&& value() &&
     {
-        if (_M_engaged)
+        if (_M_engaged) {
             return std::move(_M_value);
-        else
+        } else {
             throw bad_optional_access();
+        }
     }
 
     template <typename _Up>
     constexpr _Tp value_or(_Up&& default_value) const&
     {
-        if (_M_engaged)
+        if (_M_engaged) {
             return _M_value;
-        else
+        } else {
             return default_value;
+        }
     }
     template <typename _Up>
     constexpr _Tp value_or(_Up&& default_value) &&
     {
-        if (_M_engaged)
+        if (_M_engaged) {
             return std::move(_M_value);
-        else
+        } else {
             return default_value;
+        }
     }
 
     void swap(optional& rhs) noexcept(
@@ -486,17 +480,16 @@ public:
                                   std::declval<_Tp&>())))
     {
         using std::swap;
-        if (has_value())
-        {
-            if (rhs.has_value())
+        if (has_value()) {
+            if (rhs.has_value()) {
                 swap(_M_value, rhs._M_value);
-            else
+            } else {
                 new(&rhs) optional(std::move(*this));
-        }
-        else
-        {
-            if (rhs.has_value())
+            }
+        } else {
+            if (rhs.has_value()) {
                 new(this) optional(std::move(rhs));
+            }
         }
     }
     template <typename... _Targs>
@@ -548,11 +541,12 @@ auto lift_optional(_Fn&& f)
         typedef std::decay_t<decltype(
             f(std::forward<decltype(args)>(args).value()...))>
             result_type;
-        if (has_value(args...))
+        if (has_value(args...)) {
             return optional<result_type>(
                 f(std::forward<decltype(args)>(args).value()...));
-        else
+        } else {
             return optional<result_type>();
+        }
     };
 }
 
@@ -574,11 +568,12 @@ constexpr auto apply(_Fn&& f, _Opt&&... args) -> decltype(
 {
     typedef std::decay_t<decltype(f(std::forward<_Opt>(args).value()...))>
         result_type;
-    if (has_value(args...))
+    if (has_value(args...)) {
         return optional<result_type>(
             f(std::forward<_Opt>(args).value()...));
-    else
+    } else {
         return optional<result_type>();
+    }
 }
 
 /**
@@ -663,8 +658,9 @@ constexpr auto fmap(_Fn&& f, _Rng&& inputs) -> decltype(
         result, inputs,
         std::integral_constant<
             bool, detail::can_reserve<decltype(result), _Rng>::value>());
-    for (auto&& item : inputs)
+    for (auto&& item : inputs) {
         result.push_back(f(item));
+    }
     return result;
 }
 
@@ -704,8 +700,9 @@ template <typename _Fn, class _Rng>
 constexpr auto reduce(_Fn&& f, _Rng&& inputs)
 {
     auto result = typename detail::value_type<_Rng>();
-    for (auto&& item : inputs)
+    for (auto&& item : inputs) {
         result = f(result, item);
+    }
     return result;
 }
 
@@ -731,8 +728,9 @@ constexpr _Rs reduce(_Fn&& f, _Rs&& value, _Iter begin, _Iter end)
     // Recursion (instead of iteration) is used in this function, as
     // _Rs may be a reference type and a result of this type cannot
     // be assigned to (like the implementation of reduce above).
-    if (begin == end)
+    if (begin == end) {
         return std::forward<_Rs>(value);
+    }
     _Iter current = begin;
     decltype(auto) reduced_once = f(std::forward<_Rs>(value), *current);
     return reduce(std::forward<_Fn>(f), reduced_once, ++begin, end);

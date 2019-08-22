@@ -31,7 +31,7 @@
  *
  * In essence Loki ClassLevelLockable re-engineered to use a fast_mutex class.
  *
- * @date  2019-08-12
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_CLASS_LEVEL_LOCK_H
@@ -49,12 +49,10 @@ NVWA_NAMESPACE_BEGIN
      * single-threaded implementation.
      */
     template <class _Host, bool _RealLock = false>
-    class class_level_lock
-    {
+    class class_level_lock {
     public:
         /** Type that provides locking/unlocking semantics. */
-        class lock
-        {
+        class lock {
         public:
             lock() {}
         };
@@ -70,8 +68,7 @@ NVWA_NAMESPACE_BEGIN
      * See static_mem_pool.h for real usage.
      */
     template <class _Host, bool _RealLock = true>
-    class class_level_lock
-    {
+    class class_level_lock {
         static fast_mutex _S_mtx;
 
     public:
@@ -83,20 +80,21 @@ NVWA_NAMESPACE_BEGIN
         friend class lock;
 
         /** Type that provides locking/unlocking semantics. */
-        class lock
-        {
+        class lock {
             lock(const lock&) _DELETED;
             lock& operator=(const lock&) _DELETED;
         public:
             lock()
             {
-                if (_RealLock)
+                if (_RealLock) {
                     _S_mtx.lock();
+                }
             }
             ~lock()
             {
-                if (_RealLock)
+                if (_RealLock) {
                     _S_mtx.unlock();
+                }
             }
         };
 
@@ -105,12 +103,10 @@ NVWA_NAMESPACE_BEGIN
 
     /** Partial specialization that makes null locking. */
     template <class _Host>
-    class class_level_lock<_Host, false>
-    {
+    class class_level_lock<_Host, false> {
     public:
         /** Type that provides locking/unlocking semantics. */
-        class lock
-        {
+        class lock {
         public:
             lock() {}
         };

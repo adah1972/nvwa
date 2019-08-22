@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2019-08-13
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_BOOL_ARRAY_H
@@ -65,8 +65,7 @@ NVWA_NAMESPACE_BEGIN
  *     the \c vector&lt;bool&gt; implementations of MSVC 7.1 and
  *     GCC 4.3 have performance similar to that of \c bool_array).
  */
-class bool_array
-{
+class bool_array {
 public:
 #if (defined(__x86_64) || defined(__ia64) || defined(__ppc64__) || \
      defined(_WIN64) || defined(_M_IA64)) && \
@@ -84,8 +83,7 @@ private:
 
     /** Class to represent a reference to an array element. */
     template <typename _Byte_type>
-    class _Element
-    {
+    class _Element {
     public:
         _Element(_Byte_type* ptr, size_type pos);
         bool operator=(bool value);
@@ -181,10 +179,11 @@ inline bool_array::_Element<_Byte_type>::_Element(
 template <typename _Byte_type>
 inline bool bool_array::_Element<_Byte_type>::operator=(bool value)
 {
-    if (value)
+    if (value) {
         *(_M_byte_ptr + _M_byte_pos) |= 1 << _M_bit_pos;
-    else
+    } else {
         *(_M_byte_ptr + _M_byte_pos) &= ~(1 << _M_bit_pos);
+    }
     return value;
 }
 
@@ -209,8 +208,9 @@ inline bool_array::bool_array() noexcept = default;
  */
 inline bool_array::~bool_array()
 {
-    if (_M_byte_ptr != nullptr)
+    if (_M_byte_ptr != nullptr) {
         free(_M_byte_ptr);
+    }
 }
 
 /**
@@ -248,8 +248,9 @@ inline bool_array::const_reference bool_array::operator[](size_type pos) const
  */
 inline bool bool_array::at(size_type pos) const
 {
-    if (pos >= _M_length)
+    if (pos >= _M_length) {
         throw std::out_of_range("invalid bool_array position");
+    }
     size_t byte_pos = pos / 8;
     size_t bit_pos  = pos % 8;
     return bool(*(_M_byte_ptr + byte_pos) & (1 << bit_pos));
@@ -263,8 +264,9 @@ inline bool bool_array::at(size_type pos) const
  */
 inline void bool_array::reset(size_type pos)
 {
-    if (pos >= _M_length)
+    if (pos >= _M_length) {
         throw std::out_of_range("invalid bool_array position");
+    }
     size_t byte_pos = pos / 8;
     size_t bit_pos  = pos % 8;
     *(_M_byte_ptr + byte_pos) &= ~(1 << bit_pos);
@@ -278,8 +280,9 @@ inline void bool_array::reset(size_type pos)
  */
 inline void bool_array::set(size_type pos)
 {
-    if (pos >= _M_length)
+    if (pos >= _M_length) {
         throw std::out_of_range("invalid bool_array position");
+    }
     size_t byte_pos = pos / 8;
     size_t bit_pos  = pos % 8;
     *(_M_byte_ptr + byte_pos) |= 1 << bit_pos;

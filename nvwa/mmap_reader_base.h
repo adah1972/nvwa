@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Header file for mmap_reader_base, common base for mmap-based file
  * readers.  It currently supports POSIX and Win32.
  *
- * @date  2018-12-25
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_MMAP_READER_BASE_H
@@ -45,8 +45,7 @@
 
 NVWA_NAMESPACE_BEGIN
 
-class mmap_reader_base
-{
+class mmap_reader_base {
 public:
     typedef ptrdiff_t difference_type;
     typedef size_t    size_type;

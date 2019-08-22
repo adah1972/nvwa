@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2005-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2005-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -49,7 +49,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running.
  *
- * @date  2018-11-15
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_FIXED_MEM_POOL_H
@@ -80,30 +80,27 @@ NVWA_NAMESPACE_BEGIN
  * @param _Tp  class to use the fixed_mem_pool
  */
 template <class _Tp>
-class fixed_mem_pool
-{
+class fixed_mem_pool {
 public:
     typedef typename class_level_lock<fixed_mem_pool<_Tp> >::lock lock;
     /**
      * Specializable struct to define the alignment of an object in the
      * fixed_mem_pool.
      */
-    struct alignment
-    {
+    struct alignment {
         static const size_t value = MEM_POOL_ALIGNMENT;
     };
     /**
      * Struct to calculate the block size based on the (specializable)
      * alignment value.
      */
-    struct block_size
-    {
+    struct block_size {
         static const size_t value =
             (sizeof(_Tp) + fixed_mem_pool<_Tp>::alignment::value - 1)
                        & ~(fixed_mem_pool<_Tp>::alignment::value - 1);
     };
     static void*  allocate();
-    static void   deallocate(void*);
+    static void   deallocate(void* block_ptr);
     static bool   initialize(size_t size);
     static int    deinitialize();
     static int    get_alloc_count();
@@ -137,17 +134,14 @@ template <class _Tp>
 inline void* fixed_mem_pool<_Tp>::allocate()
 {
     lock guard;
-    for (;;)
-    {
-        if (void* result = _S_first_avail_ptr)
-        {
+    for (;;) {
+        if (void* result = _S_first_avail_ptr) {
             _S_first_avail_ptr = *(void**)_S_first_avail_ptr;
             ++_S_alloc_cnt;
             return result;
+        } else if (!bad_alloc_handler()) {
+            return _NULLPTR;
         }
-        else
-            if (!bad_alloc_handler())
-                return _NULLPTR;
     }
 }
 
@@ -159,8 +153,9 @@ inline void* fixed_mem_pool<_Tp>::allocate()
 template <class _Tp>
 inline void fixed_mem_pool<_Tp>::deallocate(void* block_ptr)
 {
-    if (block_ptr == _NULLPTR)
+    if (block_ptr == _NULLPTR) {
         return;
+    }
     lock guard;
     assert(_S_alloc_cnt != 0);
     --_S_alloc_cnt;
@@ -187,11 +182,11 @@ bool fixed_mem_pool<_Tp>::initialize(size_t size)
     assert(size > 0);
     _S_mem_pool_ptr = mem_pool_base::alloc_sys(size * block_size::value);
     _S_first_avail_ptr = _S_mem_pool_ptr;
-    if (_S_mem_pool_ptr == _NULLPTR)
+    if (_S_mem_pool_ptr == _NULLPTR) {
         return false;
+    }
     char* block = (char*)_S_mem_pool_ptr;
-    while (--size != 0)
-    {
+    while (--size != 0) {
         char* next = block + block_size::value;
         *(void**)block = next;
         block = next;
@@ -210,8 +205,9 @@ bool fixed_mem_pool<_Tp>::initialize(size_t size)
 template <class _Tp>
 int fixed_mem_pool<_Tp>::deinitialize()
 {
-    if (_S_alloc_cnt != 0)
+    if (_S_alloc_cnt != 0) {
         return _S_alloc_cnt;
+    }
     assert(is_initialized());
     mem_pool_base::dealloc_sys(_S_mem_pool_ptr);
     _S_mem_pool_ptr = _NULLPTR;
@@ -271,15 +267,17 @@ public: \
     static void* operator new(size_t size) \
     { \
         assert(size == sizeof(_Cls)); \
-        if (void* ptr = NVWA::fixed_mem_pool<_Cls>::allocate()) \
+        if (void* ptr = NVWA::fixed_mem_pool<_Cls>::allocate()) { \
             return ptr; \
-        else \
+        } else { \
             throw std::bad_alloc(); \
+        } \
     } \
     static void  operator delete(void* ptr) \
     { \
-        if (ptr != _NULLPTR) \
+        if (ptr != _NULLPTR) { \
             NVWA::fixed_mem_pool<_Cls>::deallocate(ptr); \
+        } \
     }
 
 /**
@@ -296,8 +294,9 @@ public: \
     } \
     static void  operator delete(void* ptr) \
     { \
-        if (ptr != _NULLPTR) \
+        if (ptr != _NULLPTR) { \
             NVWA::fixed_mem_pool<_Cls>::deallocate(ptr); \
+        } \
     }
 
 /**
@@ -321,8 +320,9 @@ public: \
     } \
     static void  operator delete(void* ptr) \
     { \
-        if (ptr != _NULLPTR) \
+        if (ptr != _NULLPTR) { \
             NVWA::fixed_mem_pool<_Cls>::deallocate(ptr); \
+        } \
     }
 
 #endif // NVWA_FIXED_MEM_POOL_H

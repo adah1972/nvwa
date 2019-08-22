@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @date  2019-08-12
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_STATIC_MEM_POOL_H
@@ -71,8 +71,7 @@ NVWA_NAMESPACE_BEGIN
  * Singleton class to maintain a set of existing instantiations of
  * static_mem_pool.
  */
-class static_mem_pool_set
-{
+class static_mem_pool_set {
 public:
     typedef class_level_lock<static_mem_pool_set>::lock lock;
     static static_mem_pool_set& instance();
@@ -102,8 +101,7 @@ private:
  *              given
  */
 template <size_t _Sz, int _Gid = -1>
-class static_mem_pool : public mem_pool_base
-{
+class static_mem_pool : public mem_pool_base {
     typedef typename class_level_lock<static_mem_pool<_Sz, _Gid>, (_Gid < 0)>
             ::lock lock;
 public:
@@ -118,8 +116,7 @@ public:
     static static_mem_pool& instance()
     {
         lock guard;
-        if (!_S_instance_p)
-        {
+        if (!_S_instance_p) {
             _S_instance_p = _S_create_instance();
         }
         return *_S_instance_p;
@@ -148,8 +145,7 @@ public:
     {
         {
             lock guard;
-            if (_S_memory_block_p)
-            {
+            if (_S_memory_block_p) {
                 void* result = _S_memory_block_p;
                 _S_memory_block_p = _S_memory_block_p->_M_next;
                 return result;
@@ -184,8 +180,7 @@ private:
         // Empty the pool to avoid false memory leakage alarms.  This is
         // generally not necessary for release binaries.
         _Block_list* block = _S_memory_block_p;
-        while (block)
-        {
+        while (block) {
             _Block_list* next = block->_M_next;
             dealloc_sys(block);
             block = next;
@@ -233,17 +228,13 @@ void static_mem_pool<_Sz, _Gid>::recycle()
     // found so far.
     lock guard;
     _Block_list* block = _S_memory_block_p;
-    while (block)
-    {
-        if (_Block_list* temp = block->_M_next)
-        {
+    while (block) {
+        if (_Block_list* temp = block->_M_next) {
             _Block_list* next = temp->_M_next;
             block->_M_next = next;
             dealloc_sys(temp);
             block = next;
-        }
-        else
-        {
+        } else {
             break;
         }
     }
@@ -256,8 +247,7 @@ void* static_mem_pool<_Sz, _Gid>::_S_alloc_sys(size_t size)
 {
     static_mem_pool_set::lock guard;
     void* result = mem_pool_base::alloc_sys(size);
-    if (!result)
-    {
+    if (!result) {
         static_mem_pool_set::instance().recycle();
         result = mem_pool_base::alloc_sys(size);
     }
@@ -267,8 +257,9 @@ void* static_mem_pool<_Sz, _Gid>::_S_alloc_sys(size_t size)
 template <size_t _Sz, int _Gid>
 static_mem_pool<_Sz, _Gid>* static_mem_pool<_Sz, _Gid>::_S_create_instance()
 {
-    if (_S_destroyed)
+    if (_S_destroyed) {
         throw std::runtime_error("dead reference detected");
+    }
 
     static_mem_pool_set::instance();  // Force its creation
     static_mem_pool* inst_p = new static_mem_pool();

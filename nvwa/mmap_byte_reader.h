@@ -32,7 +32,7 @@
  * Header file for mmap_byte_reader, an easy-to-use byte-based file reader.
  * It is implemented with memory-mapped file APIs.
  *
- * @date  2019-07-29
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_MMAP_BYTE_READER_H
@@ -48,8 +48,7 @@ NVWA_NAMESPACE_BEGIN
 
 /** Class template to allow iteration over all bytes of a mmappable file. */
 template <typename _Tp>
-class basic_mmap_byte_reader : public mmap_reader_base
-{
+class basic_mmap_byte_reader : public mmap_reader_base {
 public:
     typedef _Tp                value_type;
     typedef const value_type*  pointer;
@@ -57,8 +56,7 @@ public:
     typedef const value_type&  const_reference;
 
     /** Iterator over the bytes. */
-    class iterator  // implements RandomAccessIterator
-    {
+    class iterator {  // implements RandomAccessIterator
     public:
         typedef _Tp                             value_type;
         typedef const value_type*               pointer;

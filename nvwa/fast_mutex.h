@@ -31,7 +31,7 @@
  *
  * A fast mutex implementation for POSIX, Win32, and modern C++.
  *
- * @date  2019-04-01
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_FAST_MUTEX_H
@@ -150,8 +150,7 @@ NVWA_NAMESPACE_BEGIN
      * Class for non-reentrant fast mutexes.  This is the implementation
      * using the C++11 mutex.
      */
-    class fast_mutex
-    {
+    class fast_mutex {
         std::mutex _M_mtx_impl;
 #       if _FAST_MUTEX_CHECK_INITIALIZATION
         bool _M_initialized;
@@ -179,8 +178,9 @@ NVWA_NAMESPACE_BEGIN
         void lock()
         {
 #       if _FAST_MUTEX_CHECK_INITIALIZATION
-            if (!_M_initialized)
+            if (!_M_initialized) {
                 return;
+            }
 #       endif
             _M_mtx_impl.lock();
 #       ifdef _DEBUG
@@ -191,8 +191,9 @@ NVWA_NAMESPACE_BEGIN
         void unlock()
         {
 #       if _FAST_MUTEX_CHECK_INITIALIZATION
-            if (!_M_initialized)
+            if (!_M_initialized) {
                 return;
+            }
 #       endif
 #       ifdef _DEBUG
             _FAST_MUTEX_ASSERT(_M_locked, "unlock(): not locked");
@@ -212,8 +213,7 @@ NVWA_NAMESPACE_BEGIN
      * Class for non-reentrant fast mutexes.  This is the implementation
      * for POSIX threads.
      */
-    class fast_mutex
-    {
+    class fast_mutex {
         pthread_mutex_t _M_mtx_impl;
 #       if _FAST_MUTEX_CHECK_INITIALIZATION
         bool _M_initialized;
@@ -243,8 +243,9 @@ NVWA_NAMESPACE_BEGIN
         void lock()
         {
 #       if _FAST_MUTEX_CHECK_INITIALIZATION
-            if (!_M_initialized)
+            if (!_M_initialized) {
                 return;
+            }
 #       endif
             ::pthread_mutex_lock(&_M_mtx_impl);
 #       ifdef _DEBUG
@@ -260,8 +261,9 @@ NVWA_NAMESPACE_BEGIN
         void unlock()
         {
 #       if _FAST_MUTEX_CHECK_INITIALIZATION
-            if (!_M_initialized)
+            if (!_M_initialized) {
                 return;
+            }
 #       endif
 #       ifdef _DEBUG
             _FAST_MUTEX_ASSERT(_M_locked, "unlock(): not locked");
@@ -284,8 +286,7 @@ NVWA_NAMESPACE_BEGIN
      * Class for non-reentrant fast mutexes.  This is the implementation
      * for Win32 threads.
      */
-    class fast_mutex
-    {
+    class fast_mutex {
         CRITICAL_SECTION _M_mtx_impl;
 #       if _FAST_MUTEX_CHECK_INITIALIZATION
         bool _M_initialized;
@@ -315,8 +316,9 @@ NVWA_NAMESPACE_BEGIN
         void lock()
         {
 #       if _FAST_MUTEX_CHECK_INITIALIZATION
-            if (!_M_initialized)
+            if (!_M_initialized) {
                 return;
+            }
 #       endif
             ::EnterCriticalSection(&_M_mtx_impl);
 #       ifdef _DEBUG
@@ -327,8 +329,9 @@ NVWA_NAMESPACE_BEGIN
         void unlock()
         {
 #       if _FAST_MUTEX_CHECK_INITIALIZATION
-            if (!_M_initialized)
+            if (!_M_initialized) {
                 return;
+            }
 #       endif
 #       ifdef _DEBUG
             _FAST_MUTEX_ASSERT(_M_locked, "unlock(): not locked");
@@ -347,8 +350,7 @@ NVWA_NAMESPACE_BEGIN
      * Class for non-reentrant fast mutexes.  This is the null
      * implementation for single-threaded environments.
      */
-    class fast_mutex
-    {
+    class fast_mutex {
 #       ifdef _DEBUG
         bool _M_locked;
 #       endif
@@ -386,8 +388,7 @@ NVWA_NAMESPACE_END
 
 NVWA_NAMESPACE_BEGIN
 /** RAII lock class for fast_mutex. */
-class fast_mutex_autolock
-{
+class fast_mutex_autolock {
     fast_mutex& _M_mtx;
 public:
     explicit fast_mutex_autolock(fast_mutex& mtx) : _M_mtx(mtx)

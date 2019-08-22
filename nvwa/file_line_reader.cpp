@@ -31,7 +31,7 @@
  *
  * Code for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2019-04-01
+ * @date  2019-08-22
  */
 
 #include "file_line_reader.h"   // file_line_reader
@@ -163,10 +163,11 @@ file_line_reader::file_line_reader(FILE* stream, char delimiter,
     , _M_read_pos(0)
     , _M_size(0)
 {
-    if (delimiter == '\n')
+    if (delimiter == '\n') {
         _M_buffer = _NULLPTR;
-    else
+    } else {
         _M_buffer = new char[BUFFER_SIZE];
+    }
 }
 
 /** Destructor. */
@@ -201,59 +202,53 @@ bool file_line_reader::read(char*& output, size_t& size, size_t& capacity)
     bool found_delimiter = false;
     size_t write_pos = 0;
 
-    if (_M_delimiter == '\n')
-    {
-        while (!found_delimiter)
-        {
-            if (!fgets(output + write_pos, capacity - write_pos, _M_stream))
+    if (_M_delimiter == '\n') {
+        while (!found_delimiter) {
+            if (!fgets(output + write_pos, capacity - write_pos,
+                       _M_stream)) {
                 break;
-            while (output[write_pos] != '\0' && output[write_pos] != '\n')
+            }
+            while (output[write_pos] != '\0' && output[write_pos] != '\n') {
                 ++write_pos;
-            if (output[write_pos] == '\n')
-            {
+            }
+            if (output[write_pos] == '\n') {
                 ++write_pos;
                 found_delimiter = true;
             }
-            if (write_pos + 1 == capacity)
-            {
+            if (write_pos + 1 == capacity) {
                 output = expand(output, write_pos, capacity * 2);
                 capacity *= 2;
             }
         }
-    }
-    else
-    {
-        while (!found_delimiter)
-        {
-            if (_M_read_pos == _M_size)
-            {
+    } else {
+        while (!found_delimiter) {
+            if (_M_read_pos == _M_size) {
                 _M_read_pos = 0;
                 _M_size = fread(_M_buffer, 1, sizeof _M_buffer, _M_stream);
-                if (_M_size == 0)
+                if (_M_size == 0) {
                     break;
+                }
             }
             char ch = _M_buffer[_M_read_pos++];
-            if (write_pos + 1 == capacity)
-            {
+            if (write_pos + 1 == capacity) {
                 output = expand(output, write_pos, capacity * 2);
                 capacity *= 2;
             }
             output[write_pos++] = ch;
-            if (ch == _M_delimiter)
+            if (ch == _M_delimiter) {
                 found_delimiter = true;
+            }
         }
     }
 
-    if (write_pos != 0)
-    {
-        if (found_delimiter && _M_strip_delimiter)
+    if (write_pos != 0) {
+        if (found_delimiter && _M_strip_delimiter) {
             --write_pos;
+        }
         output[write_pos] = '\0';
         size = write_pos;
         return true;
-    }
-    else
-    {
+    } else {
         return false;
     }
 }

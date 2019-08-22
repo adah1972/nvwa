@@ -33,7 +33,7 @@
  * InputRange concept.  A compiler that supports C++17 or later is
  * required.
  *
- * @date  2019-08-11
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_NUMBER_RANGE_H
@@ -56,8 +56,7 @@ class number_range {
 public:
     class sentinel;
 
-    class iterator  // implements InputIterator
-    {
+    class iterator {  // implements InputIterator
     public:
         typedef int                     difference_type;
         typedef _Tp                     value_type;

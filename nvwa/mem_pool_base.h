@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for the memory pool base.
  *
- * @date  2013-10-06
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_MEM_POOL_BASE_H
@@ -45,8 +45,7 @@ NVWA_NAMESPACE_BEGIN
 /**
  * Base class for memory pools.
  */
-class mem_pool_base
-{
+class mem_pool_base {
 public:
     virtual ~mem_pool_base();
     virtual void recycle() = 0;
@@ -54,8 +53,7 @@ public:
     static void dealloc_sys(void* ptr);
 
     /** Structure to store the next available memory block. */
-    struct _Block_list
-    {
+    struct _Block_list {
         _Block_list* _M_next;   ///< Pointer to the next memory block
     };
 };

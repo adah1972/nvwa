@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @date  2018-11-15
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_DEBUG_NEW_H
@@ -161,8 +161,7 @@ extern leak_whitelist_callback_t leak_whitelist_callback;    // default to null
  *
  * The idea comes from <a href="http://groups.google.com/group/comp.lang.c++.moderated/browse_thread/thread/7089382e3bc1c489/85f9107a1dc79ee9?#85f9107a1dc79ee9">Greg Herlihy's post</a> in comp.lang.c++.moderated.
  */
-class debug_new_recorder
-{
+class debug_new_recorder {
     const char* _M_file;
     const int   _M_line;
     void _M_process(void* ptr);
@@ -194,8 +193,7 @@ private:
  * This technique is learnt from <em>The C++ Programming Language</em> by
  * Bjarne Stroustup.
  */
-class debug_new_counter
-{
+class debug_new_counter {
     static int _S_count;
 public:
     debug_new_counter();

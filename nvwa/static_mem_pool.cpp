@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2017 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Non-template and non-inline code for the `static' memory pool.
  *
- * @date  2017-09-09
+ * @date  2019-08-22
  */
 
 #include "static_mem_pool.h"    // nvwa::static_mem_pool_set
@@ -78,8 +78,7 @@ void static_mem_pool_set::recycle()
     container_type::iterator end = _M_memory_pool_set.end();
     for (container_type::iterator
             i  = _M_memory_pool_set.begin();
-            i != end; ++i)
-    {
+            i != end; ++i) {
         (*i)->recycle();
     }
 }

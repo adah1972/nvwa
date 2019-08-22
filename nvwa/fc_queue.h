@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2019-03-02
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -70,8 +70,7 @@ NVWA_NAMESPACE_BEGIN
  *                requirements (Table 28 in the C++11 spec).
  */
 template <class _Tp, class _Alloc = std::allocator<_Tp>>
-class fc_queue
-{
+class fc_queue {
 public:
     typedef _Tp                                       value_type;
     typedef _Alloc                                    allocator_type;
@@ -122,8 +121,9 @@ public:
         : _M_alloc(alloc)
     {
         assert(max_size != 0);
-        if (max_size + 1 == 0)
+        if (max_size + 1 == 0) {
             throw std::bad_alloc();
+        }
         _M_begin = _M_alloc.allocate(max_size + 1);
         _M_end = _M_begin + max_size + 1;
         _M_head = _M_begin;
@@ -157,13 +157,13 @@ public:
     {
         pointer ptr = _M_head;
         pointer tail = _M_tail;
-        while (ptr != tail)
-        {
+        while (ptr != tail) {
             destroy(std::addressof(*ptr));
             self_increment(ptr);
         }
-        if (_M_begin)
+        if (_M_begin) {
             _M_alloc.deallocate(_M_begin, _M_end - _M_begin);
+        }
     }
 
     /**
@@ -240,8 +240,9 @@ public:
     size_type size() const noexcept
     {
         typename allocator_traits::difference_type dist = _M_tail - _M_head;
-        if (dist < 0)
+        if (dist < 0) {
             dist += _M_end - _M_begin;
+        }
         return dist;
     }
 
@@ -312,8 +313,9 @@ public:
         assert(capacity() > 0);
         allocator_traits::construct(_M_alloc, std::addressof(*_M_tail),
                                     std::forward<decltype(args)>(args)...);
-        if (full())
+        if (full()) {
             pop();
+        }
         self_increment(_M_tail);
     }
 
@@ -354,15 +356,17 @@ public:
 #if NVWA_FC_QUEUE_USE_ATOMIC
         auto tail = _M_tail.load(std::memory_order_relaxed);
         auto new_tail = increment(tail);
-        if (new_tail == _M_head.load(std::memory_order_acquire))
+        if (new_tail == _M_head.load(std::memory_order_acquire)) {
             return false;
+        }
         allocator_traits::construct(_M_alloc, std::addressof(*tail),
                                     std::forward<decltype(args)>(args)...);
         _M_tail.store(new_tail, std::memory_order_release);
 #else
         auto new_tail = increment(_M_tail);
-        if (new_tail == _M_head)
+        if (new_tail == _M_head) {
             return false;
+        }
         allocator_traits::construct(_M_alloc, std::addressof(*_M_tail),
                                     std::forward<decltype(args)>(args)...);
         _M_tail = new_tail;
@@ -386,14 +390,16 @@ public:
     {
 #if NVWA_FC_QUEUE_USE_ATOMIC
         auto head = _M_head.load(std::memory_order_relaxed);
-        if (head == _M_tail.load(std::memory_order_acquire))
+        if (head == _M_tail.load(std::memory_order_acquire)) {
             return false;
+        }
         dest = std::move(*head);
         destroy(std::addressof(*head));
         _M_head.store(increment(head), std::memory_order_release);
 #else
-        if (empty())
+        if (empty()) {
             return false;
+        }
         dest = std::move(*_M_head);
         destroy(std::addressof(*_M_head));
         self_increment(_M_head);
@@ -412,10 +418,10 @@ public:
     {
         pointer ptr = _M_head;
         pointer tail = _M_tail;
-        while (ptr != tail)
-        {
-            if (*ptr == value)
+        while (ptr != tail) {
+            if (*ptr == value) {
                 return true;
+            }
             self_increment(ptr);
         }
         return false;
@@ -469,14 +475,16 @@ protected:
     pointer increment(pointer ptr) const noexcept
     {
         ++ptr;
-        if (ptr == _M_end)
+        if (ptr == _M_end) {
             ptr = _M_begin;
+        }
         return ptr;
     }
     pointer decrement(pointer ptr) const noexcept
     {
-        if (ptr == _M_begin)
+        if (ptr == _M_begin) {
             ptr = _M_end;
+        }
         return --ptr;
     }
     void self_increment(pointer& ptr) const noexcept
@@ -530,8 +538,7 @@ fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
     fc_queue temp(rhs.capacity(), rhs.get_allocator());
     pointer ptr = rhs._M_head;
     pointer tail = rhs._M_tail;
-    while (ptr != tail)
-    {
+    while (ptr != tail) {
         temp.push(*ptr);
         ptr = rhs.increment(ptr);
     }

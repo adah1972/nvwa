@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2019 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Code for mmap_reader_base, common base for memory-mapped file readers.
  * It is implemented with POSIX and Win32 APIs.
  *
- * @date  2018-11-15
+ * @date  2019-08-22
  */
 
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
@@ -90,8 +90,9 @@ mmap_reader_base::mmap_reader_base(const char* path)
 {
 #if NVWA_UNIX
     _M_fd = open(path, O_RDONLY);
-    if (_M_fd < 0)
+    if (_M_fd < 0) {
         throw_system_error("open");
+    }
 #else // NVWA_UNIX
     _M_file_handle = CreateFileA(
             path,
@@ -101,8 +102,9 @@ mmap_reader_base::mmap_reader_base(const char* path)
             OPEN_EXISTING,
             FILE_ATTRIBUTE_NORMAL,
             NULL);
-    if (_M_file_handle == INVALID_HANDLE_VALUE)
+    if (_M_file_handle == INVALID_HANDLE_VALUE) {
         throw_system_error("CreateFile");
+    }
 #endif // NVWA_UNIX
     initialize();
 }
@@ -123,8 +125,9 @@ mmap_reader_base::mmap_reader_base(const wchar_t* path)
             OPEN_EXISTING,
             FILE_ATTRIBUTE_NORMAL,
             NULL);
-    if (_M_file_handle == INVALID_HANDLE_VALUE)
+    if (_M_file_handle == INVALID_HANDLE_VALUE) {
         throw_system_error("CreateFile");
+    }
     initialize();
 }
 #endif // NVWA_WINDOWS
@@ -164,26 +167,31 @@ void mmap_reader_base::initialize()
 {
 #if NVWA_UNIX
     struct stat s;
-    if (fstat(_M_fd, &s) < 0)
+    if (fstat(_M_fd, &s) < 0) {
         throw_system_error("fstat");
-    if (sizeof s.st_size > sizeof(size_t) && s.st_size > SIZE_MAX)
+    }
+    if (sizeof s.st_size > sizeof(size_t) && s.st_size > SIZE_MAX) {
         throw std::runtime_error("file size is too big");
+    }
     void* ptr = mmap(_NULLPTR, s.st_size, PROT_READ, MAP_SHARED, _M_fd, 0);
-    if (ptr == MAP_FAILED)
+    if (ptr == MAP_FAILED) {
         throw_system_error("mmap");
+    }
     _M_mmap_ptr = static_cast<char*>(ptr);
     _M_size = s.st_size;
 #else
     LARGE_INTEGER file_size;
-    if (!GetFileSizeEx(_M_file_handle, &file_size))
+    if (!GetFileSizeEx(_M_file_handle, &file_size)) {
         throw_system_error("GetFileSizeEx");
+    }
 #ifdef _WIN64
     _M_size = file_size.QuadPart;
 #else
-    if (file_size.HighPart == 0)
+    if (file_size.HighPart == 0) {
         _M_size = file_size.LowPart;
-    else
+    } else {
         throw std::runtime_error("file size is too big");
+    }
 #endif
     _M_map_handle = CreateFileMapping(
             _M_file_handle,
@@ -192,16 +200,18 @@ void mmap_reader_base::initialize()
             file_size.HighPart,
             file_size.LowPart,
             NULL);
-    if (_M_map_handle == NULL)
+    if (_M_map_handle == NULL) {
         throw_system_error("CreateFileMapping");
+    }
     _M_mmap_ptr = static_cast<char*>(MapViewOfFile(
             _M_map_handle,
             FILE_MAP_READ,
             0,
             0,
             _M_size));
-    if (_M_mmap_ptr == NULL)
+    if (_M_mmap_ptr == NULL) {
         throw_system_error("MapViewOfFile");
+    }
 #endif
 }
 

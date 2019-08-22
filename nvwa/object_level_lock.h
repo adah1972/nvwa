@@ -34,7 +34,7 @@
  * href="http://www.awprofessional.com/articles/article.asp?p=25298">
  * "Multithreading and the C++ Type System"</a> for the ideas behind.
  *
- * @date  2019-08-12
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_OBJECT_LEVEL_LOCK_H
@@ -52,12 +52,10 @@ NVWA_NAMESPACE_BEGIN
      * single-threaded implementation.
      */
     template <class _Host>
-    class object_level_lock
-    {
+    class object_level_lock {
     public:
         /** Type that provides locking/unlocking semantics. */
-        class lock
-        {
+        class lock {
 #   ifndef NDEBUG
             const object_level_lock& _M_host;
 #   endif
@@ -90,8 +88,7 @@ NVWA_NAMESPACE_BEGIN
      * multi-threaded implementation.
      */
     template <class _Host>
-    class object_level_lock
-    {
+    class object_level_lock {
         mutable fast_mutex _M_mtx;
 
     public:
@@ -103,8 +100,7 @@ NVWA_NAMESPACE_BEGIN
         friend class lock;
 
         /** Type that provides locking/unlocking semantics. */
-        class lock
-        {
+        class lock {
             const object_level_lock& _M_host;
 
             lock(const lock&) _DELETED;

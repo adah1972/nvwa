@@ -33,7 +33,7 @@
  * satisfies the View concept.  It is implemented with memory-mapped file
  * APIs.
  *
- * @date  2019-08-12
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_MMAP_LINE_VIEW_H
@@ -51,12 +51,10 @@ NVWA_NAMESPACE_BEGIN
 
 /** Class template to allow iteration over all lines of a mmappable file. */
 template <typename _Tp>
-class basic_mmap_line_view
-{
+class basic_mmap_line_view {
 public:
     /** Iterator that contains the line content. */
-    class iterator  // implements ForwardIterator
-    {
+    class iterator {  // implements ForwardIterator
     public:
         typedef _Tp                       value_type;
         typedef const value_type*         pointer;
@@ -84,8 +82,9 @@ public:
         }
         iterator& operator++()
         {
-            if (!_M_reader->read(_M_line, _M_offset))
+            if (!_M_reader->read(_M_line, _M_offset)) {
                 _M_reader = nullptr;
+            }
             return *this;
         }
         iterator operator++(int)
@@ -111,8 +110,7 @@ public:
     };
 
     /** Enumeration of whether the delimiter should be stripped. */
-    enum strip_type
-    {
+    enum strip_type {
         strip_delimiter,     ///< The delimiter should be stripped
         no_strip_delimiter,  ///< The delimiter should be retained
     };
@@ -173,16 +171,15 @@ private:
 template <typename _Tp>
 bool basic_mmap_line_view<_Tp>::read(_Tp& output, size_t& offset)
 {
-    if (offset == _M_reader_base->size())
+    if (offset == _M_reader_base->size()) {
         return false;
+    }
 
     size_t pos = offset;
     bool found_delimiter = false;
-    while (pos < _M_reader_base->size())
-    {
+    while (pos < _M_reader_base->size()) {
         char ch = _M_reader_base->data()[pos++];
-        if (ch == _M_delimiter)
-        {
+        if (ch == _M_delimiter) {
             found_delimiter = true;
             break;
         }

@@ -47,7 +47,7 @@
  * and has since been modified to satisfy the \c InputIterator concept,
  * along with other minor changes.
  *
- * @date  2019-07-29
+ * @date  2019-08-22
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
@@ -71,8 +71,7 @@ public:
      *
      * The iterator \e owns the content.
      */
-    class iterator  // implements InputIterator
-    {
+    class iterator {  // implements InputIterator
     public:
         typedef int                     difference_type;
         typedef std::string             value_type;
@@ -100,8 +99,9 @@ public:
         {
             assert(_M_stream != _NULLPTR);
             getline(*_M_stream, _M_line);
-            if (!*_M_stream)
+            if (!*_M_stream) {
                 _M_stream = _NULLPTR;
+            }
             return *this;
         }
         iterator operator++(int)
@@ -135,10 +135,12 @@ public:
     }
     iterator begin()
     {
-        if (!_M_stream)
+        if (!_M_stream) {
             throw std::logic_error("input stream is null");
-        if (_M_stream->fail())
+        }
+        if (_M_stream->fail()) {
             throw std::runtime_error("input stream error");
+        }
         return iterator(*_M_stream);
     }
     iterator end() const
