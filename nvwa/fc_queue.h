@@ -38,7 +38,6 @@
 #define NVWA_FC_QUEUE_H
 
 #include <assert.h>             // assert
-#include <stddef.h>             // ptrdiff_t/size_t/NULL
 #include <atomic>               // std::atomic
 #include <memory>               // std::addressof/allocator/allocator_traits
 #include <new>                  // placement new
