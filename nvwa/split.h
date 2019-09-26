@@ -39,7 +39,7 @@
  * }
  * @endcode
  *
- * @date  2019-08-22
+ * @date  2019-09-26
  */
 
 #ifndef NVWA_SPLIT_H
@@ -49,6 +49,7 @@
 #include <iterator>             // std::input_iterator_tag
 #include <string>               // std::basic_string
 #include <string_view>          // std::basic_string_view
+#include <type_traits>          // std::is_same_v
 #include <vector>               // std::vector
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
@@ -117,10 +118,8 @@ public:
                     _M_cur = std::basic_string_view<char_type>(
                         _M_src->data() + last_pos, _M_pos - last_pos);
 
-                    // Hack: typeid(delimiter_type) == typeid(char_type)) is
-                    // really wanted, but not valid as of C++17
-                    if constexpr (sizeof(delimiter_type) ==
-                                  sizeof(char_type)) {
+                    if constexpr (std::is_same_v<delimiter_type,
+                                                 char_type>) {
                         ++_M_pos;
                     } else {
                         _M_pos += _M_delimiter.size();
