@@ -37,9 +37,9 @@
 #ifndef NVWA_CXX_FEATURES_H
 #define NVWA_CXX_FEATURES_H
 
-#include "_nvwa.h"
+#include "_nvwa.h"          // NVWA_APPLE
 #if NVWA_APPLE
-#include <Availability.h>
+#include <Availability.h>   // __MAC_OS_X_VERSION_MIN_REQUIRED
 #endif
 
 // Only Clang provides all these macros; they need to be defined as follows
@@ -394,6 +394,7 @@
 #if HAVE_CXX11_NULLPTR
 #define _NULLPTR nullptr
 #else
+#include <stddef.h>         // NULL
 #define _NULLPTR NULL
 #endif
 
