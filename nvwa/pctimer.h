@@ -31,13 +31,14 @@
  *
  * Function to get a high-resolution timer for Win32/Cygwin/Unix.
  *
- * @date  2019-08-22
+ * @date  2019-10-10
  */
 
 #ifndef NVWA_PCTIMER_H
 #define NVWA_PCTIMER_H
 
 #include "_nvwa.h"              // NVWA_NAMESPACE_*/NVWA_WINDOWS
+#include "c++_features.h"       // _NULLPTR
 
 #if NVWA_WINDOWS
 
@@ -86,7 +87,7 @@ typedef double pctimer_t;
 __inline pctimer_t pctimer(void)
 {
     struct timeval tv;
-    gettimeofday(&tv, NULL);
+    gettimeofday(&tv, _NULLPTR);
     return (double)tv.tv_sec + (double)tv.tv_usec / 1000000;
 }
 

@@ -31,14 +31,14 @@
  *
  * A fast mutex implementation for POSIX, Win32, and modern C++.
  *
- * @date  2019-08-22
+ * @date  2019-10-10
  */
 
 #ifndef NVWA_FAST_MUTEX_H
 #define NVWA_FAST_MUTEX_H
 
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // HAVE_CXX11_MUTEX/_DELETED
+#include "c++_features.h"       // HAVE_CXX11_MUTEX/_DELETED/_NULLPTR
 
 # if !defined(_NOTHREADS)
 #   if !defined(NVWA_USE_CXX11_MUTEX) && HAVE_CXX11_MUTEX != 0 && \
@@ -227,7 +227,7 @@ NVWA_NAMESPACE_BEGIN
             : _M_locked(false)
 #       endif
         {
-            ::pthread_mutex_init(&_M_mtx_impl, NULL);
+            ::pthread_mutex_init(&_M_mtx_impl, _NULLPTR);
 #       if _FAST_MUTEX_CHECK_INITIALIZATION
             _M_initialized = true;
 #       endif
