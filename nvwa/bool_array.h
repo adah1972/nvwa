@@ -31,14 +31,14 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2019-08-22
+ * @date  2019-10-10
  */
 
 #ifndef NVWA_BOOL_ARRAY_H
 #define NVWA_BOOL_ARRAY_H
 
 #include <assert.h>             // assert
-#include <stdlib.h>             // exit/free/NULL
+#include <stdlib.h>             // exit/free
 #include <new>                  // std::bad_alloc
 #include <stdexcept>            // std::out_of_range
 #include <string>               // for exception constructors

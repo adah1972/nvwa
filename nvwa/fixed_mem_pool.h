@@ -49,7 +49,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running.
  *
- * @date  2019-08-22
+ * @date  2019-10-10
  */
 
 #ifndef NVWA_FIXED_MEM_POOL_H
@@ -57,7 +57,7 @@
 
 #include <new>                  // std::bad_alloc
 #include <assert.h>             // assert
-#include <stddef.h>             // size_t/NULL
+#include <stddef.h>             // size_t
 #include "_nvwa.h"              // NVWA/NVWA_NAMESPACE_*
 #include "c++_features.h"       // _NOEXCEPT
 #include "class_level_lock.h"   // nvwa::class_level_lock

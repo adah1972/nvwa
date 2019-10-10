@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @date  2019-08-22
+ * @date  2019-10-10
  */
 
 #ifndef NVWA_STATIC_MEM_POOL_H
@@ -42,7 +42,7 @@
 #include <string>               // std::string
 #include <vector>               // std::vector
 #include <assert.h>             // assert
-#include <stddef.h>             // size_t/NULL
+#include <stddef.h>             // size_t
 #include "_nvwa.h"              // NVWA/NVWA_NAMESPACE_*
 #include "c++_features.h"       // _DELETED/_NOEXCEPT/_NULLPTR/_OVERRIDE
 #include "class_level_lock.h"   // nvwa::class_level_lock
