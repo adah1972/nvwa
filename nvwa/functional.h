@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2019-08-22
+ * @date  2019-10-10
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -269,7 +269,8 @@ public:
         : _M_value(x)
         , _M_engaged(true)
     {}
-    constexpr explicit optional_base(_Tp&& x) noexcept
+    constexpr explicit optional_base(_Tp&& x) noexcept(
+        std::is_nothrow_move_constructible<_Tp>::value)
         : _M_value(std::move(x))
         , _M_engaged(true)
     {}
@@ -280,7 +281,8 @@ public:
             new(&_M_value) _Tp(rhs._M_value);
         }
     }
-    constexpr optional_base(optional_base&& rhs) noexcept
+    constexpr optional_base(optional_base&& rhs) noexcept(
+        std::is_nothrow_move_constructible<_Tp>::value)
         : _M_engaged(rhs._M_engaged)
     {
         if (rhs._M_engaged) {
@@ -320,7 +322,8 @@ public:
         : _M_value(x)
         , _M_engaged(true)
     {}
-    constexpr explicit optional_base(_Tp&& x) noexcept
+    constexpr explicit optional_base(_Tp&& x) noexcept(
+        std::is_nothrow_move_constructible<_Tp>::value)
         : _M_value(std::move(x))
         , _M_engaged(true)
     {}
@@ -331,7 +334,8 @@ public:
             new(&_M_value) _Tp(rhs._M_value);
         }
     }
-    constexpr optional_base(optional_base&& rhs) noexcept
+    constexpr optional_base(optional_base&& rhs) noexcept(
+        std::is_nothrow_move_constructible<_Tp>::value)
         : _M_engaged(rhs._M_engaged)
     {
         if (rhs._M_engaged) {
