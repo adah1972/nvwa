@@ -199,6 +199,10 @@ BOOST_AUTO_TEST_CASE(functional_test)
                 {
                     return x.has_value() && x.value() == 43;
                 }(inc_opt(r2)));
+    BOOST_CHECK(noexcept(nvwa::optional<int>(0)));
+    BOOST_CHECK(noexcept(
+        nvwa::optional<int>(std::declval<nvwa::optional<int>&&>())));
+    BOOST_CHECK(noexcept(nvwa::optional<Obj>()));
 
     auto p1 = nvwa::make_optional(std::make_unique<int>(45));
     BOOST_CHECK(p1.has_value());
@@ -219,9 +223,6 @@ BOOST_AUTO_TEST_CASE(functional_test)
     using namespace nvwa;
     BOOST_CHECK(noexcept(
         detail::adl_swap(std::declval<int&>(), std::declval<int&>())));
-    BOOST_CHECK(noexcept(int(std::move(std::declval<int&&>()))));
-    BOOST_CHECK(std::is_trivially_destructible<int>::value ||
-                std::is_nothrow_destructible<int>::value);
     BOOST_CHECK(noexcept(r3.swap(r4)));
 
     assert((nvwa::detail::can_reserve<std::vector<int>,
