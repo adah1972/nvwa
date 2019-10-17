@@ -113,6 +113,17 @@ public:
 
         bool operator==(const iterator& rhs) const _NOEXCEPT
         {
+            // This implementation basically says, any iterators
+            // pointing to the same stream are equal.  This behaviour
+            // may seem a little surprising in the beginning, but, in
+            // reality, it hardly has any consequences, as people
+            // usually compare an input iterator only to the sentinel
+            // object.  The alternative, using _M_stream->tellg() to
+            // get the exact position, harms the performance too dearly.
+            // I do not really have a better choice.
+            //
+            // If you do need to compare valid iterators, consider using
+            // file_line_reader or mmap_line_reader.
             return _M_stream == rhs._M_stream;
         }
         bool operator!=(const iterator& rhs) const _NOEXCEPT
