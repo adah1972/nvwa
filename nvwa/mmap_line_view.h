@@ -33,7 +33,7 @@
  * satisfies the View concept.  It is similar to mmap_line_reader_sv
  * otherwise, and using it requires a C++17-compliant compiler.
  *
- * @date  2019-08-22
+ * @date  2019-10-17
  */
 
 #ifndef NVWA_MMAP_LINE_VIEW_H
@@ -70,12 +70,12 @@ public:
             ++*this;
         }
 
-        reference operator*() const
+        reference operator*() const noexcept
         {
             assert(_M_reader != nullptr);
             return _M_line;
         }
-        pointer operator->() const
+        pointer operator->() const noexcept
         {
             assert(_M_reader != nullptr);
             return &_M_line;
@@ -94,11 +94,11 @@ public:
             return temp;
         }
 
-        bool operator==(const iterator& rhs) const
+        bool operator==(const iterator& rhs) const noexcept
         {
             return _M_reader == rhs._M_reader;
         }
-        bool operator!=(const iterator& rhs) const
+        bool operator!=(const iterator& rhs) const noexcept
         {
             return !operator==(rhs);
         }

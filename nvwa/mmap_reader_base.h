@@ -32,7 +32,7 @@
  * Header file for mmap_reader_base, common base for mmap-based file
  * readers.  It currently supports POSIX and Win32.
  *
- * @date  2019-08-22
+ * @date  2019-10-17
  */
 
 #ifndef NVWA_MMAP_READER_BASE_H
@@ -41,7 +41,7 @@
 #include <stddef.h>             // ptrdiff_t/size_t
 #include <iterator>             // std::input_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // _DELETED
+#include "c++_features.h"       // _DELETED/_NOEXCEPT
 
 NVWA_NAMESPACE_BEGIN
 
@@ -59,11 +59,11 @@ public:
 #endif
     ~mmap_reader_base();
 
-    char* data() const
+    char* data() const _NOEXCEPT
     {
         return _M_mmap_ptr;
     }
-    size_t size() const
+    size_t size() const _NOEXCEPT
     {
         return _M_size;
     }

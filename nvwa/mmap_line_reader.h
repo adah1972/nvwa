@@ -32,7 +32,7 @@
  * Header file for mmap_line_reader and mmap_line_reader_sv, easy-to-use
  * line-based file readers.  It is implemented with memory-mapped file APIs.
  *
- * @date  2019-08-22
+ * @date  2019-10-17
  */
 
 #ifndef NVWA_MMAP_LINE_READER_H
@@ -42,7 +42,7 @@
 #include <stddef.h>             // ptrdiff_t/size_t
 #include <iterator>             // std::forward_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // HAVE_CXX17_STRING_VIEW/_DELETED/_NULLPTR
+#include "c++_features.h"       // HAVE_CXX17_STRING_VIEW/_NULLPTR/...
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
 
 #include <string>               // std::string
@@ -73,12 +73,12 @@ public:
             ++*this;
         }
 
-        reference operator*() const
+        reference operator*() const _NOEXCEPT
         {
             assert(_M_reader != _NULLPTR);
             return _M_line;
         }
-        pointer operator->() const
+        pointer operator->() const _NOEXCEPT
         {
             assert(_M_reader != _NULLPTR);
             return &_M_line;
@@ -97,11 +97,11 @@ public:
             return temp;
         }
 
-        bool operator==(const iterator& rhs) const
+        bool operator==(const iterator& rhs) const _NOEXCEPT
         {
             return _M_reader == rhs._M_reader;
         }
-        bool operator!=(const iterator& rhs) const
+        bool operator!=(const iterator& rhs) const _NOEXCEPT
         {
             return !operator==(rhs);
         }

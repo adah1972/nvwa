@@ -47,7 +47,7 @@
  * and has since been modified to satisfy the \c InputIterator concept,
  * along with other minor changes.
  *
- * @date  2019-08-22
+ * @date  2019-10-17
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
@@ -79,18 +79,18 @@ public:
         typedef const value_type&       reference;
         typedef std::input_iterator_tag iterator_category;
 
-        iterator() : _M_stream(_NULLPTR) {}
+        iterator() _NOEXCEPT : _M_stream(_NULLPTR) {}
         explicit iterator(std::istream& is) : _M_stream(&is)
         {
             ++*this;
         }
 
-        reference operator*() const
+        reference operator*() const _NOEXCEPT
         {
             assert(_M_stream != _NULLPTR);
             return _M_line;
         }
-        pointer operator->() const
+        pointer operator->() const _NOEXCEPT
         {
             assert(_M_stream != _NULLPTR);
             return &_M_line;
@@ -111,11 +111,11 @@ public:
             return temp;
         }
 
-        bool operator==(const iterator& rhs) const
+        bool operator==(const iterator& rhs) const _NOEXCEPT
         {
             return _M_stream == rhs._M_stream;
         }
-        bool operator!=(const iterator& rhs) const
+        bool operator!=(const iterator& rhs) const _NOEXCEPT
         {
             return !operator==(rhs);
         }
@@ -143,7 +143,7 @@ public:
         }
         return iterator(*_M_stream);
     }
-    iterator end() const
+    iterator end() const _NOEXCEPT
     {
         return iterator();
     }

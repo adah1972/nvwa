@@ -31,7 +31,7 @@
  *
  * Header file for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2019-08-22
+ * @date  2019-10-17
  */
 
 #ifndef NVWA_FILE_LINE_READER_H
@@ -99,11 +99,11 @@ public:
             return temp;
         }
 
-        bool operator==(const iterator& rhs) const
+        bool operator==(const iterator& rhs) const _NOEXCEPT
         {
             return _M_reader == rhs._M_reader;
         }
-        bool operator!=(const iterator& rhs) const
+        bool operator!=(const iterator& rhs) const _NOEXCEPT
         {
             return !operator==(rhs);
         }
@@ -144,7 +144,7 @@ private:
 };
 
 inline void swap(file_line_reader::iterator& lhs,
-                 file_line_reader::iterator& rhs)
+                 file_line_reader::iterator& rhs) _NOEXCEPT
 {
     lhs.swap(rhs);
 }
