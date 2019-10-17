@@ -65,7 +65,7 @@ public:
         typedef ptrdiff_t                 difference_type;
         typedef std::forward_iterator_tag iterator_category;
 
-        iterator() : _M_reader(_NULLPTR) {}
+        iterator() : _M_reader(_NULLPTR), _M_offset(0) {}
         explicit iterator(basic_mmap_line_reader* reader)
             : _M_reader(reader)
             , _M_offset(0)
@@ -87,6 +87,7 @@ public:
         {
             if (!_M_reader->read(_M_line, _M_offset)) {
                 _M_reader = _NULLPTR;
+                _M_offset = 0;
             }
             return *this;
         }
@@ -99,7 +100,7 @@ public:
 
         bool operator==(const iterator& rhs) const _NOEXCEPT
         {
-            return _M_reader == rhs._M_reader;
+            return _M_reader == rhs._M_reader && _M_offset == rhs._M_offset;
         }
         bool operator!=(const iterator& rhs) const _NOEXCEPT
         {

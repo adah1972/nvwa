@@ -84,6 +84,7 @@ public:
         {
             if (!_M_reader->read(_M_line, _M_offset)) {
                 _M_reader = nullptr;
+                _M_offset = 0;
             }
             return *this;
         }
@@ -96,7 +97,7 @@ public:
 
         bool operator==(const iterator& rhs) const noexcept
         {
-            return _M_reader == rhs._M_reader;
+            return _M_reader == rhs._M_reader && _M_offset == rhs._M_offset;
         }
         bool operator!=(const iterator& rhs) const noexcept
         {
@@ -105,7 +106,7 @@ public:
 
     private:
         basic_mmap_line_view* _M_reader{nullptr};
-        size_t                _M_offset;
+        size_t                _M_offset{0};
         value_type            _M_line;
     };
 
