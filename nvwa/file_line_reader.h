@@ -31,7 +31,7 @@
  *
  * Header file for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2019-10-17
+ * @date  2019-10-18
  */
 
 #ifndef NVWA_FILE_LINE_READER_H
@@ -61,7 +61,11 @@ public:
         typedef value_type&             reference;
         typedef std::input_iterator_tag iterator_category;
 
-        iterator() _NOEXCEPT : _M_reader(_NULLPTR), _M_line(_NULLPTR) {}
+        iterator() _NOEXCEPT
+            : _M_reader(_NULLPTR), _M_offset(0)
+            , _M_line(_NULLPTR), _M_size(0), _M_capacity(0)
+        {
+        }
         explicit iterator(file_line_reader* reader);
         ~iterator();
 
@@ -89,6 +93,9 @@ public:
         {
             if (!_M_reader->read(_M_line, _M_size, _M_capacity)) {
                 _M_reader = _NULLPTR;
+                _M_offset = 0;
+            } else {
+                _M_offset = _M_reader->_M_offset;
             }
             return *this;
         }
@@ -101,7 +108,7 @@ public:
 
         bool operator==(const iterator& rhs) const _NOEXCEPT
         {
-            return _M_reader == rhs._M_reader;
+            return _M_reader == rhs._M_reader && _M_offset == rhs._M_offset;
         }
         bool operator!=(const iterator& rhs) const _NOEXCEPT
         {
@@ -112,6 +119,7 @@ public:
 
     private:
         file_line_reader* _M_reader;
+        size_t            _M_offset;
         char*             _M_line;
         size_t            _M_size;
         size_t            _M_capacity;
@@ -139,6 +147,7 @@ private:
     char   _M_delimiter;
     bool   _M_strip_delimiter;
     char*  _M_buffer;
+    size_t _M_offset;
     size_t _M_read_pos;
     size_t _M_size;
 };

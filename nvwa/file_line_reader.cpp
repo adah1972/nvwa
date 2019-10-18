@@ -31,7 +31,7 @@
  *
  * Code for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2019-08-22
+ * @date  2019-10-18
  */
 
 #include "file_line_reader.h"   // file_line_reader
@@ -47,7 +47,6 @@
 
 NVWA_NAMESPACE_BEGIN
 
-// Size of buffer
 const size_t BUFFER_SIZE = 256;
 
 /**
@@ -56,7 +55,7 @@ const size_t BUFFER_SIZE = 256;
  * @param reader  pointer to the file_line_reader object
  */
 file_line_reader::iterator::iterator(file_line_reader* reader)
-    : _M_reader(reader), _M_size(0)
+    : _M_reader(reader) , _M_offset(0) , _M_size(0)
 {
     _M_line = new char[BUFFER_SIZE];
     _M_capacity = BUFFER_SIZE;
@@ -77,11 +76,14 @@ file_line_reader::iterator::~iterator()
  */
 file_line_reader::iterator::iterator(const iterator& rhs)
     : _M_reader(rhs._M_reader)
+    , _M_offset(rhs._M_offset)
+    , _M_size(rhs._M_size)
+    , _M_capacity(rhs._M_capacity)
 {
-    _M_line = new char[rhs._M_size + 1];
-    _M_size = rhs._M_size;
-    _M_capacity = _M_size + 1;
-    memcpy(_M_line, rhs._M_line, _M_size + 1);
+    if (rhs._M_line) {
+        _M_line = new char[rhs._M_capacity];
+        memcpy(_M_line, rhs._M_line, _M_size + 1);
+    }
 }
 
 /**
@@ -107,12 +109,14 @@ operator=(const iterator& rhs)
  * @param rhs  the iterator to move from
  */
 file_line_reader::iterator::iterator(iterator&& rhs) _NOEXCEPT
-    : _M_reader(rhs._M_reader),
-      _M_line(rhs._M_line),
-      _M_size(rhs._M_size),
-      _M_capacity(rhs._M_capacity)
+    : _M_reader(rhs._M_reader)
+    , _M_offset(rhs._M_offset)
+    , _M_line(rhs._M_line)
+    , _M_size(rhs._M_size)
+    , _M_capacity(rhs._M_capacity)
 {
     rhs._M_reader = _NULLPTR;
+    rhs._M_offset = 0;
     rhs._M_line = _NULLPTR;
     rhs._M_size = 0;
     rhs._M_capacity = 0;
@@ -143,6 +147,7 @@ void file_line_reader::iterator::swap(
     file_line_reader::iterator& rhs) _NOEXCEPT
 {
     std::swap(_M_reader, rhs._M_reader);
+    std::swap(_M_offset, rhs._M_offset);
     std::swap(_M_line, rhs._M_line);
     std::swap(_M_size, rhs._M_size);
     std::swap(_M_capacity, rhs._M_capacity);
@@ -160,6 +165,7 @@ file_line_reader::file_line_reader(FILE* stream, char delimiter,
     : _M_stream(stream)
     , _M_delimiter(delimiter)
     , _M_strip_delimiter(strip == strip_delimiter)
+    , _M_offset(0)
     , _M_read_pos(0)
     , _M_size(0)
 {
@@ -203,17 +209,16 @@ bool file_line_reader::read(char*& output, size_t& size, size_t& capacity)
     size_t write_pos = 0;
 
     if (_M_delimiter == '\n') {
-        while (!found_delimiter) {
+        for (;;) {
             if (!fgets(output + write_pos, capacity - write_pos,
                        _M_stream)) {
                 break;
             }
-            while (output[write_pos] != '\0' && output[write_pos] != '\n') {
-                ++write_pos;
-            }
-            if (output[write_pos] == '\n') {
-                ++write_pos;
+            size_t len = strlen(output + write_pos);
+            write_pos += len;
+            if (output[write_pos - 1] == '\n') {
                 found_delimiter = true;
+                break;
             }
             if (write_pos + 1 == capacity) {
                 output = expand(output, write_pos, capacity * 2);
@@ -221,10 +226,10 @@ bool file_line_reader::read(char*& output, size_t& size, size_t& capacity)
             }
         }
     } else {
-        while (!found_delimiter) {
+        for (;;) {
             if (_M_read_pos == _M_size) {
                 _M_read_pos = 0;
-                _M_size = fread(_M_buffer, 1, sizeof _M_buffer, _M_stream);
+                _M_size = fread(_M_buffer, 1, BUFFER_SIZE, _M_stream);
                 if (_M_size == 0) {
                     break;
                 }
@@ -237,9 +242,11 @@ bool file_line_reader::read(char*& output, size_t& size, size_t& capacity)
             output[write_pos++] = ch;
             if (ch == _M_delimiter) {
                 found_delimiter = true;
+                break;
             }
         }
     }
+    _M_offset += write_pos;
 
     if (write_pos != 0) {
         if (found_delimiter && _M_strip_delimiter) {
