@@ -42,6 +42,8 @@ VPATH    = ../nvwa
 
 CXXFILES_BOOSTTEST = $(wildcard boosttest_*.cpp) \
                      bool_array.cpp \
+                     file_line_reader.cpp \
+                     mmap_reader_base.cpp \
                      mem_pool_base.cpp
 OBJS_BOOSTTEST     = $(CXXFILES_BOOSTTEST:.cpp=.o)
 DEPS_BOOSTTEST     = $(patsubst %.o,%.dep,$(OBJS_BOOSTTEST))
