@@ -39,13 +39,14 @@
  * }
  * @endcode
  *
- * @date  2019-09-26
+ * @date  2019-10-19
  */
 
 #ifndef NVWA_SPLIT_H
 #define NVWA_SPLIT_H
 
 #include <assert.h>             // assert
+#include <stddef.h>             // ptrdiff_t
 #include <iterator>             // std::input_iterator_tag
 #include <string>               // std::basic_string
 #include <string_view>          // std::basic_string_view
@@ -76,7 +77,7 @@ public:
      */
     class iterator {  // implements InputIterator
     public:
-        typedef int                               difference_type;
+        typedef ptrdiff_t                         difference_type;
         typedef std::basic_string_view<char_type> value_type;
         typedef value_type*                       pointer;
         typedef value_type&                       reference;

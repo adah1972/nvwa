@@ -33,12 +33,13 @@
  * InputRange concept.  A compiler that supports C++17 or later is
  * required.
  *
- * @date  2019-08-22
+ * @date  2019-10-19
  */
 
 #ifndef NVWA_NUMBER_RANGE_H
 #define NVWA_NUMBER_RANGE_H
 
+#include <stddef.h>             // ptrdiff_t
 #include <iterator>             // std::input_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
@@ -58,7 +59,7 @@ public:
 
     class iterator {  // implements InputIterator
     public:
-        typedef int                     difference_type;
+        typedef ptrdiff_t               difference_type;
         typedef _Tp                     value_type;
         typedef value_type*             pointer;
         typedef value_type&             reference;

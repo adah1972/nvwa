@@ -47,13 +47,14 @@
  * and has since been modified to satisfy the \c InputIterator concept,
  * along with other minor changes.
  *
- * @date  2019-10-17
+ * @date  2019-10-19
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
 #define NVWA_ISTREAM_LINE_READER_H
 
 #include <assert.h>             // assert
+#include <stddef.h>             // ptrdiff_t
 #include <istream>              // std::istream
 #include <iterator>             // std::input_iterator_tag
 #include <stdexcept>            // std::runtime_error
@@ -73,7 +74,7 @@ public:
      */
     class iterator {  // implements InputIterator
     public:
-        typedef int                     difference_type;
+        typedef ptrdiff_t               difference_type;
         typedef std::string             value_type;
         typedef const value_type*       pointer;
         typedef const value_type&       reference;

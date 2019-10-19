@@ -32,13 +32,14 @@
  * A generic tree class template and the traversal utilities.  Using
  * this file requires a C++11-compliant compiler.
  *
- * @date  2019-08-22
+ * @date  2019-10-19
  */
 
 #ifndef NVWA_TREE_H
 #define NVWA_TREE_H
 
 #include <assert.h>             // assert
+#include <stddef.h>             // ptrdiff_t
 #include <iterator>             // std::begin/end/make_move_iterator
 #include <memory>               // std::unique_ptr/shared_ptr
 #include <stack>                // std::stack
@@ -231,7 +232,7 @@ class breadth_first_iteration {
 public:
     class iterator {
     public:
-        typedef int                       difference_type;
+        typedef ptrdiff_t                 difference_type;
         typedef _Tree                     value_type;
         typedef _Tree*                    pointer;
         typedef _Tree&                    reference;
@@ -320,7 +321,7 @@ class depth_first_iteration {
 public:
     class iterator {
     public:
-        typedef int                       difference_type;
+        typedef ptrdiff_t                 difference_type;
         typedef _Tree                     value_type;
         typedef _Tree*                    pointer;
         typedef _Tree&                    reference;
@@ -419,7 +420,7 @@ class in_order_iteration {
 public:
     class iterator {
     public:
-        typedef int                       difference_type;
+        typedef ptrdiff_t                 difference_type;
         typedef _Tree                     value_type;
         typedef _Tree*                    pointer;
         typedef _Tree&                    reference;

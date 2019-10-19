@@ -31,13 +31,14 @@
  *
  * Header file for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2019-10-18
+ * @date  2019-10-19
  */
 
 #ifndef NVWA_FILE_LINE_READER_H
 #define NVWA_FILE_LINE_READER_H
 
 #include <assert.h>             // assert
+#include <stddef.h>             // ptrdiff_t
 #include <stdio.h>              // file streams
 #include <iterator>             // std::input_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
@@ -55,7 +56,7 @@ public:
      */
     class iterator {  // implements InputIterator
     public:
-        typedef int                     difference_type;
+        typedef ptrdiff_t               difference_type;
         typedef char*                   value_type;
         typedef value_type*             pointer;
         typedef value_type&             reference;
