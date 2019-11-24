@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2019-10-10
+ * @date  2019-11-24
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -649,7 +649,7 @@ constexpr auto fmap(_Fn&& f, const std::tuple<_Targs...>& args)
 template <template <typename, typename> class _OutCont = std::vector,
           template <typename> class _Alloc = std::allocator,
           typename _Fn, class _Rng>
-constexpr auto fmap(_Fn&& f, _Rng&& inputs) -> decltype(
+auto fmap(_Fn&& f, _Rng&& inputs) -> decltype(
     detail::adl_begin(inputs), detail::adl_end(inputs),
     _OutCont<
         std::decay_t<decltype(f(*detail::adl_begin(inputs)))>,
@@ -736,8 +736,8 @@ constexpr _Rs reduce(_Fn&& f, _Rs&& value, _Iter begin, _Iter end)
         return std::forward<_Rs>(value);
     }
     _Iter current = begin;
-    decltype(auto) reduced_once = f(std::forward<_Rs>(value), *current);
-    return reduce(std::forward<_Fn>(f), reduced_once, ++begin, end);
+    return reduce(std::forward<_Fn>(f),
+                  f(std::forward<_Rs>(value), *current), ++begin, end);
 }
 
 /**
