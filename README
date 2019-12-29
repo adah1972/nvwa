@@ -261,7 +261,8 @@ Contents
   * pctimer.h
 
    A function to get a high-resolution timer for Win32/Cygwin/Unix.  It
-   is quite useful for measurement and optimization.
+   is useful for measurement and optimization, and remains easier to use
+   than std::chrono::high_resolution_clock after the advent of C++11.
 
   * set_assign.h
 
