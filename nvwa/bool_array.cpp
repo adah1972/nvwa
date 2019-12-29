@@ -32,7 +32,7 @@
  * Code for class bool_array (packed boolean array).  The current code
  * requires a C++14-compliant compiler.
  *
- * @date  2019-08-22
+ * @date  2019-12-29
  */
 
 #include "bool_array.h"         // bool_array
@@ -70,28 +70,28 @@ constexpr int first_bit_one_offset(unsigned char value)
     }
 }
 
-template <int... _V>
+template <size_t... _V>
 struct bit_count_t {
     unsigned char _M_bit_count[sizeof...(_V)] = {
         static_cast<unsigned char>(count_bits(_V))...
     };
 };
 
-template <int... _V>
+template <size_t... _V>
 struct bit_ordinal_t {
     unsigned char _M_bit_ordinal[sizeof...(_V)] = {
         static_cast<unsigned char>(first_bit_one_offset(_V))...
     };
 };
 
-template <int... _V>
-bit_count_t<_V...> get_bit_count(std::integer_sequence<int, _V...>)
+template <size_t... _V>
+bit_count_t<_V...> get_bit_count(std::index_sequence<_V...>)
 {
     return bit_count_t<_V...>();
 }
 
-template <int... _V>
-bit_ordinal_t<_V...> get_bit_ordinal(std::integer_sequence<int, _V...>)
+template <size_t... _V>
+bit_ordinal_t<_V...> get_bit_ordinal(std::index_sequence<_V...>)
 {
     return bit_ordinal_t<_V...>();
 }
@@ -101,14 +101,14 @@ bit_ordinal_t<_V...> get_bit_ordinal(std::integer_sequence<int, _V...>)
  * in a given byte.
  */
 auto _S_bit_count =
-    get_bit_count(std::make_integer_sequence<int, 256>());
+    get_bit_count(std::make_index_sequence<256>());
 
 /**
  * Object that contains pre-calculated values at which offset the first
  * 1-bit is for a given byte.
  */
 auto _S_bit_ordinal =
-    get_bit_ordinal(std::make_integer_sequence<int, 256>());
+    get_bit_ordinal(std::make_index_sequence<256>());
 
 } /* unnamed namespace */
 
