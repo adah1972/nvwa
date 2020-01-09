@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2014-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2014-2020 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2019-12-29
+ * @date  2020-01-09
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -841,9 +841,9 @@ inline auto compose()
  * @return   the function object that composes the passed function
  */
 template <typename _Fn>
-auto compose(_Fn f)
+auto compose(_Fn&& f)
 {
-    return [f](auto&&... x) -> decltype(auto)
+    return [f = std::forward<_Fn>(f)](auto&&... x) -> decltype(auto)
     {
         return f(std::forward<decltype(x)>(x)...);
     };
@@ -857,11 +857,14 @@ auto compose(_Fn f)
  * @return      the function object that composes the passed functions
  */
 template <typename _Fn, typename... _Fargs>
-auto compose(_Fn f, _Fargs... args)
+auto compose(_Fn&& f, _Fargs&&... args)
 {
-    return [f, args...](auto&&... x) -> decltype(auto)
-    {
-        return f(compose(args...)(std::forward<decltype(x)>(x)...));
+    // Can't store all functions with pefect forwarding easily.  See
+    //   http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0780r0.html
+    return [f = std::forward<_Fn>(f),
+            args...](auto&&... x) -> decltype(auto) {
+        return f(
+            compose(std::move(args)...)(std::forward<decltype(x)>(x)...));
     };
 }
 
