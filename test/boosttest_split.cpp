@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(split_test)
     for (; it != end && i < result_s.size(); ++it) {
         BOOST_TEST(*it ==result_s[i]);
         if (!result_s[i].empty()) {
-            BOOST_TEST(nvwa::split(*it, "="s).to_vector_sv().size() == 2U);
+            BOOST_TEST(nvwa::split(*it, "="sv).to_vector_sv().size() == 2U);
         }
         ++i;
     }
