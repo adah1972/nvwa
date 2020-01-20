@@ -18,6 +18,8 @@ BOOST_AUTO_TEST_CASE(split_test)
     using namespace std::literals;
 
     constexpr auto result = nvwa::split(str, '&');
+    constexpr auto begin = result.begin();
+    (void)begin;  // Only test its constexpr-ness
     constexpr auto end = result.end();
     auto result_s = result.to_vector();
     auto result_sv = result.to_vector_sv();

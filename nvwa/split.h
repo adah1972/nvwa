@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2020 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -39,7 +39,7 @@
  * }
  * @endcode
  *
- * @date  2019-10-19
+ * @date  2020-01-20
  */
 
 #ifndef NVWA_SPLIT_H
@@ -81,7 +81,7 @@ public:
         typedef std::basic_string_view<char_type> value_type;
         typedef value_type*                       pointer;
         typedef value_type&                       reference;
-        typedef std::input_iterator_tag           iterator_category;
+        typedef std::forward_iterator_tag         iterator_category;
 
         constexpr iterator() noexcept
             : _M_src(nullptr)
@@ -89,7 +89,7 @@ public:
             , _M_delimiter(delimiter_type())
         {
         }
-        explicit iterator(const string_type& src, delimiter_type delimiter)
+        constexpr iterator(const string_type& src, delimiter_type delimiter)
             : _M_src(&src)
             , _M_pos(0)
             , _M_delimiter(delimiter)
@@ -107,7 +107,7 @@ public:
             assert(_M_src != nullptr);
             return &_M_cur;
         }
-        iterator& operator++()
+        constexpr iterator& operator++()
         {
             assert(_M_src != nullptr);
             if (_M_pos == string_type::npos) {
@@ -171,7 +171,7 @@ public:
     {
     }
 
-    iterator begin() const
+    constexpr iterator begin() const
     {
         return iterator(_M_src, _M_delimiter);
     }
