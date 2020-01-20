@@ -1,5 +1,4 @@
 #include "nvwa/split.h"
-#include <sstream>
 #include <string_view>
 #include <boost/test/unit_test.hpp>
 
@@ -28,13 +27,14 @@ BOOST_AUTO_TEST_CASE(split_test)
             ++it;
         }
     }
-    size_t i = 1;
+    size_t i = 0;
     auto it = result.begin();
-    for (++it; it != end && i < result_s.size(); ++it) {
-        std::ostringstream oss;
-        oss << *it;
-        BOOST_CHECK_EQUAL(oss.str(), result_s[i]);
-        BOOST_CHECK_EQUAL(nvwa::split(*it, '=').to_vector_sv().size(), 2U);
+    for (; it != end && i < result_s.size(); ++it) {
+        BOOST_CHECK_EQUAL(*it, result_s[i]);
+        if (!result_s[i].empty()) {
+            BOOST_CHECK_EQUAL(nvwa::split(*it, '=').to_vector_sv().size(),
+                              2U);
+        }
         ++i;
     }
     BOOST_CHECK(it == end);
