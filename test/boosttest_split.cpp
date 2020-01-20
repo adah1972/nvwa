@@ -1,4 +1,5 @@
 #include "nvwa/split.h"
+#include <string>
 #include <string_view>
 #include <boost/test/unit_test.hpp>
 
@@ -14,6 +15,8 @@ std::vector<std::string> split_result_expected{
 
 BOOST_AUTO_TEST_CASE(split_test)
 {
+    using namespace std::literals;
+
     constexpr auto result = nvwa::split(str, '&');
     constexpr auto end = result.end();
     auto result_s = result.to_vector();
@@ -32,7 +35,7 @@ BOOST_AUTO_TEST_CASE(split_test)
     for (; it != end && i < result_s.size(); ++it) {
         BOOST_CHECK_EQUAL(*it, result_s[i]);
         if (!result_s[i].empty()) {
-            BOOST_CHECK_EQUAL(nvwa::split(*it, '=').to_vector_sv().size(),
+            BOOST_CHECK_EQUAL(nvwa::split(*it, "="s).to_vector_sv().size(),
                               2U);
         }
         ++i;
