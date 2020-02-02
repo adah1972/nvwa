@@ -76,8 +76,8 @@
 #define NVWA_USES_CXX17 0
 #endif
 
-// Some versions of Clang cripple certain C++17 features on macOS prior
-// to 10.14.
+// Newer Clang versions cripple certain C++17 features on macOS prior to
+// 10.14.
 #if NVWA_USES_CXX17 && \
     ((NVWA_APPLE_CLANG && __apple_build_version__ >= 10000000) || \
      (NVWA_CLANG && __clang_major__ >= 8)) && \
