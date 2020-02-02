@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2013-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2013-2020 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,13 +31,13 @@
  *
  * Modern C++ feature detection macros and workarounds.
  *
- * @date  2019-02-14
+ * @date  2020-02-02
  */
 
 #ifndef NVWA_CXX_FEATURES_H
 #define NVWA_CXX_FEATURES_H
 
-#include "_nvwa.h"          // NVWA_APPLE
+#include "_nvwa.h"          // NVWA_APPLE/NVWA_APPLE_CLANG
 #if NVWA_APPLE
 #include <Availability.h>   // __MAC_OS_X_VERSION_MIN_REQUIRED
 #endif
@@ -76,11 +76,13 @@
 #define NVWA_USES_CXX17 0
 #endif
 
-// Apple Clang 10 cripples certain C++17 features on macOS prior to 10.14.
-#if NVWA_USES_CXX17 && NVWA_APPLE_CLANG && \
-    __apple_build_version__ >= 10000000 && \
-    defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
-    __MAC_OS_X_VERSION_MIN_REQUIRED < 101400
+// Some versions of Clang cripple certain C++17 features on macOS prior
+// to 10.14.
+#if NVWA_USES_CXX17 && \
+    ((NVWA_APPLE_CLANG && __apple_build_version__ >= 10000000) || \
+     (NVWA_CLANG && __clang_major__ >= 8)) && \
+    (defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
+     __MAC_OS_X_VERSION_MIN_REQUIRED < 101400)
 #define NVWA_USES_CRIPPLED_CLANG 1
 #else
 #define NVWA_USES_CRIPPLED_CLANG 0
