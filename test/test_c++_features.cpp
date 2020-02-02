@@ -1,6 +1,11 @@
 #include "nvwa/c++_features.h"
+#include <cassert>
 #include <iomanip>
 #include <iostream>
+
+#if HAVE_CXX17_OPTIONAL
+#include <optional>
+#endif
 
 using namespace std;
 
@@ -47,4 +52,15 @@ int main()
     SHOW_DEFINITION(_NOEXCEPT);
     SHOW_DEFINITION(_NULLPTR);
     SHOW_DEFINITION(_THREAD_LOCAL);
+
+#if HAVE_CXX17_OPTIONAL
+    std::optional<int> i;
+    try {
+        (void)i.value();
+        assert(false);
+    }
+    catch (std::bad_optional_access& e) {
+        // std::optional does work
+    }
+#endif
 }
