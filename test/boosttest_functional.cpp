@@ -100,7 +100,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& data)
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const nvwa::optional<T>& data)
 {
-    if (data.has_value())
+    if (data)
         os << "just " << data.value();
     else
         os << "invalid";
@@ -174,12 +174,13 @@ BOOST_AUTO_TEST_CASE(functional_test)
     constexpr auto r1 = nvwa::apply(increase, nothing);
     constexpr auto r2 = nvwa::apply(increase, nvwa::make_optional(41));
     BOOST_CHECK(!r1.has_value());
-    BOOST_CHECK(r2.has_value() && r2.value() == 42);
+    BOOST_CHECK(!r1);
+    BOOST_CHECK(r2 && r2.value() == 42);
     auto r3 = r2;
-    BOOST_CHECK(r2.has_value() && r2.value() == 42);
-    BOOST_CHECK(r3.has_value() && r3.value() == 42);
+    BOOST_CHECK(r2 && r2.value() == 42);
+    BOOST_CHECK(r3 && r3.value() == 42);
     auto r4 = r3;
-    BOOST_CHECK(r4.has_value() && r4.value() == 42);
+    BOOST_CHECK(r4 && r4.value() == 42);
     BOOST_CHECK_EQUAL(r4.value_or(-1), 42);
     r3 = 43;
     BOOST_CHECK_EQUAL(r3.value_or(-1), 43);
@@ -193,11 +194,10 @@ BOOST_AUTO_TEST_CASE(functional_test)
     BOOST_CHECK_EQUAL(nvwa::make_optional(42).value_or(-1), 42);
     BOOST_CHECK_EQUAL(nvwa::optional<int>().value_or(-1), -1);
     auto const inc_opt = nvwa::lift_optional(increase);
-    BOOST_CHECK([](nvwa::optional<int> x) { return !x.has_value(); }
-                  (inc_opt(r1)));
+    BOOST_CHECK([](nvwa::optional<int> x) { return !x; }(inc_opt(r1)));
     BOOST_CHECK([](nvwa::optional<int> x)
                 {
-                    return x.has_value() && x.value() == 43;
+                    return x && x.value() == 43;
                 }(inc_opt(r2)));
     BOOST_CHECK(noexcept(nvwa::optional<int>(0)));
     BOOST_CHECK(noexcept(
@@ -205,20 +205,20 @@ BOOST_AUTO_TEST_CASE(functional_test)
     BOOST_CHECK(noexcept(nvwa::optional<Obj>()));
 
     auto p1 = nvwa::make_optional(std::make_unique<int>(45));
-    BOOST_CHECK(p1.has_value());
+    BOOST_CHECK(p1);
     BOOST_CHECK(p1->get() != nullptr);
     BOOST_CHECK_EQUAL(**p1, 45);
     auto p2 = std::move(p1);
-    BOOST_CHECK(p2.has_value());
+    BOOST_CHECK(p2);
     BOOST_CHECK(p2->get() != nullptr);
     BOOST_CHECK_EQUAL(**p2, 45);
-    BOOST_CHECK(!p1.has_value());
+    BOOST_CHECK(!p1);
     BOOST_CHECK(noexcept(swap(std::declval<std::unique_ptr<int>&>(),
                               std::declval<std::unique_ptr<int>&>())));
     BOOST_CHECK(noexcept(swap(p1, p2)));
     swap(p1, p2);
     BOOST_CHECK(p1->get() != nullptr && **p1 == 45);
-    BOOST_CHECK(!p2.has_value());
+    BOOST_CHECK(!p2);
 
     using namespace nvwa;
     BOOST_CHECK(noexcept(

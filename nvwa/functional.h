@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2020-01-09
+ * @date  2020-03-07
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -417,6 +417,11 @@ public:
     {
         assert(_M_engaged);
         return std::move(_M_value);
+    }
+
+    constexpr explicit operator bool() const noexcept
+    {
+        return _M_engaged;
     }
 
     constexpr bool has_value() const noexcept
