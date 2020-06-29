@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2020 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2019-10-10
+ * @date  2020-06-29
  */
 
 #ifndef NVWA_BOOL_ARRAY_H
@@ -69,7 +69,7 @@ class bool_array {
 public:
 #if (defined(__x86_64) || defined(__ia64) || defined(__ppc64__) || \
      defined(_WIN64) || defined(_M_IA64)) && \
-    !(defined(_LP64) || defined(__lp64))
+    !(defined(_LP64) || defined(__lp64) || defined(_ILP32))
     /** Type of array indices. */
     typedef unsigned long long  size_type;
 #else
