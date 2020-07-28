@@ -113,7 +113,7 @@ constexpr _Rs tuple_reduce_impl(_Fn&& f, _Rs&& value, _Tuple&& t,
     return tuple_reduce_impl(std::forward<_Fn>(f),
                              f(std::forward<_Rs>(value), std::get<_I>(t)),
                              std::forward<_Tuple>(t),
-                             std::index_sequence<_J...>());
+                             std::index_sequence<_J...>{});
 }
 
 // Applies the function with the indexed elements of the tuple as
@@ -255,7 +255,7 @@ class optional_base<_Tp, false> {
 public:
     typedef _Tp value_type;
 
-    constexpr optional_base() noexcept : _M_dummy(), _M_engaged(false) {}
+    constexpr optional_base() noexcept : _M_dummy() {}
     constexpr explicit optional_base(const _Tp& x)
         : _M_value(x)
         , _M_engaged(true)
@@ -300,7 +300,7 @@ protected:
         char       _M_dummy;
         value_type _M_value;
     };
-    bool _M_engaged;
+    bool _M_engaged{};
 };
 
 template <typename _Tp>
@@ -308,7 +308,7 @@ class optional_base<_Tp, true> {
 public:
     typedef _Tp value_type;
 
-    constexpr optional_base() noexcept : _M_dummy(), _M_engaged(false) {}
+    constexpr optional_base() noexcept : _M_dummy() {}
     constexpr explicit optional_base(const _Tp& x)
         : _M_value(x)
         , _M_engaged(true)
@@ -345,7 +345,7 @@ protected:
         char       _M_dummy;
         value_type _M_value;
     };
-    bool _M_engaged;
+    bool _M_engaged{};
 };
 
 /**
@@ -545,7 +545,7 @@ auto lift_optional(_Fn&& f)
             return optional<result_type>(
                 f(std::forward<decltype(args)>(args).value()...));
         } else {
-            return optional<result_type>();
+            return optional<result_type>{};
         }
     };
 }
@@ -564,7 +564,7 @@ template <typename _Fn, typename... _Opt>
 constexpr auto apply(_Fn&& f, _Opt&&... args)
     -> decltype(has_value(args...),
                 optional<std::decay_t<decltype(std::forward<_Fn>(f)(
-                    std::forward<_Opt>(args).value()...))>>())
+                    std::forward<_Opt>(args).value()...))>>{})
 {
     typedef std::decay_t<decltype(
         std::forward<_Fn>(f)(std::forward<_Opt>(args).value()...))>
@@ -573,7 +573,7 @@ constexpr auto apply(_Fn&& f, _Opt&&... args)
         return optional<result_type>(
             std::forward<_Fn>(f)(std::forward<_Opt>(args).value()...));
     } else {
-        return optional<result_type>();
+        return optional<result_type>{};
     }
 }
 
@@ -591,13 +591,13 @@ constexpr auto apply(_Fn&& f, _Tuple&& t)
         std::forward<_Fn>(f),
         std::forward<_Tuple>(t),
         std::make_index_sequence<
-            std::tuple_size<std::decay_t<_Tuple>>::value>()))
+            std::tuple_size<std::decay_t<_Tuple>>::value>{}))
 {
     return detail::tuple_apply_impl(
         std::forward<_Fn>(f),
         std::forward<_Tuple>(t),
         std::make_index_sequence<
-            std::tuple_size<std::decay_t<_Tuple>>::value>());
+            std::tuple_size<std::decay_t<_Tuple>>::value>{});
 }
 
 /**
@@ -626,7 +626,7 @@ template <typename _Fn, typename... _Targs>
 constexpr auto fmap(_Fn f, const std::tuple<_Targs...>& args)
 {
     return detail::tuple_fmap_impl(f, args,
-                                   std::index_sequence_for<_Targs...>());
+                                   std::index_sequence_for<_Targs...>{});
 }
 
 /**
@@ -650,7 +650,7 @@ auto fmap(_Fn f, _Rng&& inputs) -> decltype(
     detail::adl_begin(inputs), detail::adl_end(inputs),
     _OutCont<
         std::decay_t<decltype(f(*detail::adl_begin(inputs)))>,
-        _Alloc<std::decay_t<decltype(f(*detail::adl_begin(inputs)))>>>())
+        _Alloc<std::decay_t<decltype(f(*detail::adl_begin(inputs)))>>>{})
 {
     typedef std::decay_t<decltype(f(*detail::adl_begin(inputs)))>
         result_type;
@@ -658,7 +658,7 @@ auto fmap(_Fn f, _Rng&& inputs) -> decltype(
     detail::try_reserve(
         result, inputs,
         std::integral_constant<
-            bool, detail::can_reserve<decltype(result), _Rng>::value>());
+            bool, detail::can_reserve<decltype(result), _Rng>::value>{});
     for (auto&& item : inputs) {
         result.push_back(f(item));
     }
@@ -678,7 +678,7 @@ template <typename _Rs, typename _Fn, typename... _Targs>
 constexpr auto reduce(_Fn f, const std::tuple<_Targs...>& args, _Rs&& value)
 {
     return detail::tuple_reduce_impl(f, std::forward<_Rs>(value), args,
-                                     std::index_sequence_for<_Targs...>());
+                                     std::index_sequence_for<_Targs...>{});
 }
 
 /**
@@ -696,7 +696,7 @@ constexpr auto reduce(_Fn f, const std::tuple<_Targs...>& args, _Rs&& value)
 template <typename _Fn, class _Rng>
 constexpr auto reduce(_Fn f, _Rng&& inputs)
 {
-    auto result = typename detail::value_type<_Rng>();
+    auto result = typename detail::value_type<_Rng>{};
     for (auto&& item : inputs) {
         result = f(result, item);
     }

@@ -24,10 +24,11 @@ constexpr int increase(int n)
 
 int fact(std::function<int(int)> f, int v)
 {
-    if (v == 0)
+    if (v == 0) {
         return 1;
-    else
+    } else {
         return v * f(v - 1);
+    }
 }
 
 constexpr int sqr(int x)
@@ -100,10 +101,11 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& data)
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const nvwa::optional<T>& data)
 {
-    if (data)
+    if (data) {
         os << "just " << data.value();
-    else
+    } else {
         os << "invalid";
+    }
     return os;
 }
 
@@ -262,10 +264,9 @@ BOOST_AUTO_TEST_CASE(functional_test)
     auto inc = nvwa::compose(increase);
     BOOST_CHECK_EQUAL(nvwa::compose(inc, inc, inc)(2), 5);
     BOOST_CHECK_EQUAL(nvwa::pipeline(v,
-                                     [](const std::vector<int>& v)
-                                     {
-                                         return nvwa::reduce(
-                                             std::plus<int>(), v);
+                                     [](const std::vector<int>& v) {
+                                         return nvwa::reduce(std::plus<>(),
+                                                             v);
                                      },
                                      inc, inc),
                       17);
@@ -278,7 +279,7 @@ BOOST_AUTO_TEST_CASE(functional_test)
     auto sum_and_square = nvwa::compose(sqr, sum<int, int, int, int, int>);
     BOOST_CHECK_EQUAL(sum_and_square(1, 2, 3, 4, 5), 225);
     auto square_and_sum_2 =
-        nvwa::compose(nvwa::wrap_args_as_pair<int, int>(std::plus<int>()),
+        nvwa::compose(nvwa::wrap_args_as_pair<int, int>(std::plus<>()),
                       [](const auto& x) { return nvwa::fmap(sqr, x); });
     auto square_and_sum_4 = nvwa::compose(
         nvwa::wrap_args_as_tuple<std::tuple<int, int, int, int>>(
@@ -302,10 +303,11 @@ BOOST_AUTO_TEST_CASE(functional_test)
     {
         return Func([f](int n)
         {
-            if (n <= 1)
+            if (n <= 1) {
                 return 1;
-            else
+            } else {
                 return n * f(n - 1);
+            }
         });
     };
     FuncFunc almost_fac2 = nvwa::make_curry(fact);
@@ -315,10 +317,11 @@ BOOST_AUTO_TEST_CASE(functional_test)
     auto const fac4 = nvwa::fix_curry(almost_fac2);
     auto const fac5 = nvwa::fix_fast([](auto f, int n) -> int
     {
-        if (n <= 1)
+        if (n <= 1) {
             return 1;
-        else
+        } else {
             return n * f(n - 1);
+        }
     });
     BOOST_CHECK_EQUAL(fac1(5), 120);
     BOOST_CHECK_EQUAL(fac2(5), 120);
