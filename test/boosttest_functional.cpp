@@ -279,14 +279,14 @@ BOOST_AUTO_TEST_CASE(functional_test)
     BOOST_CHECK_EQUAL(sum_and_square(1, 2, 3, 4, 5), 225);
     auto square_and_sum_2 =
         nvwa::compose(nvwa::wrap_args_as_pair<int, int>(std::plus<int>()),
-                      [](auto&& x) { return nvwa::fmap(sqr, x); });
+                      [](const auto& x) { return nvwa::fmap(sqr, x); });
     auto square_and_sum_4 = nvwa::compose(
         nvwa::wrap_args_as_tuple<std::tuple<int, int, int, int>>(
             sum<int, int, int, int>),
-        [](auto&& x) { return nvwa::fmap(sqr, x); });
+        [](const auto& x) { return nvwa::fmap(sqr, x); });
     auto square_and_sum = nvwa::compose(
-        [](auto&& x) { return nvwa::reduce(std::plus<int>(), x, 0); },
-        [](auto&& x) { return nvwa::fmap(sqr, x); });
+        [](const auto& x) { return nvwa::reduce(std::plus<int>(), x, 0); },
+        [](const auto& x) { return nvwa::fmap(sqr, x); });
     BOOST_CHECK_EQUAL(square_and_sum_2(std::make_pair(3, 4)), 25);
     BOOST_CHECK_EQUAL(square_and_sum_4(std::make_tuple(1, 2, 3, 4)), 30);
     auto t = std::make_tuple(1, 2, 3, 4, 5);

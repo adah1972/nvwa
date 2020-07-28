@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2020-03-07
+ * @date  2020-07-28
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -90,7 +90,8 @@ template <typename _Fn, class _Tuple, std::size_t... _I>
 constexpr auto tuple_fmap_impl(_Fn&& f, _Tuple&& t,
                                std::index_sequence<_I...>)
 {
-    return std::make_tuple(f(std::get<_I>(std::forward<_Tuple>(t)))...);
+    return std::make_tuple(
+        std::forward<_Fn>(f)(std::get<_I>(std::forward<_Tuple>(t)))...);
 }
 
 // Applies the function to the given value and the indexed element of
@@ -121,7 +122,7 @@ template <typename _Fn, class _Tuple, std::size_t... _I>
 constexpr decltype(auto) tuple_apply_impl(_Fn&& f, _Tuple&& t,
                                           std::index_sequence<_I...>)
 {
-    return f(std::get<_I>(std::forward<_Tuple>(t))...);
+    return std::forward<_Fn>(f)(std::get<_I>(std::forward<_Tuple>(t))...);
 }
 
 // Y combinator as presented by Yegor Derevenets in P0200R0
@@ -205,7 +206,7 @@ struct curry<std::function<_Rs(_Tp, _Targs...)>> {
 
     static type make(std::function<_Rs(_Tp, _Targs...)> f)
     {
-        return [f](_Tp&& x)
+        return [f = std::move(f)](_Tp&& x)
         {   // Use wrapper to ensure reference types are correctly captured.
             return curry<std::function<_Rs(_Targs...)>>::make(
                 [f, w = safe_wrapper<_Tp>(std::forward<_Tp>(x))](
@@ -560,16 +561,17 @@ auto lift_optional(_Fn&& f)
  *              is invalid) or contains the output of \a f
  */
 template <typename _Fn, typename... _Opt>
-constexpr auto apply(_Fn&& f, _Opt&&... args) -> decltype(
-    has_value(args...),
-    optional<
-        std::decay_t<decltype(f(std::forward<_Opt>(args).value()...))>>())
+constexpr auto apply(_Fn&& f, _Opt&&... args)
+    -> decltype(has_value(args...),
+                optional<std::decay_t<decltype(std::forward<_Fn>(f)(
+                    std::forward<_Opt>(args).value()...))>>())
 {
-    typedef std::decay_t<decltype(f(std::forward<_Opt>(args).value()...))>
+    typedef std::decay_t<decltype(
+        std::forward<_Fn>(f)(std::forward<_Opt>(args).value()...))>
         result_type;
     if (has_value(args...)) {
         return optional<result_type>(
-            f(std::forward<_Opt>(args).value()...));
+            std::forward<_Fn>(f)(std::forward<_Opt>(args).value()...));
     } else {
         return optional<result_type>();
     }
@@ -607,7 +609,7 @@ constexpr auto apply(_Fn&& f, _Tuple&& t)
  * @return      pair of results of function invocation
  */
 template <typename _Fn, typename _T1, typename _T2>
-constexpr auto fmap(_Fn&& f, const std::pair<_T1, _T2>& args)
+constexpr auto fmap(_Fn f, const std::pair<_T1, _T2>& args)
 {
     return std::make_pair(f(args.first), f(args.second));
 }
@@ -621,9 +623,9 @@ constexpr auto fmap(_Fn&& f, const std::pair<_T1, _T2>& args)
  * @return      tuple of results of function invocation
  */
 template <typename _Fn, typename... _Targs>
-constexpr auto fmap(_Fn&& f, const std::tuple<_Targs...>& args)
+constexpr auto fmap(_Fn f, const std::tuple<_Targs...>& args)
 {
-    return detail::tuple_fmap_impl(std::forward<_Fn>(f), args,
+    return detail::tuple_fmap_impl(f, args,
                                    std::index_sequence_for<_Targs...>());
 }
 
@@ -644,7 +646,7 @@ constexpr auto fmap(_Fn&& f, const std::tuple<_Targs...>& args)
 template <template <typename, typename> class _OutCont = std::vector,
           template <typename> class _Alloc = std::allocator,
           typename _Fn, class _Rng>
-auto fmap(_Fn&& f, _Rng&& inputs) -> decltype(
+auto fmap(_Fn f, _Rng&& inputs) -> decltype(
     detail::adl_begin(inputs), detail::adl_end(inputs),
     _OutCont<
         std::decay_t<decltype(f(*detail::adl_begin(inputs)))>,
@@ -673,13 +675,9 @@ auto fmap(_Fn&& f, _Rng&& inputs) -> decltype(
  *               one argument of the type of the elements in \a args.
  */
 template <typename _Rs, typename _Fn, typename... _Targs>
-constexpr auto reduce(_Fn&& f,
-                      const std::tuple<_Targs...>& args,
-                      _Rs&& value)
+constexpr auto reduce(_Fn f, const std::tuple<_Targs...>& args, _Rs&& value)
 {
-    return detail::tuple_reduce_impl(std::forward<_Fn>(f),
-                                     std::forward<_Rs>(value),
-                                     args,
+    return detail::tuple_reduce_impl(f, std::forward<_Rs>(value), args,
                                      std::index_sequence_for<_Targs...>());
 }
 
@@ -696,7 +694,7 @@ constexpr auto reduce(_Fn&& f,
  *                support iteration.
  */
 template <typename _Fn, class _Rng>
-constexpr auto reduce(_Fn&& f, _Rng&& inputs)
+constexpr auto reduce(_Fn f, _Rng&& inputs)
 {
     auto result = typename detail::value_type<_Rng>();
     for (auto&& item : inputs) {
@@ -822,7 +820,7 @@ constexpr _Tp pipeline(_Tp&& data)
 template <typename _Tp, typename _Fn, typename... _Fargs>
 constexpr decltype(auto) pipeline(_Tp&& data, _Fn&& f, _Fargs&&... args)
 {
-    return pipeline(f(std::forward<_Tp>(data)),
+    return pipeline(std::forward<_Fn>(f)(std::forward<_Tp>(data)),
                     std::forward<_Fargs>(args)...);
 }
 
@@ -940,7 +938,7 @@ std::function<_Rs(_Tp)> fix_curry(
     typedef detail::self_ref_func<fn_1st_ord>  fn_self_ref;
 
     fn_self_ref r = {
-        [f](fn_self_ref x)
+        [f = std::move(f)](fn_self_ref x)
         {   // λx.f (λy.(x x) y)
             return f(fn_1st_ord([x](_Tp&& y)
                                 {
