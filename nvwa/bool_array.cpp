@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2020 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Code for class bool_array (packed boolean array).  The current code
  * requires a C++14-compliant compiler.
  *
- * @date  2019-12-29
+ * @date  2020-08-15
  */
 
 #include "bool_array.h"         // bool_array
@@ -85,13 +85,13 @@ struct bit_ordinal_t {
 };
 
 template <size_t... _V>
-bit_count_t<_V...> get_bit_count(std::index_sequence<_V...>)
+constexpr bit_count_t<_V...> get_bit_count(std::index_sequence<_V...>)
 {
     return bit_count_t<_V...>();
 }
 
 template <size_t... _V>
-bit_ordinal_t<_V...> get_bit_ordinal(std::index_sequence<_V...>)
+constexpr bit_ordinal_t<_V...> get_bit_ordinal(std::index_sequence<_V...>)
 {
     return bit_ordinal_t<_V...>();
 }
