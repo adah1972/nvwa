@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2020 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -47,7 +47,7 @@
  * and has since been modified to satisfy the \c InputIterator concept,
  * along with other minor changes.
  *
- * @date  2019-10-19
+ * @date  2020-09-13
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
@@ -165,5 +165,16 @@ private:
 };
 
 NVWA_NAMESPACE_END
+
+#if __cplusplus > 201703L
+#include <ranges>
+
+namespace std::ranges {
+
+template <>
+inline constexpr bool enable_borrowed_range<::NVWA::istream_line_reader> = true;
+
+}
+#endif
 
 #endif // NVWA_ISTREAM_LINE_READER_H
