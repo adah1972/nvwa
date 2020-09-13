@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2020 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * A fast mutex implementation for POSIX, Win32, and modern C++.
  *
- * @date  2019-10-10
+ * @date  2020-09-13
  */
 
 #ifndef NVWA_FAST_MUTEX_H
@@ -49,8 +49,8 @@
 //      Prefer using std::mutex on Windows to avoid the namespace
 //      pollution caused by <windows.h>.  However, MSVC has a re-entry
 //      issue with its std::mutex implementation, and std::mutex should
-//      not be used unless /MD or /MDd is used.  For more information,
-//      check out:
+//      not be used unless /MD or /MDd is used (unfixed as of Visual
+//      Studio 16.7 MSVC 19.27).  For more information, check out:
 //
 //        https://connect.microsoft.com/VisualStudio/feedback/details/776596/std-mutex-not-a-constexpr-with-mtd-compiler-flag
 //        http://stackoverflow.com/questions/14319344/stdmutex-lock-hangs-when-overriding-the-new-operator
@@ -158,6 +158,7 @@ NVWA_NAMESPACE_BEGIN
 #       ifdef _DEBUG
         bool _M_locked;
 #       endif
+
     public:
         fast_mutex()
 #       ifdef _DEBUG
@@ -201,6 +202,7 @@ NVWA_NAMESPACE_BEGIN
 #       endif
             _M_mtx_impl.unlock();
         }
+
     private:
         fast_mutex(const fast_mutex&) _DELETED;
         fast_mutex& operator=(const fast_mutex&) _DELETED;
@@ -221,6 +223,7 @@ NVWA_NAMESPACE_BEGIN
 #       ifdef _DEBUG
         bool _M_locked;
 #       endif
+
     public:
         fast_mutex()
 #       ifdef _DEBUG
@@ -271,6 +274,7 @@ NVWA_NAMESPACE_BEGIN
 #       endif
             ::pthread_mutex_unlock(&_M_mtx_impl);
         }
+
     private:
         fast_mutex(const fast_mutex&) _DELETED;
         fast_mutex& operator=(const fast_mutex&) _DELETED;
@@ -294,6 +298,7 @@ NVWA_NAMESPACE_BEGIN
 #       ifdef _DEBUG
         bool _M_locked;
 #       endif
+
     public:
         fast_mutex()
 #       ifdef _DEBUG
@@ -339,6 +344,7 @@ NVWA_NAMESPACE_BEGIN
 #       endif
             ::LeaveCriticalSection(&_M_mtx_impl);
         }
+
     private:
         fast_mutex(const fast_mutex&) _DELETED;
         fast_mutex& operator=(const fast_mutex&) _DELETED;
@@ -354,6 +360,7 @@ NVWA_NAMESPACE_BEGIN
 #       ifdef _DEBUG
         bool _M_locked;
 #       endif
+
     public:
         fast_mutex()
 #       ifdef _DEBUG
@@ -379,6 +386,7 @@ NVWA_NAMESPACE_BEGIN
             _M_locked = false;
 #       endif
         }
+
     private:
         fast_mutex(const fast_mutex&) _DELETED;
         fast_mutex& operator=(const fast_mutex&) _DELETED;
@@ -390,6 +398,7 @@ NVWA_NAMESPACE_BEGIN
 /** RAII lock class for fast_mutex. */
 class fast_mutex_autolock {
     fast_mutex& _M_mtx;
+
 public:
     explicit fast_mutex_autolock(fast_mutex& mtx) : _M_mtx(mtx)
     {
@@ -399,6 +408,7 @@ public:
     {
         _M_mtx.unlock();
     }
+
 private:
     fast_mutex_autolock(const fast_mutex_autolock&) _DELETED;
     fast_mutex_autolock& operator=(const fast_mutex_autolock&) _DELETED;
