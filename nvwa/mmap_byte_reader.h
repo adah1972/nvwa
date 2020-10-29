@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2020 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Header file for mmap_byte_reader, an easy-to-use byte-based file reader.
  * It is implemented with memory-mapped file APIs.
  *
- * @date  2019-10-17
+ * @date  2020-10-29
  */
 
 #ifndef NVWA_MMAP_BYTE_READER_H
@@ -48,7 +48,7 @@ NVWA_NAMESPACE_BEGIN
 
 /** Class template to allow iteration over all bytes of a mmappable file. */
 template <typename _Tp>
-class basic_mmap_byte_reader : public mmap_reader_base {
+class basic_mmap_byte_reader : private mmap_reader_base {
 public:
     typedef _Tp                value_type;
     typedef const value_type*  pointer;

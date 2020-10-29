@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2020-07-28
+ * @date  2020-10-29
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -340,8 +340,7 @@ public:
     }
 
 protected:
-    union
-    {
+    union {
         char       _M_dummy;
         value_type _M_value;
     };
@@ -356,7 +355,7 @@ protected:
  * @param _Tp  the optional type to store
  */
 template <typename _Tp>
-class optional : public optional_base<_Tp> {
+class optional : private optional_base<_Tp> {
     static_assert(std::is_nothrow_destructible<_Tp>::value,
                   "optional type must be nothrow destructible");
 

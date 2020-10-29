@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2016-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2016-2020 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Header file for mmap_line_reader and mmap_line_reader_sv, easy-to-use
  * line-based file readers.  It is implemented with memory-mapped file APIs.
  *
- * @date  2019-10-17
+ * @date  2020-10-29
  */
 
 #ifndef NVWA_MMAP_LINE_READER_H
@@ -54,7 +54,7 @@ NVWA_NAMESPACE_BEGIN
 
 /** Class template to allow iteration over all lines of a mmappable file. */
 template <typename _Tp>
-class basic_mmap_line_reader : public mmap_reader_base {
+class basic_mmap_line_reader : private mmap_reader_base {
 public:
     /** Iterator that contains the line content. */
     class iterator {  // implements ForwardIterator
