@@ -38,7 +38,7 @@
 #ifndef NVWA_MMAP_READER_BASE_H
 #define NVWA_MMAP_READER_BASE_H
 
-#include <stddef.h>             // ptrdiff_t/size_t
+#include <stddef.h>             // size_t
 #include <iterator>             // std::input_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++_features.h"       // _DELETED/_NOEXCEPT
@@ -47,9 +47,6 @@ NVWA_NAMESPACE_BEGIN
 
 class mmap_reader_base {
 public:
-    typedef ptrdiff_t difference_type;
-    typedef size_t    size_type;
-
     explicit mmap_reader_base(const char* path);
 #if NVWA_WINDOWS
     explicit mmap_reader_base(const wchar_t* path);
@@ -70,7 +67,7 @@ public:
 
 protected:
     char*         _M_mmap_ptr;
-    size_type     _M_size;
+    size_t        _M_size;
 #if NVWA_UNIX
     int           _M_fd;
 #else

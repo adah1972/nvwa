@@ -53,7 +53,8 @@ public:
     typedef _Tp                value_type;
     typedef const value_type*  pointer;
     typedef const value_type&  reference;
-    typedef const value_type&  const_reference;
+    typedef ptrdiff_t          difference_type;
+    typedef size_t             size_type;
 
     /** Iterator over the bytes. */
     class iterator {  // implements RandomAccessIterator
@@ -61,7 +62,6 @@ public:
         typedef _Tp                             value_type;
         typedef const value_type*               pointer;
         typedef const value_type&               reference;
-        typedef const value_type&               const_reference;
         typedef ptrdiff_t                       difference_type;
         typedef std::random_access_iterator_tag iterator_category;
 
