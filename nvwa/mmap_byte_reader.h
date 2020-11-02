@@ -32,7 +32,7 @@
  * Header file for mmap_byte_reader, an easy-to-use byte-based file reader.
  * It is implemented with memory-mapped file APIs.
  *
- * @date  2020-10-29
+ * @date  2020-11-02
  */
 
 #ifndef NVWA_MMAP_BYTE_READER_H
@@ -50,12 +50,6 @@ NVWA_NAMESPACE_BEGIN
 template <typename _Tp>
 class basic_mmap_byte_reader : private mmap_reader_base {
 public:
-    typedef _Tp                value_type;
-    typedef const value_type*  pointer;
-    typedef const value_type&  reference;
-    typedef ptrdiff_t          difference_type;
-    typedef size_t             size_type;
-
     /** Iterator over the bytes. */
     class iterator {  // implements RandomAccessIterator
     public:
@@ -188,9 +182,10 @@ public:
     iterator begin() const _NOEXCEPT { return iterator(this); }
     iterator end() const _NOEXCEPT { return iterator(this, _M_size); }
 
-    reference get(size_t offset) const _NOEXCEPT
+    const _Tp& get(size_t offset) const _NOEXCEPT
     {
-        return reinterpret_cast<reference>(_M_mmap_ptr[offset]);
+        // Cast is necessary for unsigned char support
+        return reinterpret_cast<const _Tp&>(_M_mmap_ptr[offset]);
     }
 
 private:
