@@ -39,6 +39,12 @@ BOOST_AUTO_TEST_CASE(bool_array_test)
     BOOST_CHECK_EQUAL(ba2.at(99), true);
     BOOST_CHECK_EQUAL(ba2.count(), 98);
 
+    std::ostringstream oss;
+    oss << ba;
+    BOOST_CHECK_EQUAL(oss.str(),
+                      "11111001111111111111111111111111111111111111111111"
+                      "11111111111111111111111111111111111111111111111111");
+
     BOOST_TEST_MESSAGE("is_nothrow_constructible is "
                 << std::is_nothrow_constructible<nvwa::bool_array>::value);
     BOOST_TEST_MESSAGE("is_nothrow_default_constructible is "
