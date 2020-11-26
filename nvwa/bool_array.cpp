@@ -32,7 +32,7 @@
  * Code for class bool_array (packed boolean array).  The current code
  * requires a C++14-compliant compiler.
  *
- * @date  2020-08-15
+ * @date  2020-11-26
  */
 
 #include "bool_array.h"         // bool_array
@@ -47,7 +47,7 @@ NVWA_NAMESPACE_BEGIN
 
 namespace {
 
-// Calculats how many 1-bits there are in a given byte.
+// Calculates how many 1-bits there are in a given byte.
 constexpr int count_bits(unsigned char value)
 {
     if (value == 0) {
@@ -57,7 +57,7 @@ constexpr int count_bits(unsigned char value)
     }
 }
 
-// Calculats at which offset the first 1-bit is for a given byte.
+// Calculates at which offset the first 1-bit is for a given byte.
 // The value for 0 indicates it is invalid (all bits are 0s).
 constexpr int first_bit_one_offset(unsigned char value)
 {
