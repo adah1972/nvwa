@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2020-06-29
+ * @date  2020-11-26
  */
 
 #ifndef NVWA_BOOL_ARRAY_H
@@ -39,6 +39,7 @@
 
 #include <assert.h>             // assert
 #include <stdlib.h>             // exit/free
+#include <iosfwd>               // std::ostream fwd declaration
 #include <new>                  // std::bad_alloc
 #include <stdexcept>            // std::out_of_range
 #include <string>               // for exception constructors
@@ -143,6 +144,8 @@ public:
     void copy_to_bitmap(void* dest, size_type begin = 0, size_type end = npos);
 
     static size_t get_num_bytes_from_bits(size_type num_bits);
+
+    friend std::ostream& operator<<(std::ostream& os, const bool_array& ba);
 
 private:
     byte get_8bits(size_type offset, size_type end) const;
@@ -299,7 +302,7 @@ inline bool_array::size_type bool_array::size() const noexcept
 }
 
 /**
- * Searches for the specified boolean value.  This function seaches from
+ * Searches for the specified boolean value.  This function searches from
  * the specified position (default to beginning) to the end.
  *
  * @param offset  the position at which the search is to begin

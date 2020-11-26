@@ -39,6 +39,7 @@
 #include <limits.h>             // UINT_MAX, ULONG_MAX
 #include <string.h>             // memset/memcpy
 #include <algorithm>            // std::swap
+#include <ostream>              // std::ostream
 #include <utility>              // std::make_integer_sequence
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "static_assert.h"      // STATIC_ASSERT
@@ -100,15 +101,29 @@ constexpr bit_ordinal_t<_V...> get_bit_ordinal(std::index_sequence<_V...>)
  * Object that contains pre-calculated values how many 1-bits there are
  * in a given byte.
  */
-auto _S_bit_count =
-    get_bit_count(std::make_index_sequence<256>());
+auto _S_bit_count = get_bit_count(std::make_index_sequence<256>());
 
 /**
  * Object that contains pre-calculated values at which offset the first
  * 1-bit is for a given byte.
  */
-auto _S_bit_ordinal =
-    get_bit_ordinal(std::make_index_sequence<256>());
+auto _S_bit_ordinal = get_bit_ordinal(std::make_index_sequence<256>());
+
+/**
+ * Outputs the bits in a byte.
+ *
+ * @param os        the stream to output to
+ * @param value     the byte to output
+ * @param num_bits  number of bits to output (default is 8)
+ */
+void output_bits(std::ostream& os, unsigned char value,
+                 unsigned num_bits = 8)
+{
+    for (unsigned i = 0; i < num_bits; ++i) {
+        os << ((value & 1U) ? '1' : '0');
+        value >>= 1;
+    }
+}
 
 } /* unnamed namespace */
 
@@ -567,6 +582,20 @@ bool_array::byte bool_array::get_8bits(size_type offset, size_type end) const
         retval |= _M_byte_ptr[byte_offset + 1] << (8 - bit_offset);
     }
     return retval;
+}
+
+std::ostream& operator<<(std::ostream& os, const bool_array& ba)
+{
+    size_t byte_cnt = bool_array::get_num_bytes_from_bits(ba.size());
+    if (byte_cnt == 0) {
+        return os;
+    }
+    size_t i = 0;
+    for (; i < byte_cnt - 1; ++i) {
+        output_bits(os, ba._M_byte_ptr[i]);
+    }
+    output_bits(os, ba._M_byte_ptr[i], ba.size() - (byte_cnt - 1) * 8);
+    return os;
 }
 
 NVWA_NAMESPACE_END
