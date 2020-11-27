@@ -15,6 +15,7 @@ ifeq ($(WINDOWS),1)
     DLLEXT := .dll
     DEVNUL := nul
     ifeq ($(CYGWIN),1)
+        DEVNUL := /dev/null
         PATHSEP := /
     else
         PATHSEP := $(strip \ )
