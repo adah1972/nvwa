@@ -32,7 +32,7 @@
  * Header file for mmap_byte_reader, an easy-to-use byte-based file reader.
  * It is implemented with memory-mapped file APIs.
  *
- * @date  2020-11-02
+ * @date  2020-11-27
  */
 
 #ifndef NVWA_MMAP_BYTE_READER_H
@@ -50,6 +50,8 @@ NVWA_NAMESPACE_BEGIN
 template <typename _Tp>
 class basic_mmap_byte_reader : private mmap_reader_base {
 public:
+    static_assert(sizeof(_Tp) == 1, "size of an element must be one");
+
     /** Iterator over the bytes. */
     class iterator {  // implements RandomAccessIterator
     public:
