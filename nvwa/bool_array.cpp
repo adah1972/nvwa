@@ -32,7 +32,7 @@
  * Code for class bool_array (packed boolean array).  The current code
  * requires a C++14-compliant compiler.
  *
- * @date  2020-11-26
+ * @date  2020-11-27
  */
 
 #include "bool_array.h"         // bool_array
@@ -119,10 +119,15 @@ auto _S_bit_ordinal = get_bit_ordinal(std::make_index_sequence<256>());
 void output_bits(std::ostream& os, unsigned char value,
                  unsigned num_bits = 8)
 {
-    for (unsigned i = 0; i < num_bits; ++i) {
-        os << ((value & 1U) ? '1' : '0');
+    char output[9];
+    assert(num_bits < sizeof output);
+    unsigned i = 0;
+    while (i < num_bits) {
+        output[i++] = ((value & 1U) ? '1' : '0');
         value >>= 1;
     }
+    output[i] = '\0';
+    os << output;
 }
 
 } /* unnamed namespace */
