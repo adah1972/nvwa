@@ -177,6 +177,8 @@ BOOST_AUTO_TEST_CASE(functional_test)
     constexpr auto r2 = nvwa::apply(increase, nvwa::make_optional(41));
     BOOST_CHECK(!r1.has_value());
     BOOST_CHECK(!r1);
+    BOOST_CHECK(r2.has_value());
+    BOOST_CHECK(!has_value(r1, r2));
     BOOST_CHECK(r2 && r2.value() == 42);
     auto r3 = r2;
     BOOST_CHECK(r2 && r2.value() == 42);
