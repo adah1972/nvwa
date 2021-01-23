@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2020 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2020-11-26
+ * @date  2021-01-23
  */
 
 #ifndef NVWA_BOOL_ARRAY_H
@@ -99,12 +99,8 @@ public:
     typedef _Element<byte> reference;              ///< Type of reference
     typedef _Element<const byte> const_reference;  ///< Type of const reference
 
-#if defined(_MSC_VER) && _MSC_VER < 1300
-    enum { npos = (size_type)-1  /**< Constant representing `not found' */ };
-#else
     /** Constant representing `not found'. */
     static const size_type npos = (size_type)-1;
-#endif
 
     bool_array() noexcept;
     explicit bool_array(size_type size);
