@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2014-2020 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2014-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2020-10-29
+ * @date  2021-01-23
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -982,7 +982,7 @@ auto make_curry(_Rs(*f)(_Targs...))
 
 /**
  * Makes a curried function.  The returned function takes one argument
- * at a time, and return a function that takes the next argument until
+ * at a time, and returns a function that takes the next argument until
  * all arguments are exhausted, in which case it returns the final
  * result.  This overload takes a generic function object, and the
  * function type must be specified when this function template is
