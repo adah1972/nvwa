@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @date  2019-08-22
+ * @date  2021-01-30
  */
 
 #ifndef NVWA_DEBUG_NEW_H
@@ -40,13 +40,12 @@
 #include <new>                  // size_t/std::bad_alloc
 #include <stdio.h>              // FILE
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // _NOEXCEPT
 
 /* Special allocation/deallocation functions in the global scope */
 void* operator new(size_t size, const char* file, int line);
 void* operator new[](size_t size, const char* file, int line);
-void operator delete(void* ptr, const char* file, int line) _NOEXCEPT;
-void operator delete[](void* ptr, const char* file, int line) _NOEXCEPT;
+void operator delete(void* ptr, const char* file, int line) noexcept;
+void operator delete[](void* ptr, const char* file, int line) noexcept;
 
 NVWA_NAMESPACE_BEGIN
 
@@ -182,9 +181,8 @@ public:
     template <class _Tp> _Tp* operator->*(_Tp* ptr)
     { _M_process(ptr); return ptr; }
 
-private:
-    debug_new_recorder(const debug_new_recorder&) _DELETED;
-    debug_new_recorder& operator=(const debug_new_recorder&) _DELETED;
+    debug_new_recorder(const debug_new_recorder&) = delete;
+    debug_new_recorder& operator=(const debug_new_recorder&) = delete;
 };
 
 /**
@@ -195,6 +193,7 @@ private:
  */
 class debug_new_counter {
     static int _S_count;
+
 public:
     debug_new_counter();
     ~debug_new_counter();
