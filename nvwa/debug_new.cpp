@@ -557,6 +557,30 @@ static bool check_tail(new_ptr_list_t* ptr)
 #endif
 
 /**
+ * Adjusts the user-provided pointer in case it is the result of an
+ * array allocation.  In an expression <code>new non-POD-type[size]
+ * </code>, the pointer returned is not the pointer returned by <code>
+ * operator new[]</code>, but offset by \c sizeof(size_t) to leave room
+ * for the size.  It needs to be compensated for.
+ *
+ * @param usr_ptr  pointer returned by a new-expression
+ * @return         a valid pointer if an aligned pointer is got;
+ *                 \c nullptr otherwise
+ */
+static void* adjust_ptr_for_array_alloc(void* usr_ptr)
+{
+    auto offset = static_cast<char*>(usr_ptr) - static_cast<char*>(nullptr);
+    if (offset % PLATFORM_MEM_ALIGNMENT == 0) {
+        return usr_ptr;
+    }
+    offset -= sizeof(size_t);
+    if (offset % PLATFORM_MEM_ALIGNMENT == 0) {
+        return static_cast<char*>(usr_ptr) - sizeof(size_t);
+    }
+    return nullptr;
+}
+
+/**
  * Allocates memory and initializes control data.
  *
  * @param size      size of the required memory block
@@ -663,7 +687,7 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
 /**
  * Frees memory and adjusts pointers.
  *
- * @param usr_ptr   pointer to the previously allocated memory
+ * @param usr_ptr   pointer returned by a new-expression
  * @param addr      pointer to the caller
  * @param is_array  flag indicating whether it is invoked by a
  *                  <code>delete[]</code> call
@@ -673,9 +697,12 @@ static void free_pointer(void* usr_ptr, void* addr, bool is_array)
     if (usr_ptr == nullptr) {
         return;
     }
+
+    auto usr_ptr_adj = adjust_ptr_for_array_alloc(usr_ptr);
     auto ptr = reinterpret_cast<new_ptr_list_t*>(
-        static_cast<char*>(usr_ptr) - ALIGNED_LIST_ITEM_SIZE);
-    if (ptr->magic != DEBUG_NEW_MAGIC) {
+        static_cast<char*>(usr_ptr_adj) - ALIGNED_LIST_ITEM_SIZE);
+
+    if (usr_ptr_adj == nullptr || ptr->magic != DEBUG_NEW_MAGIC) {
         {
             fast_mutex_autolock lock(new_output_lock);
             fprintf(new_output_fp, "delete%s: invalid pointer %p (",
@@ -870,22 +897,13 @@ void debug_new_recorder::_M_process(void* usr_ptr)
         return;
     }
 
-    // In an expression `new NonPODType[size]', the pointer returned
-    // is not the pointer returned by operator new[], but offset by
-    // sizeof(size_t) to leave room for the size.  It needs to be
-    // compensated for here.
-    size_t offset =
-        static_cast<char*>(usr_ptr) - static_cast<char*>(nullptr);
-    if (offset % PLATFORM_MEM_ALIGNMENT != 0) {
-        offset -= sizeof(size_t);
-        if (offset % PLATFORM_MEM_ALIGNMENT != 0) {
-            fast_mutex_autolock lock(new_output_lock);
-            fprintf(new_output_fp,
-                    "warning: memory unaligned; skipping processing (%s:%d)\n",
-                    _M_file, _M_line);
-            return;
-        }
-        usr_ptr = static_cast<char*>(usr_ptr) - sizeof(size_t);
+    usr_ptr = adjust_ptr_for_array_alloc(usr_ptr);
+    if (usr_ptr == nullptr) {
+        fast_mutex_autolock lock(new_output_lock);
+        fprintf(new_output_fp,
+                "warning: memory unaligned; skipping processing (%s:%d)\n",
+                _M_file, _M_line);
+        return;
     }
 
     auto ptr = reinterpret_cast<new_ptr_list_t*>(
