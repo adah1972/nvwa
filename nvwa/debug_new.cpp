@@ -981,13 +981,6 @@ debug_new_counter::~debug_new_counter()
     if (--_S_count == 0 && new_autocheck_flag) {
         if (check_leaks()) {
             new_verbose_flag = true;
-#if defined(__GNUC__) && __GNUC__ == 3
-            if (!getenv("GLIBCPP_FORCE_NEW") && !getenv("GLIBCXX_FORCE_NEW"))
-                fprintf(new_output_fp,
-"*** WARNING:  GCC 3 is detected, please make sure the environment\n"
-"    variable GLIBCPP_FORCE_NEW (GCC 3.2 and 3.3) or GLIBCXX_FORCE_NEW\n"
-"    (GCC 3.4) is defined.  Check the README file for details.\n");
-#endif
         }
     }
 }
