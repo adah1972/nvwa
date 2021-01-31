@@ -272,6 +272,11 @@ struct new_ptr_list_t {
     unsigned        magic;      ///< Magic number for error detection
 };
 
+enum is_array_t {
+    alloc_is_not_array,
+    alloc_is_array
+};
+
 /**
  * Definition of the constant magic number used for error detection.
  */
@@ -619,11 +624,12 @@ static void debug_new_free(void* ptr)
  * @param size      size of the required memory block
  * @param file      null-terminated string of the file name
  * @param line      line number
- * @param is_array  boolean value whether this is an array operation
+ * @param is_array  enum to show whether this is an array operation
  * @return          pointer to the user-requested memory area; null if
  *                  memory allocation is not successful
  */
-static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
+static void* alloc_mem(size_t size, const char* file, int line,
+                       is_array_t is_array)
 {
     assert(line >= 0);
 #if _DEBUG_NEW_TYPE == 1
@@ -1012,7 +1018,7 @@ using namespace nvwa;
  */
 void* operator new(size_t size, const char* file, int line)
 {
-    void* ptr = alloc_mem(size, file, line, false);
+    void* ptr = alloc_mem(size, file, line, alloc_is_not_array);
 #if _DEBUG_NEW_STD_OPER_NEW
     if (ptr) {
         return ptr;
@@ -1036,7 +1042,7 @@ void* operator new(size_t size, const char* file, int line)
  */
 void* operator new[](size_t size, const char* file, int line)
 {
-    void* ptr = alloc_mem(size, file, line, true);
+    void* ptr = alloc_mem(size, file, line, alloc_is_array);
 #if _DEBUG_NEW_STD_OPER_NEW
     if (ptr) {
         return ptr;
@@ -1086,7 +1092,7 @@ void* operator new[](size_t size)
 void* operator new(size_t size, const std::nothrow_t&) noexcept
 {
     return alloc_mem(size, static_cast<char*>(_DEBUG_NEW_CALLER_ADDRESS), 0,
-                     false);
+                     alloc_is_not_array);
 }
 
 /**
@@ -1099,7 +1105,7 @@ void* operator new(size_t size, const std::nothrow_t&) noexcept
 void* operator new[](size_t size, const std::nothrow_t&) noexcept
 {
     return alloc_mem(size, static_cast<char*>(_DEBUG_NEW_CALLER_ADDRESS), 0,
-                     true);
+                     alloc_is_array);
 }
 
 /**
