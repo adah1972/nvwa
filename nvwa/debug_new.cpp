@@ -549,9 +549,11 @@ static bool check_tail(new_ptr_list_t* ptr)
 {
     auto const tail_ptr = reinterpret_cast<const unsigned char*>(ptr) +
                           ALIGNED_LIST_ITEM_SIZE + ptr->size;
-    for (int i = 0; i < _DEBUG_NEW_TAILCHECK; ++i)
-        if (tail_ptr[i] != _DEBUG_NEW_TAILCHECK_CHAR)
+    for (int i = 0; i < _DEBUG_NEW_TAILCHECK; ++i) {
+        if (tail_ptr[i] != _DEBUG_NEW_TAILCHECK_CHAR) {
             return false;
+        }
+    }
     return true;
 }
 #endif
