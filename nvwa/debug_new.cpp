@@ -60,7 +60,6 @@
 #endif
 
 #include "fast_mutex.h"         // nvwa::fast_mutex
-#include "static_assert.h"      // STATIC_ASSERT
 
 #undef  _DEBUG_NEW_EMULATE_MALLOC
 #undef  _DEBUG_NEW_REDEFINE_NEW
@@ -623,12 +622,12 @@ static void* alloc_mem(size_t size, const char* file, int line,
 {
     assert(line >= 0);
 #if _DEBUG_NEW_TYPE == 1
-    STATIC_ASSERT(_DEBUG_NEW_ALIGNMENT >= PLATFORM_MEM_ALIGNMENT,
-                  Alignment_too_small);
+    static_assert(_DEBUG_NEW_ALIGNMENT >= PLATFORM_MEM_ALIGNMENT,
+                  "Alignment too small");
 #endif
-    STATIC_ASSERT((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0,
-                  Alignment_must_be_power_of_two);
-    STATIC_ASSERT(_DEBUG_NEW_TAILCHECK >= 0, Invalid_tail_check_length);
+    static_assert((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0,
+                  "Alignment must be power of two");
+    static_assert(_DEBUG_NEW_TAILCHECK >= 0, "Invalid tail check length");
 
     size_t s = size + ALIGNED_LIST_ITEM_SIZE + _DEBUG_NEW_TAILCHECK;
     auto ptr = static_cast<new_ptr_list_t*>(debug_new_alloc(s));
