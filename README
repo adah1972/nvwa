@@ -93,17 +93,15 @@ Contents
    file/line information can be displayed if debugging symbols are
    present in the executable, since debug_new stores the caller
    addresses of memory allocation/deallocation routines and they will be
-   converted with addr2line (or atos on a Mac) on the fly.  This makes
+   converted with addr2line (or atos on macOS) on the fly.  This makes
    memory tracing much easier.
 
-   NOTE for macOS users: Unless you were still using Snow Leopard or
-   earlier, you would need to add "-Wl,-no_pie" at the end of the
-   command line.  By default macOS will now create position-independent
-   executables (PIE), and the OS will load a PIE at a random address
-   each time it is executed, making it difficult to convert the address
-   to symbols.  (I Googled a while for a way to get the base address of
-   a process, but could not find working code.  If you know how to do it
-   right, drop me a message.)
+   NOTE for Linux/macOS users: Nowadays GCC and Clang create position-
+   independent executables (PIE) by default so that the OS can apply
+   address space layout randomization (ASLR), loading a PIE at a random
+   address each time it is executed and making it difficult to convert
+   the address to symbols.  The simple solution is to use the
+   command-line option "-no-pie" on Linux, or "-Wl,-no_pie" on macOS.
 
    With an idea from Greg Herlihy's post in comp.lang.c++.moderated, the
    implementation was much improved in 2007.  The most significant
