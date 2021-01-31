@@ -1048,9 +1048,6 @@ void* operator new[](size_t size, const char* file, int line)
  * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
  */
 void* operator new(size_t size)
-#if !NVWA_CXX11_MODE
-     throw(std::bad_alloc)
-#endif
 {
     return operator new(size,
                         static_cast<char*>(_DEBUG_NEW_CALLER_ADDRESS), 0);
@@ -1065,9 +1062,6 @@ void* operator new(size_t size)
  * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
  */
 void* operator new[](size_t size)
-#if !NVWA_CXX11_MODE
-     throw(std::bad_alloc)
-#endif
 {
     return operator new[](size,
                           static_cast<char*>(_DEBUG_NEW_CALLER_ADDRESS), 0);
