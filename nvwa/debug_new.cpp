@@ -176,17 +176,6 @@
 #endif
 
 /**
- * @def _DEBUG_NEW_STD_OPER_NEW
- *
- * Macro to indicate whether the standard-conformant behaviour of
- * <code>operator new</code> is wanted.  It is on by default now, but
- * the user may set it to \c 0 to revert to the old behaviour.
- */
-#ifndef _DEBUG_NEW_STD_OPER_NEW
-#define _DEBUG_NEW_STD_OPER_NEW 1
-#endif
-
-/**
  * @def _DEBUG_NEW_TAILCHECK
  *
  * Macro to indicate whether a writing-past-end check will be performed.
@@ -643,16 +632,12 @@ static void* alloc_mem(size_t size, const char* file, int line,
     size_t s = size + ALIGNED_LIST_ITEM_SIZE + _DEBUG_NEW_TAILCHECK;
     auto ptr = static_cast<new_ptr_list_t*>(debug_new_alloc(s));
     if (ptr == nullptr) {
-#if _DEBUG_NEW_STD_OPER_NEW
-        return nullptr;
-#else
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "Out of memory when allocating %zu bytes\n",
                 size);
         fflush(new_output_fp);
         _DEBUG_NEW_ERROR_ACTION;
-#endif
     }
     auto usr_ptr = reinterpret_cast<char*>(ptr) + ALIGNED_LIST_ITEM_SIZE;
 #if _DEBUG_NEW_FILENAME_LEN == 0
@@ -1012,22 +997,17 @@ using namespace nvwa;
  * @param size  size of the required memory block
  * @param file  null-terminated string of the file name
  * @param line  line number
- * @return      pointer to the memory allocated; or null if memory is
- *              insufficient (#_DEBUG_NEW_STD_OPER_NEW is 0)
- * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
+ * @return      pointer to the memory allocated
+ * @throw bad_alloc memory is insufficient
  */
 void* operator new(size_t size, const char* file, int line)
 {
     void* ptr = alloc_mem(size, file, line, alloc_is_not_array);
-#if _DEBUG_NEW_STD_OPER_NEW
     if (ptr) {
         return ptr;
     } else {
         throw std::bad_alloc();
     }
-#else
-    return ptr;
-#endif
 }
 
 /**
@@ -1036,31 +1016,25 @@ void* operator new(size_t size, const char* file, int line)
  * @param size  size of the required memory block
  * @param file  null-terminated string of the file name
  * @param line  line number
- * @return      pointer to the memory allocated; or null if memory is
- *              insufficient (#_DEBUG_NEW_STD_OPER_NEW is 0)
- * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
+ * @return      pointer to the memory allocated
+ * @throw bad_alloc memory is insufficient
  */
 void* operator new[](size_t size, const char* file, int line)
 {
     void* ptr = alloc_mem(size, file, line, alloc_is_array);
-#if _DEBUG_NEW_STD_OPER_NEW
     if (ptr) {
         return ptr;
     } else {
         throw std::bad_alloc();
     }
-#else
-    return ptr;
-#endif
 }
 
 /**
  * Allocates memory without file/line information.
  *
  * @param size  size of the required memory block
- * @return      pointer to the memory allocated; or null if memory is
- *              insufficient (#_DEBUG_NEW_STD_OPER_NEW is 0)
- * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
+ * @return      pointer to the memory allocated
+ * @throw bad_alloc memory is insufficient
  */
 void* operator new(size_t size)
 {
@@ -1072,9 +1046,8 @@ void* operator new(size_t size)
  * Allocates array memory without file/line information.
  *
  * @param size  size of the required memory block
- * @return      pointer to the memory allocated; or null if memory is
- *              insufficient (#_DEBUG_NEW_STD_OPER_NEW is 0)
- * @throw bad_alloc memory is insufficient (#_DEBUG_NEW_STD_OPER_NEW is 1)
+ * @return      pointer to the memory allocated
+ * @throw bad_alloc memory is insufficient
  */
 void* operator new[](size_t size)
 {
