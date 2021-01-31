@@ -613,7 +613,8 @@ static void debug_new_free(void* ptr)
  * @param size      size of the required memory block
  * @param file      null-terminated string of the file name
  * @param line      line number
- * @param is_array  enum to show whether this is an array operation
+ * @param is_array  flag indicating whether it is invoked by a
+ *                  <code>new[]</code> call
  * @return          pointer to the user-requested memory area; null if
  *                  memory allocation is not successful
  */
@@ -717,7 +718,7 @@ static void* alloc_mem(size_t size, const char* file, int line,
  * @param is_array  flag indicating whether it is invoked by a
  *                  <code>delete[]</code> call
  */
-static void free_pointer(void* usr_ptr, void* addr, bool is_array)
+static void free_pointer(void* usr_ptr, void* addr, is_array_t is_array)
 {
     if (usr_ptr == nullptr) {
         return;
@@ -739,7 +740,7 @@ static void free_pointer(void* usr_ptr, void* addr, bool is_array)
         fflush(new_output_fp);
         _DEBUG_NEW_ERROR_ACTION;
     }
-    if (is_array != bool(ptr->is_array)) {
+    if (is_array != ptr->is_array) {
         const char* msg;
         if (is_array) {
             msg = "delete[] after new";
@@ -1088,7 +1089,7 @@ void* operator new[](size_t size, const std::nothrow_t&) noexcept
  */
 void operator delete(void* ptr) noexcept
 {
-    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, false);
+    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, alloc_is_not_array);
 }
 
 /**
@@ -1098,7 +1099,7 @@ void operator delete(void* ptr) noexcept
  */
 void operator delete[](void* ptr) noexcept
 {
-    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, true);
+    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, alloc_is_array);
 }
 
 #if __cplusplus >= 201402L
@@ -1106,12 +1107,12 @@ void operator delete[](void* ptr) noexcept
 
 void operator delete(void* ptr, size_t) noexcept
 {
-    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, false);
+    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, alloc_is_not_array);
 }
 
 void operator delete[](void* ptr, size_t) noexcept
 {
-    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, true);
+    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, alloc_is_array);
 }
 #endif
 
