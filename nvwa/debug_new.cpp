@@ -31,13 +31,13 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2021-01-30
+ * @date  2021-01-31
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
 #include <assert.h>             // assert
 #include <stdio.h>              // fprintf/stderr
-#include <stdlib.h>             // abort
+#include <stdlib.h>             // abort/malloc/free/posix_memalign
 #include <string.h>             // strcpy/strncpy/sprintf
 #include "_nvwa.h"              // NVWA macros
 
@@ -45,7 +45,7 @@
 #include <alloca.h>             // alloca
 #endif
 #if NVWA_WIN32
-#include <malloc.h>             // alloca
+#include <malloc.h>             // alloca/_aligned_malloc/_aligned_free
 #endif
 
 #if NVWA_LINUX || NVWA_APPLE
@@ -245,7 +245,7 @@ NVWA_NAMESPACE_BEGIN
  * Windows, Linux, and macOS.  It may be smaller than the real alignment,
  * but must be bigger than \c sizeof(size_t) for it to work.
  * nvwa#debug_new_recorder uses it to detect misaligned pointer returned
- * by `<code>new NonPODType[size]</code>'.
+ * by <code>new non-POD-type[size]</code>.
  */
 const size_t PLATFORM_MEM_ALIGNMENT = sizeof(size_t) * 2;
 
@@ -580,6 +580,30 @@ static void* adjust_ptr_for_array_alloc(void* usr_ptr)
     return nullptr;
 }
 
+static void* debug_new_alloc(size_t size)
+{
+#ifdef _WIN32
+    return _aligned_malloc(size, _DEBUG_NEW_ALIGNMENT);
+#else
+    void* memptr;
+    int result = posix_memalign(&memptr, _DEBUG_NEW_ALIGNMENT, size);
+    if (result == 0) {
+        return memptr;
+    } else {
+        return nullptr;
+    }
+#endif
+}
+
+static void debug_new_free(void* ptr)
+{
+#ifdef _WIN32
+    _aligned_free(ptr);
+#else
+    free(ptr);
+#endif
+}
+
 /**
  * Allocates memory and initializes control data.
  *
@@ -600,8 +624,9 @@ static void* alloc_mem(size_t size, const char* file, int line, bool is_array)
     STATIC_ASSERT((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0,
                   Alignment_must_be_power_of_two);
     STATIC_ASSERT(_DEBUG_NEW_TAILCHECK >= 0, Invalid_tail_check_length);
+
     size_t s = size + ALIGNED_LIST_ITEM_SIZE + _DEBUG_NEW_TAILCHECK;
-    auto ptr = static_cast<new_ptr_list_t*>(malloc(s));
+    auto ptr = static_cast<new_ptr_list_t*>(debug_new_alloc(s));
     if (ptr == nullptr) {
 #if _DEBUG_NEW_STD_OPER_NEW
         return nullptr;
@@ -759,7 +784,7 @@ static void free_pointer(void* usr_ptr, void* addr, bool is_array)
 #if _DEBUG_NEW_REMEMBER_STACK_TRACE
     free(ptr->stacktrace);
 #endif
-    free(ptr);
+    debug_new_free(ptr);
 }
 
 /**
