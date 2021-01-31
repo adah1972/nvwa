@@ -582,24 +582,31 @@ static void* adjust_ptr_for_array_alloc(void* usr_ptr)
     return nullptr;
 }
 
-static void* debug_new_alloc(size_t size)
+static void* debug_new_alloc(size_t size,
+                             size_t alignment = _DEBUG_NEW_ALIGNMENT)
 {
-#ifdef _WIN32
-    return _aligned_malloc(size, _DEBUG_NEW_ALIGNMENT);
-#else
+#if NVWA_WIN32
+    return _aligned_malloc(size, alignment);
+#elif NVWA_UNIX
     void* memptr;
-    int result = posix_memalign(&memptr, _DEBUG_NEW_ALIGNMENT, size);
+    int result = posix_memalign(&memptr, alignment, size);
     if (result == 0) {
         return memptr;
     } else {
         return nullptr;
     }
+#else
+    void* result = malloc(size);
+    assert((static_cast<char*>(usr_ptr) - static_cast<char*>(nullptr)) %
+               PLATFORM_MEM_ALIGNMENT ==
+           0);
+    return result;
 #endif
 }
 
 static void debug_new_free(void* ptr)
 {
-#ifdef _WIN32
+#if NVWA_WIN32
     _aligned_free(ptr);
 #else
     free(ptr);
