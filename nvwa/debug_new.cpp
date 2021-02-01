@@ -220,7 +220,6 @@
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4074)  // #pragma init_seg(compiler) used
-#pragma warning(disable: 4290)  // C++ exception specification ignored
 #if _MSC_VER >= 1400            // Visual Studio 2005 or later
 #pragma warning(disable: 4996)  // Use the `unsafe' strncpy
 #endif
