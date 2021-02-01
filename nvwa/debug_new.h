@@ -31,21 +31,36 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @date  2021-01-30
+ * @date  2021-02-01
  */
 
 #ifndef NVWA_DEBUG_NEW_H
 #define NVWA_DEBUG_NEW_H
 
-#include <new>                  // size_t/std::bad_alloc
+#include <new>                  // std::align_val_t
+#include <stddef.h>             // size_t
 #include <stdio.h>              // FILE
-#include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "_nvwa.h"              // NVWA macros
+#include "c++_features.h"       // NVWA_USES_CXX17
+
+#if NVWA_USES_CXX17 && (NVWA_UNIX || NVWA_WIN32)
+#define NVWA_SUPPORTS_ALIGNED_NEW 1
+#else
+#define NVWA_SUPPORTS_ALIGNED_NEW 0
+#endif
 
 /* Special allocation/deallocation functions in the global scope */
 void* operator new(size_t size, const char* file, int line);
 void* operator new[](size_t size, const char* file, int line);
 void operator delete(void* ptr, const char* file, int line) noexcept;
 void operator delete[](void* ptr, const char* file, int line) noexcept;
+
+#if NVWA_SUPPORTS_ALIGNED_NEW
+void* operator new(size_t size, std::align_val_t align_val,
+                   const char* file, int line);
+void* operator new[](size_t size, std::align_val_t align_val,
+                     const char* file, int line);
+#endif
 
 NVWA_NAMESPACE_BEGIN
 
@@ -87,6 +102,10 @@ NVWA_NAMESPACE_BEGIN
  * versions (no file/line information for allocations).  Define it
  * to \c 2 to revert to the old behaviour that records file and line
  * information directly on the call to <code>operator new</code>.
+ *
+ * Do notice that type 2 works better with aligned new-expressions
+ * introduced in C++17, assuming you do not use placement new (like
+ * `<code>new(std::nothrow) SomeThing</code>').
  */
 #ifndef _DEBUG_NEW_TYPE
 #define _DEBUG_NEW_TYPE 1

@@ -229,9 +229,11 @@
 /**
  * Gets the aligned value of memory block size.
  */
-constexpr inline size_t ALIGN(size_t s, size_t alignment = _DEBUG_NEW_ALIGNMENT)
+constexpr inline unsigned ALIGN(size_t s,
+                                size_t alignment = _DEBUG_NEW_ALIGNMENT)
 {
-    return (s + alignment - 1) & ~(alignment - 1);
+    // 32 bits are enough for alignments
+    return static_cast<unsigned>((s + alignment - 1) & ~(alignment - 1));
 }
 
 NVWA_NAMESPACE_BEGIN
@@ -251,6 +253,7 @@ struct new_ptr_list_t {
 #endif
     void*           addr;       ///< Address of the caller to \e new
     };
+    unsigned        head_size;  ///< Size of this struct, aligned
     unsigned        line   :31; ///< Line number of the caller; or \c 0
     unsigned        is_array:1; ///< Non-zero iff <em>new[]</em> is used
 #if _DEBUG_NEW_REMEMBER_STACK_TRACE
@@ -272,7 +275,7 @@ static const unsigned DEBUG_NEW_MAGIC = 0x4442474E;
 /**
  * The extra memory allocated by <code>operator new</code>.
  */
-static const int ALIGNED_LIST_ITEM_SIZE = ALIGN(sizeof(new_ptr_list_t));
+static const size_t ALIGNED_LIST_ITEM_SIZE = ALIGN(sizeof(new_ptr_list_t));
 
 /**
  * List of all new'd pointers.
@@ -288,6 +291,7 @@ static new_ptr_list_t new_ptr_list = {
         ""
 #endif
     },
+    0,
     0,
     0,
 #if _DEBUG_NEW_REMEMBER_STACK_TRACE
@@ -540,7 +544,7 @@ static bool is_leak_whitelisted(new_ptr_list_t* ptr)
 static bool check_tail(new_ptr_list_t* ptr)
 {
     auto const tail_ptr = reinterpret_cast<const unsigned char*>(ptr) +
-                          ALIGNED_LIST_ITEM_SIZE + ptr->size;
+                          ptr->size + ptr->head_size;
     for (int i = 0; i < _DEBUG_NEW_TAILCHECK; ++i) {
         if (tail_ptr[i] != _DEBUG_NEW_TAILCHECK_CHAR) {
             return false;
@@ -551,26 +555,48 @@ static bool check_tail(new_ptr_list_t* ptr)
 #endif
 
 /**
- * Adjusts the user-provided pointer in case it is the result of an
- * array allocation.  In an expression <code>new non-POD-type[size]
+ * Converts the user-provided pointer to the real allocation address, in
+ * type \c new_ptr_list_t*.  In an expression <code>new non-POD-type[size]
  * </code>, the pointer returned is not the pointer returned by <code>
- * operator new[]</code>, but offset by \c sizeof(size_t) to leave room
- * for the size.  It needs to be compensated for.
+ * operator new[]</code>, but offset to leave room for the size.  It
+ * needs to be compensated for.
  *
- * @param usr_ptr  pointer returned by a new-expression
- * @return         a valid pointer if an aligned pointer is got;
- *                 \c nullptr otherwise
+ * @param usr_ptr    pointer returned by a new-expression
+ * @param alignment  alignment value for this allocation
+ * @return           a valid pointer if an aligned pointer is got;
+ *                   \c nullptr otherwise
  */
-static void* adjust_ptr_for_array_alloc(void* usr_ptr)
+static new_ptr_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
 {
     auto offset = static_cast<char*>(usr_ptr) - static_cast<char*>(nullptr);
-    if (offset % _DEBUG_NEW_ALIGNMENT == 0) {
-        return usr_ptr;
+    auto adjusted_ptr = static_cast<char*>(usr_ptr);
+    bool is_adjusted = false;
+
+    // Check alignment first
+    if (offset % alignment != 0) {
+        offset -= sizeof(size_t);
+        if (offset % alignment != 0) {
+            return nullptr;
+        }
+        adjusted_ptr = static_cast<char*>(usr_ptr) - sizeof(size_t);
+        is_adjusted = true;
     }
-    offset -= sizeof(size_t);
-    if (offset % _DEBUG_NEW_ALIGNMENT == 0) {
-        return static_cast<char*>(usr_ptr) - sizeof(size_t);
+    auto ptr = reinterpret_cast<new_ptr_list_t*>(
+        adjusted_ptr - ALIGN(sizeof(new_ptr_list_t), alignment));
+    if (ptr->magic == DEBUG_NEW_MAGIC && (!is_adjusted || ptr->is_array)) {
+        return ptr;
     }
+
+    // Aligned new[] allocates alignment extra space for the array size
+    if (!is_adjusted && alignment > _DEBUG_NEW_ALIGNMENT) {
+        ptr = reinterpret_cast<new_ptr_list_t*>(
+            reinterpret_cast<char*>(ptr) - alignment);
+        is_adjusted = true;
+    }
+    if (ptr->magic == DEBUG_NEW_MAGIC && (!is_adjusted || ptr->is_array)) {
+        return ptr;
+    }
+
     return nullptr;
 }
 
@@ -614,9 +640,9 @@ static void debug_new_free(void* ptr)
  *                  memory allocation is not successful
  */
 static void* alloc_mem(size_t size, const char* file, int line,
-                       is_array_t is_array)
+                       is_array_t is_array,
+                       size_t alignment = _DEBUG_NEW_ALIGNMENT)
 {
-    assert(line >= 0);
 #if _DEBUG_NEW_TYPE == 1
     static_assert(_DEBUG_NEW_ALIGNMENT >= sizeof(size_t) * 2,
                   "Alignment is too small");
@@ -624,9 +650,12 @@ static void* alloc_mem(size_t size, const char* file, int line,
     static_assert((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0,
                   "Alignment must be power of two");
     static_assert(_DEBUG_NEW_TAILCHECK >= 0, "Invalid tail check length");
+    assert(line >= 0);
+    assert(alignment >= _DEBUG_NEW_ALIGNMENT);
 
-    size_t s = size + ALIGNED_LIST_ITEM_SIZE + _DEBUG_NEW_TAILCHECK;
-    auto ptr = static_cast<new_ptr_list_t*>(debug_new_alloc(s));
+    unsigned aligned_list_item_size = ALIGN(sizeof(new_ptr_list_t), alignment);
+    size_t s = size + aligned_list_item_size + _DEBUG_NEW_TAILCHECK;
+    auto ptr = static_cast<new_ptr_list_t*>(debug_new_alloc(s, alignment));
     if (ptr == nullptr) {
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
@@ -635,7 +664,7 @@ static void* alloc_mem(size_t size, const char* file, int line,
         fflush(new_output_fp);
         _DEBUG_NEW_ERROR_ACTION;
     }
-    auto usr_ptr = reinterpret_cast<char*>(ptr) + ALIGNED_LIST_ITEM_SIZE;
+    auto usr_ptr = reinterpret_cast<char*>(ptr) + aligned_list_item_size;
 #if _DEBUG_NEW_FILENAME_LEN == 0
     ptr->file = file;
 #else
@@ -678,6 +707,7 @@ static void* alloc_mem(size_t size, const char* file, int line,
 #endif
     ptr->is_array = is_array;
     ptr->size = size;
+    ptr->head_size = aligned_list_item_size;
     ptr->magic = DEBUG_NEW_MAGIC;
     {
         fast_mutex_autolock lock(new_ptr_lock);
@@ -713,17 +743,16 @@ static void* alloc_mem(size_t size, const char* file, int line,
  * @param is_array  flag indicating whether it is invoked by a
  *                  <code>delete[]</code> call
  */
-static void free_pointer(void* usr_ptr, void* addr, is_array_t is_array)
+static void free_pointer(void* usr_ptr, void* addr, is_array_t is_array,
+                         size_t alignment = _DEBUG_NEW_ALIGNMENT)
 {
+    assert(alignment >= _DEBUG_NEW_ALIGNMENT);
     if (usr_ptr == nullptr) {
         return;
     }
 
-    auto usr_ptr_adj = adjust_ptr_for_array_alloc(usr_ptr);
-    auto ptr = reinterpret_cast<new_ptr_list_t*>(
-        static_cast<char*>(usr_ptr_adj) - ALIGNED_LIST_ITEM_SIZE);
-
-    if (usr_ptr_adj == nullptr || ptr->magic != DEBUG_NEW_MAGIC) {
+    auto ptr = convert_user_ptr(usr_ptr, alignment);
+    if (ptr == nullptr) {
         {
             fast_mutex_autolock lock(new_output_lock);
             fprintf(new_output_fp, "delete%s: invalid pointer %p (",
@@ -797,12 +826,15 @@ int check_leaks()
     new_ptr_list_t* ptr = new_ptr_list.next;
 
     while (ptr != &new_ptr_list) {
-        auto const usr_ptr =
+        auto usr_ptr =
             reinterpret_cast<const char*>(ptr) + ALIGNED_LIST_ITEM_SIZE;
         if (ptr->magic != DEBUG_NEW_MAGIC) {
             fprintf(new_output_fp,
                     "warning: heap data corrupt near %p\n",
                     usr_ptr);
+        } else {
+            // Adjust usr_ptr after the basic sanity check
+            usr_ptr = reinterpret_cast<const char*>(ptr) + ptr->head_size;
         }
 #if _DEBUG_NEW_TAILCHECK
         if (!check_tail(ptr)) {
@@ -864,7 +896,7 @@ int check_mem_corruption()
     for (new_ptr_list_t* ptr = new_ptr_list.next;
             ptr != &new_ptr_list;
             ptr = ptr->next) {
-        auto const usr_ptr =
+        auto usr_ptr =
             reinterpret_cast<const char*>(ptr) + ALIGNED_LIST_ITEM_SIZE;
         if (ptr->magic == DEBUG_NEW_MAGIC
 #if _DEBUG_NEW_TAILCHECK
@@ -881,6 +913,8 @@ int check_mem_corruption()
                     usr_ptr, ptr->size);
 #if _DEBUG_NEW_TAILCHECK
         } else {
+            // Adjust usr_ptr after the basic sanity check
+            usr_ptr = reinterpret_cast<const char*>(ptr) + ptr->head_size;
             fprintf(new_output_fp,
                     "Overwritten past end of object at %p (size %zu, ",
                     usr_ptr, ptr->size);
@@ -918,18 +952,8 @@ void debug_new_recorder::_M_process(void* usr_ptr)
         return;
     }
 
-    usr_ptr = adjust_ptr_for_array_alloc(usr_ptr);
-    if (usr_ptr == nullptr) {
-        fast_mutex_autolock lock(new_output_lock);
-        fprintf(new_output_fp,
-                "warning: memory unaligned; skipping processing (%s:%d)\n",
-                _M_file, _M_line);
-        return;
-    }
-
-    auto ptr = reinterpret_cast<new_ptr_list_t*>(
-        static_cast<char*>(usr_ptr) - ALIGNED_LIST_ITEM_SIZE);
-    if (ptr->magic != DEBUG_NEW_MAGIC || ptr->line != 0) {
+    auto ptr = convert_user_ptr(usr_ptr, _DEBUG_NEW_ALIGNMENT);
+    if (ptr == nullptr || ptr->line != 0) {
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "warning: debug_new used with placement new (%s:%d)\n",
@@ -1177,6 +1201,94 @@ void operator delete[](void* ptr, const std::nothrow_t&) noexcept
 {
     operator delete[](ptr, static_cast<char*>(_DEBUG_NEW_CALLER_ADDRESS), 0);
 }
+
+#if NVWA_SUPPORTS_ALIGNED_NEW
+void* operator new(size_t size, std::align_val_t align_val,
+                   const char* file, int line)
+{
+    void* ptr =
+        alloc_mem(size, file, line, alloc_is_not_array, size_t(align_val));
+    if (ptr) {
+        return ptr;
+    } else {
+        throw std::bad_alloc();
+    }
+}
+
+void* operator new[](size_t size, std::align_val_t align_val,
+                     const char* file, int line)
+{
+    void* ptr =
+        alloc_mem(size, file, line, alloc_is_array, size_t(align_val));
+    if (ptr) {
+        return ptr;
+    } else {
+        throw std::bad_alloc();
+    }
+}
+
+void* operator new(size_t size, std::align_val_t align_val)
+{
+    void* ptr =
+        alloc_mem(size, static_cast<char*>(_DEBUG_NEW_CALLER_ADDRESS), 0,
+                  alloc_is_not_array, size_t(align_val));
+    if (ptr) {
+        return ptr;
+    } else {
+        throw std::bad_alloc();
+    }
+}
+
+void* operator new[](size_t size, std::align_val_t align_val)
+{
+    void* ptr =
+        alloc_mem(size, static_cast<char*>(_DEBUG_NEW_CALLER_ADDRESS), 0,
+                  alloc_is_array, size_t(align_val));
+    if (ptr) {
+        return ptr;
+    } else {
+        throw std::bad_alloc();
+    }
+}
+
+void operator delete(void* ptr, std::align_val_t align_val) noexcept
+{
+    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, alloc_is_not_array,
+                 size_t(align_val));
+}
+
+void operator delete[](void* ptr, std::align_val_t align_val) noexcept
+{
+    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, alloc_is_array,
+                 size_t(align_val));
+}
+
+void operator delete(void* ptr, size_t, std::align_val_t align_val) noexcept
+{
+    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, alloc_is_not_array,
+                 size_t(align_val));
+}
+
+void operator delete[](void* ptr, size_t, std::align_val_t align_val) noexcept
+{
+    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, alloc_is_array,
+                 size_t(align_val));
+}
+
+void operator delete(void* ptr, std::align_val_t align_val,
+                     const std::nothrow_t&)noexcept
+{
+    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, alloc_is_not_array,
+                 size_t(align_val));
+}
+
+void operator delete[](void* ptr, std::align_val_t align_val,
+                       const std::nothrow_t&) noexcept
+{
+    free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, alloc_is_array,
+                 size_t(align_val));
+}
+#endif
 
 // This is to make Doxygen happy
 #undef _DEBUG_NEW_REMEMBER_STACK_TRACE
