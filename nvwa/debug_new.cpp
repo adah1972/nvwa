@@ -36,6 +36,7 @@
 
 #include <new>                  // std::bad_alloc/nothrow_t
 #include <assert.h>             // assert
+#include <stdint.h>             // uint32_t
 #include <stdio.h>              // fprintf/stderr
 #include <stdlib.h>             // abort/malloc/free/posix_memalign
 #include <string.h>             // strcpy/strncpy/sprintf
@@ -226,16 +227,6 @@
 #pragma init_seg(compiler)
 #endif
 
-/**
- * Gets the aligned value of memory block size.
- */
-constexpr inline unsigned ALIGN(size_t s,
-                                size_t alignment = _DEBUG_NEW_ALIGNMENT)
-{
-    // 32 bits are enough for alignments
-    return static_cast<unsigned>((s + alignment - 1) & ~(alignment - 1));
-}
-
 NVWA_NAMESPACE_BEGIN
 
 /**
@@ -253,67 +244,19 @@ struct new_ptr_list_t {
 #endif
     void*           addr;       ///< Address of the caller to \e new
     };
-    unsigned        head_size;  ///< Size of this struct, aligned
-    unsigned        line   :31; ///< Line number of the caller; or \c 0
-    unsigned        is_array:1; ///< Non-zero iff <em>new[]</em> is used
+    uint32_t        head_size;  ///< Size of this struct, aligned
+    uint32_t        line   :31; ///< Line number of the caller; or \c 0
+    uint32_t        is_array:1; ///< Non-zero iff <em>new[]</em> is used
 #if _DEBUG_NEW_REMEMBER_STACK_TRACE
     void**          stacktrace; ///< Pointer to stack trace information
 #endif
-    unsigned        magic;      ///< Magic number for error detection
+    uint32_t        magic;      ///< Magic number for error detection
 };
 
 enum is_array_t {
     alloc_is_not_array,
     alloc_is_array
 };
-
-/**
- * Definition of the constant magic number used for error detection.
- */
-static const unsigned DEBUG_NEW_MAGIC = 0x4442474E;
-
-/**
- * The extra memory allocated by <code>operator new</code>.
- */
-static const size_t ALIGNED_LIST_ITEM_SIZE = ALIGN(sizeof(new_ptr_list_t));
-
-/**
- * List of all new'd pointers.
- */
-static new_ptr_list_t new_ptr_list = {
-    &new_ptr_list,
-    &new_ptr_list,
-    0,
-    {
-#if _DEBUG_NEW_FILENAME_LEN == 0
-        nullptr
-#else
-        ""
-#endif
-    },
-    0,
-    0,
-    0,
-#if _DEBUG_NEW_REMEMBER_STACK_TRACE
-    nullptr,
-#endif
-    DEBUG_NEW_MAGIC
-};
-
-/**
- * The mutex guard to protect simultaneous access to the pointer list.
- */
-static fast_mutex new_ptr_lock;
-
-/**
- * The mutex guard to protect simultaneous output to #new_output_fp.
- */
-static fast_mutex new_output_lock;
-
-/**
- * Total memory allocated in bytes.
- */
-static size_t total_mem_alloc = 0;
 
 /**
  * Flag to control whether nvwa#check_leaks will be automatically called
@@ -356,6 +299,70 @@ stacktrace_print_callback_t stacktrace_print_callback = nullptr;
  */
 leak_whitelist_callback_t leak_whitelist_callback = nullptr;
 
+namespace {
+
+/**
+ * Gets the aligned size of a memory block.
+ *
+ * @param s          size of the memory block
+ * @param alignment  alignment requested
+ * @return           aligned size
+ */
+inline constexpr uint32_t align(size_t s,
+                                size_t alignment = _DEBUG_NEW_ALIGNMENT)
+{
+    // 32 bits are enough for alignments
+    return static_cast<uint32_t>((s + alignment - 1) & ~(alignment - 1));
+}
+
+/**
+ * Definition of the constant magic number used for error detection.
+ */
+constexpr uint32_t DEBUG_NEW_MAGIC = 0x4442474E;
+
+/**
+ * The extra memory allocated by <code>operator new</code>.
+ */
+constexpr uint32_t ALIGNED_LIST_ITEM_SIZE = align(sizeof(new_ptr_list_t));
+
+/**
+ * List of all new'd pointers.
+ */
+new_ptr_list_t new_ptr_list = {
+    &new_ptr_list,
+    &new_ptr_list,
+    0,
+    {
+#if _DEBUG_NEW_FILENAME_LEN == 0
+        nullptr
+#else
+        ""
+#endif
+    },
+    0,
+    0,
+    0,
+#if _DEBUG_NEW_REMEMBER_STACK_TRACE
+    nullptr,
+#endif
+    DEBUG_NEW_MAGIC
+};
+
+/**
+ * The mutex guard to protect simultaneous access to the pointer list.
+ */
+fast_mutex new_ptr_lock;
+
+/**
+ * The mutex guard to protect simultaneous output to #new_output_fp.
+ */
+fast_mutex new_output_lock;
+
+/**
+ * Total memory allocated in bytes.
+ */
+size_t total_mem_alloc = 0;
+
 #if _DEBUG_NEW_USE_ADDR2LINE
 /**
  * Tries printing the position information from an instruction address.
@@ -366,7 +373,7 @@ leak_whitelist_callback_t leak_whitelist_callback = nullptr;
  *              the result is printed); \c false if no useful
  *              information is got (and nothing is printed)
  */
-static bool print_position_from_addr(const void* addr)
+bool print_position_from_addr(const void* addr)
 {
     static const void* last_addr = nullptr;
     static char last_info[256] = "";
@@ -451,7 +458,7 @@ static bool print_position_from_addr(const void* addr)
  *
  * @return      \c false always
  */
-static bool print_position_from_addr(const void*)
+bool print_position_from_addr(const void*)
 {
     return false;
 }
@@ -468,7 +475,7 @@ static bool print_position_from_addr(const void*)
  * @param line  source line number if non-zero; indication that \e ptr
  *              is the caller address otherwise
  */
-static void print_position(const void* ptr, int line)
+void print_position(const void* ptr, int line)
 {
     if (line != 0) {               // Is file/line information present?
         fprintf(new_output_fp, "%s:%d", static_cast<const char*>(ptr), line);
@@ -493,7 +500,7 @@ static void print_position(const void* ptr, int line)
  *
  * @param stacktrace  pointer to the stack trace array
  */
-static void print_stacktrace(void** stacktrace)
+void print_stacktrace(void** stacktrace)
 {
     if (stacktrace_print_callback == nullptr) {
         fprintf(new_output_fp, "Stack backtrace:\n");
@@ -514,7 +521,7 @@ static void print_stacktrace(void** stacktrace)
  * @return     \c true if the leak should be whitelisted; \c false
  *             otherwise
  */
-static bool is_leak_whitelisted(new_ptr_list_t* ptr)
+bool is_leak_whitelisted(new_ptr_list_t* ptr)
 {
     if (leak_whitelist_callback == nullptr) {
         return false;
@@ -541,7 +548,7 @@ static bool is_leak_whitelisted(new_ptr_list_t* ptr)
  * @return     \c true if the padding bytes are untouched; \c false
  *             otherwise
  */
-static bool check_tail(new_ptr_list_t* ptr)
+bool check_tail(new_ptr_list_t* ptr)
 {
     auto const tail_ptr = reinterpret_cast<const unsigned char*>(ptr) +
                           ptr->size + ptr->head_size;
@@ -566,7 +573,7 @@ static bool check_tail(new_ptr_list_t* ptr)
  * @return           a valid pointer if an aligned pointer is got;
  *                   \c nullptr otherwise
  */
-static new_ptr_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
+new_ptr_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
 {
     auto offset = static_cast<char*>(usr_ptr) - static_cast<char*>(nullptr);
     auto adjusted_ptr = static_cast<char*>(usr_ptr);
@@ -582,7 +589,7 @@ static new_ptr_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
         is_adjusted = true;
     }
     auto ptr = reinterpret_cast<new_ptr_list_t*>(
-        adjusted_ptr - ALIGN(sizeof(new_ptr_list_t), alignment));
+        adjusted_ptr - align(sizeof(new_ptr_list_t), alignment));
     if (ptr->magic == DEBUG_NEW_MAGIC && (!is_adjusted || ptr->is_array)) {
         return ptr;
     }
@@ -600,8 +607,15 @@ static new_ptr_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
     return nullptr;
 }
 
-static void* debug_new_alloc(size_t size,
-                             size_t alignment = _DEBUG_NEW_ALIGNMENT)
+/**
+ * Allocates memory for debug_new.  Memory allocations are aligned.
+ *
+ * @param size       size of memory to allocate
+ * @param alignment  alignment requested
+ * @return           pointer to allocated memory if successful;
+ *                   \c nullptr other wise
+ */
+void* debug_new_alloc(size_t size, size_t alignment = _DEBUG_NEW_ALIGNMENT)
 {
 #if NVWA_WIN32
     return _aligned_malloc(size, alignment);
@@ -619,7 +633,12 @@ static void* debug_new_alloc(size_t size,
 #endif
 }
 
-static void debug_new_free(void* ptr)
+/**
+ * Deallocates memory for debug_new.
+ *
+ * @param ptr  pointer to the memory to deallocate
+ */
+void debug_new_free(void* ptr)
 {
 #if NVWA_WIN32
     _aligned_free(ptr);
@@ -636,12 +655,12 @@ static void debug_new_free(void* ptr)
  * @param line      line number
  * @param is_array  flag indicating whether it is invoked by a
  *                  <code>new[]</code> call
- * @return          pointer to the user-requested memory area; null if
- *                  memory allocation is not successful
+ * @return          pointer to the user-requested memory area;
+ *                  \c nullptr if memory allocation is not successful
  */
-static void* alloc_mem(size_t size, const char* file, int line,
-                       is_array_t is_array,
-                       size_t alignment = _DEBUG_NEW_ALIGNMENT)
+void* alloc_mem(size_t size, const char* file, int line,
+                is_array_t is_array,
+                size_t alignment = _DEBUG_NEW_ALIGNMENT)
 {
 #if _DEBUG_NEW_TYPE == 1
     static_assert(_DEBUG_NEW_ALIGNMENT >= sizeof(size_t) * 2,
@@ -653,7 +672,7 @@ static void* alloc_mem(size_t size, const char* file, int line,
     assert(line >= 0);
     assert(alignment >= _DEBUG_NEW_ALIGNMENT);
 
-    unsigned aligned_list_item_size = ALIGN(sizeof(new_ptr_list_t), alignment);
+    uint32_t aligned_list_item_size = align(sizeof(new_ptr_list_t), alignment);
     size_t s = size + aligned_list_item_size + _DEBUG_NEW_TAILCHECK;
     auto ptr = static_cast<new_ptr_list_t*>(debug_new_alloc(s, alignment));
     if (ptr == nullptr) {
@@ -743,8 +762,8 @@ static void* alloc_mem(size_t size, const char* file, int line,
  * @param is_array  flag indicating whether it is invoked by a
  *                  <code>delete[]</code> call
  */
-static void free_pointer(void* usr_ptr, void* addr, is_array_t is_array,
-                         size_t alignment = _DEBUG_NEW_ALIGNMENT)
+void free_pointer(void* usr_ptr, void* addr, is_array_t is_array,
+                  size_t alignment = _DEBUG_NEW_ALIGNMENT)
 {
     assert(alignment >= _DEBUG_NEW_ALIGNMENT);
     if (usr_ptr == nullptr) {
@@ -811,6 +830,8 @@ static void free_pointer(void* usr_ptr, void* addr, is_array_t is_array,
 #endif
     debug_new_free(ptr);
 }
+
+} /* unnamed namespace */
 
 /**
  * Checks for memory leaks.
@@ -1136,14 +1157,13 @@ void operator delete[](void* ptr, size_t) noexcept
 #endif
 
 /**
- * Placement deallocation function.  For details, please check Section
- * 5.3.4 of the C++ 1998 or 2011 Standard.
+ * Placement deallocation function.
  *
  * @param ptr   pointer to the previously allocated memory
  * @param file  null-terminated string of the file name
  * @param line  line number
  *
- * @see   http://www.csci.csusb.edu/dick/c++std/cd2/expr.html#expr.new
+ * @see   https://eel.is/c++draft/expr.new
  * @see   http://wyw.dcweb.cn/leakage.htm
  */
 void operator delete(void* ptr, const char* file, int line) noexcept
@@ -1160,8 +1180,7 @@ void operator delete(void* ptr, const char* file, int line) noexcept
 }
 
 /**
- * Placement deallocation function.  For details, please check Section
- * 5.3.4 of the C++ 1998 or 2011 Standard.
+ * Placement deallocation function.
  *
  * @param ptr   pointer to the previously allocated memory
  * @param file  null-terminated string of the file name
@@ -1181,8 +1200,7 @@ void operator delete[](void* ptr, const char* file, int line) noexcept
 }
 
 /**
- * Placement deallocation function.  For details, please check Section
- * 5.3.4 of the C++ 1998 or 2011 Standard.
+ * Placement deallocation function.
  *
  * @param ptr  pointer to the previously allocated memory
  */
@@ -1192,8 +1210,7 @@ void operator delete(void* ptr, const std::nothrow_t&) noexcept
 }
 
 /**
- * Placement deallocation function.  For details, please check Section
- * 5.3.4 of the C++ 1998 or 2011 Standard.
+ * Placement deallocation function.
  *
  * @param ptr  pointer to the previously allocated memory
  */
@@ -1276,7 +1293,7 @@ void operator delete[](void* ptr, size_t, std::align_val_t align_val) noexcept
 }
 
 void operator delete(void* ptr, std::align_val_t align_val,
-                     const std::nothrow_t&)noexcept
+                     const std::nothrow_t&) noexcept
 {
     free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, alloc_is_not_array,
                  size_t(align_val));
