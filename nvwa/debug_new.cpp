@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2021-01-31
+ * @date  2021-02-01
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -129,9 +129,7 @@
  * platforms, because I once found that the exit leakage check could not
  * access the address of the file name on Linux (in my case, a core dump
  * occurred when check_leaks tried to access the file name in a shared
- * library after a \c SIGINT).  This value makes the size of
- * new_ptr_list_t \c 64 on non-Windows 32-bit platforms (w/o stack
- * backtrace).
+ * library after a \c SIGINT).
  */
 #ifndef _DEBUG_NEW_FILENAME_LEN
 #if NVWA_WINDOWS
@@ -222,8 +220,10 @@
 /**
  * Gets the aligned value of memory block size.
  */
-#define ALIGN(s) \
-        (((s) + _DEBUG_NEW_ALIGNMENT - 1) & ~(_DEBUG_NEW_ALIGNMENT - 1))
+constexpr inline size_t ALIGN(size_t s, size_t alignment = _DEBUG_NEW_ALIGNMENT)
+{
+    return (s + alignment - 1) & ~(alignment - 1);
+}
 
 NVWA_NAMESPACE_BEGIN
 
@@ -235,7 +235,11 @@ NVWA_NAMESPACE_BEGIN
  * nvwa#debug_new_recorder uses it to detect misaligned pointer returned
  * by <code>new non-POD-type[size]</code>.
  */
-const size_t PLATFORM_MEM_ALIGNMENT = sizeof(size_t) * 2;
+#ifdef __STDCPP_DEFAULT_NEW_ALIGNMENT__
+constexpr size_t PLATFORM_MEM_ALIGNMENT = __STDCPP_DEFAULT_NEW_ALIGNMENT__;
+#else
+constexpr size_t PLATFORM_MEM_ALIGNMENT = sizeof(size_t) * 2;
+#endif
 
 /**
  * Structure to store the position information where \c new occurs.
