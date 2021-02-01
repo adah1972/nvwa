@@ -78,10 +78,19 @@
  * @def _DEBUG_NEW_ALIGNMENT
  *
  * The alignment requirement of allocated memory blocks.  It must be a
- * power of two.
+ * power of two.  The value <code>sizeof(size_t) * 2</code> is a
+ * reasonable guess, and agrees with \c __STDCPP_DEFAULT_NEW_ALIGNMENT__
+ * on most platforms I have tested.  It may be smaller than the real
+ * alignment, but must be bigger than \c sizeof(size_t) so that
+ * nvwa#debug_new_recorder can detect misaligned pointer returned by
+ * <code>new non-POD-type[size]</code>.
  */
 #ifndef _DEBUG_NEW_ALIGNMENT
-#define _DEBUG_NEW_ALIGNMENT 16
+#ifdef __STDCPP_DEFAULT_NEW_ALIGNMENT__
+#define _DEBUG_NEW_ALIGNMENT __STDCPP_DEFAULT_NEW_ALIGNMENT__
+#else
+#define _DEBUG_NEW_ALIGNMENT (sizeof(size_t) * 2)
+#endif
 #endif
 
 /**
@@ -226,20 +235,6 @@ constexpr inline size_t ALIGN(size_t s, size_t alignment = _DEBUG_NEW_ALIGNMENT)
 }
 
 NVWA_NAMESPACE_BEGIN
-
-/**
- * The platform memory alignment.  The current value works well in
- * platforms I have used, including various 32- and 64-bit flavours of
- * Windows, Linux, and macOS.  It may be smaller than the real alignment,
- * but must be bigger than \c sizeof(size_t) for it to work.
- * nvwa#debug_new_recorder uses it to detect misaligned pointer returned
- * by <code>new non-POD-type[size]</code>.
- */
-#ifdef __STDCPP_DEFAULT_NEW_ALIGNMENT__
-constexpr size_t PLATFORM_MEM_ALIGNMENT = __STDCPP_DEFAULT_NEW_ALIGNMENT__;
-#else
-constexpr size_t PLATFORM_MEM_ALIGNMENT = sizeof(size_t) * 2;
-#endif
 
 /**
  * Structure to store the position information where \c new occurs.
@@ -569,11 +564,11 @@ static bool check_tail(new_ptr_list_t* ptr)
 static void* adjust_ptr_for_array_alloc(void* usr_ptr)
 {
     auto offset = static_cast<char*>(usr_ptr) - static_cast<char*>(nullptr);
-    if (offset % PLATFORM_MEM_ALIGNMENT == 0) {
+    if (offset % _DEBUG_NEW_ALIGNMENT == 0) {
         return usr_ptr;
     }
     offset -= sizeof(size_t);
-    if (offset % PLATFORM_MEM_ALIGNMENT == 0) {
+    if (offset % _DEBUG_NEW_ALIGNMENT == 0) {
         return static_cast<char*>(usr_ptr) - sizeof(size_t);
     }
     return nullptr;
@@ -593,11 +588,8 @@ static void* debug_new_alloc(size_t size,
         return nullptr;
     }
 #else
-    void* result = malloc(size);
-    assert((static_cast<char*>(usr_ptr) - static_cast<char*>(nullptr)) %
-               PLATFORM_MEM_ALIGNMENT ==
-           0);
-    return result;
+    // No alignment guarantees on non-Windows, non-Unix platforms
+    return malloc(size);
 #endif
 }
 
@@ -626,8 +618,8 @@ static void* alloc_mem(size_t size, const char* file, int line,
 {
     assert(line >= 0);
 #if _DEBUG_NEW_TYPE == 1
-    static_assert(_DEBUG_NEW_ALIGNMENT >= PLATFORM_MEM_ALIGNMENT,
-                  "Alignment too small");
+    static_assert(_DEBUG_NEW_ALIGNMENT >= sizeof(size_t) * 2,
+                  "Alignment is too small");
 #endif
     static_assert((_DEBUG_NEW_ALIGNMENT & (_DEBUG_NEW_ALIGNMENT - 1)) == 0,
                   "Alignment must be power of two");
