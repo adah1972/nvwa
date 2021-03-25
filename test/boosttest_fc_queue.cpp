@@ -28,7 +28,7 @@ void check_type()
     using test_type = nvwa::fc_queue<T>;
 
     BOOST_TEST_MESSAGE("Checking type "
-                       << boost::core::demangle(typeid(T).name()));
+                       << boost::core::demangle(typeid(test_type).name()));
     BOOST_TEST_MESSAGE("is_nothrow_constructible is "
                 << std::is_nothrow_constructible<test_type>::value);
     BOOST_TEST_MESSAGE("is_nothrow_default_constructible is "
