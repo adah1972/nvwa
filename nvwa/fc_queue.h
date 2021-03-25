@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2009-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2009-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2019-08-22
+ * @date  2021-03-25
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -458,19 +458,7 @@ public:
         return _M_alloc;
     }
 
-protected:
-#if NVWA_FC_QUEUE_USE_ATOMIC
-    atomic_pointer  _M_head;
-    atomic_pointer  _M_tail;
-#else
-    pointer         _M_head;
-    pointer         _M_tail;
-#endif
-    pointer         _M_begin;
-    pointer         _M_end;
-    allocator_type  _M_alloc;
-
-protected:
+private:
     pointer increment(pointer ptr) const noexcept
     {
         ++ptr;
@@ -520,14 +508,23 @@ protected:
                   std::memory_order_relaxed);
         rhs.store(temp, std::memory_order_relaxed);
     }
-
-private:
     static void _M_destroy(void*, std::true_type)
     {}
     static void _M_destroy(void* ptr, std::false_type)
     {
         ((_Tp*)ptr)->~_Tp();
     }
+
+#if NVWA_FC_QUEUE_USE_ATOMIC
+    atomic_pointer  _M_head;
+    atomic_pointer  _M_tail;
+#else
+    pointer         _M_head;
+    pointer         _M_tail;
+#endif
+    pointer         _M_begin;
+    pointer         _M_end;
+    allocator_type  _M_alloc;
 };
 
 template <class _Tp, class _Alloc>
