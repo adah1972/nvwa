@@ -65,7 +65,6 @@ public:
         iterator() = default;
         explicit iterator(basic_mmap_line_view* reader)
             : _M_reader(reader)
-            , _M_offset(0)
         {
             ++*this;
         }
