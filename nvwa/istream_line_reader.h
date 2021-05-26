@@ -32,22 +32,18 @@
  * Header file for istream_line_reader, an easy-to-use line-based
  * istream reader.
  *
- * This class allows using istreams in a Pythonic way (if your compiler
- * supports C++11 or later), e.g.:
+ * This class allows using istreams in a Pythonic way, e.g.:
  * @code
  * for (auto& line : nvwa::istream_line_reader(std::cin)) {
  *     // Process line
  * }
  * @endcode
  *
- * This code can be used without C++11, but using it would be less
- * convenient then.
- *
  * It was first published in a <a href="https://yongweiwu.wordpress.com/2016/08/16/python-yield-and-cplusplus-coroutines/">blog</a>,
  * and has since been modified to satisfy the \c InputIterator concept,
  * along with other minor changes.
  *
- * @date  2021-04-05
+ * @date  2021-05-26
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
@@ -60,7 +56,6 @@
 #include <stdexcept>            // std::runtime_error
 #include <string>               // std::string
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // _NOEXCEPT/_NULLPTR
 
 NVWA_NAMESPACE_BEGIN
 
@@ -80,28 +75,28 @@ public:
         typedef const value_type&       reference;
         typedef std::input_iterator_tag iterator_category;
 
-        iterator() _NOEXCEPT : _M_stream(_NULLPTR) {}
+        iterator() = default;
         explicit iterator(std::istream& is) : _M_stream(&is)
         {
             ++*this;
         }
 
-        reference operator*() const _NOEXCEPT
+        reference operator*() const noexcept
         {
-            assert(_M_stream != _NULLPTR);
+            assert(_M_stream != nullptr);
             return _M_line;
         }
-        pointer operator->() const _NOEXCEPT
+        pointer operator->() const noexcept
         {
-            assert(_M_stream != _NULLPTR);
+            assert(_M_stream != nullptr);
             return &_M_line;
         }
         iterator& operator++()
         {
-            assert(_M_stream != _NULLPTR);
+            assert(_M_stream != nullptr);
             getline(*_M_stream, _M_line);
             if (!*_M_stream) {
-                _M_stream = _NULLPTR;
+                _M_stream = nullptr;
             }
             return *this;
         }
@@ -112,7 +107,7 @@ public:
             return temp;
         }
 
-        bool operator==(const iterator& rhs) const _NOEXCEPT
+        bool operator==(const iterator& rhs) const noexcept
         {
             // This implementation basically says, any iterators
             // pointing to the same stream are equal.  This behaviour
@@ -127,21 +122,18 @@ public:
             // file_line_reader or mmap_line_reader.
             return _M_stream == rhs._M_stream;
         }
-        bool operator!=(const iterator& rhs) const _NOEXCEPT
+        bool operator!=(const iterator& rhs) const noexcept
         {
             return !operator==(rhs);
         }
 
     private:
-        std::istream* _M_stream;
+        std::istream* _M_stream{};
         std::string   _M_line;
     };
 
-    istream_line_reader() _NOEXCEPT
-        : _M_stream(_NULLPTR)
-    {
-    }
-    explicit istream_line_reader(std::istream& is) _NOEXCEPT
+    istream_line_reader() = default;
+    explicit istream_line_reader(std::istream& is) noexcept
         : _M_stream(&is)
     {
     }
@@ -155,13 +147,13 @@ public:
         }
         return iterator(*_M_stream);
     }
-    iterator end() const _NOEXCEPT
+    iterator end() const noexcept
     {
         return iterator();
     }
 
 private:
-    std::istream* _M_stream;
+    std::istream* _M_stream{};
 };
 
 NVWA_NAMESPACE_END
