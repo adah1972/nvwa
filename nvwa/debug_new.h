@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @date  2021-02-01
+ * @date  2021-08-01
  */
 
 #ifndef NVWA_DEBUG_NEW_H
@@ -138,6 +138,8 @@ typedef bool (*leak_whitelist_callback_t)(char const* file, int line,
 /* Prototypes */
 int check_leaks();
 int check_mem_corruption();
+size_t get_current_mem_alloc();
+size_t get_total_mem_alloc_cnt();
 
 /* Control variables */
 extern bool new_autocheck_flag; // default to true: call check_leaks() on exit

@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2021-02-01
+ * @date  2021-08-01
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -358,9 +358,14 @@ fast_mutex new_ptr_lock;
 fast_mutex new_output_lock;
 
 /**
- * Total memory allocated in bytes.
+ * Allocated memory in bytes.
  */
-size_t total_mem_alloc = 0;
+size_t current_mem_alloc = 0;
+
+/**
+ * Accumulated count of total memory allocations.
+ */
+size_t total_mem_alloc_cnt_accum = 0;
 
 #if _DEBUG_NEW_USE_ADDR2LINE
 /**
@@ -749,7 +754,8 @@ void* alloc_mem(size_t size, const char* file, int line,
         }
         fprintf(new_output_fp, ")\n");
     }
-    total_mem_alloc += size;
+    current_mem_alloc += size;
+    total_mem_alloc_cnt_accum++;
     return usr_ptr;
 }
 
@@ -813,7 +819,7 @@ void free_pointer(void* usr_ptr, void* addr, is_array_t is_array,
 #endif
     {
         fast_mutex_autolock lock(new_ptr_lock);
-        total_mem_alloc -= ptr->size;
+        current_mem_alloc -= ptr->size;
         ptr->magic = 0;
         ptr->prev->next = ptr->next;
         ptr->next->prev = ptr->prev;
@@ -822,7 +828,7 @@ void free_pointer(void* usr_ptr, void* addr, is_array_t is_array,
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "delete%s: freed %p (size %zu, %zu bytes still allocated)\n",
-                is_array ? "[]" : "", usr_ptr, ptr->size, total_mem_alloc);
+                is_array ? "[]" : "", usr_ptr, ptr->size, current_mem_alloc);
     }
 #if _DEBUG_NEW_REMEMBER_STACK_TRACE
     free(ptr->stacktrace);
@@ -957,6 +963,26 @@ int check_mem_corruption()
     fprintf(new_output_fp, "*** Checking for memory corruption: %d FOUND\n",
             corrupt_cnt);
     return corrupt_cnt;
+}
+
+/**
+ * Gets the current allocated memory in bytes.
+ *
+ * @return  bytes of currently allocated memory
+ */
+size_t get_current_mem_alloc()
+{
+    return current_mem_alloc;
+}
+
+/**
+ * Gets the total memory allocation count.
+ *
+ * @return  count of calls to the allocation function
+ */
+size_t get_total_mem_alloc_cnt()
+{
+    return total_mem_alloc_cnt_accum;
 }
 
 /**
