@@ -1,11 +1,14 @@
 #include "nvwa/functional.h"
+#include <algorithm>
 #include <cassert>
 #include <functional>
-#include <iostream>
 #include <iterator>
 #include <list>
 #include <memory>
 #include <sstream>
+#include <string>
+#include <tuple>
+#include <type_traits>
 #include <utility>
 #include <vector>
 #include <boost/test/unit_test.hpp>

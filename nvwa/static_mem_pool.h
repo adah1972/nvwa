@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for the `static' memory pool.
  *
- * @date  2019-10-10
+ * @date  2021-08-01
  */
 
 #ifndef NVWA_STATIC_MEM_POOL_H
@@ -39,7 +39,6 @@
 
 #include <new>                  // std::bad_alloc
 #include <stdexcept>            // std::runtime_error
-#include <string>               // std::string
 #include <vector>               // std::vector
 #include <assert.h>             // assert
 #include <stddef.h>             // size_t

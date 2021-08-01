@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2021-01-23
+ * @date  2021-08-01
  */
 
 #ifndef NVWA_BOOL_ARRAY_H
@@ -40,9 +40,7 @@
 #include <assert.h>             // assert
 #include <stdlib.h>             // exit/free
 #include <iosfwd>               // std::ostream fwd declaration
-#include <new>                  // std::bad_alloc
 #include <stdexcept>            // std::out_of_range
-#include <string>               // for exception constructors
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
 NVWA_NAMESPACE_BEGIN

@@ -1,7 +1,7 @@
 #include "nvwa/fc_queue.h"
+#include <atomic>
 #include <chrono>
 #include <functional>
-#include <iostream>
 #include <thread>
 #include <type_traits>
 #include <typeinfo>
@@ -18,7 +18,7 @@ public:
     ~Obj() noexcept(false) {}
 };
 
-void swap(Obj& lhs, Obj& rhs) _NOEXCEPT;
+void swap(Obj& lhs, Obj& rhs) noexcept;
 
 namespace {
 

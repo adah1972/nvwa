@@ -1,7 +1,7 @@
 #include "nvwa/tree.h"
 #include <ostream>
 #include <sstream>
-#include <string>
+#include <utility>
 #include <boost/test/unit_test.hpp>
 
 using namespace boost::unit_test_framework;

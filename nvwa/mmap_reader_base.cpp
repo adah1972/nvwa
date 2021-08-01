@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Code for mmap_reader_base, common base for memory-mapped file readers.
  * It is implemented with POSIX and Win32 APIs.
  *
- * @date  2019-08-22
+ * @date  2021-08-01
  */
 
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
@@ -46,7 +46,6 @@
 #if NVWA_UNIX
 #include <errno.h>              // errno
 #include <fcntl.h>              // open
-#include <string.h>             // strerror
 #include <sys/mman.h>           // mmap/munmap
 #include <sys/stat.h>           // fstat
 #include <unistd.h>             // close

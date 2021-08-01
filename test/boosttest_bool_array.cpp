@@ -1,7 +1,8 @@
 #include "nvwa/bool_array.h"
 #include <iostream>
+#include <sstream>
+#include <stdexcept>
 #include <type_traits>
-#include <utility>
 #include <boost/test/unit_test.hpp>
 
 using namespace boost::unit_test_framework;

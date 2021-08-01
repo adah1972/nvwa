@@ -1,6 +1,8 @@
 #include "nvwa/split.h"
+#include <stddef.h>
 #include <string>
 #include <string_view>
+#include <vector>
 #include <boost/test/unit_test.hpp>
 
 constexpr std::string_view str{

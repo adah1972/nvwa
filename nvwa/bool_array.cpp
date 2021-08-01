@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2020 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,16 +32,16 @@
  * Code for class bool_array (packed boolean array).  The current code
  * requires a C++14-compliant compiler.
  *
- * @date  2020-12-15
+ * @date  2021-08-01
  */
 
 #include "bool_array.h"         // bool_array
 #include <array>                // std::array
 #include <limits.h>             // UINT_MAX, ULONG_MAX
 #include <string.h>             // memset/memcpy
-#include <algorithm>            // std::swap
+#include <new>                  // std::bad_alloc
 #include <ostream>              // std::ostream
-#include <utility>              // std::make_integer_sequence
+#include <utility>              // std::index_sequence/swap
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "static_assert.h"      // STATIC_ASSERT
 

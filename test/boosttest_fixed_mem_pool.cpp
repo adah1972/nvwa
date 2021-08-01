@@ -1,6 +1,5 @@
 #include "nvwa/fixed_mem_pool.h"
-#include <iostream>
-#include <utility>
+#include <new>
 #include <boost/test/unit_test.hpp>
 
 using namespace boost::unit_test_framework;
