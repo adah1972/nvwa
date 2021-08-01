@@ -41,7 +41,8 @@ CXXFLAGS = -std=c++1z $(CFLAGS)
 CPPFLAGS = -D_DEBUG -DBOOST_TEST_DYN_LINK $(INCLUDE)
 VPATH    = ../nvwa
 
-CXXFILES_BOOSTTEST = $(wildcard boosttest_*.cpp) \
+CXXFILES_BOOSTTEST = boosttest_MAIN.cpp \
+                     $(wildcard *_test.cpp) \
                      bool_array.cpp \
                      file_line_reader.cpp \
                      mmap_reader_base.cpp \
