@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * A generic tree class template and the traversal utilities.  Using
  * this file requires a C++11-compliant compiler.
  *
- * @date  2019-10-19
+ * @date  2021-08-01
  */
 
 #ifndef NVWA_TREE_H
@@ -238,7 +238,7 @@ public:
         typedef _Tree&                    reference;
         typedef std::forward_iterator_tag iterator_category;
 
-        iterator() {}
+        iterator() = default;
         explicit iterator(pointer root)
             : _M_this_level({root})
         {

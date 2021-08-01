@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2019-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -33,7 +33,7 @@
  * InputRange concept.  A compiler that supports C++17 or later is
  * required.
  *
- * @date  2019-10-19
+ * @date  2021-08-01
  */
 
 #ifndef NVWA_NUMBER_RANGE_H
@@ -65,7 +65,7 @@ public:
         typedef value_type&             reference;
         typedef std::input_iterator_tag iterator_category;
 
-        iterator() : _M_curr(0), _M_step(0) {}
+        iterator() = default;
         iterator(_Tp val, _Tp step) : _M_curr(val), _M_step(step) {}
         iterator& operator++()
         {
@@ -90,13 +90,13 @@ public:
         bool operator!=(const sentinel& rhs) const;
 
     private:
-        _Tp _M_curr;
-        _Tp _M_step;
+        _Tp _M_curr{};
+        _Tp _M_step{};
     };
 
     class sentinel {
     public:
-        sentinel() : _M_end(0) {}
+        sentinel() = default;
         explicit sentinel(_Tp end) : _M_end(end) {}
 
         friend class iterator;
@@ -106,10 +106,10 @@ public:
         bool operator!=(const sentinel& rhs) const;
 
     private:
-        _Tp _M_end;
+        _Tp _M_end{};
     };
 
-    number_range() : _M_begin(0), _M_end(0), _M_step(0) {}
+    number_range() = default;
     number_range(_Tp begin, _Tp end, _Tp step = 1)
         : _M_begin(begin)
         , _M_end(end)
@@ -126,9 +126,9 @@ public:
     }
 
 private:
-    _Tp _M_begin;
-    _Tp _M_end;
-    _Tp _M_step;
+    _Tp _M_begin{};
+    _Tp _M_end{};
+    _Tp _M_step{};
 };
 
 template <typename _Tp>
