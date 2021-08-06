@@ -32,7 +32,7 @@
  * Code for mmap_reader_base, common base for memory-mapped file readers.
  * It is implemented with POSIX and Win32 APIs.
  *
- * @date  2021-08-01
+ * @date  2021-08-06
  */
 
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
@@ -139,8 +139,7 @@ mmap_reader_base::mmap_reader_base(const wchar_t* path)
  * @param delimiter  the delimiter between text `lines' (default to LF)
  * @param strip      enumerator about whether to strip the delimiter
  */
-mmap_reader_base::mmap_reader_base(int fd)
-    : _M_fd(fd)
+mmap_reader_base::mmap_reader_base(int fd) : _M_fd(fd)
 {
     initialize();
 }

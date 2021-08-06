@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2020 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Header file for mmap_byte_reader, an easy-to-use byte-based file reader.
  * It is implemented with memory-mapped file APIs.
  *
- * @date  2020-11-27
+ * @date  2021-08-06
  */
 
 #ifndef NVWA_MMAP_BYTE_READER_H
@@ -62,9 +62,8 @@ public:
         typedef std::random_access_iterator_tag iterator_category;
 
         explicit iterator(const basic_mmap_byte_reader* reader,
-                          size_t offset = 0) _NOEXCEPT
-            : _M_reader(reader)
-            , _M_offset(offset)
+                          size_t offset = 0) _NOEXCEPT : _M_reader(reader),
+                                                         _M_offset(offset)
         {
         }
 
@@ -172,14 +171,9 @@ public:
     }
 #endif
 #if NVWA_UNIX
-    explicit basic_mmap_byte_reader(int fd)
-        : mmap_reader_base(fd)
-    {
-    }
+    explicit basic_mmap_byte_reader(int fd) : mmap_reader_base(fd) {}
 #endif
-    ~basic_mmap_byte_reader()
-    {
-    }
+    ~basic_mmap_byte_reader() {}
 
     iterator begin() const _NOEXCEPT { return iterator(this); }
     iterator end() const _NOEXCEPT { return iterator(this, _M_size); }

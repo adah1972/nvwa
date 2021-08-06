@@ -33,7 +33,7 @@
  * InputRange concept.  A compiler that supports C++17 or later is
  * required.
  *
- * @date  2021-08-01
+ * @date  2021-08-06
  */
 
 #ifndef NVWA_NUMBER_RANGE_H
@@ -111,9 +111,9 @@ public:
 
     number_range() = default;
     number_range(_Tp begin, _Tp end, _Tp step = 1)
-        : _M_begin(begin)
-        , _M_end(end)
-        , _M_step(step) {}
+        : _M_begin(begin), _M_end(end), _M_step(step)
+    {
+    }
 
     iterator begin() const
     {

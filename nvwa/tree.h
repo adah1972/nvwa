@@ -32,7 +32,7 @@
  * A generic tree class template and the traversal utilities.  Using
  * this file requires a C++11-compliant compiler.
  *
- * @date  2021-08-01
+ * @date  2021-08-06
  */
 
 #ifndef NVWA_TREE_H
@@ -93,8 +93,8 @@ public:
     tree() : _M_value(_Tp()) {}
     template <typename _Up>
     explicit tree(_Up&& value, children_type children = {})
-        : _M_value(std::forward<_Up>(value))
-        , _M_children(std::move(children))
+        : _M_value(std::forward<_Up>(value)),
+          _M_children(std::move(children))
     {
     }
     _Tp& value() &
@@ -239,8 +239,7 @@ public:
         typedef std::forward_iterator_tag iterator_category;
 
         iterator() = default;
-        explicit iterator(pointer root)
-            : _M_this_level({root})
+        explicit iterator(pointer root) : _M_this_level({root})
         {
             _M_current = _M_this_level.begin();
         }
@@ -294,10 +293,7 @@ public:
         std::vector<pointer>                    _M_next_level;
     };
 
-    explicit breadth_first_iteration(_Tree& root)
-        : _M_root(&root)
-    {
-    }
+    explicit breadth_first_iteration(_Tree& root) : _M_root(&root) {}
     iterator begin()
     {
         return iterator{_M_root};
@@ -393,10 +389,7 @@ public:
             _M_stack;
     };
 
-    explicit depth_first_iteration(_Tree& root)
-        : _M_root(&root)
-    {
-    }
+    explicit depth_first_iteration(_Tree& root) : _M_root(&root) {}
     iterator begin()
     {
         return iterator{_M_root};
@@ -525,10 +518,7 @@ public:
             _M_stack;
     };
 
-    explicit in_order_iteration(_Tree& root)
-        : _M_root(&root)
-    {
-    }
+    explicit in_order_iteration(_Tree& root) : _M_root(&root) {}
     iterator begin()
     {
         return iterator{_M_root};

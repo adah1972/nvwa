@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2020 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2020-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -39,7 +39,7 @@
  * }
  * @endcode
  *
- * @date  2020-01-20
+ * @date  2021-08-06
  */
 
 #ifndef NVWA_SPLIT_H
@@ -84,15 +84,15 @@ public:
         typedef std::forward_iterator_tag         iterator_category;
 
         constexpr iterator() noexcept
-            : _M_src(nullptr)
-            , _M_pos(string_type::npos)
-            , _M_delimiter(delimiter_type())
+            : _M_src(nullptr),
+              _M_pos(string_type::npos),
+              _M_delimiter(delimiter_type())
         {
         }
         constexpr iterator(const string_type& src, delimiter_type delimiter)
-            : _M_src(&src)
-            , _M_pos(0)
-            , _M_delimiter(delimiter)
+            : _M_src(&src),
+              _M_pos(0),
+              _M_delimiter(delimiter)
         {
             ++*this;
         }
@@ -166,8 +166,7 @@ public:
      */
     constexpr explicit basic_split_view(const string_type& src,
                                         delimiter_type delimiter) noexcept
-        : _M_src(src)
-        , _M_delimiter(delimiter)
+        : _M_src(src), _M_delimiter(delimiter)
     {
     }
 

@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @date  2021-08-01
+ * @date  2021-08-06
  */
 
 #ifndef NVWA_DEBUG_NEW_H
@@ -192,7 +192,9 @@ public:
      * be used in debug_new_recorder::operator->*.
      */
     debug_new_recorder(const char* file, int line)
-        : _M_file(file), _M_line(line) {}
+        : _M_file(file), _M_line(line)
+    {
+    }
     /**
      * Operator to write the context information to memory.
      * <code>operator->*</code> is chosen because it has the right
@@ -200,7 +202,10 @@ public:
      * tell the special usage more quickly.
      */
     template <class _Tp> _Tp* operator->*(_Tp* ptr)
-    { _M_process(ptr); return ptr; }
+    {
+        _M_process(ptr);
+        return ptr;
+    }
 
     debug_new_recorder(const debug_new_recorder&) = delete;
     debug_new_recorder& operator=(const debug_new_recorder&) = delete;

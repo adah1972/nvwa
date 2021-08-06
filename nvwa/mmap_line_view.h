@@ -33,7 +33,7 @@
  * satisfies the View concept.  It is similar to mmap_line_reader_sv
  * otherwise, and using it requires a C++17-compliant compiler.
  *
- * @date  2021-05-26
+ * @date  2021-08-06
  */
 
 #ifndef NVWA_MMAP_LINE_VIEW_H
@@ -63,8 +63,7 @@ public:
         typedef std::forward_iterator_tag iterator_category;
 
         iterator() = default;
-        explicit iterator(basic_mmap_line_view* reader)
-            : _M_reader(reader)
+        explicit iterator(basic_mmap_line_view* reader) : _M_reader(reader)
         {
             ++*this;
         }
@@ -118,27 +117,27 @@ public:
     basic_mmap_line_view() = default;
     explicit basic_mmap_line_view(const char* path, char delimiter = '\n',
                                   strip_type strip = strip_delimiter)
-        : _M_reader_base{std::make_shared<mmap_reader_base>(path)}
-        , _M_delimiter{delimiter}
-        , _M_strip_delimiter{strip == strip_delimiter}
+        : _M_reader_base{std::make_shared<mmap_reader_base>(path)},
+          _M_delimiter{delimiter},
+          _M_strip_delimiter{strip == strip_delimiter}
     {
     }
 #if NVWA_WINDOWS
     explicit basic_mmap_line_view(const wchar_t* path,
                                   char           delimiter = '\n',
                                   strip_type     strip = strip_delimiter)
-        : _M_reader_base{std::make_shared<mmap_reader_base>(path)}
-        , _M_delimiter{delimiter}
-        , _M_strip_delimiter{strip == strip_delimiter}
+        : _M_reader_base{std::make_shared<mmap_reader_base>(path)},
+          _M_delimiter{delimiter},
+          _M_strip_delimiter{strip == strip_delimiter}
     {
     }
 #endif
 #if NVWA_UNIX
     explicit basic_mmap_line_view(int fd, char delimiter = '\n',
                                   strip_type strip = strip_delimiter)
-        : _M_reader_base{std::make_shared<mmap_reader_base>(fd)}
-        , _M_delimiter{delimiter}
-        , _M_strip_delimiter{strip == strip_delimiter}
+        : _M_reader_base{std::make_shared<mmap_reader_base>(fd)},
+          _M_delimiter{delimiter},
+          _M_strip_delimiter{strip == strip_delimiter}
     {
     }
 #endif

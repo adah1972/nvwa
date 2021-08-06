@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2021-03-25
+ * @date  2021-08-06
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -93,10 +93,10 @@ public:
      *                  - <code>size() == 0</code>
      */
     fc_queue() noexcept(noexcept(allocator_type()))
-        : _M_head(nullptr)
-        , _M_tail(nullptr)
-        , _M_begin(nullptr)
-        , _M_end(_M_begin + 1)
+        : _M_head(nullptr),
+          _M_tail(nullptr),
+          _M_begin(nullptr),
+          _M_end(_M_begin + 1)
     {
     }
 
@@ -115,7 +115,7 @@ public:
      *                  - <code>size() == 0</code>
      *                  - <code>get_allocator() == alloc</code>
      */
-    explicit fc_queue(size_type max_size,
+    explicit fc_queue(size_type             max_size,
                       const allocator_type& alloc = allocator_type())
         : _M_alloc(alloc)
     {
@@ -508,8 +508,7 @@ private:
                   std::memory_order_relaxed);
         rhs.store(temp, std::memory_order_relaxed);
     }
-    static void _M_destroy(void*, std::true_type)
-    {}
+    static void _M_destroy(void*, std::true_type) {}
     static void _M_destroy(void* ptr, std::false_type)
     {
         ((_Tp*)ptr)->~_Tp();
@@ -576,8 +575,8 @@ fc_queue<_Tp, _Alloc>::fc_queue(fc_queue&& rhs) noexcept(
  *             will also provide such guarantee.
  */
 template <class _Tp, class _Alloc>
-void swap(fc_queue<_Tp, _Alloc>& lhs, fc_queue<_Tp, _Alloc>& rhs)
-    noexcept(noexcept(lhs.swap(rhs)))
+void swap(fc_queue<_Tp, _Alloc>& lhs,
+          fc_queue<_Tp, _Alloc>& rhs) noexcept(noexcept(lhs.swap(rhs)))
 {
     lhs.swap(rhs);
 }

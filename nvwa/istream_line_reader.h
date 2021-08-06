@@ -43,7 +43,7 @@
  * and has since been modified to satisfy the \c InputIterator concept,
  * along with other minor changes.
  *
- * @date  2021-05-26
+ * @date  2021-08-06
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
@@ -133,8 +133,7 @@ public:
     };
 
     istream_line_reader() = default;
-    explicit istream_line_reader(std::istream& is) noexcept
-        : _M_stream(&is)
+    explicit istream_line_reader(std::istream& is) noexcept : _M_stream(&is)
     {
     }
     iterator begin()

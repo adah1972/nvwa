@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2016-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2016-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Code for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2019-10-18
+ * @date  2021-08-06
  */
 
 #include "file_line_reader.h"   // file_line_reader
@@ -55,7 +55,7 @@ const size_t BUFFER_SIZE = 256;
  * @param reader  pointer to the file_line_reader object
  */
 file_line_reader::iterator::iterator(file_line_reader* reader)
-    : _M_reader(reader) , _M_offset(0) , _M_size(0)
+    : _M_reader(reader), _M_offset(0), _M_size(0)
 {
     _M_line = new char[BUFFER_SIZE];
     _M_capacity = BUFFER_SIZE;
@@ -75,10 +75,10 @@ file_line_reader::iterator::~iterator()
  * @param rhs  the iterator to copy from
  */
 file_line_reader::iterator::iterator(const iterator& rhs)
-    : _M_reader(rhs._M_reader)
-    , _M_offset(rhs._M_offset)
-    , _M_size(rhs._M_size)
-    , _M_capacity(rhs._M_capacity)
+    : _M_reader(rhs._M_reader),
+      _M_offset(rhs._M_offset),
+      _M_size(rhs._M_size),
+      _M_capacity(rhs._M_capacity)
 {
     if (rhs._M_line) {
         _M_line = new char[rhs._M_capacity];
@@ -92,8 +92,8 @@ file_line_reader::iterator::iterator(const iterator& rhs)
  *
  * @param rhs  the iterator to copy from
  */
-file_line_reader::iterator& file_line_reader::iterator::
-operator=(const iterator& rhs)
+file_line_reader::iterator&
+file_line_reader::iterator::operator=(const iterator& rhs)
 {
     iterator temp(rhs);
     swap(temp);
@@ -109,11 +109,11 @@ operator=(const iterator& rhs)
  * @param rhs  the iterator to move from
  */
 file_line_reader::iterator::iterator(iterator&& rhs) _NOEXCEPT
-    : _M_reader(rhs._M_reader)
-    , _M_offset(rhs._M_offset)
-    , _M_line(rhs._M_line)
-    , _M_size(rhs._M_size)
-    , _M_capacity(rhs._M_capacity)
+    : _M_reader(rhs._M_reader),
+      _M_offset(rhs._M_offset),
+      _M_line(rhs._M_line),
+      _M_size(rhs._M_size),
+      _M_capacity(rhs._M_capacity)
 {
     rhs._M_reader = _NULLPTR;
     rhs._M_offset = 0;
@@ -128,8 +128,8 @@ file_line_reader::iterator::iterator(iterator&& rhs) _NOEXCEPT
  *
  * @param rhs  the iterator to move from
  */
-file_line_reader::iterator& file_line_reader::iterator::
-operator=(iterator&& rhs) _NOEXCEPT
+file_line_reader::iterator&
+file_line_reader::iterator::operator=(iterator&& rhs) _NOEXCEPT
 {
     iterator temp(std::move(rhs));
     swap(temp);
@@ -162,12 +162,12 @@ void file_line_reader::iterator::swap(
  */
 file_line_reader::file_line_reader(FILE* stream, char delimiter,
                                    strip_type strip)
-    : _M_stream(stream)
-    , _M_delimiter(delimiter)
-    , _M_strip_delimiter(strip == strip_delimiter)
-    , _M_offset(0)
-    , _M_read_pos(0)
-    , _M_size(0)
+    : _M_stream(stream),
+      _M_delimiter(delimiter),
+      _M_strip_delimiter(strip == strip_delimiter),
+      _M_offset(0),
+      _M_read_pos(0),
+      _M_size(0)
 {
     if (delimiter == '\n') {
         _M_buffer = _NULLPTR;

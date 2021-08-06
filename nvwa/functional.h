@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2021-05-27
+ * @date  2021-08-06
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -131,8 +131,7 @@ template <typename _Fn>
 class y_combinator_result {
 public:
     template <typename _Tp>
-    explicit y_combinator_result(_Tp&& f)
-        : _M_fn(std::forward<_Tp>(f))
+    explicit y_combinator_result(_Tp&& f) : _M_fn(std::forward<_Tp>(f))
     {
     }
 
@@ -244,7 +243,9 @@ void adl_swap(_Tp& lhs, _Tp& rhs) noexcept(noexcept(swap(lhs, rhs)));
 class bad_optional_access : public std::logic_error {
 public:
     bad_optional_access()
-        : std::logic_error("optional has no valid value now") {}
+        : std::logic_error("optional has no valid value now")
+    {
+    }
 };
 
 template <typename _Tp, bool = std::is_trivially_destructible<_Tp>::value>
@@ -257,14 +258,14 @@ public:
 
     constexpr optional_base() noexcept : _M_dummy() {}
     constexpr explicit optional_base(const _Tp& x)
-        : _M_value(x)
-        , _M_engaged(true)
-    {}
+        : _M_value(x), _M_engaged(true)
+    {
+    }
     constexpr explicit optional_base(_Tp&& x) noexcept(
         std::is_nothrow_move_constructible<_Tp>::value)
-        : _M_value(std::move(x))
-        , _M_engaged(true)
-    {}
+        : _M_value(std::move(x)), _M_engaged(true)
+    {
+    }
     constexpr optional_base(const optional_base& rhs)
         : _M_engaged(rhs._M_engaged)
     {
@@ -310,14 +311,14 @@ public:
 
     constexpr optional_base() noexcept : _M_dummy() {}
     constexpr explicit optional_base(const _Tp& x)
-        : _M_value(x)
-        , _M_engaged(true)
-    {}
+        : _M_value(x), _M_engaged(true)
+    {
+    }
     constexpr explicit optional_base(_Tp&& x) noexcept(
         std::is_nothrow_move_constructible<_Tp>::value)
-        : _M_value(std::move(x))
-        , _M_engaged(true)
-    {}
+        : _M_value(std::move(x)), _M_engaged(true)
+    {
+    }
     constexpr optional_base(const optional_base& rhs)
         : _M_engaged(rhs._M_engaged)
     {
@@ -370,12 +371,14 @@ public:
     constexpr optional(optional&& rhs) noexcept(
         std::is_nothrow_move_constructible<_Tp>::value)
         : optional_base<_Tp>(std::move(rhs))
-    {}
+    {
+    }
     constexpr optional(const _Tp& x) : optional_base<_Tp>(x) {}
     constexpr optional(_Tp&& x) noexcept(
         std::is_nothrow_move_constructible<_Tp>::value)
         : optional_base<_Tp>(std::move(x))
-    {}
+    {
+    }
     optional& operator=(const optional& rhs)
     {
         using std::swap;

@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Utility functors for containers of pointers (adapted from Scott
  * Meyers' <em>Effective STL</em>).
  *
- * @date  2019-08-22
+ * @date  2021-08-06
  */
 
 #ifndef NVWA_CONT_PTR_UTILS_H
@@ -115,7 +115,8 @@ template <typename _OutputStrm, typename _StringType = const char*>
 struct output_object {
     output_object(_OutputStrm& outs, const _StringType& sep)
         : _M_outs(outs), _M_sep(sep)
-    {}
+    {
+    }
 
     template <typename _Pointer>
     void operator()(const _Pointer& ptr) const

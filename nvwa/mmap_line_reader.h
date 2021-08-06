@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2016-2020 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2016-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Header file for mmap_line_reader and mmap_line_reader_sv, easy-to-use
  * line-based file readers.  It is implemented with memory-mapped file APIs.
  *
- * @date  2020-10-29
+ * @date  2021-08-06
  */
 
 #ifndef NVWA_MMAP_LINE_READER_H
@@ -67,8 +67,7 @@ public:
 
         iterator() : _M_reader(_NULLPTR), _M_offset(0) {}
         explicit iterator(basic_mmap_line_reader* reader)
-            : _M_reader(reader)
-            , _M_offset(0)
+            : _M_reader(reader), _M_offset(0)
         {
             ++*this;
         }
@@ -122,18 +121,18 @@ public:
     explicit basic_mmap_line_reader(const char* path,
                                     char        delimiter = '\n',
                                     strip_type  strip = strip_delimiter)
-        : mmap_reader_base(path)
-        , _M_delimiter(delimiter)
-        , _M_strip_delimiter(strip == strip_delimiter)
+        : mmap_reader_base(path),
+          _M_delimiter(delimiter),
+          _M_strip_delimiter(strip == strip_delimiter)
     {
     }
 #if NVWA_WINDOWS
     explicit basic_mmap_line_reader(const wchar_t* path,
                                     char           delimiter = '\n',
                                     strip_type     strip = strip_delimiter)
-        : mmap_reader_base(path)
-        , _M_delimiter(delimiter)
-        , _M_strip_delimiter(strip == strip_delimiter)
+        : mmap_reader_base(path),
+          _M_delimiter(delimiter),
+          _M_strip_delimiter(strip == strip_delimiter)
     {
     }
 #endif
@@ -141,15 +140,13 @@ public:
     explicit basic_mmap_line_reader(int        fd,
                                     char       delimiter = '\n',
                                     strip_type strip = strip_delimiter)
-        : mmap_reader_base(fd)
-        , _M_delimiter(delimiter)
-        , _M_strip_delimiter(strip == strip_delimiter)
+        : mmap_reader_base(fd),
+          _M_delimiter(delimiter),
+          _M_strip_delimiter(strip == strip_delimiter)
     {
     }
 #endif
-    ~basic_mmap_line_reader()
-    {
-    }
+    ~basic_mmap_line_reader() {}
 
     iterator begin() { return iterator(this); }
     iterator end() const { return iterator(); }

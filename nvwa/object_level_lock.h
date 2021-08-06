@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -34,7 +34,7 @@
  * href="http://www.awprofessional.com/articles/article.asp?p=25298">
  * "Multithreading and the C++ Type System"</a> for the ideas behind.
  *
- * @date  2019-08-22
+ * @date  2021-08-06
  */
 
 #ifndef NVWA_OBJECT_LEVEL_LOCK_H
@@ -67,7 +67,8 @@ NVWA_NAMESPACE_BEGIN
 #   ifndef NDEBUG
                 : _M_host(host)
 #   endif
-            {}
+            {
+            }
 #   ifndef NDEBUG
             // The purpose of this method is allow one to write code
             // like "assert(guard.get_locked_object() == this)" to

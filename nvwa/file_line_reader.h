@@ -31,7 +31,7 @@
  *
  * Header file for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2021-08-01
+ * @date  2021-08-06
  */
 
 #ifndef NVWA_FILE_LINE_READER_H
@@ -62,9 +62,11 @@ public:
         typedef value_type&             reference;
         typedef std::input_iterator_tag iterator_category;
 
-        iterator() _NOEXCEPT
-            : _M_reader(_NULLPTR), _M_offset(0)
-            , _M_line(_NULLPTR), _M_size(0), _M_capacity(0)
+        iterator() _NOEXCEPT : _M_reader(_NULLPTR),
+                               _M_offset(0),
+                               _M_line(_NULLPTR),
+                               _M_size(0),
+                               _M_capacity(0)
         {
         }
         explicit iterator(file_line_reader* reader);
