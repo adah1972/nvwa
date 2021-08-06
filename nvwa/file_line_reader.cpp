@@ -36,14 +36,8 @@
 
 #include "file_line_reader.h"   // file_line_reader
 #include <string.h>             // memcpy
-#include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // _NOEXCEPT/_NULLPTR
-
-#if NVWA_CXX11_MODE
 #include <utility>              // std::swap
-#else
-#include <algorithm>            // std::swap
-#endif
+#include "_nvwa.h"              // NVWA_NAMESPACE_*
 
 NVWA_NAMESPACE_BEGIN
 
@@ -55,7 +49,7 @@ const size_t BUFFER_SIZE = 256;
  * @param reader  pointer to the file_line_reader object
  */
 file_line_reader::iterator::iterator(file_line_reader* reader)
-    : _M_reader(reader), _M_offset(0), _M_size(0)
+    : _M_reader(reader)
 {
     _M_line = new char[BUFFER_SIZE];
     _M_capacity = BUFFER_SIZE;
@@ -108,16 +102,16 @@ file_line_reader::iterator::operator=(const iterator& rhs)
  *
  * @param rhs  the iterator to move from
  */
-file_line_reader::iterator::iterator(iterator&& rhs) _NOEXCEPT
+file_line_reader::iterator::iterator(iterator&& rhs) noexcept
     : _M_reader(rhs._M_reader),
       _M_offset(rhs._M_offset),
       _M_line(rhs._M_line),
       _M_size(rhs._M_size),
       _M_capacity(rhs._M_capacity)
 {
-    rhs._M_reader = _NULLPTR;
+    rhs._M_reader = nullptr;
     rhs._M_offset = 0;
-    rhs._M_line = _NULLPTR;
+    rhs._M_line = nullptr;
     rhs._M_size = 0;
     rhs._M_capacity = 0;
 }
@@ -129,7 +123,7 @@ file_line_reader::iterator::iterator(iterator&& rhs) _NOEXCEPT
  * @param rhs  the iterator to move from
  */
 file_line_reader::iterator&
-file_line_reader::iterator::operator=(iterator&& rhs) _NOEXCEPT
+file_line_reader::iterator::operator=(iterator&& rhs) noexcept
 {
     iterator temp(std::move(rhs));
     swap(temp);
@@ -144,7 +138,7 @@ file_line_reader::iterator::operator=(iterator&& rhs) _NOEXCEPT
  * @param rhs  the iterator to swap with
  */
 void file_line_reader::iterator::swap(
-    file_line_reader::iterator& rhs) _NOEXCEPT
+    file_line_reader::iterator& rhs) noexcept
 {
     std::swap(_M_reader, rhs._M_reader);
     std::swap(_M_offset, rhs._M_offset);
@@ -170,7 +164,7 @@ file_line_reader::file_line_reader(FILE* stream, char delimiter,
       _M_size(0)
 {
     if (delimiter == '\n') {
-        _M_buffer = _NULLPTR;
+        _M_buffer = nullptr;
     } else {
         _M_buffer = new char[BUFFER_SIZE];
     }

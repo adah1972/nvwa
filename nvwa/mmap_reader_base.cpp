@@ -41,7 +41,6 @@
 #include <string>               // std::string
 #include <system_error>         // std::system_error
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // _NULLPTR
 
 #if NVWA_UNIX
 #include <errno.h>              // errno
@@ -97,10 +96,10 @@ mmap_reader_base::mmap_reader_base(const char* path)
             path,
             GENERIC_READ,
             FILE_SHARE_READ,
-            _NULLPTR,
+            nullptr,
             OPEN_EXISTING,
             FILE_ATTRIBUTE_NORMAL,
-            _NULLPTR);
+            nullptr);
     if (_M_file_handle == INVALID_HANDLE_VALUE) {
         throw_system_error("CreateFile");
     }
@@ -120,10 +119,10 @@ mmap_reader_base::mmap_reader_base(const wchar_t* path)
             path,
             GENERIC_READ,
             FILE_SHARE_READ,
-            _NULLPTR,
+            nullptr,
             OPEN_EXISTING,
             FILE_ATTRIBUTE_NORMAL,
-            _NULLPTR);
+            nullptr);
     if (_M_file_handle == INVALID_HANDLE_VALUE) {
         throw_system_error("CreateFile");
     }
@@ -171,7 +170,7 @@ void mmap_reader_base::initialize()
     if (sizeof s.st_size > sizeof(size_t) && s.st_size > SIZE_MAX) {
         throw std::runtime_error("file size is too big");
     }
-    void* ptr = mmap(_NULLPTR, s.st_size, PROT_READ, MAP_SHARED, _M_fd, 0);
+    void* ptr = mmap(nullptr, s.st_size, PROT_READ, MAP_SHARED, _M_fd, 0);
     if (ptr == MAP_FAILED) {
         throw_system_error("mmap");
     }
@@ -193,12 +192,12 @@ void mmap_reader_base::initialize()
 #endif
     _M_map_handle = CreateFileMapping(
             _M_file_handle,
-            _NULLPTR,
+            nullptr,
             PAGE_READONLY,
             file_size.HighPart,
             file_size.LowPart,
-            _NULLPTR);
-    if (_M_map_handle == _NULLPTR) {
+            nullptr);
+    if (_M_map_handle == nullptr) {
         throw_system_error("CreateFileMapping");
     }
     _M_mmap_ptr = static_cast<char*>(MapViewOfFile(
@@ -207,7 +206,7 @@ void mmap_reader_base::initialize()
             0,
             0,
             _M_size));
-    if (_M_mmap_ptr == _NULLPTR) {
+    if (_M_mmap_ptr == nullptr) {
         throw_system_error("MapViewOfFile");
     }
 #endif

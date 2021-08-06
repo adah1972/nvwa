@@ -40,7 +40,6 @@
 
 #include <stddef.h>             // size_t
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // _DELETED/_NOEXCEPT
 
 NVWA_NAMESPACE_BEGIN
 
@@ -53,13 +52,15 @@ public:
 #if NVWA_UNIX
     explicit mmap_reader_base(int fd);
 #endif
+    mmap_reader_base(const mmap_reader_base&) = delete;
+    mmap_reader_base& operator=(const mmap_reader_base&) = delete;
     ~mmap_reader_base();
 
-    char* data() const _NOEXCEPT
+    char* data() const noexcept
     {
         return _M_mmap_ptr;
     }
-    size_t size() const _NOEXCEPT
+    size_t size() const noexcept
     {
         return _M_size;
     }
@@ -75,9 +76,6 @@ protected:
 #endif
 
 private:
-    mmap_reader_base(const mmap_reader_base&) _DELETED;
-    mmap_reader_base& operator=(const mmap_reader_base&) _DELETED;
-
     void initialize();
 };
 

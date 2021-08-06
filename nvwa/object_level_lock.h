@@ -42,7 +42,6 @@
 
 #include "fast_mutex.h"         // nvwa::fast_mutex/_NOTHREADS
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // _DELETED
 
 NVWA_NAMESPACE_BEGIN
 
@@ -60,10 +59,10 @@ NVWA_NAMESPACE_BEGIN
             const object_level_lock& _M_host;
 #   endif
 
-            lock(const lock&);
-            lock& operator=(const lock&);
         public:
             explicit lock(const object_level_lock& host)
+            lock(const lock&) = delete;
+            lock& operator=(const lock&) = delete;
 #   ifndef NDEBUG
                 : _M_host(host)
 #   endif
@@ -104,13 +103,13 @@ NVWA_NAMESPACE_BEGIN
         class lock {
             const object_level_lock& _M_host;
 
-            lock(const lock&) _DELETED;
-            lock& operator=(const lock&) _DELETED;
         public:
             explicit lock(const object_level_lock& host) : _M_host(host)
             {
                 _M_host._M_mtx.lock();
             }
+            lock(const lock&) = delete;
+            lock& operator=(const lock&) = delete;
             ~lock()
             {
                 _M_host._M_mtx.unlock();

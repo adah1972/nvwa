@@ -42,7 +42,6 @@
 #include <stdio.h>              // file streams
 #include <iterator>             // std::input_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // _NOEXCEPT/_NULLPTR
 
 NVWA_NAMESPACE_BEGIN
 
@@ -62,13 +61,7 @@ public:
         typedef value_type&             reference;
         typedef std::input_iterator_tag iterator_category;
 
-        iterator() _NOEXCEPT : _M_reader(_NULLPTR),
-                               _M_offset(0),
-                               _M_line(_NULLPTR),
-                               _M_size(0),
-                               _M_capacity(0)
-        {
-        }
+        iterator() = default;
         explicit iterator(file_line_reader* reader);
         ~iterator();
 
@@ -76,26 +69,26 @@ public:
         iterator& operator=(const iterator& rhs);
 
 #if HAVE_CXX11_RVALUE_REFERENCE
-        iterator(iterator&& rhs) _NOEXCEPT;
-        iterator& operator=(iterator&& rhs) _NOEXCEPT;
+        iterator(iterator&& rhs) noexcept;
+        iterator& operator=(iterator&& rhs) noexcept;
 #endif
 
-        void swap(iterator& rhs) _NOEXCEPT;
+        void swap(iterator& rhs) noexcept;
 
         reference operator*()
         {
-            assert(_M_reader != _NULLPTR);
+            assert(_M_reader != nullptr);
             return _M_line;
         }
         pointer operator->()
         {
-            assert(_M_reader != _NULLPTR);
+            assert(_M_reader != nullptr);
             return &_M_line;
         }
         iterator& operator++()
         {
             if (!_M_reader->read(_M_line, _M_size, _M_capacity)) {
-                _M_reader = _NULLPTR;
+                _M_reader = nullptr;
                 _M_offset = 0;
             } else {
                 _M_offset = _M_reader->_M_offset;
@@ -109,11 +102,11 @@ public:
             return temp;
         }
 
-        bool operator==(const iterator& rhs) const _NOEXCEPT
+        bool operator==(const iterator& rhs) const noexcept
         {
             return _M_reader == rhs._M_reader && _M_offset == rhs._M_offset;
         }
-        bool operator!=(const iterator& rhs) const _NOEXCEPT
+        bool operator!=(const iterator& rhs) const noexcept
         {
             return !operator==(rhs);
         }
@@ -121,11 +114,11 @@ public:
         size_t size() const { return _M_size; }
 
     private:
-        file_line_reader* _M_reader;
-        size_t            _M_offset;
-        char*             _M_line;
-        size_t            _M_size;
-        size_t            _M_capacity;
+        file_line_reader* _M_reader{};
+        size_t            _M_offset{};
+        char*             _M_line{};
+        size_t            _M_size{};
+        size_t            _M_capacity{};
     };
 
     /** Enumeration of whether the delimiter should be stripped. */
@@ -136,16 +129,21 @@ public:
 
     explicit file_line_reader(FILE* stream, char delimiter = '\n',
                               strip_type strip = strip_delimiter);
+    file_line_reader(const file_line_reader&) = delete;
+    file_line_reader& operator=(const file_line_reader&) = delete;
     ~file_line_reader();
 
-    iterator begin() { return iterator(this); }
-    iterator end() const _NOEXCEPT { return iterator(); }
+    iterator begin()
+    {
+        return iterator(this);
+    }
+    iterator end() const noexcept
+    {
+        return iterator();
+    }
     bool read(char*& output, size_t& size, size_t& capacity);
 
 private:
-    file_line_reader(const file_line_reader&) _DELETED;
-    file_line_reader& operator=(const file_line_reader&) _DELETED;
-
     FILE*  _M_stream;
     char   _M_delimiter;
     bool   _M_strip_delimiter;
@@ -156,7 +154,7 @@ private:
 };
 
 inline void swap(file_line_reader::iterator& lhs,
-                 file_line_reader::iterator& rhs) _NOEXCEPT
+                 file_line_reader::iterator& rhs) noexcept
 {
     lhs.swap(rhs);
 }

@@ -90,7 +90,7 @@ public:
     typedef typename children_type::iterator        iterator;
     typedef typename children_type::const_iterator  const_iterator;
 
-    tree() : _M_value(_Tp()) {}
+    tree() = default;
     template <typename _Up>
     explicit tree(_Up&& value, children_type children = {})
         : _M_value(std::forward<_Up>(value)),
@@ -186,7 +186,7 @@ public:
     }
 
 private:
-    _Tp           _M_value;
+    _Tp           _M_value{};
     children_type _M_children;
 };
 

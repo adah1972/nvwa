@@ -41,7 +41,6 @@
 #include <stddef.h>             // ptrdiff_t/size_t
 #include <iterator>             // std::random_access_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // _DELETED/_NOEXCEPT
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
 
 NVWA_NAMESPACE_BEGIN
@@ -62,93 +61,93 @@ public:
         typedef std::random_access_iterator_tag iterator_category;
 
         explicit iterator(const basic_mmap_byte_reader* reader,
-                          size_t offset = 0) _NOEXCEPT : _M_reader(reader),
-                                                         _M_offset(offset)
+                          size_t offset = 0) noexcept
+            : _M_reader(reader), _M_offset(offset)
         {
         }
 
-        reference operator*() const _NOEXCEPT
+        reference operator*() const noexcept
         {
             return _M_reader->get(_M_offset);
         }
-        pointer operator->() const _NOEXCEPT
+        pointer operator->() const noexcept
         {
             return &_M_reader->get(_M_offset);
         }
-        iterator& operator++() _NOEXCEPT
+        iterator& operator++() noexcept
         {
             ++_M_offset;
             return *this;
         }
-        iterator operator++(int) _NOEXCEPT
+        iterator operator++(int) noexcept
         {
             iterator temp(*this);
             ++*this;
             return temp;
         }
-        iterator& operator--() _NOEXCEPT
+        iterator& operator--() noexcept
         {
             --_M_offset;
             return *this;
         }
-        iterator operator--(int) _NOEXCEPT
+        iterator operator--(int) noexcept
         {
             iterator temp(*this);
             --*this;
             return temp;
         }
-        iterator& operator+=(difference_type i) _NOEXCEPT
+        iterator& operator+=(difference_type i) noexcept
         {
             _M_offset += i;
             return *this;
         }
-        iterator& operator-=(difference_type i) _NOEXCEPT
+        iterator& operator-=(difference_type i) noexcept
         {
             _M_offset -= i;
             return *this;
         }
-        iterator operator+(difference_type i) const _NOEXCEPT
+        iterator operator+(difference_type i) const noexcept
         {
             return iterator(_M_reader, _M_offset + i);
         }
-        iterator operator-(difference_type i) const _NOEXCEPT
+        iterator operator-(difference_type i) const noexcept
         {
             return iterator(_M_reader, _M_offset - i);
         }
-        difference_type operator-(const iterator& rhs) const _NOEXCEPT
+        difference_type operator-(const iterator& rhs) const noexcept
         {
             return _M_offset - rhs._M_offset;
         }
-        reference operator[](difference_type i) const _NOEXCEPT
+        reference operator[](difference_type i) const noexcept
         {
             return _M_reader->get(_M_offset + i);
         }
 
-        bool operator==(const iterator& rhs) const _NOEXCEPT
+        bool operator==(const iterator& rhs) const noexcept
         {
             return _M_reader == rhs._M_reader && _M_offset == rhs._M_offset;
         }
-        bool operator!=(const iterator& rhs) const _NOEXCEPT
+        bool operator!=(const iterator& rhs) const noexcept
         {
             return !operator==(rhs);
         }
-        bool operator<(const iterator& rhs) const _NOEXCEPT
+        bool operator<(const iterator& rhs) const noexcept
         {
             return _M_reader < rhs._M_reader ||
                    (_M_reader == rhs._M_reader &&
                     _M_offset < rhs._M_offset);
         }
-        bool operator>(const iterator& rhs) const _NOEXCEPT
+        bool operator>(const iterator& rhs) const noexcept
         {
             return _M_reader > rhs._M_reader ||
                    (_M_reader == rhs._M_reader &&
                     _M_offset > rhs._M_offset);
         }
-        bool operator<=(const iterator& rhs) const _NOEXCEPT
+        bool operator<=(const iterator& rhs) const noexcept
         {
             return !operator>(rhs);
         }
-        bool operator>=(const iterator& rhs) const _NOEXCEPT
+        bool operator>=(const iterator& rhs) const noexcept
         {
             return !operator<(rhs);
         }
@@ -173,20 +172,24 @@ public:
 #if NVWA_UNIX
     explicit basic_mmap_byte_reader(int fd) : mmap_reader_base(fd) {}
 #endif
-    ~basic_mmap_byte_reader() {}
+    basic_mmap_byte_reader(const basic_mmap_byte_reader&) = delete;
+    basic_mmap_byte_reader& operator=(const basic_mmap_byte_reader&) = delete;
+    ~basic_mmap_byte_reader() = default;
 
-    iterator begin() const _NOEXCEPT { return iterator(this); }
-    iterator end() const _NOEXCEPT { return iterator(this, _M_size); }
+    iterator begin() const noexcept
+    {
+        return iterator(this);
+    }
+    iterator end() const noexcept
+    {
+        return iterator(this, _M_size);
+    }
 
-    const _Tp& get(size_t offset) const _NOEXCEPT
+    const _Tp& get(size_t offset) const noexcept
     {
         // Cast is necessary for unsigned char support
         return reinterpret_cast<const _Tp&>(_M_mmap_ptr[offset]);
     }
-
-private:
-    basic_mmap_byte_reader(const basic_mmap_byte_reader&) _DELETED;
-    basic_mmap_byte_reader& operator=(const basic_mmap_byte_reader&) _DELETED;
 };
 
 typedef basic_mmap_byte_reader<char>          mmap_char_reader;

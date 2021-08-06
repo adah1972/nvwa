@@ -44,11 +44,6 @@
 #include <type_traits>          // std::is_trivially_destructible
 #include <utility>              // std::declval/move/swap
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // C++11 feature detection
-
-#if !(NVWA_CXX11_MODE && HAVE_CXX11_NOEXCEPT && HAVE_CXX11_NULLPTR)
-#error "C++11 support not detected"
-#endif
 
 #ifndef NVWA_FC_QUEUE_USE_ATOMIC
 #define NVWA_FC_QUEUE_USE_ATOMIC 1

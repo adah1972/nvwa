@@ -42,7 +42,7 @@
 #include <stddef.h>             // ptrdiff_t/size_t
 #include <iterator>             // std::forward_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
-#include "c++_features.h"       // HAVE_CXX17_STRING_VIEW/_NULLPTR/...
+#include "c++_features.h"       // HAVE_CXX17_STRING_VIEW
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
 
 #include <string>               // std::string
@@ -65,27 +65,27 @@ public:
         typedef ptrdiff_t                 difference_type;
         typedef std::forward_iterator_tag iterator_category;
 
-        iterator() : _M_reader(_NULLPTR), _M_offset(0) {}
+        iterator() = default;
         explicit iterator(basic_mmap_line_reader* reader)
-            : _M_reader(reader), _M_offset(0)
+            : _M_reader(reader)
         {
             ++*this;
         }
 
-        reference operator*() const _NOEXCEPT
+        reference operator*() const noexcept
         {
-            assert(_M_reader != _NULLPTR);
+            assert(_M_reader != nullptr);
             return _M_line;
         }
-        pointer operator->() const _NOEXCEPT
+        pointer operator->() const noexcept
         {
-            assert(_M_reader != _NULLPTR);
+            assert(_M_reader != nullptr);
             return &_M_line;
         }
         iterator& operator++()
         {
             if (!_M_reader->read(_M_line, _M_offset)) {
-                _M_reader = _NULLPTR;
+                _M_reader = nullptr;
                 _M_offset = 0;
             }
             return *this;
@@ -97,18 +97,18 @@ public:
             return temp;
         }
 
-        bool operator==(const iterator& rhs) const _NOEXCEPT
+        bool operator==(const iterator& rhs) const noexcept
         {
             return _M_reader == rhs._M_reader && _M_offset == rhs._M_offset;
         }
-        bool operator!=(const iterator& rhs) const _NOEXCEPT
+        bool operator!=(const iterator& rhs) const noexcept
         {
             return !operator==(rhs);
         }
 
     private:
-        basic_mmap_line_reader* _M_reader;
-        size_t                  _M_offset;
+        basic_mmap_line_reader* _M_reader{};
+        size_t                  _M_offset{};
         value_type              _M_line;
     };
 
@@ -146,17 +146,22 @@ public:
     {
     }
 #endif
-    ~basic_mmap_line_reader() {}
+    basic_mmap_line_reader(const basic_mmap_line_reader&) = delete;
+    basic_mmap_line_reader& operator=(const basic_mmap_line_reader&) = delete;
+    ~basic_mmap_line_reader() = default;
 
-    iterator begin() { return iterator(this); }
-    iterator end() const { return iterator(); }
+    iterator begin()
+    {
+        return iterator(this);
+    }
+    iterator end() const
+    {
+        return iterator();
+    }
 
     bool read(_Tp& output, size_t& offset);
 
 private:
-    basic_mmap_line_reader(const basic_mmap_line_reader&) _DELETED;
-    basic_mmap_line_reader& operator=(const basic_mmap_line_reader&) _DELETED;
-
     char  _M_delimiter;
     bool  _M_strip_delimiter;
 };
