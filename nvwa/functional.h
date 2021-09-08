@@ -153,10 +153,11 @@ struct self_ref_func {
 
 // Struct to wrap data, which may or may not be a reference.
 template <typename _Tp,
-          bool _Deep_copy = std::is_rvalue_reference<_Tp>{} ||
-                            (std::is_lvalue_reference<_Tp>{} &&
+          bool _Deep_copy = (std::is_lvalue_reference<_Tp>{} &&
                              std::is_const<std::remove_reference_t<_Tp>>{})>
 struct safe_wrapper {
+    static_assert(!std::is_rvalue_reference<_Tp>{},
+                  "It is dangerous to save an rvalue!");
     explicit safe_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
     _Tp get() const { return value; }
     _Tp value;
@@ -165,16 +166,9 @@ struct safe_wrapper {
 // Partial specialization that copies the object used by the reference.
 template <typename _Tp>
 struct safe_wrapper<_Tp, true> {
-    explicit safe_wrapper(_Tp&& x) : value(std::forward<_Tp>(x)) {}
-    template <typename _Up = _Tp>
-    std::enable_if_t<std::is_rvalue_reference<_Up>::value, std::decay_t<_Tp>>
-    get() const
-    {
-        return value;
-    }
-    template <typename _Up = _Tp>
-    std::enable_if_t<!std::is_rvalue_reference<_Up>::value, _Tp>
-    get() const
+    template <typename _Up>
+    explicit safe_wrapper(_Up&& x) : value(std::forward<_Up>(x)) {}
+    _Tp get() const
     {
         return value;
     }
