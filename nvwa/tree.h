@@ -32,7 +32,7 @@
  * A generic tree class template and the traversal utilities.  Using
  * this file requires a C++11-compliant compiler.
  *
- * @date  2021-08-06
+ * @date  2021-08-07
  */
 
 #ifndef NVWA_TREE_H
@@ -194,7 +194,7 @@ private:
  * Creates a tree without any children.
  *
  * @param value  the value to assign to the tree node
- * @return       the unique_ptr to the newly created tree
+ * @return       the smart pointer to the newly created tree
  */
 template <storage_policy _Policy = NVWA_TREE_DEFAULT_STORAGE_POLICY,
           typename _Tp>
@@ -209,8 +209,8 @@ create_tree(_Tp&& value)
  * Creates a tree with children.
  *
  * @param value  the value to assign to the tree node
- * @param args   the unique_ptrs to children of the tree
- * @return       the unique_ptr to the newly created tree
+ * @param args   the smart pointers to children of the tree
+ * @return       the smart pointer to the newly created tree
  */
 template <storage_policy _Policy = NVWA_TREE_DEFAULT_STORAGE_POLICY,
           typename _Tp, typename... Args>

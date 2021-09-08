@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2021-08-06
+ * @date  2021-09-08
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -181,35 +181,31 @@ struct safe_wrapper<_Tp, true> {
     std::decay_t<_Tp> value;
 };
 
-// Declaration of curry, to be specialized below.  The code is based on
-// Julian Becker's StackOverflow answer at <url:http://tinyurl.com/cxx-curry>.
+// Declaration of curry, to be specialized below.
 template <typename _Fn>
 struct curry;
 
 // Termination of currying, which returns the original function.
 template <typename _Rs, typename _Tp>
-struct curry<std::function<_Rs(_Tp)>> {
-    typedef std::function<_Rs(_Tp)> type;
-
-    static type make(type f)
+struct curry<_Rs(_Tp)> {
+    template <typename _Fn>
+    static auto make(_Fn&& f)
     {
-        return f;
+        return std::forward<_Fn>(f);
     }
 };
 
 // Recursion template to curry functions with more than one parameter.
 template <typename _Rs, typename _Tp, typename... _Targs>
-struct curry<std::function<_Rs(_Tp, _Targs...)>> {
-    typedef typename curry<std::function<_Rs(_Targs...)>>::type remaining_type;
-    typedef std::function<remaining_type(_Tp)> type;
-
-    static type make(std::function<_Rs(_Tp, _Targs...)> f)
+struct curry<_Rs(_Tp, _Targs...)> {
+    template <typename _Fn>
+    static auto make(_Fn&& f)
     {
-        return [f = std::move(f)](_Tp&& x)
+        return [f = std::forward<_Fn>(f)](_Tp x)
         {   // Use wrapper to ensure reference types are correctly captured.
-            return curry<std::function<_Rs(_Targs...)>>::make(
+            return curry<_Rs(_Targs...)>::make(
                 [f, w = safe_wrapper<_Tp>(std::forward<_Tp>(x))](
-                        _Targs&&... args) -> decltype(auto)
+                        _Targs... args) -> decltype(auto)
                 {
                     return f(w.get(), std::forward<_Targs>(args)...);
                 });
@@ -964,7 +960,7 @@ std::function<_Rs(_Tp)> fix_curry(
 template <typename _Rs, typename... _Targs>
 auto make_curry(std::function<_Rs(_Targs...)> f)
 {
-    return detail::curry<std::function<_Rs(_Targs...)>>::make(std::move(f));
+    return detail::curry<_Rs(_Targs...)>::make(std::move(f));
 }
 
 /**
@@ -980,7 +976,7 @@ auto make_curry(std::function<_Rs(_Targs...)> f)
 template <typename _Rs, typename... _Targs>
 auto make_curry(_Rs(*f)(_Targs...))
 {
-    return detail::curry<std::function<_Rs(_Targs...)>>::make(f);
+    return detail::curry<_Rs(_Targs...)>::make(f);
 }
 
 /**
@@ -997,8 +993,7 @@ auto make_curry(_Rs(*f)(_Targs...))
 template <typename _FnType, typename _Fn>
 auto make_curry(_Fn&& f)
 {
-    return detail::curry<std::function<_FnType>>::make(
-        std::forward<_Fn>(f));
+    return detail::curry<_FnType>::make(std::forward<_Fn>(f));
 }
 
 NVWA_NAMESPACE_END
