@@ -64,7 +64,7 @@ NVWA_NAMESPACE_BEGIN
  *                requirements (Table 28 in the C++11 spec).
  */
 template <class _Tp, class _Alloc = std::allocator<_Tp>>
-class fc_queue {
+class fc_queue : private _Alloc {
 public:
     typedef _Tp                                       value_type;
     typedef _Alloc                                    allocator_type;
@@ -112,13 +112,13 @@ public:
      */
     explicit fc_queue(size_type             max_size,
                       const allocator_type& alloc = allocator_type())
-        : _M_alloc(alloc)
+        : allocator_type(alloc)
     {
         assert(max_size != 0);
         if (max_size + 1 == 0) {
             throw std::bad_alloc();
         }
-        _M_begin = _M_alloc.allocate(max_size + 1);
+        _M_begin = this->allocate(max_size + 1);
         _M_end = _M_begin + max_size + 1;
         _M_head = _M_begin;
         _M_tail = _M_begin;
@@ -156,7 +156,7 @@ public:
             self_increment(ptr);
         }
         if (_M_begin) {
-            _M_alloc.deallocate(_M_begin, _M_end - _M_begin);
+            this->deallocate(_M_begin, _M_end - _M_begin);
         }
     }
 
@@ -305,7 +305,8 @@ public:
     void push(_Targs&&... args)
     {
         assert(capacity() > 0);
-        allocator_traits::construct(_M_alloc, std::addressof(*_M_tail),
+        allocator_traits::construct(static_cast<allocator_type&>(*this),
+                                    std::addressof(*_M_tail),
                                     std::forward<decltype(args)>(args)...);
         if (full()) {
             pop();
@@ -353,7 +354,8 @@ public:
         if (new_tail == _M_head.load(std::memory_order_acquire)) {
             return false;
         }
-        allocator_traits::construct(_M_alloc, std::addressof(*tail),
+        allocator_traits::construct(static_cast<allocator_type&>(*this),
+                                    std::addressof(*tail),
                                     std::forward<decltype(args)>(args)...);
         _M_tail.store(new_tail, std::memory_order_release);
 #else
@@ -361,7 +363,8 @@ public:
         if (new_tail == _M_head) {
             return false;
         }
-        allocator_traits::construct(_M_alloc, std::addressof(*_M_tail),
+        allocator_traits::construct(static_cast<allocator_type&>(*this),
+                                    std::addressof(*_M_tail),
                                     std::forward<decltype(args)>(args)...);
         _M_tail = new_tail;
 #endif
@@ -436,7 +439,8 @@ public:
                                     std::declval<allocator_type&>())))
     {
         using std::swap;
-        swap(_M_alloc, rhs._M_alloc);
+        swap(static_cast<allocator_type&>(*this),
+             static_cast<allocator_type&>(rhs));
         swap_pointer(_M_head,  rhs._M_head);
         swap_pointer(_M_tail,  rhs._M_tail);
         swap_pointer(_M_begin, rhs._M_begin);
@@ -450,7 +454,7 @@ public:
      */
     allocator_type get_allocator() const
     {
-        return _M_alloc;
+        return *this;
     }
 
 private:
@@ -518,7 +522,6 @@ private:
 #endif
     pointer         _M_begin;
     pointer         _M_end;
-    allocator_type  _M_alloc;
 };
 
 template <class _Tp, class _Alloc>
@@ -538,8 +541,8 @@ fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
 template <class _Tp, class _Alloc>
 fc_queue<_Tp, _Alloc>::fc_queue(fc_queue&& rhs) noexcept(
     noexcept(allocator_type(std::declval<allocator_type&&>())))
+    : allocator_type(std::move(rhs))
 {
-    _M_alloc = std::move(rhs._M_alloc);
 #if NVWA_FC_QUEUE_USE_ATOMIC
     _M_head.store(rhs._M_head.load(std::memory_order_relaxed),
                   std::memory_order_relaxed);
