@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2021-08-06
+ * @date  2021-12-07
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -147,7 +147,7 @@ public:
     /**
      * Destructor.  It erases all elements and frees memory.
      */
-    ~fc_queue() noexcept(noexcept(std::declval<_Tp*>()->~_Tp()))
+    ~fc_queue()
     {
         pointer ptr = _M_head;
         pointer tail = _M_tail;
