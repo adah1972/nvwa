@@ -520,16 +520,14 @@ private:
 
 template <class _Tp, class _Alloc>
 fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
-    : _M_head(nullptr), _M_tail(nullptr), _M_begin(nullptr)
+    : fc_queue(rhs.capacity(), rhs.get_allocator())
 {
-    fc_queue temp(rhs.capacity(), rhs.get_allocator());
     pointer ptr = rhs._M_head;
     pointer tail = rhs._M_tail;
     while (ptr != tail) {
-        temp.push(*ptr);
+        push(*ptr);
         ptr = rhs.increment(ptr);
     }
-    swap(temp);
 }
 
 template <class _Tp, class _Alloc>
