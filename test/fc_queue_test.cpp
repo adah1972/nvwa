@@ -46,7 +46,7 @@ void check_type()
 }
 
 const int LOOPS = 10'000'000;
-std::atomic<bool> parallel_test_failed = false;
+std::atomic<bool> parallel_test_failed{false};
 
 void add_to_queue(nvwa::fc_queue<int>& q)
 {
