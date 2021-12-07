@@ -489,10 +489,9 @@ private:
     {
         ptr = decrement(ptr.load(std::memory_order_relaxed));
     }
-    static void destroy(void* ptr)
-        noexcept(noexcept(std::declval<_Tp*>()->~_Tp()))
+    void destroy(pointer ptr)
     {
-        _M_destroy(ptr, std::is_trivially_destructible<_Tp>());
+        allocator_traits::destroy(static_cast<allocator_type&>(*this), ptr);
     }
     static void swap_pointer(pointer& lhs, pointer& rhs) noexcept
     {
@@ -506,11 +505,6 @@ private:
         lhs.store(rhs.load(std::memory_order_relaxed),
                   std::memory_order_relaxed);
         rhs.store(temp, std::memory_order_relaxed);
-    }
-    static void _M_destroy(void*, std::true_type) {}
-    static void _M_destroy(void* ptr, std::false_type)
-    {
-        ((_Tp*)ptr)->~_Tp();
     }
 
 #if NVWA_FC_QUEUE_USE_ATOMIC
