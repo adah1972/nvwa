@@ -40,10 +40,10 @@
  * @endcode
  *
  * It was first published in a <a href="https://yongweiwu.wordpress.com/2016/08/16/python-yield-and-cplusplus-coroutines/">blog</a>,
- * and has since been modified to satisfy the \c InputIterator concept,
- * along with other minor changes.
+ * and has since been modified to make its iterator satisfy the
+ * \c InputIterator concept, along with other minor changes.
  *
- * @date  2021-08-06
+ * @date  2021-12-19
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
@@ -132,15 +132,13 @@ public:
         std::string   _M_line;
     };
 
-    istream_line_reader() = default;
     explicit istream_line_reader(std::istream& is) noexcept : _M_stream(&is)
     {
     }
+    istream_line_reader(istream_line_reader&&) = default;
+    istream_line_reader& operator=(istream_line_reader&&) = default;
     iterator begin()
     {
-        if (!_M_stream) {
-            throw std::logic_error("input stream is null");
-        }
         if (_M_stream->fail()) {
             throw std::runtime_error("input stream error");
         }
@@ -152,7 +150,7 @@ public:
     }
 
 private:
-    std::istream* _M_stream{};
+    std::istream* _M_stream;
 };
 
 NVWA_NAMESPACE_END
@@ -163,8 +161,8 @@ NVWA_NAMESPACE_END
 namespace std::ranges {
 
 template <>
-inline constexpr bool enable_borrowed_range<::NVWA::istream_line_reader> = true;
-
+inline constexpr bool enable_borrowed_range<::NVWA::istream_line_reader> =
+    true;
 }
 #endif
 
