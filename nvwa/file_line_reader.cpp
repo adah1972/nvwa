@@ -31,7 +31,7 @@
  *
  * Code for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2021-08-06
+ * @date  2021-12-19
  */
 
 #include "file_line_reader.h"   // file_line_reader
@@ -94,8 +94,6 @@ file_line_reader::iterator::operator=(const iterator& rhs)
     return *this;
 }
 
-#if HAVE_CXX11_RVALUE_REFERENCE
-
 /**
  * Move constructor. The line content will be moved to the newly
  * constructed iterator.
@@ -129,8 +127,6 @@ file_line_reader::iterator::operator=(iterator&& rhs) noexcept
     swap(temp);
     return *this;
 }
-
-#endif // HAVE_CXX11_RVALUE_REFERENCE
 
 /**
  * Swaps the iterator with another.

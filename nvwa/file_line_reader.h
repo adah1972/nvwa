@@ -31,7 +31,7 @@
  *
  * Header file for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2021-08-06
+ * @date  2021-12-19
  */
 
 #ifndef NVWA_FILE_LINE_READER_H
@@ -67,11 +67,8 @@ public:
 
         iterator(const iterator& rhs);
         iterator& operator=(const iterator& rhs);
-
-#if HAVE_CXX11_RVALUE_REFERENCE
         iterator(iterator&& rhs) noexcept;
         iterator& operator=(iterator&& rhs) noexcept;
-#endif
 
         void swap(iterator& rhs) noexcept;
 
@@ -129,8 +126,8 @@ public:
 
     explicit file_line_reader(FILE* stream, char delimiter = '\n',
                               strip_type strip = strip_delimiter);
-    file_line_reader(const file_line_reader&) = delete;
-    file_line_reader& operator=(const file_line_reader&) = delete;
+    file_line_reader(file_line_reader&&) = default;
+    file_line_reader& operator=(file_line_reader&&) = default;
     ~file_line_reader();
 
     iterator begin()
