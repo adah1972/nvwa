@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2013-2020 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2013-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Modern C++ feature detection macros and workarounds.
  *
- * @date  2020-02-02
+ * @date  2021-12-29
  */
 
 #ifndef NVWA_CXX_FEATURES_H
@@ -42,8 +42,8 @@
 #include <Availability.h>   // __MAC_OS_X_VERSION_MIN_REQUIRED
 #endif
 
-// Only Clang provides all these macros; they need to be defined as follows
-// to get a valid expression in preprocessing when not available.
+// Not all compilers provide these macros; they need to be defined as
+// follows to get a valid expression in preprocessing when not available.
 #ifndef __has_cpp_attribute
 #define __has_cpp_attribute(x) 0
 #endif
@@ -86,6 +86,14 @@
 #define NVWA_USES_CRIPPLED_CLANG 1
 #else
 #define NVWA_USES_CRIPPLED_CLANG 0
+#endif
+
+// Detect whether C++20 features can be used.
+#if __cplusplus >= 202002L || \
+    (defined(_MSC_VER) && _MSC_VER >= 1928 && _MSVC_LANG >= 202002)
+#define NVWA_USES_CXX20 1
+#else
+#define NVWA_USES_CXX20 0
 #endif
 
 
