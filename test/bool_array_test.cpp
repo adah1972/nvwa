@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE(bool_array_test)
     ba.set(6);
     BOOST_CHECK_EQUAL(ba.at(5), true);
     BOOST_CHECK_EQUAL(ba[6], true);
-    BOOST_CHECK_EQUAL(ba.count(), 2);
+    BOOST_CHECK_EQUAL(ba.count(), 2U);
     ba.flip();
     BOOST_CHECK_EQUAL(ba.at(0), true);
     BOOST_CHECK_EQUAL(ba[1], true);
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(bool_array_test)
     BOOST_CHECK_EQUAL(ba[5], false);
     BOOST_CHECK_EQUAL(ba.at(6), false);
     BOOST_CHECK_EQUAL(ba.at(99), true);
-    BOOST_CHECK_EQUAL(ba.count(), 98);
+    BOOST_CHECK_EQUAL(ba.count(), 98U);
     BOOST_REQUIRE_THROW(ba.at(100), std::out_of_range);
 
     nvwa::bool_array ba2(ba);
@@ -38,7 +38,14 @@ BOOST_AUTO_TEST_CASE(bool_array_test)
     BOOST_CHECK_EQUAL(ba2[5], false);
     BOOST_CHECK_EQUAL(ba2.at(6), false);
     BOOST_CHECK_EQUAL(ba2.at(99), true);
-    BOOST_CHECK_EQUAL(ba2.count(), 98);
+    BOOST_CHECK_EQUAL(ba2.count(), 98U);
+
+    BOOST_CHECK_EQUAL(ba.count(0, 4), 4U);
+    BOOST_CHECK_EQUAL(ba.count(0, 5), 5U);
+    BOOST_CHECK_EQUAL(ba.count(0, 6), 5U);
+    for (size_t i = 7; i < 20; ++i) {
+        BOOST_CHECK_EQUAL(ba.count(0, i), i - 2);
+    }
 
     std::ostringstream oss;
     oss << ba;
