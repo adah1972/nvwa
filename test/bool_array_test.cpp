@@ -43,9 +43,19 @@ BOOST_AUTO_TEST_CASE(bool_array_test)
     BOOST_CHECK_EQUAL(ba.count(0, 4), 4U);
     BOOST_CHECK_EQUAL(ba.count(0, 5), 5U);
     BOOST_CHECK_EQUAL(ba.count(0, 6), 5U);
+    BOOST_CHECK_EQUAL(ba.count(0, 9), 7U);
+    BOOST_CHECK_EQUAL(ba.count(1, 4), 3U);
+    BOOST_CHECK_EQUAL(ba.count(1, 8), 5U);
+    BOOST_CHECK_EQUAL(ba.count(1, 9), 6U);
+    BOOST_CHECK_EQUAL(ba.count(8, 9), 1U);
+    BOOST_CHECK_EQUAL(ba.count(0, 64), 62U);
     for (size_t i = 7; i < 20; ++i) {
         BOOST_CHECK_EQUAL(ba.count(0, i), i - 2);
     }
+
+    nvwa::bool_array ba3(200);
+    ba3.initialize(true);
+    BOOST_CHECK_EQUAL(ba3.count(15, 128), 113U);
 
     std::ostringstream oss;
     oss << ba;
