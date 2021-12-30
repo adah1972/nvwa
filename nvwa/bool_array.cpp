@@ -51,8 +51,8 @@
 // can help with the bool_array::count performance, but I want to turn on
 // use of popcount only after tests show a performance win (I know using
 // popcount will slow down the code in some cases).  Patches are welcome.
-#if NVWA_USES_CXX20 && \
-    __has_include(<bit>) && (defined(__SSE4_2__) || defined(_MSC_VER))
+#if NVWA_USES_CXX20 && __has_include(<bit>) && \
+    (defined(__POPCNT__) || defined(__SSE4_2__) || defined(_MSC_VER))
 #include <bit>
 #define NVWA_USES_POPCOUNT 1
 namespace {
@@ -63,7 +63,7 @@ constexpr int popcount(size_t x)
 }
 
 } /* unnamed namespace */
-#elif (NVWA_GCC && defined(__SSE4_2__)) || NVWA_CLANG
+#elif (NVWA_GCC && (defined(__POPCNT__) || defined(__SSE4_2__))) || NVWA_CLANG
 #define NVWA_USES_POPCOUNT 1
 namespace {
 
