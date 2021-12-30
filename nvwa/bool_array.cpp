@@ -32,18 +32,66 @@
  * Code for class bool_array (packed boolean array).  The current code
  * requires a C++14-compliant compiler.
  *
- * @date  2021-08-01
+ * @date  2021-12-30
  */
 
 #include "bool_array.h"         // bool_array
-#include <array>                // std::array
 #include <limits.h>             // UINT_MAX, ULONG_MAX
-#include <string.h>             // memset/memcpy
+#include <string.h>             // memset/memcpy/size_t
+#include <array>                // std::array
 #include <new>                  // std::bad_alloc
 #include <ostream>              // std::ostream
+#include <type_traits>          // std::enable_if_t/is_same
 #include <utility>              // std::index_sequence/swap
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++_features.h"       // NVWA_USES_CXX20
 #include "static_assert.h"      // STATIC_ASSERT
+
+// I am sure there are other cases where std::popcount/__builtin_popcount
+// can help with the bool_array::count performance, but I want to turn on
+// use of popcount only after tests show a performance win (I know using
+// popcount will slow down the code in some cases).  Patches are welcome.
+#if NVWA_USES_CXX20 && \
+    __has_include(<bit>) && (defined(__SSE4_2__) || defined(_MSC_VER))
+#include <bit>
+#define NVWA_USES_POPCOUNT 1
+namespace {
+
+constexpr int popcount(size_t x)
+{
+    return std::popcount(x);
+}
+
+} /* unnamed namespace */
+#elif (NVWA_GCC && defined(__SSE4_2__)) || NVWA_CLANG
+#define NVWA_USES_POPCOUNT 1
+namespace {
+
+template <typename T = size_t>
+constexpr std::enable_if_t<std::is_same<T, unsigned>::value, int>
+popcount(unsigned x)
+{
+    return __builtin_popcount(x);
+}
+
+template <typename T = size_t>
+constexpr std::enable_if_t<std::is_same<T, unsigned long>::value, int>
+popcount(unsigned long x)
+{
+    return __builtin_popcountl(x);
+}
+
+template <typename T = size_t>
+constexpr std::enable_if_t<std::is_same<T, unsigned long long>::value, int>
+popcount(unsigned long long x)
+{
+    return __builtin_popcountll(x);
+}
+
+} /* unnamed namespace */
+#else
+#define NVWA_USES_POPCOUNT 0
+#endif
 
 NVWA_NAMESPACE_BEGIN
 
@@ -259,7 +307,18 @@ bool_array::size_type bool_array::count() const noexcept
     assert(_M_byte_ptr);
     size_type true_cnt = 0;
     size_t byte_cnt = get_num_bytes_from_bits(_M_length);
-    for (size_t i = 0; i < byte_cnt; ++i) {
+    size_t i = 0;
+#if NVWA_USES_POPCOUNT
+    if (byte_cnt >= sizeof(size_t)) {
+        auto ptr = reinterpret_cast<size_t*>(_M_byte_ptr);
+        while (i <= byte_cnt - sizeof(size_t)) {
+            true_cnt += popcount(*ptr);
+            ++ptr;
+            i += sizeof(size_t);
+        }
+    }
+#endif
+    for (; i < byte_cnt; ++i) {
         true_cnt += _S_bit_count[_M_byte_ptr[i]];
     }
     return true_cnt;
@@ -276,35 +335,58 @@ bool_array::size_type bool_array::count() const noexcept
 bool_array::size_type bool_array::count(size_type begin, size_type end) const
 {
     assert(_M_byte_ptr);
-    if (begin == end) {
-        return 0;
-    }
     if (end == npos) {
         end = _M_length;
+    }
+    if (begin == end) {
+        return 0;
     }
     if (begin > end || end > _M_length) {
         throw std::out_of_range("invalid bool_array range");
     }
-    --end;
 
     size_type true_cnt = 0;
-    size_t byte_pos_beg;
-    size_t byte_pos_end;
-    byte byte_val;
-
-    byte_pos_beg = begin / 8;
-    byte_val = _M_byte_ptr[byte_pos_beg];
-    byte_val &= ~0U << (begin % 8);
-
-    byte_pos_end = end / 8;
-    if (byte_pos_beg < byte_pos_end) {
-        true_cnt = _S_bit_count[byte_val];
-        byte_val = _M_byte_ptr[byte_pos_end];
+    size_t byte_pos_beg = begin / 8;
+    size_t byte_pos_end = (end - 1) / 8;
+    int valid_bits_in_last_byte = (end - 1) % 8 + 1;
+    if (begin % 8 != 0) {
+        byte byte_val = _M_byte_ptr[byte_pos_beg];
+        byte_val &= ~0U << (begin % 8);
+        if (byte_pos_beg == byte_pos_end) {
+            byte_val &= ~(~0U << valid_bits_in_last_byte);
+            true_cnt = _S_bit_count[byte_val];
+            return true_cnt;
+        } else {  // byte_pos_beg < byte_pos_end
+            true_cnt = _S_bit_count[byte_val];
+            ++byte_pos_beg;
+        }
     }
-    byte_val &= ~(~0U << (end % 8 + 1));
-    true_cnt += _S_bit_count[byte_val];
+    if (valid_bits_in_last_byte != 8) {
+        byte byte_val = _M_byte_ptr[byte_pos_end];
+        byte_val &= ~(~0U << valid_bits_in_last_byte);
+        true_cnt += _S_bit_count[byte_val];
+    } else {
+        ++byte_pos_end;
+    }
+    // [byte_pos_beg, byte_pos_end) is now the byte range we need to count
 
-    for (++byte_pos_beg; byte_pos_beg < byte_pos_end; ++byte_pos_beg) {
+#if NVWA_USES_POPCOUNT
+    constexpr auto pc_unit = sizeof(size_t);
+    if ((byte_pos_beg + pc_unit - 1) / pc_unit * pc_unit + pc_unit <=
+        byte_pos_end) {
+        while (byte_pos_beg % pc_unit != 0) {
+            true_cnt += _S_bit_count[_M_byte_ptr[byte_pos_beg]];
+            ++byte_pos_beg;
+        }
+        auto ptr = reinterpret_cast<size_t*>(&_M_byte_ptr[byte_pos_beg]);
+        while (byte_pos_beg <= byte_pos_end - pc_unit) {
+            true_cnt += popcount(*ptr);
+            ++ptr;
+            byte_pos_beg += pc_unit;
+        }
+    }
+#endif
+    for (; byte_pos_beg < byte_pos_end; ++byte_pos_beg) {
         true_cnt += _S_bit_count[_M_byte_ptr[byte_pos_beg]];
     }
     return true_cnt;
