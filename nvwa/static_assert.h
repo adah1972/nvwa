@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2018 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2021 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,12 +31,13 @@
  *
  * Template class to check validity duing compile time (adapted from Loki).
  *
- * @date  2018-11-15
+ * @date  2021-12-30
  */
 
 #ifndef STATIC_ASSERT
 
-#include "c++_features.h"
+#include "c++_features.h"   // HAVE_CXX11_STATIC_ASSERT
+#include "_nvwa.h"          // NVWA_NAMESPACE_*
 
 #if HAVE_CXX11_STATIC_ASSERT
 
@@ -44,7 +45,7 @@
 
 #else
 
-namespace nvwa {
+NVWA_NAMESPACE_BEGIN
 
 template <bool> struct compile_time_error;
 template <>     struct compile_time_error<true> {};
@@ -55,7 +56,7 @@ template <>     struct compile_time_error<true> {};
         (void)ERROR_##_Msg; \
     }
 
-}
+NVWA_NAMESPACE_END
 
 #endif // HAVE_CXX11_STATIC_ASSERT
 
