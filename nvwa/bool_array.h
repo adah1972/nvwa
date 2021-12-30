@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2021-08-01
+ * @date  2021-12-30
  */
 
 #ifndef NVWA_BOOL_ARRAY_H
@@ -77,7 +77,7 @@ public:
 #endif
 
 private:
-    /** Private definition of byte to avoid polluting the global namespace. */
+    /** Private definition of byte. */
     typedef unsigned char       byte;
 
     /** Class to represent a reference to an array element. */
@@ -98,7 +98,7 @@ public:
     typedef _Element<const byte> const_reference;  ///< Type of const reference
 
     /** Constant representing `not found'. */
-    static const size_type npos = (size_type)-1;
+    static constexpr auto npos = size_type(-1);
 
     bool_array() noexcept;
     explicit bool_array(size_type size);
