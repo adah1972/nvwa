@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2022 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2021-08-01
+ * @date  2022-01-03
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -738,6 +738,8 @@ void* alloc_mem(size_t size, const char* file, int line,
         ptr->next = &new_ptr_list;
         new_ptr_list.prev->next = ptr;
         new_ptr_list.prev = ptr;
+        current_mem_alloc += size;
+        ++total_mem_alloc_cnt_accum;
     }
 #if _DEBUG_NEW_TAILCHECK
     memset(usr_ptr + size, _DEBUG_NEW_TAILCHECK_CHAR, _DEBUG_NEW_TAILCHECK);
@@ -754,8 +756,6 @@ void* alloc_mem(size_t size, const char* file, int line,
         }
         fprintf(new_output_fp, ")\n");
     }
-    current_mem_alloc += size;
-    total_mem_alloc_cnt_accum++;
     return usr_ptr;
 }
 
