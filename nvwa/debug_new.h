@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2022 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -36,6 +36,10 @@
 
 #ifndef NVWA_DEBUG_NEW_H
 #define NVWA_DEBUG_NEW_H
+
+#ifdef NVWA_MEMORY_TRACE_H
+#error "debug_new is incompatible with memory_trace."
+#endif
 
 #include <new>                  // std::align_val_t
 #include <stddef.h>             // size_t
