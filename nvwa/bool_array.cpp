@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2022 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Code for class bool_array (packed boolean array).  The current code
  * requires a C++14-compliant compiler.
  *
- * @date  2021-12-30
+ * @date  2022-01-05
  */
 
 #include "bool_array.h"         // bool_array
@@ -43,7 +43,7 @@
 #include <ostream>              // std::ostream
 #include <type_traits>          // std::enable_if_t/is_same
 #include <utility>              // std::index_sequence/swap
-#include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "_nvwa.h"              // NVWA macros
 #include "c++_features.h"       // NVWA_USES_CXX20
 #include "static_assert.h"      // STATIC_ASSERT
 
@@ -51,10 +51,20 @@
 // can help with the bool_array::count performance, but I want to turn on
 // use of popcount only after tests show a performance win (I know using
 // popcount will slow down the code in some cases).  Patches are welcome.
-#if NVWA_USES_CXX20 && __has_include(<bit>) && \
-    (defined(__POPCNT__) || defined(__SSE4_2__) || defined(_MSC_VER))
-#include <bit>
+#ifndef NVWA_USES_POPCOUNT
+#if NVWA_CLANG ||                                                          \
+    (NVWA_GCC && defined(__POPCNT__) || defined(__SSE4_2__) ||             \
+     defined(__aarch64__)) ||                                              \
+    (NVWA_MSVC && NVWA_USES_CXX20)
 #define NVWA_USES_POPCOUNT 1
+#else
+#define NVWA_USES_POPCOUNT 0
+#endif
+#endif
+
+#if NVWA_USES_POPCOUNT
+#if NVWA_USES_CXX20 && __has_include(<bit>)
+#include <bit>
 namespace {
 
 constexpr int popcount(size_t x)
@@ -63,8 +73,7 @@ constexpr int popcount(size_t x)
 }
 
 } /* unnamed namespace */
-#elif (NVWA_GCC && (defined(__POPCNT__) || defined(__SSE4_2__))) || NVWA_CLANG
-#define NVWA_USES_POPCOUNT 1
+#elif NVWA_GCC || NVWA_CLANG
 namespace {
 
 template <typename T = size_t>
@@ -90,7 +99,8 @@ popcount(unsigned long long x)
 
 } /* unnamed namespace */
 #else
-#define NVWA_USES_POPCOUNT 0
+#error "No popcount function is available"
+#endif
 #endif
 
 NVWA_NAMESPACE_BEGIN
