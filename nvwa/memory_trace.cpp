@@ -31,7 +31,7 @@
  *
  * Implementation of memory tracing facilities.
  *
- * @date  2022-01-03
+ * @date  2022-01-09
  */
 
 #include "memory_trace.h"       // memory trace declarations
@@ -39,8 +39,8 @@
 #include <stddef.h>             // size_t
 #include <stdint.h>             // uint32_t
 #include <stdlib.h>             // abort
+#include <string.h>             // strcmp
 #include <deque>                // std::deque
-#include <tuple>                // std::tie
 #include "_nvwa.h"              // NVWA macros
 #include "aligned_memory.h"     // nvwa::aligned_malloc/aligned_free
 #include "fast_mutex.h"         // nvwa::fast_mutex/fast_mutex_autolock
@@ -76,7 +76,8 @@ thread_local std::deque<NVWA::context,
 
 bool operator==(const NVWA::context& lhs, const NVWA::context& rhs)
 {
-    return std::tie(lhs.file, lhs.func) == std::tie(rhs.file, rhs.func);
+    return strcmp(lhs.file, rhs.file) == 0 &&
+           strcmp(lhs.func, rhs.func) == 0;
 }
 
 const NVWA::context& get_current_context()
@@ -87,7 +88,7 @@ const NVWA::context& get_current_context()
 
 void print_context(const NVWA::context& ctx, FILE* fp)
 {
-    fprintf(fp, "context: %s/%s", ctx.file.data(), ctx.func.data());
+    fprintf(fp, "context: %s/%s", ctx.file, ctx.func);
 }
 
 void save_context(const NVWA::context& ctx)

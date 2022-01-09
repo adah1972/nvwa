@@ -32,7 +32,7 @@
  * Header file for tracing memory with contextual checkpoints.  The
  * current code requires a C++17-compliant compiler.
  *
- * @date  2022-01-05
+ * @date  2022-01-09
  */
 
 #ifndef NVWA_MEMORY_TRACE_H
@@ -45,7 +45,6 @@
 #include <stddef.h>             // size_t
 #include <stdio.h>              // FILE
 #include <new>                  // std::align_val_t
-#include <string_view>          // std::string_view
 #include "_nvwa.h"              // NVWA macros
 
 NVWA_NAMESPACE_BEGIN
@@ -59,8 +58,8 @@ extern bool new_verbose_flag;   // default to false: no verbose information
 extern FILE* new_output_fp;     // default to stderr: output to console
 
 struct context {
-    std::string_view file;
-    std::string_view func;
+    const char* file;
+    const char* func;
 };
 
 class checkpoint {
