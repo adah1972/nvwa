@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2022-01-03
+ * @date  2022-01-09
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -589,6 +589,7 @@ new_ptr_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
         if (offset % alignment != 0) {
             return nullptr;
         }
+        // Likely caused by new[] followed by delete, if we arrive here
         adjusted_ptr = static_cast<char*>(usr_ptr) - sizeof(size_t);
         is_adjusted = true;
     }
@@ -599,7 +600,9 @@ new_ptr_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
     }
 
     // Aligned new[] allocates alignment extra space for the array size
-    if (!is_adjusted && alignment > _DEBUG_NEW_ALIGNMENT) {
+    if (!is_adjusted && alignment > sizeof(size_t)) {
+        // Again, likely caused by new[] followed by delete, as aligned
+        // new[] allocates alignment extra space for the array size.
         ptr = reinterpret_cast<new_ptr_list_t*>(
             reinterpret_cast<char*>(ptr) - alignment);
         is_adjusted = true;

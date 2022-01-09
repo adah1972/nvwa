@@ -157,6 +157,7 @@ new_ptr_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
         if (offset % alignment != 0) {
             return nullptr;
         }
+        // Likely caused by new[] followed by delete, if we arrive here
         adjusted_ptr = static_cast<char*>(usr_ptr) - sizeof(size_t);
         is_adjusted = true;
     }
@@ -166,8 +167,9 @@ new_ptr_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
         return ptr;
     }
 
-    // Aligned new[] allocates alignment extra space for the array size
-    if (!is_adjusted && alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+    if (!is_adjusted && alignment > sizeof(size_t)) {
+        // Again, likely caused by new[] followed by delete, as aligned
+        // new[] allocates alignment extra space for the array size.
         ptr = reinterpret_cast<new_ptr_list_t*>(
             reinterpret_cast<char*>(ptr) - alignment);
         is_adjusted = true;
