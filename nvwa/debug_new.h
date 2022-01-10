@@ -31,7 +31,7 @@
  *
  * Header file for checking leaks caused by unmatched new/delete.
  *
- * @date  2021-08-06
+ * @date  2022-01-10
  */
 
 #ifndef NVWA_DEBUG_NEW_H
@@ -64,6 +64,10 @@ void* operator new(size_t size, std::align_val_t align_val,
                    const char* file, int line);
 void* operator new[](size_t size, std::align_val_t align_val,
                      const char* file, int line);
+void operator delete(void* ptr, std::align_val_t align_val,
+                     const char* file, int line) noexcept;
+void operator delete[](void* ptr, std::align_val_t align_val,
+                       const char* file, int line) noexcept;
 #endif
 
 NVWA_NAMESPACE_BEGIN

@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2022-01-09
+ * @date  2022-01-10
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -1296,6 +1296,20 @@ void* operator new[](size_t size, std::align_val_t align_val)
     }
 }
 
+void* operator new(size_t size, std::align_val_t align_val,
+                   const std::nothrow_t&) noexcept
+{
+    return alloc_mem(size, static_cast<char*>(_DEBUG_NEW_CALLER_ADDRESS), 0,
+                     alloc_is_not_array, size_t(align_val));
+}
+
+void* operator new[](size_t size, std::align_val_t align_val,
+                     const std::nothrow_t&) noexcept
+{
+    return alloc_mem(size, static_cast<char*>(_DEBUG_NEW_CALLER_ADDRESS), 0,
+                     alloc_is_array, size_t(align_val));
+}
+
 void operator delete(void* ptr, std::align_val_t align_val) noexcept
 {
     free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, alloc_is_not_array,
@@ -1318,6 +1332,34 @@ void operator delete[](void* ptr, size_t, std::align_val_t align_val) noexcept
 {
     free_pointer(ptr, _DEBUG_NEW_CALLER_ADDRESS, alloc_is_array,
                  size_t(align_val));
+}
+
+void operator delete(void* ptr, std::align_val_t align_val,
+                     const char* file, int line) noexcept
+{
+    if (new_verbose_flag) {
+        fast_mutex_autolock lock(new_output_lock);
+        fprintf(new_output_fp,
+                "info: exception thrown on initializing object at %p (",
+                ptr);
+        print_position(file, line);
+        fprintf(new_output_fp, ")\n");
+    }
+    operator delete(ptr, align_val);
+}
+
+void operator delete[](void* ptr, std::align_val_t align_val,
+                       const char* file, int line) noexcept
+{
+    if (new_verbose_flag) {
+        fast_mutex_autolock lock(new_output_lock);
+        fprintf(new_output_fp,
+                "info: exception thrown on initializing objects at %p (",
+                ptr);
+        print_position(file, line);
+        fprintf(new_output_fp, ")\n");
+    }
+    operator delete[](ptr, align_val);
 }
 
 void operator delete(void* ptr, std::align_val_t align_val,
