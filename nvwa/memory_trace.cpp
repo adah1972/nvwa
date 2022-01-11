@@ -31,7 +31,7 @@
  *
  * Implementation of memory tracing facilities.
  *
- * @date  2022-01-09
+ * @date  2022-01-10
  */
 
 #include "memory_trace.h"       // memory trace declarations
@@ -191,9 +191,7 @@ void* alloc_mem(size_t size, const context& ctx, is_array_t is_array,
     auto ptr =
         static_cast<new_ptr_list_t*>(NVWA::aligned_malloc(s, alignment));
     if (ptr == nullptr) {
-        NVWA_CMT_ERROR_MESSAGE("Out of memory when allocating %zu bytes\n",
-                          size);
-        NVWA_CMT_ERROR_ACTION();
+        return nullptr;
     }
     auto usr_ptr = reinterpret_cast<char*>(ptr) + aligned_list_item_size;
     ptr->ctx = ctx;
@@ -342,14 +340,12 @@ void* operator new[](size_t size, const std::nothrow_t&) noexcept
 
 void* operator new(size_t size, std::align_val_t align_val)
 {
-    return alloc_mem(size, get_current_context(), alloc_is_not_array,
-                     size_t(align_val));
+    return operator new(size, align_val, get_current_context());
 }
 
 void* operator new[](size_t size, std::align_val_t align_val)
 {
-    return alloc_mem(size, get_current_context(), alloc_is_array,
-                     size_t(align_val));
+    return operator new[](size, align_val, get_current_context());
 }
 
 void* operator new(size_t size, std::align_val_t align_val,
@@ -369,47 +365,43 @@ void* operator new[](size_t size, std::align_val_t align_val,
 void* operator new(size_t size, const NVWA::context& ctx)
 {
     void* ptr = alloc_mem(size, ctx, alloc_is_not_array);
-    if (ptr == nullptr) {
-        NVWA_CMT_ERROR_MESSAGE("Out of memory when allocating %zu bytes\n",
-                               size);
-        NVWA_CMT_ERROR_ACTION();
+    if (ptr) {
+        return ptr;
+    } else {
+        throw std::bad_alloc();
     }
-    return ptr;
 }
 
 void* operator new[](size_t size, const NVWA::context& ctx)
 {
     void* ptr = alloc_mem(size, ctx, alloc_is_array);
-    if (ptr == nullptr) {
-        NVWA_CMT_ERROR_MESSAGE("Out of memory when allocating %zu bytes\n",
-                               size);
-        NVWA_CMT_ERROR_ACTION();
+    if (ptr) {
+        return ptr;
+    } else {
+        throw std::bad_alloc();
     }
-    return ptr;
 }
 
 void* operator new(size_t size, std::align_val_t align_val,
                    const NVWA::context& ctx)
 {
     void* ptr = alloc_mem(size, ctx, alloc_is_not_array, size_t(align_val));
-    if (ptr == nullptr) {
-        NVWA_CMT_ERROR_MESSAGE("Out of memory when allocating %zu bytes\n",
-                               size);
-        NVWA_CMT_ERROR_ACTION();
+    if (ptr) {
+        return ptr;
+    } else {
+        throw std::bad_alloc();
     }
-    return ptr;
 }
 
 void* operator new[](size_t size, std::align_val_t align_val,
                      const NVWA::context& ctx)
 {
     void* ptr = alloc_mem(size, ctx, alloc_is_array, size_t(align_val));
-    if (ptr == nullptr) {
-        NVWA_CMT_ERROR_MESSAGE("Out of memory when allocating %zu bytes\n",
-                               size);
-        NVWA_CMT_ERROR_ACTION();
+    if (ptr) {
+        return ptr;
+    } else {
+        throw std::bad_alloc();
     }
-    return ptr;
 }
 
 void operator delete(void* ptr) noexcept
