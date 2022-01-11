@@ -32,7 +32,7 @@
  * Header file for tracing memory with contextual checkpoints.  The
  * current code requires a C++17-compliant compiler.
  *
- * @date  2022-01-09
+ * @date  2022-01-10
  */
 
 #ifndef NVWA_MEMORY_TRACE_H
@@ -116,8 +116,8 @@ void operator delete[](void* ptr,
 void operator delete  (void* ptr,
                        std::align_val_t align_val,
                        const NVWA::context&) noexcept;
-void operator delete[](void* ptr, std::align_val_t
-                       align_val,
+void operator delete[](void* ptr,
+                       std::align_val_t align_val,
                        const NVWA::context&) noexcept;
 
 #endif // NVWA_MEMORY_TRACE_H
