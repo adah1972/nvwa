@@ -31,7 +31,7 @@
  *
  * Implementation of memory tracing facilities.
  *
- * @date  2022-01-10
+ * @date  2022-01-25
  */
 
 #include "memory_trace.h"       // memory trace declarations
@@ -128,7 +128,7 @@ struct new_ptr_list_t {
     new_ptr_list_t* next;            ///< Pointer to the next memory block
     new_ptr_list_t* prev;            ///< Pointer to the previous memory block
     size_t          size;            ///< Size of the memory block
-    NVWA::context   ctx;             ///< The context
+    context         ctx;             ///< The context
     uint32_t        head_size : 31;  ///< Size of this struct, aligned
     uint32_t        is_array : 1;    ///< Non-zero iff <em>new[]</em> is used
     uint32_t        magic;           ///< Magic number for error detection
@@ -188,8 +188,7 @@ void* alloc_mem(size_t size, const context& ctx, is_array_t is_array,
 
     uint32_t aligned_list_item_size = align(sizeof(new_ptr_list_t), alignment);
     size_t s = size + aligned_list_item_size;
-    auto ptr =
-        static_cast<new_ptr_list_t*>(NVWA::aligned_malloc(s, alignment));
+    auto ptr = static_cast<new_ptr_list_t*>(aligned_malloc(s, alignment));
     if (ptr == nullptr) {
         return nullptr;
     }
@@ -200,7 +199,7 @@ void* alloc_mem(size_t size, const context& ctx, is_array_t is_array,
     ptr->head_size = aligned_list_item_size;
     ptr->magic = CMT_MAGIC;
     {
-        NVWA::fast_mutex_autolock guard{new_ptr_lock};
+        fast_mutex_autolock guard{new_ptr_lock};
         ptr->prev = new_ptr_list.prev;
         ptr->next = &new_ptr_list;
         new_ptr_list.prev->next = ptr;
@@ -209,7 +208,7 @@ void* alloc_mem(size_t size, const context& ctx, is_array_t is_array,
         ++total_mem_alloc_cnt_accum;
     }
     if (new_verbose_flag) {
-        fast_mutex_autolock lock(new_output_lock);
+        fast_mutex_autolock guard{new_output_lock};
         fprintf(new_output_fp, "new%s: allocated %p (size %zu, ",
                 is_array ? "[]" : "", usr_ptr, size);
         print_context(ptr->ctx, new_output_fp);
@@ -241,19 +240,19 @@ void free_pointer(void* usr_ptr, is_array_t is_array,
         NVWA_CMT_ERROR_ACTION();
     }
     {
-        NVWA::fast_mutex_autolock guard{new_ptr_lock};
+        fast_mutex_autolock guard{new_ptr_lock};
         current_mem_alloc -= ptr->size;
         ptr->magic = 0;
         ptr->prev->next = ptr->next;
         ptr->next->prev = ptr->prev;
     }
     if (new_verbose_flag) {
-        fast_mutex_autolock lock(new_output_lock);
+        fast_mutex_autolock guard{new_output_lock};
         fprintf(new_output_fp,
                 "delete%s: freed %p (size %zu, %zu bytes still allocated)\n",
                 is_array ? "[]" : "", usr_ptr, ptr->size, current_mem_alloc);
     }
-    NVWA::aligned_free(ptr);
+    aligned_free(ptr);
 }
 
 int check_leaks()
