@@ -31,7 +31,7 @@
  *
  * Implementation of memory tracing facilities.
  *
- * @date  2022-01-25
+ * @date  2022-01-26
  */
 
 #include "memory_trace.h"       // memory trace declarations
@@ -217,8 +217,8 @@ void* alloc_mem(size_t size, const context& ctx, is_array_t is_array,
     return usr_ptr;
 }
 
-void free_pointer(void* usr_ptr, is_array_t is_array,
-                  size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__)
+void free_mem(void* usr_ptr, is_array_t is_array,
+              size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__)
 {
     assert(alignment >= __STDCPP_DEFAULT_NEW_ALIGNMENT__);
     if (usr_ptr == nullptr) {
@@ -405,32 +405,32 @@ void* operator new[](size_t size, std::align_val_t align_val,
 
 void operator delete(void* ptr) noexcept
 {
-    NVWA::free_pointer(ptr, alloc_is_not_array);
+    NVWA::free_mem(ptr, alloc_is_not_array);
 }
 
 void operator delete[](void* ptr) noexcept
 {
-    NVWA::free_pointer(ptr, alloc_is_array);
+    NVWA::free_mem(ptr, alloc_is_array);
 }
 
 void operator delete(void* ptr, size_t) noexcept
 {
-    NVWA::free_pointer(ptr, alloc_is_not_array);
+    NVWA::free_mem(ptr, alloc_is_not_array);
 }
 
 void operator delete[](void* ptr, size_t) noexcept
 {
-    NVWA::free_pointer(ptr, alloc_is_array);
+    NVWA::free_mem(ptr, alloc_is_array);
 }
 
 void operator delete(void* ptr, std::align_val_t align_val) noexcept
 {
-    NVWA::free_pointer(ptr, alloc_is_not_array, size_t(align_val));
+    NVWA::free_mem(ptr, alloc_is_not_array, size_t(align_val));
 }
 
 void operator delete[](void* ptr, std::align_val_t align_val) noexcept
 {
-    NVWA::free_pointer(ptr, alloc_is_array, size_t(align_val));
+    NVWA::free_mem(ptr, alloc_is_array, size_t(align_val));
 }
 
 void operator delete(void* ptr, const NVWA::context&) noexcept
