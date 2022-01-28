@@ -21,16 +21,6 @@ Code Organization
   mind.  All nvwa functions and global variables were moved into the
   namespace "nvwa".
 
-  This said, I did not want to break backward compatibility abruptly.
-  First, people are still able to disable the namespace by defining the
-  macro NVWA_USE_NAMESPACE to 0 (not really recommended, though).
-  Second, I still used the quotation mark (") to include header files
-  internally so that old users do not have to change the include
-  directory (again, not recommended and intended to help the transition
-  only).  Third, I did not change most of the macro names -- that would
-  break existing code and could do more harm than good now.  In
-  addition, I am not a fan of macro prefixes anyway.
-
   The changes do not mean anything to new users.  You just need to
   follow the modern C++ way.  You should add the root directory of this
   project to your include directory (there should be a "nvwa" directory
@@ -42,6 +32,14 @@ Contents
 
   A brief introduction follows.  Check the Doxygen documentation for
   more (technical) details.
+
+  * aligned_memory.cpp
+  * aligned_memory.h
+
+   Two function for cross-platform aligned memory allocation and
+   deallocation.  This is a thin layer, and it is needed only because
+   the C++17/C11 aligned_alloc pairs with free, which does not work on
+   Microsoft Windows.
 
   * boolarray.cpp
   * boolarray.h
@@ -118,6 +116,8 @@ Contents
 
    http://nvwa.sourceforge.net/article/debug_new.htm
 
+   Cf. memory_trace.cpp and memory_trace.h.
+
   * fast_mutex.h
 
    The threading transparent layer simulating a non-recursive mutex.  It
@@ -168,7 +168,7 @@ Contents
    Python approach.  They make reading lines from a file a simple loop.
    This implementation allows reading from a traditional FILE*.
    Cf. istream_line_reader.h, mmap_byte_reader.h, and mmap_line_reader.h.
-   
+
    See the following blog for the motivation and example code:
 
    https://tinyurl.com/cpp-line-readers
@@ -193,7 +193,7 @@ Contents
    - fixed-point combinator
    - curry
    - optional
-   
+
    My blogs on functional programming may be helpful:
 
    https://tinyurl.com/cpp-functional-notes
@@ -207,17 +207,38 @@ Contents
    Python approach.  They make reading lines from a file a simple loop.
    This implementation allows reading from an input stream.
    Cf. file_line_reader.h and mmap_line_reader.h.
-   
+
    See the following blogs for the motivation and example code:
 
    https://tinyurl.com/cpp-coroutines
    https://tinyurl.com/cpp-line-readers
+
+  * malloc_allocator.h
+
+   An allocator that invokes malloc/free instead of operator new/delete.
+   It is necessary in the global operator new/delete replacement code,
+   like memory_trace.cpp below.
 
   * mem_pool_base.cpp
   * mem_pool_base.h
 
    A class solely to be inherited by memory pool implementations.  It is
    used by static_mem_pool and fixed_mem_pool.
+
+  * memory_trace.cpp
+  * memory_trace.h
+
+   This is a new version of the memory leak detector, designed to use
+   stackable memory checkpoints, instead of redefined new to record the
+   context information.  Like debug_new, it is quite easy to use, and
+   has very low space/time overheads.  One needs to link in
+   memory_trace.cpp and aligned_memory.cpp for leakage report, and
+   include memory_trace.h for adding a new checkpoint with the macro
+   NVWA_MEMORY_CHECKPOINT().
+
+   See the following blog for its design:
+
+   https://tinyurl.com/memory-trace
 
   * mmap_byte_reader.h
 
@@ -232,7 +253,7 @@ Contents
    modelling the Python approach.  It makes reading lines from a file a
    simple loop.  This implementation uses memory-mapped file I/O.  Cf.
    istream_line_reader.h, file_line_reader.h, and mmap_byte_reader.h.
-   
+
    See the following blogs for the motivation and example code:
 
    https://tinyurl.com/cpp-line-readers
