@@ -118,7 +118,7 @@ performance is not affected.
 
 An article on its design and implementation is available at
 
-http://nvwa.sourceforge.net/article/debug_new.htm
+[A Cross-Platform Memory Leak Detector][lnk_leakage]
 
 Cf. *memory\_trace.cpp* and *memory\_trace.h*.
 
@@ -175,7 +175,7 @@ This implementation allows reading from a traditional `FILE*`.  Cf.
 
 See the following blog for the motivation and example code:
 
-https://tinyurl.com/cpp-line-readers
+[Performance of My Line Readers][lnk_line_readers]
 
 *fixed\_mem\_pool.h*
 
@@ -200,10 +200,10 @@ programming patterns like:
 
 My blogs on functional programming may be helpful:
 
-https://tinyurl.com/cpp-functional-notes  
-https://tinyurl.com/cpp-y-combinator  
-https://tinyurl.com/cpp-type-deduction  
-https://tinyurl.com/generic-lambdas-compose
+[Study Notes: Functional Programming with C++][lnk_functional_note]  
+[*Y* Combinator and C++][lnk_y_combinator]  
+[Type Deduction and My Reference Mistakes][lnk_type_deduction]  
+[Generic Lambdas and the `compose` Function][lnk_generic_lambdas]
 
 *istream\_line\_reader.h*
 
@@ -214,8 +214,8 @@ Cf. *file\_line\_reader.h* and *mmap\_line\_reader.h*.
 
 See the following blogs for the motivation and example code:
 
-https://tinyurl.com/cpp-coroutines  
-https://tinyurl.com/cpp-line-readers
+[Python `yield` and C++ Coroutines][lnk_coroutines]  
+[Performance of My Line Readers][lnk_line_readers]
 
 *malloc\_allocator.h*
 
@@ -242,7 +242,7 @@ include *memory\_trace.h* for adding a new checkpoint with the macro
 
 See the following blog for its design:
 
-https://tinyurl.com/memory-trace
+[Contextual Memory Tracing][lnk_memory_trace]
 
 *mmap\_byte\_reader.h*
 
@@ -261,8 +261,8 @@ i*stream\_line\_reader.h*, *file\_line\_reader.h*, and
 
 See the following blogs for the motivation and example code:
 
-https://tinyurl.com/cpp-line-readers  
-https://tinyurl.com/mmap-string-view
+[Performance of My Line Readers][lnk_line_readers]  
+[C/C++ Performance, `mmap`, and `string_view`][lnk_memory_trace]
 
 *mmap\_line\_view.h*
 
@@ -314,7 +314,7 @@ use pooled new/delete.
 
 An article on its design and implementation is available at
 
-http://nvwa.sourceforge.net/article/static_mem_pool.htm
+[Design and Implementation of a Static Memory Pool][lnk_static_mem_pool]
 
 *tree.h*
 
@@ -324,6 +324,18 @@ of storage policy, which can be either *unique* or *shared*.  Traversal
 utility classes are provided so that traversing a tree can be simply
 done in a range-based for loop.  The test code, *test/test\_tree.cpp*,
 shows its basic usage.
+
+
+[lnk_leakage]:         http://wyw.dcweb.cn/leakage.htm
+[lnk_static_mem_pool]: http://wyw.dcweb.cn/static_mem_pool.htm
+[lnk_functional_note]: https://yongweiwu.wordpress.com/2014/12/07/study-notes-functional-programming-with-cplusplus/
+[lnk_y_combinator]:    https://yongweiwu.wordpress.com/2014/12/14/y-combinator-and-cplusplus/
+[lnk_type_deduction]:  https://yongweiwu.wordpress.com/2014/12/29/type-deduction-and-my-reference-mistakes/
+[lnk_generic_lambdas]: https://yongweiwu.wordpress.com/2015/01/03/generic-lambdas-and-the-compose-function/
+[lnk_coroutines]:      https://yongweiwu.wordpress.com/2016/08/16/python-yield-and-cplusplus-coroutines/
+[lnk_line_readers]:    https://yongweiwu.wordpress.com/2016/11/12/performance-of-my-line-readers/
+[lnk_memory_trace]:    https://yongweiwu.wordpress.com/2017/09/14/c-cxx-performance-mmap-and-string_view/
+[lnk_memory_trace]:    https://yongweiwu.wordpress.com/2022/01/26/contextual-memory-tracing/
 
 
 <!--
