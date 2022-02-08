@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2014-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2014-2022 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2021-09-08
+ * @date  2022-02-08
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -453,7 +453,7 @@ public:
         if (_M_engaged) {
             return _M_value;
         } else {
-            return default_value;
+            return _Tp(std::forward<_Up>(default_value));
         }
     }
     template <typename _Up>
@@ -462,7 +462,7 @@ public:
         if (_M_engaged) {
             return std::move(_M_value);
         } else {
-            return default_value;
+            return _Tp(std::forward<_Up>(default_value));
         }
     }
 
@@ -488,7 +488,7 @@ public:
     void emplace(_Targs&&... args)
     {
         reset();
-        new (&_M_value) _Tp(std::forward<decltype(args)>(args)...);
+        new (&_M_value) _Tp(std::forward<_Targs>(args)...);
         _M_engaged = true;
     }
 };
