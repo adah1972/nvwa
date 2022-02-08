@@ -42,6 +42,7 @@
 #include <functional>           // std::function/ref
 #include <iterator>             // std::begin/iterator_traits
 #include <memory>               // std::allocator
+#include <new>                  // placement new
 #include <stdexcept>            // std::logic_error
 #include <string>               // std::string
 #include <tuple>                // std::tuple
