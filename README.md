@@ -256,7 +256,7 @@ Cf. *mmap\_line\_reader.h*.
 This file contains the line reading class template I implemented
 modelling the Python approach.  It makes reading lines from a file a
 simple loop.  This implementation uses memory-mapped file I/O.  Cf.
-i*stream\_line\_reader.h*, *file\_line\_reader.h*, and
+*istream\_line\_reader.h*, *file\_line\_reader.h*, and
 *mmap\_byte\_reader.h*.
 
 See the following blogs for the motivation and example code:
