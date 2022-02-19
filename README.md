@@ -98,9 +98,9 @@ allocation/deallocation routines and they will be converted with
 `addr2line` (or `atos` on macOS) on the fly.  This makes memory tracing
 much easier.
 
-*NOTE for Linux/macOS users*: Nowadays GCC and Clang create
-position-independent executables (PIE) by default so that the OS can
-apply address space layout randomization (ASLR), loading a PIE at a
+*Note for Linux/macOS users:* Nowadays GCC and Clang create
+*position-independent executables* (PIEs) by default so that the OS can
+apply *address space layout randomization* (ASLR), loading a PIE at a
 random address each time it is executed and making it difficult to
 convert the address to symbols.  The simple solution is to use the
 command-line option `-no-pie` on Linux, or `-Wl,-no_pie` on macOS.
