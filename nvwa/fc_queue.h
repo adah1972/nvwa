@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2009-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2009-2022 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2021-12-07
+ * @date  2022-03-22
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -87,7 +87,7 @@ public:
      *                  - <code>capacity() == 0</code>
      *                  - <code>size() == 0</code>
      */
-    fc_queue() noexcept(noexcept(allocator_type()))
+    fc_queue()
         : _M_head(nullptr),
           _M_tail(nullptr),
           _M_begin(nullptr),
