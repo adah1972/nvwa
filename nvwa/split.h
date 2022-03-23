@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2020-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2020-2022 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -39,7 +39,7 @@
  * }
  * @endcode
  *
- * @date  2021-08-06
+ * @date  2022-03-23
  */
 
 #ifndef NVWA_SPLIT_H
@@ -75,7 +75,7 @@ public:
      *
      * The iterator \e owns the content.
      */
-    class iterator {  // implements InputIterator
+    class iterator {  // implements ForwardIterator
     public:
         typedef ptrdiff_t                         difference_type;
         typedef std::basic_string_view<char_type> value_type;
