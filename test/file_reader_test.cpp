@@ -13,7 +13,7 @@
 #include <boost/test/unit_test.hpp>
 
 const char* FILE1 = "../LICENCE";
-const char* FILE2 = "../README";
+const char* FILE2 = "../README.md";
 
 std::vector<std::string> read_file(const char* filename)
 {
