@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2022-03-22
+ * @date  2022-03-23
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -79,19 +79,20 @@ public:
     /**
      * Default-constructor that creates an empty queue.
      *
-     * It is not very useful, except as the target of an assignment.
+     * It is not very useful, except as the target of an assignment.  Please
+     * notice that calling \c capacity() would not get the correct result at
+     * this moment.
      *
      * @post            The following conditions will hold:
      *                  - <code>empty()</code>
      *                  - <code>full()</code>
-     *                  - <code>capacity() == 0</code>
      *                  - <code>size() == 0</code>
      */
-    fc_queue()
+    constexpr fc_queue()
         : _M_head(nullptr),
           _M_tail(nullptr),
           _M_begin(nullptr),
-          _M_end(_M_begin + 1)
+          _M_end(nullptr)
     {
     }
 
@@ -461,7 +462,7 @@ private:
     pointer increment(pointer ptr) const noexcept
     {
         ++ptr;
-        if (ptr == _M_end) {
+        if (ptr >= _M_end) {
             ptr = _M_begin;
         }
         return ptr;
@@ -551,7 +552,7 @@ fc_queue<_Tp, _Alloc>::fc_queue(fc_queue&& rhs) noexcept(
     _M_begin = rhs._M_begin;
     _M_end = rhs._M_end;
     rhs._M_begin = nullptr;
-    rhs._M_end = rhs._M_begin + 1;
+    rhs._M_end = rhs._M_begin;
 }
 
 /**

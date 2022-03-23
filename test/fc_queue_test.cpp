@@ -203,7 +203,6 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
     nvwa::fc_queue<int> s;
     BOOST_CHECK(s.empty());
     BOOST_CHECK(s.full());
-    BOOST_CHECK_EQUAL(s.capacity(), 0U);
     BOOST_CHECK_EQUAL(s.size(), 0U);
     s = q;
     BOOST_CHECK(!q.empty());
