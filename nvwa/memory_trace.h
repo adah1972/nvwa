@@ -32,7 +32,7 @@
  * Header file for tracing memory with contextual checkpoints.  The
  * current code requires a C++17-compliant compiler.
  *
- * @date  2022-01-10
+ * @date  2022-04-04
  */
 
 #ifndef NVWA_MEMORY_TRACE_H
@@ -61,6 +61,9 @@ struct context {
     const char* file;
     const char* func;
 };
+
+bool operator==(const context& lhs, const context& rhs);
+bool operator!=(const context& lhs, const context& rhs);
 
 class checkpoint {
 public:

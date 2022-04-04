@@ -31,7 +31,7 @@
  *
  * Implementation of memory tracing facilities.
  *
- * @date  2022-01-26
+ * @date  2022-04-04
  */
 
 #include "memory_trace.h"       // memory trace declarations
@@ -74,12 +74,6 @@ thread_local std::deque<NVWA::context,
                         NVWA::malloc_allocator<NVWA::context>>
     context_stack{{"<UNKNOWN>", "<UNKNOWN>"}};
 
-bool operator==(const NVWA::context& lhs, const NVWA::context& rhs)
-{
-    return strcmp(lhs.file, rhs.file) == 0 &&
-           strcmp(lhs.func, rhs.func) == 0;
-}
-
 const NVWA::context& get_current_context()
 {
     assert(!context_stack.empty());
@@ -96,7 +90,7 @@ void save_context(const NVWA::context& ctx)
     context_stack.push_back(ctx);
 }
 
-void restore_context(const NVWA::context& ctx)
+void restore_context([[maybe_unused]] const NVWA::context& ctx)
 {
     assert(!context_stack.empty() && context_stack.back() == ctx);
     context_stack.pop_back();
@@ -111,6 +105,17 @@ bool new_verbose_flag = false;
 FILE* new_output_fp = stderr;
 size_t current_mem_alloc = 0;
 size_t total_mem_alloc_cnt_accum = 0;
+
+bool operator==(const context& lhs, const context& rhs)
+{
+    return strcmp(lhs.file, rhs.file) == 0 &&
+           strcmp(lhs.func, rhs.func) == 0;
+}
+
+bool operator!=(const context& lhs, const context& rhs)
+{
+    return !(lhs == rhs);
+}
 
 checkpoint::checkpoint(const context& ctx) : ctx_(ctx)
 {
