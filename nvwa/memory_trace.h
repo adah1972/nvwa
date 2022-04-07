@@ -32,7 +32,7 @@
  * Header file for tracing memory with contextual checkpoints.  The
  * current code requires a C++17-compliant compiler.
  *
- * @date  2022-04-04
+ * @date  2022-04-07
  */
 
 #ifndef NVWA_MEMORY_TRACE_H
@@ -87,7 +87,7 @@ private:
     static int _S_count;
 };
 
-static memory_trace_counter __debug_new_count;
+static memory_trace_counter __memory_trace_count;
 
 NVWA_NAMESPACE_END
 
