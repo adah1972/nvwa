@@ -31,7 +31,7 @@
  *
  * Implementation of memory tracing facilities.
  *
- * @date  2022-04-04
+ * @date  2022-04-12
  */
 
 #include "memory_trace.h"       // memory trace declarations
@@ -127,30 +127,32 @@ checkpoint::~checkpoint()
     restore_context(ctx_);
 }
 
-constexpr uint32_t CMT_MAGIC = 0x54'4D'43'4E;
+constexpr uint32_t CMT_MAGIC = 0x4D'58'54'43;  // "CTXM";
 
-struct new_ptr_list_t {
-    new_ptr_list_t* next;            ///< Pointer to the next memory block
-    new_ptr_list_t* prev;            ///< Pointer to the previous memory block
-    size_t          size;            ///< Size of the memory block
-    context         ctx;             ///< The context
-    uint32_t        head_size : 31;  ///< Size of this struct, aligned
-    uint32_t        is_array : 1;    ///< Non-zero iff <em>new[]</em> is used
-    uint32_t        magic;           ///< Magic number for error detection
+struct alloc_list_base {
+    alloc_list_base* next;  ///< Pointer to the next memory block
+    alloc_list_base* prev;  ///< Pointer to the previous memory block
 };
 
-new_ptr_list_t new_ptr_list = {
-    &new_ptr_list, &new_ptr_list, 0, {}, alloc_is_not_array, 0, CMT_MAGIC};
+struct alloc_list_t : alloc_list_base {
+    size_t   size;            ///< Size of the memory block
+    context  ctx;             ///< The context
+    uint32_t head_size : 31;  ///< Size of this struct, aligned
+    uint32_t is_array : 1;    ///< Non-zero iff <em>new[]</em> is used
+    uint32_t magic;           ///< Magic number for error detection
+};
 
-constexpr uint32_t
-align(size_t s, size_t alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__)
+alloc_list_base alloc_list = {
+    &alloc_list,  // head (next)
+    &alloc_list,  // tail (prev)
+};
+
+constexpr uint32_t align(size_t alignment, size_t s)
 {
     return static_cast<uint32_t>((s + alignment - 1) & ~(alignment - 1));
 }
 
-constexpr uint32_t ALIGNED_LIST_ITEM_SIZE = align(sizeof(new_ptr_list_t));
-
-new_ptr_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
+alloc_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
 {
     auto offset = static_cast<char*>(usr_ptr) - static_cast<char*>(nullptr);
     auto adjusted_ptr = static_cast<char*>(usr_ptr);
@@ -166,8 +168,8 @@ new_ptr_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
         adjusted_ptr = static_cast<char*>(usr_ptr) - sizeof(size_t);
         is_adjusted = true;
     }
-    auto ptr = reinterpret_cast<new_ptr_list_t*>(
-        adjusted_ptr - align(sizeof(new_ptr_list_t), alignment));
+    auto ptr = reinterpret_cast<alloc_list_t*>(
+        adjusted_ptr - align(alignment, sizeof(alloc_list_t)));
     if (ptr->magic == CMT_MAGIC && (!is_adjusted || ptr->is_array)) {
         return ptr;
     }
@@ -175,8 +177,8 @@ new_ptr_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
     if (!is_adjusted && alignment > sizeof(size_t)) {
         // Again, likely caused by new[] followed by delete, as aligned
         // new[] allocates alignment extra space for the array size.
-        ptr = reinterpret_cast<new_ptr_list_t*>(
-            reinterpret_cast<char*>(ptr) - alignment);
+        ptr = reinterpret_cast<alloc_list_t*>(reinterpret_cast<char*>(ptr) -
+                                              alignment);
         is_adjusted = true;
     }
     if (ptr->magic == CMT_MAGIC && (!is_adjusted || ptr->is_array)) {
@@ -191,24 +193,24 @@ void* alloc_mem(size_t size, const context& ctx, is_array_t is_array,
 {
     assert(alignment >= __STDCPP_DEFAULT_NEW_ALIGNMENT__);
 
-    uint32_t aligned_list_item_size = align(sizeof(new_ptr_list_t), alignment);
-    size_t s = size + aligned_list_item_size;
-    auto ptr = static_cast<new_ptr_list_t*>(aligned_malloc(s, alignment));
+    uint32_t aligned_list_node_size = align(alignment, sizeof(alloc_list_t));
+    size_t s = size + aligned_list_node_size;
+    auto ptr = static_cast<alloc_list_t*>(aligned_malloc(s, alignment));
     if (ptr == nullptr) {
         return nullptr;
     }
-    auto usr_ptr = reinterpret_cast<char*>(ptr) + aligned_list_item_size;
+    auto usr_ptr = reinterpret_cast<char*>(ptr) + aligned_list_node_size;
     ptr->ctx = ctx;
     ptr->is_array = is_array;
     ptr->size = size;
-    ptr->head_size = aligned_list_item_size;
+    ptr->head_size = aligned_list_node_size;
     ptr->magic = CMT_MAGIC;
     {
         fast_mutex_autolock guard{new_ptr_lock};
-        ptr->prev = new_ptr_list.prev;
-        ptr->next = &new_ptr_list;
-        new_ptr_list.prev->next = ptr;
-        new_ptr_list.prev = ptr;
+        ptr->prev = alloc_list.prev;
+        ptr->next = &alloc_list;
+        alloc_list.prev->next = ptr;
+        alloc_list.prev = ptr;
         current_mem_alloc += size;
         ++total_mem_alloc_cnt_accum;
     }
@@ -265,26 +267,23 @@ int check_leaks()
     int leak_cnt = 0;
     fast_mutex_autolock guard_ptr{new_ptr_lock};
     fast_mutex_autolock guard_output{new_output_lock};
-    new_ptr_list_t* ptr = new_ptr_list.next;
+    auto ptr = static_cast<alloc_list_t*>(alloc_list.next);
 
-    while (ptr != &new_ptr_list) {
-        auto usr_ptr =
-            reinterpret_cast<const char*>(ptr) + ALIGNED_LIST_ITEM_SIZE;
+    while (ptr != &alloc_list) {
         if (ptr->magic != CMT_MAGIC) {
-            fprintf(new_output_fp, "warning: heap data corrupt near %p\n",
-                    usr_ptr);
-        } else {
-            // Adjust usr_ptr after the basic sanity check
-            usr_ptr = reinterpret_cast<const char*>(ptr) + ptr->head_size;
+            fprintf(new_output_fp, "error: heap data corrupt near %p\n",
+                    &ptr->magic);
+            NVWA_CMT_ERROR_ACTION();
         }
 
+        auto usr_ptr = reinterpret_cast<const char*>(ptr) + ptr->head_size;
         fprintf(new_output_fp, "Leaked object at %p (size %zu, ", usr_ptr,
                 ptr->size);
 
         print_context(ptr->ctx, new_output_fp);
         fprintf(new_output_fp, ")\n");
 
-        ptr = ptr->next;
+        ptr = static_cast<alloc_list_t*>(ptr->next);
         ++leak_cnt;
     }
     if (leak_cnt) {
