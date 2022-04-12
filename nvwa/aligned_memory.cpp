@@ -27,11 +27,11 @@
  */
 
 /**
- * @file  aligned_memory.h
+ * @file  aligned_memory.cpp
  *
  * Implementation of aligned memory allocation/deallocation.
  *
- * @date  2022-01-03
+ * @date  2022-04-12
  */
 
 #include "aligned_memory.h"     // aligned memory declarations
