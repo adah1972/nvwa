@@ -31,24 +31,20 @@
  *
  * Implementation of memory tracing facilities.
  *
- * @date  2022-04-12
+ * @date  2022-04-13
  */
 
 #include "memory_trace.h"       // memory trace declarations
 #include <assert.h>             // assert
 #include <stddef.h>             // size_t
 #include <stdint.h>             // uint32_t
-#include <stdlib.h>             // abort
+#include <stdlib.h>             // abort/malloc/free
 #include <string.h>             // strcmp
 #include <deque>                // std::deque
 #include "_nvwa.h"              // NVWA macros
 #include "aligned_memory.h"     // nvwa::aligned_malloc/aligned_free
 #include "fast_mutex.h"         // nvwa::fast_mutex/fast_mutex_autolock
 #include "malloc_allocator.h"   // nvwa::malloc_allocator
-
-#if NVWA_WIN32
-#include <malloc.h>             // _aligned_malloc/_aligned_free
-#endif
 
 #ifndef NVWA_CMT_ERROR_ACTION
 #define NVWA_CMT_ERROR_ACTION() abort()
@@ -194,11 +190,18 @@ void* alloc_mem(size_t size, const context& ctx, is_array_t is_array,
     assert(alignment >= __STDCPP_DEFAULT_NEW_ALIGNMENT__);
 
     uint32_t aligned_list_node_size = align(alignment, sizeof(alloc_list_t));
-    size_t s = size + aligned_list_node_size;
-    auto ptr = static_cast<alloc_list_t*>(aligned_malloc(s, alignment));
+    alloc_list_t* ptr;
+    if (alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+        ptr = static_cast<alloc_list_t*>(
+            aligned_malloc(size + aligned_list_node_size, alignment));
+    } else {
+        ptr = static_cast<alloc_list_t*>(
+            malloc(size + aligned_list_node_size));
+    }
     if (ptr == nullptr) {
         return nullptr;
     }
+
     auto usr_ptr = reinterpret_cast<char*>(ptr) + aligned_list_node_size;
     ptr->ctx = ctx;
     ptr->is_array = is_array;
@@ -259,7 +262,12 @@ void free_mem(void* usr_ptr, is_array_t is_array,
                 "delete%s: freed %p (size %zu, %zu bytes still allocated)\n",
                 is_array ? "[]" : "", usr_ptr, ptr->size, current_mem_alloc);
     }
-    aligned_free(ptr);
+
+    if (alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+        aligned_free(ptr);
+    } else {
+        free(ptr);
+    }
 }
 
 int check_leaks()
