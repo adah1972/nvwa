@@ -238,15 +238,14 @@ void free_mem(void* usr_ptr, is_array_t is_array,
     auto ptr = convert_user_ptr(usr_ptr, alignment);
     if (ptr == nullptr) {
         NVWA_CMT_ERROR_MESSAGE("delete%s: invalid pointer %p\n",
-                          is_array ? "[]" : "", usr_ptr);
+                               is_array ? "[]" : "", usr_ptr);
         NVWA_CMT_ERROR_ACTION();
     }
     if (is_array != ptr->is_array) {
         const char* msg =
             is_array ? "delete[] after new" : "delete after new[]";
-        NVWA_CMT_ERROR_MESSAGE(
-                "%s: pointer %p (size %zu)\n",
-                msg, usr_ptr, ptr->size);
+        NVWA_CMT_ERROR_MESSAGE("%s: pointer %p (size %zu)\n",
+                               msg, usr_ptr, ptr->size);
         NVWA_CMT_ERROR_ACTION();
     }
     {
