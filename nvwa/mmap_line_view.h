@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2019-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2019-2022 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -33,7 +33,7 @@
  * satisfies the View concept.  It is similar to mmap_line_reader_sv
  * otherwise, and using it requires a C++17-compliant compiler.
  *
- * @date  2021-08-06
+ * @date  2022-04-19
  */
 
 #ifndef NVWA_MMAP_LINE_VIEW_H
@@ -197,12 +197,8 @@ NVWA_NAMESPACE_END
 #if __cplusplus > 201703L && __has_include(<ranges>)
 #include <ranges>
 
-namespace std::ranges {
-
 template <>
-inline constexpr bool enable_view<::NVWA::mmap_line_view> = true;
-
-}
+inline constexpr bool std::ranges::enable_view<NVWA::mmap_line_view> = true;
 #endif
 
 #endif // NVWA_MMAP_LINE_VIEW_H

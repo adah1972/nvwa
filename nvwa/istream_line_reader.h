@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2022 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -43,7 +43,7 @@
  * and has since been modified to make its iterator satisfy the
  * \c InputIterator concept, along with other minor changes.
  *
- * @date  2021-12-19
+ * @date  2022-04-19
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
@@ -158,12 +158,9 @@ NVWA_NAMESPACE_END
 #if __cplusplus > 201703L && __has_include(<ranges>)
 #include <ranges>
 
-namespace std::ranges {
-
 template <>
-inline constexpr bool enable_borrowed_range<::NVWA::istream_line_reader> =
-    true;
-}
+inline constexpr bool
+    std::ranges::enable_borrowed_range<NVWA::istream_line_reader> = true;
 #endif
 
 #endif // NVWA_ISTREAM_LINE_READER_H
