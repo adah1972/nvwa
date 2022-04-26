@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2013-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2013-2022 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Modern C++ feature detection macros and workarounds.
  *
- * @date  2021-12-29
+ * @date  2022-04-26
  */
 
 #ifndef NVWA_CXX_FEATURES_H
@@ -365,6 +365,17 @@
 #define HAVE_CXX17_VARIANT 1
 #else
 #define HAVE_CXX17_VARIANT 0
+#endif
+#endif
+
+#if !defined(HAVE_CXX20_RANGES)
+// Loose requirements for basic ranges support
+#if (__cplusplus > 201703L || \
+     (defined(_MSC_VER) && _MSVC_LANG > 201703)) && \
+    __has_include(<ranges>)
+#define HAVE_CXX20_RANGES 1
+#else
+#define HAVE_CXX20_RANGES 0
 #endif
 #endif
 
