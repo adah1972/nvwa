@@ -4,6 +4,12 @@
 #include <string_view>
 #include <vector>
 #include <boost/test/unit_test.hpp>
+#include "nvwa/c++_features.h"
+
+#if HAVE_CXX20_RANGES
+#include <charconv>
+#include <ranges>
+#endif
 
 constexpr std::string_view str{
     "&grant_type=client_credential&appid=&secret=APPSECRET"};
@@ -44,4 +50,32 @@ BOOST_AUTO_TEST_CASE(split_test)
         ++i;
     }
     BOOST_CHECK(it == end);
+
+#if HAVE_CXX20_RANGES
+    static_assert(std::ranges::forward_range<decltype(result)>);
+    static_assert(std::ranges::view<std::remove_const_t<decltype(result)>>);
+
+#if defined(__cpp_lib_ranges) && __cpp_lib_ranges >= 201911L
+    auto ip = "127.0.0.1"s;
+    auto parts = nvwa::split(ip, "."sv) |
+                 std::views::transform([](std::string_view part) {
+                     unsigned char result{};
+                     auto [ptr, ec] = std::from_chars(
+                         part.data(), part.data() + part.size(), result);
+                     if (ec != std::errc{}) {
+                         throw std::system_error(std::make_error_code(ec));
+                     }
+                     return result;
+                 });
+    std::array expected_result{127, 0, 0, 1};
+    i = 0;
+    for (int n : parts) {
+        if (i >= expected_result.size()) {
+            BOOST_FAIL("Too many parts");
+        }
+        BOOST_TEST(n == expected_result[i++]);
+    }
+    BOOST_TEST(i == expected_result.size());
+#endif
+#endif
 }
