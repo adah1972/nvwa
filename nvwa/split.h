@@ -53,6 +53,7 @@
 #include <type_traits>          // std::is_same_v
 #include <vector>               // std::vector
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++_features.h"       // HAVE_CXX20_RANGES
 
 NVWA_NAMESPACE_BEGIN
 
@@ -89,8 +90,8 @@ public:
               _M_delimiter(delimiter_type())
         {
         }
-        constexpr iterator(const string_type& src, delimiter_type delimiter)
-            : _M_src(&src),
+        constexpr iterator(const string_type* src, delimiter_type delimiter)
+            : _M_src(src),
               _M_pos(0),
               _M_delimiter(delimiter)
         {
@@ -157,6 +158,9 @@ public:
         delimiter_type                  _M_delimiter;
     };
 
+    /** Default constructor.  Only useful for later assignments. */
+    basic_split_view() = default;
+
     /**
      * Constructor.
      *
@@ -166,7 +170,7 @@ public:
      */
     constexpr explicit basic_split_view(const string_type& src,
                                         delimiter_type delimiter) noexcept
-        : _M_src(src), _M_delimiter(delimiter)
+        : _M_src(&src), _M_delimiter(delimiter)
     {
     }
 
@@ -199,8 +203,8 @@ public:
     }
 
 private:
-    const string_type& _M_src;
-    delimiter_type     _M_delimiter;
+    const string_type* _M_src{};
+    delimiter_type     _M_delimiter{};
 };
 
 /**
@@ -219,5 +223,16 @@ split(const _StringType& src, _DelimiterType delimiter) noexcept
 }
 
 NVWA_NAMESPACE_END
+
+#if HAVE_CXX20_RANGES
+#include <ranges>
+
+template <typename _StringType, typename _DelimiterType>
+inline constexpr bool std::ranges::enable_borrowed_range<
+    NVWA::basic_split_view<_StringType, _DelimiterType>> = true;
+template <typename _StringType, typename _DelimiterType>
+inline constexpr bool std::ranges::enable_view<
+    NVWA::basic_split_view<_StringType, _DelimiterType>> = true;
+#endif
 
 #endif // NVWA_SPLIT_H
