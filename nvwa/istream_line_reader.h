@@ -43,7 +43,7 @@
  * and has since been modified to make its iterator satisfy the
  * \c InputIterator concept, along with other minor changes.
  *
- * @date  2022-04-19
+ * @date  2022-04-26
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
@@ -56,6 +56,7 @@
 #include <stdexcept>            // std::runtime_error
 #include <string>               // std::string
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++_features.h"       // HAVE_CXX20_RANGES
 
 NVWA_NAMESPACE_BEGIN
 
@@ -155,7 +156,7 @@ private:
 
 NVWA_NAMESPACE_END
 
-#if __cplusplus > 201703L && __has_include(<ranges>)
+#if HAVE_CXX20_RANGES
 #include <ranges>
 
 template <>

@@ -33,7 +33,7 @@
  * satisfies the View concept.  It is similar to mmap_line_reader_sv
  * otherwise, and using it requires a C++17-compliant compiler.
  *
- * @date  2022-04-19
+ * @date  2022-04-26
  */
 
 #ifndef NVWA_MMAP_LINE_VIEW_H
@@ -45,6 +45,7 @@
 #include <memory>               // std::shared_ptr
 #include <string_view>          // std::string_view
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++_features.h"       // HAVE_CXX20_RANGES
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
 
 NVWA_NAMESPACE_BEGIN
@@ -194,7 +195,7 @@ typedef basic_mmap_line_view<std::string_view> mmap_line_view;
 
 NVWA_NAMESPACE_END
 
-#if __cplusplus > 201703L && __has_include(<ranges>)
+#if HAVE_CXX20_RANGES
 #include <ranges>
 
 template <>
