@@ -39,7 +39,7 @@
  * }
  * @endcode
  *
- * @date  2022-03-23
+ * @date  2022-04-26
  */
 
 #ifndef NVWA_SPLIT_H
@@ -79,8 +79,8 @@ public:
     public:
         typedef ptrdiff_t                         difference_type;
         typedef std::basic_string_view<char_type> value_type;
-        typedef value_type*                       pointer;
-        typedef value_type&                       reference;
+        typedef const value_type*                 pointer;
+        typedef const value_type&                 reference;
         typedef std::forward_iterator_tag         iterator_category;
 
         constexpr iterator() noexcept
@@ -97,12 +97,12 @@ public:
             ++*this;
         }
 
-        reference operator*() noexcept
+        reference operator*() const noexcept
         {
             assert(_M_src != nullptr);
             return _M_cur;
         }
-        pointer operator->() noexcept
+        pointer operator->() const noexcept
         {
             assert(_M_src != nullptr);
             return &_M_cur;
