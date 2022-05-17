@@ -280,7 +280,8 @@ BOOST_AUTO_TEST_CASE(functional_test)
     BOOST_CHECK_EQUAL(nvwa::compose(plus_1, mult_2)(1), 3);
     BOOST_CHECK_EQUAL(nvwa::compose(g, f, id)(1), 0);
 
-    (void)sum<int, int, int, int, int>;  // GCC requires this instantiation
+    // GCC versions prior to 9.4/10.3/11.1 require this instantiation
+    (void)sum<int, int, int, int, int>;
     auto sum_and_square = nvwa::compose(sqr, sum<int, int, int, int, int>);
     BOOST_CHECK_EQUAL(sum_and_square(1, 2, 3, 4, 5), 225);
     auto square_and_sum_2 =
