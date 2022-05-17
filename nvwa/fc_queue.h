@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2022-03-23
+ * @date  2022-05-17
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -40,9 +40,9 @@
 #include <assert.h>             // assert
 #include <atomic>               // std::atomic
 #include <memory>               // std::addressof/allocator/allocator_traits
-#include <new>                  // placement new
-#include <type_traits>          // std::is_trivially_destructible
-#include <utility>              // std::declval/move/swap
+#include <new>                  // std::bad_alloc
+#include <type_traits>          // std::integral_constant/false_type/true_type
+#include <utility>              // std::move/swap
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
 #ifndef NVWA_FC_QUEUE_USE_ATOMIC
@@ -50,6 +50,22 @@
 #endif
 
 NVWA_NAMESPACE_BEGIN
+
+namespace detail {
+
+template <typename _Alloc>
+inline void swap_allocator(_Alloc&, _Alloc&, std::false_type) noexcept
+{
+}
+
+template <typename _Alloc>
+inline void swap_allocator(_Alloc& lhs, _Alloc& rhs, std::true_type) noexcept
+{
+    using std::swap;
+    swap(lhs, rhs);
+}
+
+} /* namespace detail */
 
 /**
  * Class to represent a fixed-capacity queue.  This class has an
@@ -75,6 +91,11 @@ public:
     typedef value_type&                               reference;
     typedef const value_type&                         const_reference;
     typedef std::atomic<pointer>                      atomic_pointer;
+
+    static_assert(
+        allocator_traits::propagate_on_container_move_assignment::value,
+        "fc_queue only supports allocators that propagate on container "
+        "move assignment");
 
     /**
      * Default-constructor that creates an empty queue.
@@ -139,11 +160,10 @@ public:
      * Move-constructor that moves all elements from another queue.
      *
      * @param rhs  the queue to move from
-     * @post       If the allocator does not throw on move, this queue
-     *             will have the same elements as the original \a rhs.
+     * @post       This queue will have the same elements as the original
+     *             \a rhs.
      */
-    fc_queue(fc_queue&& rhs) noexcept(
-        noexcept(allocator_type(std::declval<allocator_type&&>())));
+    fc_queue(fc_queue&& rhs) noexcept;
 
     /**
      * Destructor.  It erases all elements and frees memory.
@@ -188,8 +208,7 @@ public:
      *             queue is unchanged (strong exception safety is
      *             guaranteed).
      */
-    fc_queue& operator=(fc_queue&& rhs) noexcept(
-        noexcept(allocator_type(std::declval<allocator_type&&>())))
+    fc_queue& operator=(fc_queue&& rhs) noexcept
     {
         fc_queue temp(std::move(rhs));
         swap(temp);
@@ -306,8 +325,7 @@ public:
     void push(_Targs&&... args)
     {
         assert(capacity() > 0);
-        allocator_traits::construct(static_cast<allocator_type&>(*this),
-                                    std::addressof(*_M_tail),
+        allocator_traits::construct(get_alloc(), std::addressof(*_M_tail),
                                     std::forward<decltype(args)>(args)...);
         if (full()) {
             pop();
@@ -355,8 +373,7 @@ public:
         if (new_tail == _M_head.load(std::memory_order_acquire)) {
             return false;
         }
-        allocator_traits::construct(static_cast<allocator_type&>(*this),
-                                    std::addressof(*tail),
+        allocator_traits::construct(get_alloc(), std::addressof(*tail),
                                     std::forward<decltype(args)>(args)...);
         _M_tail.store(new_tail, std::memory_order_release);
 #else
@@ -364,8 +381,7 @@ public:
         if (new_tail == _M_head) {
             return false;
         }
-        allocator_traits::construct(static_cast<allocator_type&>(*this),
-                                    std::addressof(*_M_tail),
+        allocator_traits::construct(get_alloc(), std::addressof(*_M_tail),
                                     std::forward<decltype(args)>(args)...);
         _M_tail = new_tail;
 #endif
@@ -429,19 +445,17 @@ public:
      * Exchanges the elements of two queues.
      *
      * @param rhs  the queue to exchange with
-     * @post       If swapping the allocators does not throw, \c *this
-     *             will be swapped with \a rhs.  If swapping the
-     *             allocators throws with strong exception safety
-     *             guarantee, this function will also provide such
-     *             guarantee.
+     * @post       \c *this will be swapped with \a rhs.
      */
-    void swap(fc_queue& rhs)
-        noexcept(noexcept(std::swap(std::declval<allocator_type&>(),
-                                    std::declval<allocator_type&>())))
+    void swap(fc_queue& rhs) noexcept
     {
-        using std::swap;
-        swap(static_cast<allocator_type&>(*this),
-             static_cast<allocator_type&>(rhs));
+        assert(allocator_traits::propagate_on_container_swap::value ||
+               get_alloc() == rhs.get_alloc());
+        detail::swap_allocator(
+            get_alloc(), rhs.get_alloc(),
+            std::integral_constant<
+                bool,
+                allocator_traits::propagate_on_container_swap::value>{});
         swap_pointer(_M_head,  rhs._M_head);
         swap_pointer(_M_tail,  rhs._M_tail);
         swap_pointer(_M_begin, rhs._M_begin);
@@ -492,7 +506,11 @@ private:
     }
     void destroy(pointer ptr)
     {
-        allocator_traits::destroy(static_cast<allocator_type&>(*this), ptr);
+        allocator_traits::destroy(get_alloc(), ptr);
+    }
+    allocator_type& get_alloc()
+    {
+        return *this;
     }
     static void swap_pointer(pointer& lhs, pointer& rhs) noexcept
     {
@@ -532,8 +550,7 @@ fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
 }
 
 template <class _Tp, class _Alloc>
-fc_queue<_Tp, _Alloc>::fc_queue(fc_queue&& rhs) noexcept(
-    noexcept(allocator_type(std::declval<allocator_type&&>())))
+fc_queue<_Tp, _Alloc>::fc_queue(fc_queue&& rhs) noexcept
     : allocator_type(std::move(rhs))
 {
 #if NVWA_FC_QUEUE_USE_ATOMIC
@@ -560,14 +577,10 @@ fc_queue<_Tp, _Alloc>::fc_queue(fc_queue&& rhs) noexcept(
  *
  * @param lhs  the first queue to exchange
  * @param rhs  the second queue to exchange
- * @post       If swapping the allocators does not throw, \a lhs will be
- *             swapped with \a rhs.  If swapping the allocators throws
- *             with strong exception safety guarantee, this function
- *             will also provide such guarantee.
+ * @post       \a lhs will be swapped with \a rhs.
  */
 template <class _Tp, class _Alloc>
-void swap(fc_queue<_Tp, _Alloc>& lhs,
-          fc_queue<_Tp, _Alloc>& rhs) noexcept(noexcept(lhs.swap(rhs)))
+void swap(fc_queue<_Tp, _Alloc>& lhs, fc_queue<_Tp, _Alloc>& rhs) noexcept
 {
     lhs.swap(rhs);
 }
