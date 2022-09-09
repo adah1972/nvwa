@@ -10,6 +10,13 @@
 #include <boost/test/unit_test.hpp>
 #include "nvwa/pctimer.h"
 
+#if __has_include(<memory_resource>)
+#include <memory_resource>
+using test_alloc = std::pmr::polymorphic_allocator<int>;
+#else
+using test_alloc = std::allocator<int>;
+#endif
+
 using namespace boost::unit_test_framework;
 
 namespace {
@@ -92,7 +99,7 @@ void read_and_check_queue2(nvwa::fc_queue<int>& q)
 
 BOOST_AUTO_TEST_CASE(fc_queue_test)
 {
-    nvwa::fc_queue<int> q(4);
+    nvwa::fc_queue<int, test_alloc> q(4);
     BOOST_TEST_MESSAGE("sizeof fc_queue is " << sizeof q);
     BOOST_CHECK_EQUAL(q.capacity(), 4U);
     BOOST_CHECK_EQUAL(q.size(), 0U);
@@ -152,7 +159,7 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
     BOOST_CHECK_EQUAL(q.front(), 5);
     BOOST_CHECK_EQUAL(q.back(), 5);
 
-    nvwa::fc_queue<int> r(q);
+    nvwa::fc_queue<int, test_alloc> r(q);
     q.pop();
     BOOST_CHECK_EQUAL(q.size(), 0U);
     BOOST_CHECK(!q.full());
@@ -169,7 +176,7 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
     BOOST_CHECK_EQUAL(q.front(), 5);
     BOOST_CHECK_EQUAL(q.back(), 5);
 
-    nvwa::fc_queue<int> s;
+    nvwa::fc_queue<int, test_alloc> s;
     BOOST_CHECK(s.empty());
     BOOST_CHECK(s.full());
     BOOST_CHECK_EQUAL(s.size(), 0U);
@@ -184,7 +191,7 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
     BOOST_CHECK_EQUAL(s.back(), 5);
     BOOST_CHECK_EQUAL(s.capacity(), 4U);
     BOOST_CHECK_EQUAL(s.size(), 1U);
-    s = nvwa::fc_queue<int>(5);
+    s = nvwa::fc_queue<int, test_alloc>(5);
     BOOST_CHECK(s.empty());
     BOOST_CHECK(!s.full());
     BOOST_CHECK_EQUAL(s.capacity(), 5U);
@@ -204,6 +211,23 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
     BOOST_CHECK_EQUAL(q.size(), 2U);
     BOOST_CHECK_EQUAL(s.front(), 5);
     BOOST_CHECK_EQUAL(s.back(), 5);
+
+#if __has_include(<memory_resource>)
+    nvwa::fc_queue<int, std::pmr::polymorphic_allocator<int>> t(4);
+    BOOST_CHECK_EQUAL(t.capacity(), 4U);
+    BOOST_CHECK_EQUAL(t.size(), 0U);
+    BOOST_CHECK(!t.full());
+    BOOST_CHECK(t.empty());
+    t.push(1);
+    BOOST_CHECK_EQUAL(t.size(), 1U);
+
+    std::pmr::unsynchronized_pool_resource res;
+    std::pmr::polymorphic_allocator<int> a{&res};
+    nvwa::fc_queue<int, std::pmr::polymorphic_allocator<int>> u{a};
+    u = t;
+    BOOST_CHECK_EQUAL(u.capacity(), 4U);
+    BOOST_CHECK_EQUAL(u.size(), 1U);
+#endif
 }
 
 BOOST_AUTO_TEST_CASE(fc_queue_parallel_test)

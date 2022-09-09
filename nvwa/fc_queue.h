@@ -92,11 +92,6 @@ public:
     typedef const value_type&                         const_reference;
     typedef std::atomic<pointer>                      atomic_pointer;
 
-    static_assert(
-        allocator_traits::propagate_on_container_move_assignment::value,
-        "fc_queue only supports allocators that propagate on container "
-        "move assignment");
-
     /**
      * Default-constructor that creates an empty queue.
      *
@@ -111,6 +106,28 @@ public:
      */
     constexpr fc_queue()
         : _M_head(nullptr),
+          _M_tail(nullptr),
+          _M_begin(nullptr),
+          _M_end(nullptr)
+    {
+    }
+
+    /**
+     * Constructor that creates an empty queue.
+     *
+     * It is not very useful, except as the target of an assignment.  Please
+     * notice that calling \c capacity() would not get the correct result at
+     * this moment.
+     *
+     * @param alloc     the allocator to use
+     * @post            The following conditions will hold:
+     *                  - <code>empty()</code>
+     *                  - <code>full()</code>
+     *                  - <code>size() == 0</code>
+     */
+    constexpr explicit fc_queue(const allocator_type& alloc)
+        : allocator_type(alloc),
+          _M_head(nullptr),
           _M_tail(nullptr),
           _M_begin(nullptr),
           _M_end(nullptr)
@@ -154,7 +171,12 @@ public:
      *             thrown during memory allocation and element copy),
      *             this queue will have the same elements as \a rhs.
      */
-    fc_queue(const fc_queue& rhs);
+    fc_queue(const fc_queue& rhs)
+        : fc_queue(rhs,
+                   allocator_traits::select_on_container_copy_construction(
+                       rhs.get_alloc()))
+    {
+    }
 
     /**
      * Move-constructor that moves all elements from another queue.
@@ -193,8 +215,13 @@ public:
      */
     fc_queue& operator=(const fc_queue& rhs)
     {
-        fc_queue temp(rhs);
-        swap(temp);
+        if (allocator_traits::propagate_on_container_copy_assignment::value) {
+            fc_queue temp(rhs, rhs.get_alloc());
+            swap(temp);
+        } else {
+            fc_queue temp(rhs, get_alloc());
+            swap(temp);
+        }
         return *this;
     }
 
@@ -210,8 +237,14 @@ public:
      */
     fc_queue& operator=(fc_queue&& rhs) noexcept
     {
-        fc_queue temp(std::move(rhs));
-        swap(temp);
+        if (allocator_traits::propagate_on_container_move_assignment::value ||
+            get_alloc() == rhs.get_alloc()) {
+            fc_queue temp(std::move(rhs));
+            swap(temp);
+        } else {
+            fc_queue temp(std::move(rhs), get_alloc());
+            swap(temp);
+        }
         return *this;
     }
 
@@ -473,6 +506,9 @@ public:
     }
 
 private:
+    fc_queue(const fc_queue& rhs, const allocator_type& alloc);
+    fc_queue(fc_queue&& rhs, const allocator_type& alloc);
+
     pointer increment(pointer ptr) const noexcept
     {
         ++ptr;
@@ -542,15 +578,25 @@ private:
 };
 
 template <class _Tp, class _Alloc>
-fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
-    : fc_queue(rhs.capacity(),
-               allocator_traits::select_on_container_copy_construction(
-                   rhs.get_alloc()))
+fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs, const allocator_type& alloc)
+    : fc_queue(rhs.capacity(), alloc)
 {
     pointer ptr = rhs._M_head;
     pointer tail = rhs._M_tail;
     while (ptr != tail) {
         push(*ptr);
+        ptr = rhs.increment(ptr);
+    }
+}
+
+template <class _Tp, class _Alloc>
+fc_queue<_Tp, _Alloc>::fc_queue(fc_queue&& rhs, const allocator_type& alloc)
+    : fc_queue(rhs.capacity(), alloc)
+{
+    pointer ptr = rhs._M_head;
+    pointer tail = rhs._M_tail;
+    while (ptr != tail) {
+        push(std::move(*ptr));
         ptr = rhs.increment(ptr);
     }
 }
