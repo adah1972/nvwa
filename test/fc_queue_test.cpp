@@ -12,38 +12,7 @@
 
 using namespace boost::unit_test_framework;
 
-class Obj {
-public:
-    Obj() {}
-    ~Obj() noexcept(false) {}
-};
-
-void swap(Obj& lhs, Obj& rhs) noexcept;
-
 namespace {
-
-template <typename T>
-void check_type()
-{
-    using test_type = nvwa::fc_queue<T>;
-
-    BOOST_TEST_MESSAGE("Checking type "
-                       << boost::core::demangle(typeid(test_type).name()));
-    BOOST_TEST_MESSAGE("is_nothrow_constructible is "
-                << std::is_nothrow_constructible<test_type>::value);
-    BOOST_TEST_MESSAGE("is_nothrow_default_constructible is "
-                << std::is_nothrow_default_constructible<test_type>::value);
-    BOOST_TEST_MESSAGE("is_nothrow_move_constructible is "
-                << std::is_nothrow_move_constructible<test_type>::value);
-    BOOST_TEST_MESSAGE("is_nothrow_copy_constructible is "
-                << std::is_nothrow_copy_constructible<test_type>::value);
-    BOOST_TEST_MESSAGE("is_nothrow_move_assignable is "
-                << std::is_nothrow_move_assignable<test_type>::value);
-    BOOST_TEST_MESSAGE("is_nothrow_copy_assignable is "
-                << std::is_nothrow_copy_assignable<test_type>::value);
-    BOOST_TEST_MESSAGE("is_nothrow_destructible is "
-                << std::is_nothrow_destructible<test_type>::value);
-}
 
 const int LOOPS = 10'000'000;
 std::atomic<bool> parallel_test_failed{false};
@@ -235,9 +204,6 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
     BOOST_CHECK_EQUAL(q.size(), 2U);
     BOOST_CHECK_EQUAL(s.front(), 5);
     BOOST_CHECK_EQUAL(s.back(), 5);
-
-    check_type<int>();
-    check_type<Obj>();
 }
 
 BOOST_AUTO_TEST_CASE(fc_queue_parallel_test)
