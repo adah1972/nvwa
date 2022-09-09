@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2022-01-10
+ * @date  2022-09-09
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -677,7 +677,9 @@ void* alloc_mem(size_t size, const char* file, int line,
                   "Alignment must be power of two");
     static_assert(_DEBUG_NEW_TAILCHECK >= 0, "Invalid tail check length");
     assert(line >= 0);
-    assert(alignment >= _DEBUG_NEW_ALIGNMENT);
+    if (alignment < _DEBUG_NEW_ALIGNMENT) {
+        alignment = _DEBUG_NEW_ALIGNMENT;
+    }
 
     uint32_t aligned_list_item_size = align(sizeof(new_ptr_list_t), alignment);
     size_t s = size + aligned_list_item_size + _DEBUG_NEW_TAILCHECK;
@@ -773,7 +775,9 @@ void* alloc_mem(size_t size, const char* file, int line,
 void free_pointer(void* usr_ptr, void* addr, is_array_t is_array,
                   size_t alignment = _DEBUG_NEW_ALIGNMENT)
 {
-    assert(alignment >= _DEBUG_NEW_ALIGNMENT);
+    if (alignment < _DEBUG_NEW_ALIGNMENT) {
+        alignment = _DEBUG_NEW_ALIGNMENT;
+    }
     if (usr_ptr == nullptr) {
         return;
     }
