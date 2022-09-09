@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2022-05-17
+ * @date  2022-09-09
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -469,7 +469,7 @@ public:
      */
     allocator_type get_allocator() const
     {
-        return *this;
+        return get_alloc();
     }
 
 private:
@@ -510,7 +510,11 @@ private:
     }
     allocator_type& get_alloc()
     {
-        return *this;
+        return static_cast<allocator_type&>(*this);
+    }
+    const allocator_type& get_alloc() const
+    {
+        return static_cast<const allocator_type&>(*this);
     }
     static void swap_pointer(pointer& lhs, pointer& rhs) noexcept
     {
@@ -539,7 +543,9 @@ private:
 
 template <class _Tp, class _Alloc>
 fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
-    : fc_queue(rhs.capacity(), rhs.get_allocator())
+    : fc_queue(rhs.capacity(),
+               allocator_traits::select_on_container_copy_construction(
+                   rhs.get_alloc()))
 {
     pointer ptr = rhs._M_head;
     pointer tail = rhs._M_tail;
@@ -551,7 +557,7 @@ fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs)
 
 template <class _Tp, class _Alloc>
 fc_queue<_Tp, _Alloc>::fc_queue(fc_queue&& rhs) noexcept
-    : allocator_type(std::move(rhs))
+    : allocator_type(std::move(rhs.get_alloc()))
 {
 #if NVWA_FC_QUEUE_USE_ATOMIC
     _M_head.store(rhs._M_head.load(std::memory_order_relaxed),
