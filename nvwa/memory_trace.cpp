@@ -37,7 +37,7 @@
 #include "memory_trace.h"       // memory trace declarations
 #include <assert.h>             // assert
 #include <stddef.h>             // size_t
-#include <stdint.h>             // uint32_t
+#include <stdint.h>             // uint32_t/uintptr_t
 #include <stdlib.h>             // abort/malloc/free
 #include <string.h>             // strcmp
 #include <deque>                // std::deque
@@ -150,7 +150,7 @@ constexpr uint32_t align(size_t alignment, size_t s)
 
 alloc_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
 {
-    auto offset = static_cast<char*>(usr_ptr) - static_cast<char*>(nullptr);
+    auto offset = reinterpret_cast<uintptr_t>(usr_ptr);
     auto adjusted_ptr = static_cast<char*>(usr_ptr);
     bool is_adjusted = false;
 

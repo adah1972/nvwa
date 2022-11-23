@@ -36,7 +36,7 @@
 
 #include <new>                  // std::bad_alloc/nothrow_t
 #include <assert.h>             // assert
-#include <stdint.h>             // uint32_t
+#include <stdint.h>             // uint32_t/uintptr_t
 #include <stdio.h>              // fprintf/stderr/snprintf
 #include <stdlib.h>             // abort/malloc/free/posix_memalign
 #include <string.h>             // strcpy/strncpy
@@ -580,7 +580,7 @@ bool check_tail(new_ptr_list_t* ptr)
  */
 new_ptr_list_t* convert_user_ptr(void* usr_ptr, size_t alignment)
 {
-    auto offset = static_cast<char*>(usr_ptr) - static_cast<char*>(nullptr);
+    auto offset = reinterpret_cast<uintptr_t>(usr_ptr);
     auto adjusted_ptr = static_cast<char*>(usr_ptr);
     bool is_adjusted = false;
 
