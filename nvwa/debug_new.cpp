@@ -31,15 +31,15 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2022-09-09
+ * @date  2022-11-23
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
 #include <assert.h>             // assert
 #include <stdint.h>             // uint32_t
-#include <stdio.h>              // fprintf/stderr
+#include <stdio.h>              // fprintf/stderr/snprintf
 #include <stdlib.h>             // abort/malloc/free/posix_memalign
-#include <string.h>             // strcpy/strncpy/sprintf
+#include <string.h>             // strcpy/strncpy
 #include "_nvwa.h"              // NVWA macros
 
 #if NVWA_UNIX
@@ -409,15 +409,16 @@ bool print_position_from_addr(const void* addr)
 #else
         const char ignore_err[] = "";
 #endif
-        auto cmd = static_cast<char*>(alloca(strlen(new_progname)
-                                             + exeext_len
-                                             + sizeof addr2line_cmd - 1
-                                             + sizeof ignore_err - 1
-                                             + sizeof(void*) * 2
-                                             + 4 /* SP + "0x" + null */));
+        auto prog_len = strlen(new_progname);
+        auto buf_len = prog_len + exeext_len + sizeof addr2line_cmd - 1 +
+                       sizeof ignore_err - 1 + sizeof(void*) * 2 +
+                       4 /* SP + "0x" + null */;
+        auto cmd = static_cast<char*>(alloca(buf_len));
+        size_t len = 0;
         strcpy(cmd, addr2line_cmd);
-        strcpy(cmd + sizeof addr2line_cmd - 1, new_progname);
-        size_t len = strlen(cmd);
+        len += sizeof addr2line_cmd - 1;
+        strcpy(cmd + len, new_progname);
+        len += prog_len;
 #if NVWA_WINDOWS
         if (len <= 4 || (strcmp(cmd + len - 4, ".exe") != 0 &&
                          strcmp(cmd + len - 4, ".EXE") != 0)) {
@@ -425,7 +426,7 @@ bool print_position_from_addr(const void* addr)
             len += 4;
         }
 #endif
-        sprintf(cmd + len, " %p%s", addr, ignore_err);
+        snprintf(cmd + len, buf_len - len, " %p%s", addr, ignore_err);
         FILE* fp = popen(cmd, "r");
         if (fp) {
             char buffer[sizeof last_info] = "";
