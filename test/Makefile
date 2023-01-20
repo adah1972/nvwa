@@ -36,8 +36,8 @@ endif
 LD  = $(CXX) $(CXXFLAGS) $(TARGET_ARCH)
 
 INCLUDE  = -I..
-CFLAGS   = -W -Wall -Wfatal-errors -pthread
-CXXFLAGS = -std=c++1z $(CFLAGS)
+CFLAGS   = -g -Og -W -Wall -pthread
+CXXFLAGS = -std=c++17 -march=native $(CFLAGS)
 CPPFLAGS = -D_DEBUG -DBOOST_TEST_DYN_LINK $(INCLUDE)
 VPATH    = ../nvwa
 
