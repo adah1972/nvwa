@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2022 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2023 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -43,7 +43,7 @@
  * and has since been modified to make its iterator satisfy the
  * \c InputIterator concept, along with other minor changes.
  *
- * @date  2022-04-26
+ * @date  2023-01-20
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
@@ -118,6 +118,13 @@ public:
             // object.  The alternative, using _M_stream->tellg() to
             // get the exact position, harms the performance too dearly.
             // I do not really have a better choice.
+            //
+            // In fact, C++20 has removed the requirement that input
+            // iterators be equality comparable, although I have to
+            // support it, both for comparison with the "sentinel"
+            // (default-constructed iterator here) and for compatibility
+            // with earlier C++ standards (the Cpp17InputIterator
+            // requirement).
             //
             // If you do need to compare valid iterators, consider using
             // file_line_reader or mmap_line_reader.
