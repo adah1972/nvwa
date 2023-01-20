@@ -154,7 +154,7 @@ public:
     }
     iterator end() const noexcept
     {
-        return iterator();
+        return {};
     }
 
 private:

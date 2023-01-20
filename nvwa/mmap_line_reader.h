@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2016-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2016-2023 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Header file for mmap_line_reader and mmap_line_reader_sv, easy-to-use
  * line-based file readers.  It is implemented with memory-mapped file APIs.
  *
- * @date  2021-08-06
+ * @date  2023-01-20
  */
 
 #ifndef NVWA_MMAP_LINE_READER_H
@@ -154,9 +154,9 @@ public:
     {
         return iterator(this);
     }
-    iterator end() const
+    iterator end() const noexcept
     {
-        return iterator();
+        return {};
     }
 
     bool read(_Tp& output, size_t& offset);

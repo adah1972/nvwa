@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2019-2022 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2019-2023 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -33,7 +33,7 @@
  * satisfies the View concept.  It is similar to mmap_line_reader_sv
  * otherwise, and using it requires a C++17-compliant compiler.
  *
- * @date  2022-04-26
+ * @date  2023-01-20
  */
 
 #ifndef NVWA_MMAP_LINE_VIEW_H
@@ -149,8 +149,14 @@ public:
     basic_mmap_line_view(basic_mmap_line_view&&) = default;
     basic_mmap_line_view& operator=(basic_mmap_line_view&&) = default;
 
-    iterator begin() { return iterator(this); }
-    iterator end() const { return iterator(); }
+    iterator begin()
+    {
+        return iterator(this);
+    }
+    iterator end() const noexcept
+    {
+        return {};
+    }
 
     bool read(_Tp& output, size_t& offset);
 

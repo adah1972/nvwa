@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2016-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2016-2023 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2021-12-19
+ * @date  2023-01-20
  */
 
 #ifndef NVWA_FILE_LINE_READER_H
@@ -136,7 +136,7 @@ public:
     }
     iterator end() const noexcept
     {
-        return iterator();
+        return {};
     }
     bool read(char*& output, size_t& size, size_t& capacity);
 

@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2020-2022 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2020-2023 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -39,7 +39,7 @@
  * }
  * @endcode
  *
- * @date  2022-04-26
+ * @date  2023-01-20
  */
 
 #ifndef NVWA_SPLIT_H
@@ -180,7 +180,7 @@ public:
     }
     constexpr iterator end() const noexcept
     {
-        return iterator();
+        return {};
     }
 
     /** Converts the view to a string vector. */
