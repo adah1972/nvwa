@@ -1,5 +1,6 @@
 #include "nvwa/split.h"
 #include <stddef.h>
+#include <array>
 #include <string>
 #include <string_view>
 #include <vector>
