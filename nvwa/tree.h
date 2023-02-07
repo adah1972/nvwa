@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2023 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * A generic tree class template and the traversal utilities.  Using
  * this file requires a C++11-compliant compiler.
  *
- * @date  2021-08-07
+ * @date  2023-02-07
  */
 
 #ifndef NVWA_TREE_H
@@ -153,6 +153,7 @@ public:
     {
         return !_M_children.empty();
     }
+
     template <typename... Args>
     void set_children(Args&&... args)
     {
@@ -180,12 +181,87 @@ public:
                                  std::move(children)));
     }
 
+    // Destroys node and removes children iteratively, in case the
+    // recursive destruction of children causes stack problems.  It can
+    // be used when there are more than two children in a node, but is
+    // optimized for the two-child case.
+    static void destroy(tree_ptr& ptr)
+    {
+        auto current = std::move(ptr);
+        auto parent = null();
+        while (current) {
+            if (current->_M_children.empty()) {
+                // Remove current node and go up
+                current = std::move(parent);
+                continue;
+            }
+            if (parent) {
+                /* Transform
+                 *
+                 *                   4  <-- parent
+                 *                  / \
+                 *    current -->  2   5
+                 *                / \
+                 *               1   3
+                 *
+                 * to
+                 *
+                 *                          parent -->  (null)
+                 *    current -->  2
+                 *                / \
+                 *               1   4
+                 *                  / \
+                 *                 3   5
+                 */
+                if (current->_M_children.size() > 2) {
+                    std::copy(
+                        std::make_move_iterator(
+                            current->_M_children.begin() + 2),
+                        std::make_move_iterator(current->_M_children.end()),
+                        std::back_inserter(parent->_M_children));
+                }
+                parent->_M_children[0] = std::move(current->_M_children[1]);
+                avoid_sole(current->_M_children);
+                current->_M_children[1] = std::move(parent);
+            }
+            // Now parent is null
+            if (current->_M_children[0]) {
+                // Go down the left child
+                parent = std::move(current);
+                current = std::move(parent->_M_children[0]);
+            } else if (current->_M_children.size() == 2) {
+                // Remove current node and go down the (only) right child
+                current = std::move(current->_M_children[1]);
+            } else {
+                // More than two children and the leftmost child is null
+                remove_null_but_avoid_sole(current->_M_children);
+            }
+        }
+    }
+
     static constexpr tree_ptr null()
     {
         return tree_ptr();
     }
 
 private:
+    static void remove_null_but_avoid_sole(children_type& children)
+    {
+        children.erase(std::remove_if(children.begin(), children.end(),
+                                      [](const tree_ptr& ptr) {
+                                          return ptr == nullptr;
+                                      }),
+                       children.end());
+        avoid_sole(children);
+    }
+
+    static void avoid_sole(children_type& children)
+    {
+        if (children.size() == 1) {
+            children.resize(2);
+        }
+    }
+
     _Tp           _M_value{};
     children_type _M_children;
 };

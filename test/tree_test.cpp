@@ -111,6 +111,9 @@ void test_tree()
     }
     BOOST_TEST_MESSAGE("Testing set_children");
     BOOST_CHECK_EQUAL(oss.str(), "1 2 3 ");
+
+    tree<int, Policy>::destroy(root);
+    BOOST_CHECK(!root);
 }
 
 } /* unnamed namespace */
