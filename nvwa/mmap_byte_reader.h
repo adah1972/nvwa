@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2023 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Header file for mmap_byte_reader, an easy-to-use byte-based file reader.
  * It is implemented with memory-mapped file APIs.
  *
- * @date  2021-08-06
+ * @date  2023-03-25
  */
 
 #ifndef NVWA_MMAP_BYTE_READER_H
@@ -40,6 +40,7 @@
 
 #include <stddef.h>             // ptrdiff_t/size_t
 #include <iterator>             // std::random_access_iterator_tag
+#include "c++_features.h"       // HAVE_CXX20_RANGES
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
 
@@ -52,14 +53,20 @@ public:
     static_assert(sizeof(_Tp) == 1, "size of an element must be one");
 
     /** Iterator over the bytes. */
-    class iterator {  // implements RandomAccessIterator
+    class iterator {  // implements ContiguousIterator
     public:
         typedef _Tp                             value_type;
         typedef const value_type*               pointer;
         typedef const value_type&               reference;
         typedef ptrdiff_t                       difference_type;
         typedef std::random_access_iterator_tag iterator_category;
+#if HAVE_CXX20_RANGES && !(defined(__GLIBCXX__) && __GLIBCXX__ < 20210427)
+        // Earlier libstdc++ versions have compilation problems
+        typedef _Tp                             element_type;
+        typedef std::contiguous_iterator_tag    iterator_concept;
+#endif
 
+        iterator() = default;
         explicit iterator(const basic_mmap_byte_reader* reader,
                           size_t offset = 0) noexcept
             : _M_reader(reader), _M_offset(offset)
@@ -96,31 +103,35 @@ public:
             --*this;
             return temp;
         }
-        iterator& operator+=(difference_type i) noexcept
+        iterator& operator+=(difference_type n) noexcept
         {
-            _M_offset += i;
+            _M_offset += n;
             return *this;
         }
-        iterator& operator-=(difference_type i) noexcept
+        iterator& operator-=(difference_type n) noexcept
         {
-            _M_offset -= i;
+            _M_offset -= n;
             return *this;
         }
-        iterator operator+(difference_type i) const noexcept
+        iterator operator+(difference_type n) const noexcept
         {
-            return iterator(_M_reader, _M_offset + i);
+            return iterator(_M_reader, _M_offset + n);
         }
-        iterator operator-(difference_type i) const noexcept
+        iterator operator-(difference_type n) const noexcept
         {
-            return iterator(_M_reader, _M_offset - i);
+            return iterator(_M_reader, _M_offset - n);
         }
         difference_type operator-(const iterator& rhs) const noexcept
         {
             return _M_offset - rhs._M_offset;
         }
-        reference operator[](difference_type i) const noexcept
+        reference operator[](difference_type n) const noexcept
         {
-            return _M_reader->get(_M_offset + i);
+            return _M_reader->get(_M_offset + n);
+        }
+        friend iterator operator+(difference_type n, iterator i) noexcept
+        {
+            return i + n;
         }
 
         bool operator==(const iterator& rhs) const noexcept
@@ -153,8 +164,8 @@ public:
         }
 
     private:
-        const basic_mmap_byte_reader* _M_reader;
-        size_t                        _M_offset;
+        const basic_mmap_byte_reader* _M_reader{};
+        size_t                        _M_offset{};
     };
 
     typedef iterator const_iterator;
