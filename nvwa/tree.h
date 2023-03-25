@@ -32,12 +32,13 @@
  * A generic tree class template and the traversal utilities.  Using
  * this file requires a C++11-compliant compiler.
  *
- * @date  2023-02-07
+ * @date  2023-03-25
  */
 
 #ifndef NVWA_TREE_H
 #define NVWA_TREE_H
 
+#include <algorithm>            // std::remove_if
 #include <assert.h>             // assert
 #include <stddef.h>             // ptrdiff_t
 #include <iterator>             // std::begin/end/make_move_iterator
