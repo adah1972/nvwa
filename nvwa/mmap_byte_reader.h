@@ -32,7 +32,7 @@
  * Header file for mmap_byte_reader, an easy-to-use byte-based file reader.
  * It is implemented with memory-mapped file APIs.
  *
- * @date  2023-03-25
+ * @date  2023-03-26
  */
 
 #ifndef NVWA_MMAP_BYTE_READER_H
@@ -55,16 +55,16 @@ public:
     /** Iterator over the bytes. */
     class iterator {  // implements ContiguousIterator
     public:
+#if HAVE_CXX20_RANGES
+        typedef std::contiguous_iterator_tag    iterator_concept;
+        typedef _Tp                             element_type;
+#else
         typedef _Tp                             value_type;
-        typedef const value_type*               pointer;
-        typedef const value_type&               reference;
+#endif
+        typedef const _Tp*                      pointer;
+        typedef const _Tp&                      reference;
         typedef ptrdiff_t                       difference_type;
         typedef std::random_access_iterator_tag iterator_category;
-#if HAVE_CXX20_RANGES && !(defined(__GLIBCXX__) && __GLIBCXX__ < 20210427)
-        // Earlier libstdc++ versions have compilation problems
-        typedef _Tp                             element_type;
-        typedef std::contiguous_iterator_tag    iterator_concept;
-#endif
 
         iterator() = default;
         explicit iterator(const basic_mmap_byte_reader* reader,
