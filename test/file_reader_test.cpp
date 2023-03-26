@@ -1,3 +1,4 @@
+#include "nvwa/c++_features.h"
 #include "nvwa/file_line_reader.h"
 #include "nvwa/istream_line_reader.h"
 #include "nvwa/mmap_byte_reader.h"
@@ -101,6 +102,16 @@ BOOST_AUTO_TEST_CASE(mmap_byte_reader_test)
     BOOST_CHECK(std::equal(file_content.begin(), file_content.end(),
                            get_byte_content().begin()));
 }
+
+#if HAVE_CXX20_RANGES
+BOOST_AUTO_TEST_CASE(mmap_char_reader_test)
+{
+    nvwa::mmap_char_reader reader{FILE1};
+    std::string_view file_content{reader.begin(), reader.end()};
+    BOOST_CHECK(std::contiguous_iterator<nvwa::mmap_char_reader::iterator>);
+    BOOST_CHECK(get_byte_content() == file_content);
+}
+#endif
 
 BOOST_AUTO_TEST_CASE(mmap_line_reader_test)
 {
