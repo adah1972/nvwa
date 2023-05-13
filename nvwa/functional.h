@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2014-2022 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2014-2023 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2022-02-08
+ * @date  2023-05-13
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -744,6 +744,11 @@ constexpr _Rs reduce(_Fn&& f, _Rs&& value, _Iter begin, _Iter end)
  * nvwa::reduce(print, container_of_my_type, std::cout);
  * @endcode
  *
+ * But this decision also makes it impossible to simply pass, say, an
+ * integer lvalue as \a initval for common operations like addition.
+ * You would then have to use something like \c std::accumulate or
+ * \c std::reduce.
+ *
  * @param f        the function to apply
  * @param inputs   the input range
  * @param initval  initial value for the cumulative calculation @pre
@@ -752,8 +757,7 @@ constexpr _Rs reduce(_Fn&& f, _Rs&& value, _Iter begin, _Iter end)
  *                 and the input range shall support iteration.
  */
 template <typename _Rs, typename _Fn, class _Rng>
-constexpr auto reduce(_Fn&& f, _Rng&& inputs, _Rs&& initval)
-    -> decltype(f(initval, *detail::adl_begin(inputs)))
+constexpr decltype(auto) reduce(_Fn&& f, _Rng&& inputs, _Rs&& initval)
 {
     using std::begin;
     using std::end;
