@@ -17,7 +17,7 @@ using namespace boost::unit_test_framework;
 
 namespace /* unnamed */ {
 
-auto const f = [](int v) { return v - 1.f; };
+auto const f = [](int v) { return v - 1.F; };
 auto const g = [](float v) { return static_cast<int>(v); };
 
 constexpr int increase(int n)
