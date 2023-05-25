@@ -794,7 +794,7 @@ constexpr auto wrap_args_as_tuple(_Fn&& f)
 {
     return [f = std::forward<_Fn>(f)](_Tuple&& t) -> decltype(auto)
     {
-        return nvwa::apply(f, std::forward<_Tuple>(t));
+        return NVWA::apply(f, std::forward<_Tuple>(t));
     };
 }
 

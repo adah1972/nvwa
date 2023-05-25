@@ -52,7 +52,7 @@ template <>     struct compile_time_error<true> {};
 
 #define STATIC_ASSERT(_Expr, _Msg) \
     { \
-        nvwa::compile_time_error<((_Expr) != 0)> ERROR_##_Msg; \
+        NVWA::compile_time_error<((_Expr) != 0)> ERROR_##_Msg; \
         (void)ERROR_##_Msg; \
     }
 
