@@ -157,6 +157,51 @@ public:
     }
 
     /**
+     * Constructor that copies all elements from another queue, using
+     * the specified allocator.
+     *
+     * @param rhs    the queue to copy
+     * @param alloc  the allocator to use
+     * @post         If copy-construction is successful (no exception is
+     *               thrown during memory allocation and element copy),
+     *               this queue will have the same elements as \a rhs.
+     */
+    fc_queue(const fc_queue& rhs, const allocator_type& alloc)
+        : fc_queue(rhs.capacity(), alloc)
+    {
+        copy_members(rhs);
+    }
+
+    /**
+     * Constructor that moves all elements from another queue, using
+     * the specified allocator.
+     *
+     * @param rhs    the queue to move from
+     * @param alloc  the allocator to use
+     * @post         The move-construction will always succeed, if
+     *               \a alloc is equal to the allocator of \a rhs;
+     *               otherwise this constructor needs to allocate
+     *               memory and then move the elements one by one.
+     *               If an exception occurred during memory allocation,
+     *               strong exception safety would be guaranteed.  If an
+     *               exception occurred during the element-wise move
+     *               (which should \e not occur), only basic exception
+     *               safety would be provided.  If everything is
+     *               successful, this queue will have the same elements
+     *               as the original \a rhs.
+     */
+    fc_queue(fc_queue&& rhs, const allocator_type& alloc)
+        : allocator_type(alloc)
+    {
+        if (alloc == rhs.get_alloc()) {
+            move_container(std::move(rhs));
+        } else {
+            initialize_capacity(rhs.capacity());
+            move_members(std::move(rhs));
+        }
+    }
+
+    /**
      * Copy-constructor that copies all elements from another queue.
      *
      * @param rhs  the queue to copy
@@ -182,17 +227,6 @@ public:
         : allocator_type(std::move(rhs.get_alloc()))
     {
         move_container(std::move(rhs));
-    }
-
-    /**
-     * Destructor.  It erases all elements and frees memory.
-     */
-    ~fc_queue()
-    {
-        clear();
-        if (_M_begin) {
-            this->deallocate(_M_begin, _M_end - _M_begin);
-        }
     }
 
     /**
@@ -238,6 +272,17 @@ public:
             swap(temp);
         }
         return *this;
+    }
+
+    /**
+     * Destructor.  It erases all elements and frees memory.
+     */
+    ~fc_queue()
+    {
+        clear();
+        if (_M_begin) {
+            this->deallocate(_M_begin, _M_end - _M_begin);
+        }
     }
 
     /**
@@ -496,17 +541,6 @@ public:
     }
 
 private:
-    fc_queue(const fc_queue& rhs, const allocator_type& alloc)
-        : fc_queue(rhs.capacity(), alloc)
-    {
-        copy_members(rhs);
-    }
-    fc_queue(fc_queue&& rhs, const allocator_type& alloc)
-        : fc_queue(rhs.capacity(), alloc)
-    {
-        move_members(std::move(rhs));
-    }
-
     pointer increment(pointer ptr) const noexcept
     {
         ++ptr;
