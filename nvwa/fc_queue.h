@@ -153,6 +153,7 @@ public:
                       const allocator_type& alloc = allocator_type())
         : allocator_type(alloc)
     {
+        assert(max_size != 0);
         initialize_capacity(max_size);
     }
 
@@ -235,18 +236,29 @@ public:
      * @param rhs  the queue to copy
      * @post       If assignment is successful (no exception is thrown
      *             during memory allocation and element copy), this queue
-     *             will have the same elements as \a rhs.  Otherwise this
-     *             queue is unchanged (strong exception safety is
-     *             guaranteed).
+     *             will have the same elements as \a rhs.
      */
     fc_queue& operator=(const fc_queue& rhs)
     {
-        if (allocator_traits::propagate_on_container_copy_assignment::value) {
-            fc_queue temp(rhs, rhs.get_alloc());
-            swap(temp);
-        } else {
+        if (this == &rhs) {
+            return *this;
+        }
+        const allocator_type& new_alloc =
+            allocator_traits::propagate_on_container_copy_assignment::value
+                ? rhs.get_alloc()
+                : get_alloc();
+        clear();
+        if (get_alloc() != new_alloc) {
+            deallocate();
+            get_alloc() = new_alloc;
+            initialize_capacity(rhs.capacity());
+            copy_members(rhs);
+        } else if (size() != rhs.size()) {
             fc_queue temp(rhs, get_alloc());
             swap(temp);
+        } else {
+            // Allocators are equal & sizes match
+            copy_members(rhs);
         }
         return *this;
     }
@@ -255,21 +267,43 @@ public:
      * Assignment operator that moves all elements from another queue.
      *
      * @param rhs  the queue to move from
-     * @post       If assignment is successful (no exception is thrown
-     *             during memory allocation and element copy), this queue
-     *             will have the same elements as \a rhs.  Otherwise this
-     *             queue is unchanged (strong exception safety is
-     *             guaranteed).
+     * @post       The move-construction will always succeed, if
+     *             \a alloc is equal to the allocator of \a rhs, or the
+     *             allocator propagates on container move assignment;
+     *             otherwise this assignment needs to move the elements
+     *             one by one, and also may need to deallocate and
+     *             allocate memory (if the sizes of the containers do
+     *             not match).  If assignment is successful (no
+     *             exception is thrown during memory allocation and
+     *             element-wise move), this queue will have the same
+     *             elements as \a rhs.
      */
-    fc_queue& operator=(fc_queue&& rhs) noexcept
+    fc_queue& operator=(fc_queue&& rhs) noexcept(
+        allocator_traits::propagate_on_container_move_assignment::value ||
+        allocator_traits::is_always_equal::value)
     {
-        if (allocator_traits::propagate_on_container_move_assignment::value ||
-            get_alloc() == rhs.get_alloc()) {
+        if (this == &rhs) {
+            return *this;
+        }
+        const allocator_type& new_alloc =
+            allocator_traits::propagate_on_container_move_assignment::value
+                ? rhs.get_alloc()
+                : get_alloc();
+        clear();
+        if (get_alloc() != new_alloc) {
+            deallocate();
+            get_alloc() = new_alloc;
+        }
+        if (get_alloc() == rhs.get_alloc()) {
             fc_queue temp(std::move(rhs));
             swap(temp);
         } else {
-            fc_queue temp(std::move(rhs), get_alloc());
-            swap(temp);
+            // Allocators do not propagate and are unequal
+            if (capacity() != rhs.capacity()) {
+                deallocate();
+                initialize_capacity(rhs.capacity());
+            }
+            move_members(std::move(rhs));
         }
         return *this;
     }
@@ -280,9 +314,7 @@ public:
     ~fc_queue()
     {
         clear();
-        if (_M_begin) {
-            this->deallocate(_M_begin, _M_end - _M_begin);
-        }
+        deallocate();
     }
 
     /**
@@ -584,6 +616,14 @@ private:
         _M_head = _M_begin;
         _M_tail = _M_begin;
     }
+    void deallocate()
+    {
+        if (_M_begin) {
+            allocator_traits::deallocate(get_alloc(), _M_begin,
+                                         _M_end - _M_begin);
+        }
+        _M_begin = _M_end = nullptr;
+    }
     void destroy(pointer ptr)
     {
         allocator_traits::destroy(get_alloc(), ptr);
@@ -591,11 +631,13 @@ private:
 
     void initialize_capacity(size_type max_size)
     {
-        assert(max_size != 0);
+        if (max_size == 0) {
+            return;
+        }
         if (max_size + 1 == 0) {
             throw std::bad_alloc();
         }
-        _M_begin = this->allocate(max_size + 1);
+        _M_begin = allocator_traits::allocate(get_alloc(), max_size + 1);
         _M_end = _M_begin + max_size + 1;
         _M_head = _M_begin;
         _M_tail = _M_begin;
