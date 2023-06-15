@@ -153,14 +153,7 @@ public:
                       const allocator_type& alloc = allocator_type())
         : allocator_type(alloc)
     {
-        assert(max_size != 0);
-        if (max_size + 1 == 0) {
-            throw std::bad_alloc();
-        }
-        _M_begin = this->allocate(max_size + 1);
-        _M_end = _M_begin + max_size + 1;
-        _M_head = _M_begin;
-        _M_tail = _M_begin;
+        initialize_capacity(max_size);
     }
 
     /**
@@ -185,19 +178,18 @@ public:
      * @post       This queue will have the same elements as the original
      *             \a rhs.
      */
-    fc_queue(fc_queue&& rhs) noexcept;
+    fc_queue(fc_queue&& rhs) noexcept
+        : allocator_type(std::move(rhs.get_alloc()))
+    {
+        move_container(std::move(rhs));
+    }
 
     /**
      * Destructor.  It erases all elements and frees memory.
      */
     ~fc_queue()
     {
-        pointer ptr = _M_head;
-        pointer tail = _M_tail;
-        while (ptr != tail) {
-            destroy(std::addressof(*ptr));
-            self_increment(ptr);
-        }
+        clear();
         if (_M_begin) {
             this->deallocate(_M_begin, _M_end - _M_begin);
         }
@@ -504,8 +496,16 @@ public:
     }
 
 private:
-    fc_queue(const fc_queue& rhs, const allocator_type& alloc);
-    fc_queue(fc_queue&& rhs, const allocator_type& alloc);
+    fc_queue(const fc_queue& rhs, const allocator_type& alloc)
+        : fc_queue(rhs.capacity(), alloc)
+    {
+        copy_members(rhs);
+    }
+    fc_queue(fc_queue&& rhs, const allocator_type& alloc)
+        : fc_queue(rhs.capacity(), alloc)
+    {
+        move_members(std::move(rhs));
+    }
 
     pointer increment(pointer ptr) const noexcept
     {
@@ -538,10 +538,74 @@ private:
     {
         ptr = decrement(ptr.load(std::memory_order_relaxed));
     }
+
+    void clear()
+    {
+        pointer ptr = _M_head;
+        pointer tail = _M_tail;
+        while (ptr != tail) {
+            destroy(std::addressof(*ptr));
+            self_increment(ptr);
+        }
+        _M_head = _M_begin;
+        _M_tail = _M_begin;
+    }
     void destroy(pointer ptr)
     {
         allocator_traits::destroy(get_alloc(), ptr);
     }
+
+    void initialize_capacity(size_type max_size)
+    {
+        assert(max_size != 0);
+        if (max_size + 1 == 0) {
+            throw std::bad_alloc();
+        }
+        _M_begin = this->allocate(max_size + 1);
+        _M_end = _M_begin + max_size + 1;
+        _M_head = _M_begin;
+        _M_tail = _M_begin;
+    }
+
+    void copy_members(const fc_queue& rhs)
+    {
+        pointer ptr = rhs._M_head;
+        pointer tail = rhs._M_tail;
+        while (ptr != tail) {
+            push(*ptr);
+            ptr = rhs.increment(ptr);
+        }
+    }
+    void move_members(fc_queue&& rhs)
+    {
+        pointer ptr = rhs._M_head;
+        pointer tail = rhs._M_tail;
+        while (ptr != tail) {
+            push(std::move(*ptr));
+            ptr = rhs.increment(ptr);
+        }
+    }
+    void move_container(fc_queue&& rhs)
+    {
+#if NVWA_FC_QUEUE_USE_ATOMIC
+        _M_head.store(rhs._M_head.load(std::memory_order_relaxed),
+                      std::memory_order_relaxed);
+        _M_tail.store(rhs._M_tail.load(std::memory_order_relaxed),
+                      std::memory_order_relaxed);
+        rhs._M_head.store(nullptr, std::memory_order_relaxed);
+        rhs._M_tail.store(nullptr, std::memory_order_relaxed);
+#else
+        _M_head = rhs._M_head;
+        _M_tail = rhs._M_tail;
+        rhs._M_head = nullptr;
+        rhs._M_tail = nullptr;
+#endif
+        _M_begin = rhs._M_begin;
+        _M_end = rhs._M_end;
+        rhs._M_begin = nullptr;
+        rhs._M_end = rhs._M_begin;
+    }
+
     allocator_type& get_alloc()
     {
         return static_cast<allocator_type&>(*this);
@@ -550,6 +614,7 @@ private:
     {
         return static_cast<const allocator_type&>(*this);
     }
+
     static void swap_pointer(pointer& lhs, pointer& rhs) noexcept
     {
         using std::swap;
@@ -574,53 +639,6 @@ private:
     pointer         _M_begin;
     pointer         _M_end;
 };
-
-template <class _Tp, class _Alloc>
-fc_queue<_Tp, _Alloc>::fc_queue(const fc_queue& rhs, const allocator_type& alloc)
-    : fc_queue(rhs.capacity(), alloc)
-{
-    pointer ptr = rhs._M_head;
-    pointer tail = rhs._M_tail;
-    while (ptr != tail) {
-        push(*ptr);
-        ptr = rhs.increment(ptr);
-    }
-}
-
-template <class _Tp, class _Alloc>
-fc_queue<_Tp, _Alloc>::fc_queue(fc_queue&& rhs, const allocator_type& alloc)
-    : fc_queue(rhs.capacity(), alloc)
-{
-    pointer ptr = rhs._M_head;
-    pointer tail = rhs._M_tail;
-    while (ptr != tail) {
-        push(std::move(*ptr));
-        ptr = rhs.increment(ptr);
-    }
-}
-
-template <class _Tp, class _Alloc>
-fc_queue<_Tp, _Alloc>::fc_queue(fc_queue&& rhs) noexcept
-    : allocator_type(std::move(rhs.get_alloc()))
-{
-#if NVWA_FC_QUEUE_USE_ATOMIC
-    _M_head.store(rhs._M_head.load(std::memory_order_relaxed),
-                  std::memory_order_relaxed);
-    _M_tail.store(rhs._M_tail.load(std::memory_order_relaxed),
-                  std::memory_order_relaxed);
-    rhs._M_head.store(nullptr, std::memory_order_relaxed);
-    rhs._M_tail.store(nullptr, std::memory_order_relaxed);
-#else
-    _M_head = rhs._M_head;
-    _M_tail = rhs._M_tail;
-    rhs._M_head = nullptr;
-    rhs._M_tail = nullptr;
-#endif
-    _M_begin = rhs._M_begin;
-    _M_end = rhs._M_end;
-    rhs._M_begin = nullptr;
-    rhs._M_end = rhs._M_begin;
-}
 
 /**
  * Exchanges the elements of two queues.
