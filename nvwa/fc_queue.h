@@ -31,7 +31,7 @@
  *
  * Definition of a fixed-capacity queue.
  *
- * @date  2022-09-09
+ * @date  2023-06-15
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -486,9 +486,7 @@ public:
                get_alloc() == rhs.get_alloc());
         detail::swap_allocator(
             get_alloc(), rhs.get_alloc(),
-            std::integral_constant<
-                bool,
-                allocator_traits::propagate_on_container_swap::value>{});
+            typename allocator_traits::propagate_on_container_swap{});
         swap_pointer(_M_head,  rhs._M_head);
         swap_pointer(_M_tail,  rhs._M_tail);
         swap_pointer(_M_begin, rhs._M_begin);
