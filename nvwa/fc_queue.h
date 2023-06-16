@@ -105,13 +105,7 @@ public:
      *                  - <code>full()</code>
      *                  - <code>size() == 0</code>
      */
-    constexpr fc_queue()
-        : _M_head(nullptr),
-          _M_tail(nullptr),
-          _M_begin(nullptr),
-          _M_end(nullptr)
-    {
-    }
+    fc_queue() = default;
 
     /**
      * Constructor that creates an empty queue.
@@ -127,11 +121,7 @@ public:
      *                  - <code>size() == 0</code>
      */
     constexpr explicit fc_queue(const allocator_type& alloc)
-        : allocator_type(alloc),
-          _M_head(nullptr),
-          _M_tail(nullptr),
-          _M_begin(nullptr),
-          _M_end(nullptr)
+        : allocator_type(alloc)
     {
     }
 
@@ -702,14 +692,14 @@ private:
     }
 
 #if NVWA_FC_QUEUE_USE_ATOMIC
-    atomic_pointer  _M_head;
-    atomic_pointer  _M_tail;
+    atomic_pointer  _M_head{};
+    atomic_pointer  _M_tail{};
 #else
-    pointer         _M_head;
-    pointer         _M_tail;
+    pointer         _M_head{};
+    pointer         _M_tail{};
 #endif
-    pointer         _M_begin;
-    pointer         _M_end;
+    pointer         _M_begin{};
+    pointer         _M_end{};
 };
 
 /**
