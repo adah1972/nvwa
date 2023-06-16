@@ -29,9 +29,10 @@
 /**
  * @file  fc_queue.h
  *
- * Definition of a fixed-capacity queue.
+ * Definition of a fixed-capacity queue.  Using this file requires a
+ * C++17-compliant compiler.
  *
- * @date  2023-06-15
+ * @date  2023-06-16
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -170,7 +171,7 @@ public:
     fc_queue(const fc_queue& rhs, const allocator_type& alloc)
         : fc_queue(rhs.capacity(), alloc)
     {
-        copy_members(rhs);
+        copy_elements(rhs);
     }
 
     /**
@@ -198,7 +199,7 @@ public:
             move_container(std::move(rhs));
         } else {
             initialize_capacity(rhs.capacity());
-            move_members(std::move(rhs));
+            move_elements(std::move(rhs));
         }
     }
 
@@ -243,23 +244,19 @@ public:
         if (this == &rhs) {
             return *this;
         }
-        const allocator_type& new_alloc =
-            allocator_traits::propagate_on_container_copy_assignment::value
-                ? rhs.get_alloc()
-                : get_alloc();
         clear();
-        if (get_alloc() != new_alloc) {
-            deallocate();
-            get_alloc() = new_alloc;
-            initialize_capacity(rhs.capacity());
-            copy_members(rhs);
-        } else if (size() != rhs.size()) {
-            fc_queue temp(rhs, get_alloc());
-            swap(temp);
-        } else {
-            // Allocators are equal & sizes match
-            copy_members(rhs);
+        if constexpr (allocator_traits::
+                          propagate_on_container_copy_assignment::value) {
+            if (get_alloc() != rhs.get_alloc()) {
+                deallocate();
+                get_alloc() = rhs.get_alloc();
+            }
         }
+        if (capacity() != rhs.capacity()) {
+            deallocate();
+            initialize_capacity(rhs.capacity());
+        }
+        copy_elements(rhs);
         return *this;
     }
 
@@ -285,25 +282,24 @@ public:
         if (this == &rhs) {
             return *this;
         }
-        const allocator_type& new_alloc =
-            allocator_traits::propagate_on_container_move_assignment::value
-                ? rhs.get_alloc()
-                : get_alloc();
         clear();
-        if (get_alloc() != new_alloc) {
-            deallocate();
-            get_alloc() = new_alloc;
+        if constexpr (allocator_traits::
+                          propagate_on_container_move_assignment::value) {
+            if (get_alloc() != rhs.get_alloc()) {
+                deallocate();
+                get_alloc() = rhs.get_alloc();
+            }
         }
         if (get_alloc() == rhs.get_alloc()) {
-            fc_queue temp(std::move(rhs));
-            swap(temp);
+            deallocate();
+            move_container(std::move(rhs));
         } else {
             // Allocators do not propagate and are unequal
             if (capacity() != rhs.capacity()) {
                 deallocate();
                 initialize_capacity(rhs.capacity());
             }
-            move_members(std::move(rhs));
+            move_elements(std::move(rhs));
         }
         return *this;
     }
@@ -643,7 +639,7 @@ private:
         _M_tail = _M_begin;
     }
 
-    void copy_members(const fc_queue& rhs)
+    void copy_elements(const fc_queue& rhs)
     {
         pointer ptr = rhs._M_head;
         pointer tail = rhs._M_tail;
@@ -652,7 +648,7 @@ private:
             ptr = rhs.increment(ptr);
         }
     }
-    void move_members(fc_queue&& rhs)
+    void move_elements(fc_queue&& rhs)
     {
         pointer ptr = rhs._M_head;
         pointer tail = rhs._M_tail;
