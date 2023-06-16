@@ -120,7 +120,7 @@ public:
      *                  - <code>full()</code>
      *                  - <code>size() == 0</code>
      */
-    constexpr explicit fc_queue(const allocator_type& alloc)
+    constexpr explicit fc_queue(const allocator_type& alloc) noexcept
         : allocator_type(alloc)
     {
     }
@@ -591,7 +591,7 @@ private:
         ptr = decrement(ptr.load(std::memory_order_relaxed));
     }
 
-    void clear()
+    void clear() noexcept
     {
         pointer ptr = _M_head;
         pointer tail = _M_tail;
@@ -602,7 +602,7 @@ private:
         _M_head = _M_begin;
         _M_tail = _M_begin;
     }
-    void deallocate()
+    void deallocate() noexcept
     {
         if (_M_begin) {
             allocator_traits::deallocate(get_alloc(), _M_begin,
@@ -610,7 +610,7 @@ private:
         }
         _M_begin = _M_end = nullptr;
     }
-    void destroy(pointer ptr)
+    void destroy(pointer ptr) noexcept
     {
         allocator_traits::destroy(get_alloc(), ptr);
     }
@@ -647,7 +647,7 @@ private:
             ptr = rhs.increment(ptr);
         }
     }
-    void move_container(fc_queue&& rhs)
+    void move_container(fc_queue&& rhs) noexcept
     {
 #if NVWA_FC_QUEUE_USE_ATOMIC
         _M_head.store(rhs._M_head.load(std::memory_order_relaxed),
@@ -668,11 +668,11 @@ private:
         rhs._M_end = rhs._M_begin;
     }
 
-    allocator_type& get_alloc()
+    allocator_type& get_alloc() noexcept
     {
         return static_cast<allocator_type&>(*this);
     }
-    const allocator_type& get_alloc() const
+    const allocator_type& get_alloc() const noexcept
     {
         return static_cast<const allocator_type&>(*this);
     }
