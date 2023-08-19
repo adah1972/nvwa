@@ -31,7 +31,7 @@
  *
  * Modern C++ feature detection macros and workarounds.
  *
- * @date  2023-01-20
+ * @date  2023-08-19
  */
 
 #ifndef NVWA_CXX_FEATURES_H
@@ -438,6 +438,23 @@
 #define _FALLTHROUGH __attribute__ ((fallthrough))
 #else
 #define _FALLTHROUGH
+#endif
+
+#if __has_cpp_attribute(assume) >= 202207L
+#define _ASSUME(expr) [[assume(expr)]]
+#elif defined(__clang__)
+#define _ASSUME(expr) __builtin_assume(expr)
+#elif defined(_MSC_VER)
+#define _ASSUME(expr) __assume(expr)
+#elif defined(__GNUC__)
+#define _ASSUME(expr) \
+    do { \
+        if (!(expr)) { \
+            __builtin_unreachable(); \
+        } \
+    } while (false)
+#else
+#define _ASSUME(expr) (void)0
 #endif
 
 #endif // NVWA_CXX_FEATURES_H
