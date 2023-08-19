@@ -45,13 +45,13 @@ int main()
 
     cout << endl;
     cout << right;
-#if !defined(_MSC_VER) || _MSC_VER > 1600
-    SHOW_DEFINITION(_FINAL);         // breaks on MSVC 2010
-#endif
+    SHOW_DEFINITION(_FINAL);
     SHOW_DEFINITION(_OVERRIDE);
     SHOW_DEFINITION(_NOEXCEPT);
     SHOW_DEFINITION(_NULLPTR);
     SHOW_DEFINITION(_THREAD_LOCAL);
+    SHOW_DEFINITION(_FALLTHROUGH);
+    SHOW_DEFINITION(_ASSUME(true));
 
 #if HAVE_CXX17_OPTIONAL
     std::optional<int> i;
