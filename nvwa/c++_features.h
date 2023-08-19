@@ -371,8 +371,8 @@
 
 #if !defined(HAVE_CXX20_RANGES)
 // Loose requirements for basic ranges support
-#if (__cplusplus > 201703L ||                                              \
-     (defined(_MSC_VER) && _MSVC_LANG > 201703)) &&                        \
+#if (__cplusplus > 201703L || \
+     (defined(_MSC_VER) && _MSVC_LANG > 201703)) && \
     defined(__cpp_lib_ranges)
 #define HAVE_CXX20_RANGES 1
 #else
@@ -430,7 +430,7 @@
 #endif
 #endif
 
-#if NVWA_USES_CXX17
+#if __has_cpp_attribute(fallthrough) >= 201603L
 #define _FALLTHROUGH [[fallthrough]]
 #elif defined(__clang__) && __has_cpp_attribute(clang::fallthrough)
 #define _FALLTHROUGH [[clang::fallthrough]]
