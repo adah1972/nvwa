@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2022-11-23
+ * @date  2023-08-20
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -692,6 +692,7 @@ void* alloc_mem(size_t size, const char* file, int line,
                 size);
         fflush(new_output_fp);
         _DEBUG_NEW_ERROR_ACTION;
+        return nullptr;
     }
     auto usr_ptr = reinterpret_cast<char*>(ptr) + aligned_list_item_size;
 #if _DEBUG_NEW_FILENAME_LEN == 0
