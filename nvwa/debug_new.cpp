@@ -691,7 +691,6 @@ void* alloc_mem(size_t size, const char* file, int line,
                 "Out of memory when allocating %zu bytes\n",
                 size);
         fflush(new_output_fp);
-        _DEBUG_NEW_ERROR_ACTION;
         return nullptr;
     }
     auto usr_ptr = reinterpret_cast<char*>(ptr) + aligned_list_item_size;
