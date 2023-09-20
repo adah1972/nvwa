@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2022 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2022-2023 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,11 +31,11 @@
  *
  * Implementation of aligned memory allocation/deallocation.
  *
- * @date  2022-04-12
+ * @date  2023-09-20
  */
 
 #include "aligned_memory.h"     // aligned memory declarations
-#include <stdlib.h>             // malloc/free/posix_memalign
+#include <stdlib.h>             // aligned_alloc/free/posix_memalign
 #include "_nvwa.h"              // NVWA macros
 
 #if NVWA_WIN32
@@ -44,6 +44,14 @@
 
 NVWA_NAMESPACE_BEGIN
 
+/**
+ * Allocates uninitialized storage with specified alignment.  It works
+ * with Windows, Unix, or a C++17-conformant environment.
+ *
+ * @param size       number of bytes to allocate
+ * @param alignment  value of alignment
+ * @return           non-null pointer if successful; \c nullptr otherwise
+ */
 void* aligned_malloc(size_t size, [[maybe_unused]] size_t alignment)
 {
 #if NVWA_WIN32
@@ -57,11 +65,16 @@ void* aligned_malloc(size_t size, [[maybe_unused]] size_t alignment)
         return nullptr;
     }
 #else
-    // No alignment guarantees on non-Windows, non-Unix platforms
-    return malloc(size);
+    // Use C++17 aligned_alloc otherwise
+    return aligned_alloc(alignment, size);
 #endif
 }
 
+/**
+ * Deallocates memory previously allocated with nvwa#aligned_malloc.
+ *
+ * @param ptr   the pointer pointing to the memory to free
+ */
 void aligned_free(void* ptr)
 {
 #if NVWA_WIN32
