@@ -131,6 +131,7 @@ grepsedfile 'operator-&gt; \*|operator-> \*' 'operator-\&gt;*' *.html
 # Remove the titles in SVG files, which could be distracting
 echo "Postprocessing SVG files"
 sed_i '/^<title>[^<>]+<\/title>$/d' *.svg
+sed_i 's/ xlink:title=" ">/>/g' *.svg
 
 cd ../../misc
 
