@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2016-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2016-2023 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Code for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2021-12-19
+ * @date  2023-11-03
  */
 
 #include "file_line_reader.h"   // file_line_reader
@@ -180,6 +180,26 @@ static char* expand(char* data, size_t size, size_t capacity)
     return new_ptr;
 }
 
+static void get_line(char*& output, size_t& capacity, bool& found_delimiter,
+                     size_t& write_pos, FILE* stream)
+{
+    for (;;) {
+        if (!fgets(output + write_pos, capacity - write_pos, stream)) {
+            break;
+        }
+        size_t len = strlen(output + write_pos);
+        write_pos += len;
+        if (output[write_pos - 1] == '\n') {
+            found_delimiter = true;
+            break;
+        }
+        if (write_pos + 1 == capacity) {
+            output = expand(output, write_pos, capacity * 2);
+            capacity *= 2;
+        }
+    }
+}
+
 /**
  * Reads content from the file stream.  If necessary, the receiving
  * buffer will be expanded so that it is big enough to contain all the
@@ -199,22 +219,7 @@ bool file_line_reader::read(char*& output, size_t& size, size_t& capacity)
     size_t write_pos = 0;
 
     if (_M_delimiter == '\n') {
-        for (;;) {
-            if (!fgets(output + write_pos, capacity - write_pos,
-                       _M_stream)) {
-                break;
-            }
-            size_t len = strlen(output + write_pos);
-            write_pos += len;
-            if (output[write_pos - 1] == '\n') {
-                found_delimiter = true;
-                break;
-            }
-            if (write_pos + 1 == capacity) {
-                output = expand(output, write_pos, capacity * 2);
-                capacity *= 2;
-            }
-        }
+        get_line(output, capacity, found_delimiter, write_pos, _M_stream);
     } else {
         for (;;) {
             if (_M_read_pos == _M_size) {
