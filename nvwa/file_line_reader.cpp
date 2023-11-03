@@ -35,8 +35,8 @@
  */
 
 #include "file_line_reader.h"   // file_line_reader
-#include <string.h>             // memcpy
-#include <utility>              // std::swap
+#include <string.h>             // memcpy/strlen
+#include <utility>              // std::move/swap
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
 NVWA_NAMESPACE_BEGIN
