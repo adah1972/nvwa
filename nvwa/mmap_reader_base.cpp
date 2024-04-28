@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,14 +32,14 @@
  * Code for mmap_reader_base, common base for memory-mapped file readers.
  * It is implemented with POSIX and Win32 APIs.
  *
- * @date  2021-08-06
+ * @date  2024-04-28
  */
 
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
 #include <stdint.h>             // SIZE_MAX
 #include <stdexcept>            // std::runtime_error
 #include <string>               // std::string
-#include <system_error>         // std::system_error
+#include <system_error>         // std::errc/error_code/system_error
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
 #if NVWA_UNIX
@@ -57,22 +57,20 @@
 
 namespace {
 
+std::error_code get_last_error_code()
+{
+#if NVWA_UNIX
+    return std::error_code{errno, std::system_category()};
+#else
+    return std::error_code{GetLastError(), std::system_category()};
+#endif
+}
+
 void throw_system_error(const char* reason)
 {
     std::string msg(reason);
     msg += " failed";
-#if NVWA_UNIX
-# ifdef _GLIBCXX_SYSTEM_ERROR
-    // Follow GCC/libstdc++ behaviour
-    std::error_code ec(errno, std::generic_category());
-# else
-    std::error_code ec(errno, std::system_category());
-# endif
-#else
-    std::error_code ec(GetLastError(), std::system_category());
-#endif
-
-    throw std::system_error(ec, msg);
+    throw std::system_error(get_last_error_code(), msg);
 }
 
 } /* unnamed namespace */
@@ -168,7 +166,8 @@ void mmap_reader_base::initialize()
         throw_system_error("fstat");
     }
     if (sizeof s.st_size > sizeof(size_t) && s.st_size > SIZE_MAX) {
-        throw std::runtime_error("file size is too big");
+        throw std::system_error(make_error_code(std::errc::file_too_large),
+                                "file size is too big");
     }
     void* ptr = mmap(nullptr, s.st_size, PROT_READ, MAP_SHARED, _M_fd, 0);
     if (ptr == MAP_FAILED) {
@@ -187,7 +186,8 @@ void mmap_reader_base::initialize()
     if (file_size.HighPart == 0) {
         _M_size = file_size.LowPart;
     } else {
-        throw std::runtime_error("file size is too big");
+        throw std::system_error(make_error_code(std::errc::file_too_large),
+                                "file size is too big");
     }
 #endif
     _M_map_handle = CreateFileMapping(
