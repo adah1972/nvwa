@@ -68,7 +68,9 @@ public:
         return _M_size;
     }
 
-protected:
+private:
+    void initialize();
+
     char*         _M_mmap_ptr{};
     size_t        _M_size{};
 #if NVWA_UNIX
@@ -77,9 +79,6 @@ protected:
     void*         _M_file_handle{};
     void*         _M_map_handle{};
 #endif
-
-private:
-    void initialize();
 };
 
 NVWA_NAMESPACE_END

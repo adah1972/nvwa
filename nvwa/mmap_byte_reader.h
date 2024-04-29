@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2023 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Header file for mmap_byte_reader, an easy-to-use byte-based file reader.
  * It is implemented with memory-mapped file APIs.
  *
- * @date  2023-03-26
+ * @date  2024-04-29
  */
 
 #ifndef NVWA_MMAP_BYTE_READER_H
@@ -193,13 +193,13 @@ public:
     }
     iterator end() const noexcept
     {
-        return iterator(this, _M_size);
+        return iterator(this, size());
     }
 
     const _Tp& get(size_t offset) const noexcept
     {
         // Cast is necessary for unsigned char support
-        return reinterpret_cast<const _Tp&>(_M_mmap_ptr[offset]);
+        return reinterpret_cast<const _Tp&>(data()[offset]);
     }
 };
 
