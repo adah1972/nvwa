@@ -325,7 +325,7 @@ bool mmap_reader_base::initialize(std::error_code* ecp)
     }
 #endif
     if (ecp) {
-        *ecp = std::error_code{};
+        ecp->clear();
     }
     return true;
 }
