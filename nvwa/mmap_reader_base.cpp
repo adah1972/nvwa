@@ -93,25 +93,42 @@ NVWA_NAMESPACE_BEGIN
 /**
  * Constructor.
  *
- * @param path       path to the file to open
+ * @param path          path to the file to open
+ * @throw system_error  an error occurred when calling a system function, or
+ *                      when the file size is too big
  */
 mmap_reader_base::mmap_reader_base(const char* path)
 {
-    open_checked(path);
+    _open(path);
 }
 
+/**
+ * Opens a file.
+ *
+ * @param path          path to the file to open
+ * @throw system_error  an error occurred when calling a system function, or
+ *                      when the file size is too big
+ */
 void mmap_reader_base::open(const char* path)
 {
-    open_checked(path);
+    _open(path);
 }
 
+/**
+ * Opens a file.
+ *
+ * @param path          path to the file to open
+ * @param ec            reference to the error_code
+ * @return              \c true if successful (\a ec is cleared); \c false
+ *                      otherwise (\a ec is updated)
+ */
 // NOLINTNEXTLINE(bugprone-exception-escape)
 bool mmap_reader_base::open(const char* path, std::error_code& ec) noexcept
 {
-    return open_checked(path, &ec);
+    return _open(path, &ec);
 }
 
-bool mmap_reader_base::open_checked(const char* path, std::error_code* ecp)
+bool mmap_reader_base::_open(const char* path, std::error_code* ecp)
 {
     if (is_open()) {
         close();
@@ -136,32 +153,49 @@ bool mmap_reader_base::open_checked(const char* path, std::error_code* ecp)
         return false;
     }
 #endif // NVWA_UNIX
-    return initialize(ecp);
+    return _initialize(ecp);
 }
 
 #if NVWA_WINDOWS
 /**
  * Constructor.
  *
- * @param path       path to the file to open
+ * @param path          path to the file to open
+ * @throw system_error  an error occurred when calling a system function, or
+ *                      when the file size is too big
  */
 mmap_reader_base::mmap_reader_base(const wchar_t* path)
 {
-    open_checked(path);
+    _open(path);
 }
 
+/**
+ * Opens a file.
+ *
+ * @param path          path to the file to open
+ * @throw system_error  an error occurred when calling a system function, or
+ *                      when the file size is too big
+ */
 void mmap_reader_base::open(const wchar_t* path)
 {
-    open_checked(path);
+    _open(path);
 }
 
+/**
+ * Opens a file.
+ *
+ * @param path          path to the file to open
+ * @param ec            reference to the error_code
+ * @return              \c true if successful (\a ec is cleared); \c false
+ *                      otherwise (\a ec is updated)
+ */
 // NOLINTNEXTLINE(bugprone-exception-escape)
 bool mmap_reader_base::open(const wchar_t* path, std::error_code& ec) noexcept
 {
-    return open_checked(path, &ec);
+    return _open(path, &ec);
 }
 
-bool mmap_reader_base::open_checked(const wchar_t* path, std::error_code* ecp)
+bool mmap_reader_base::_open(const wchar_t* path, std::error_code* ecp)
 {
     _M_file_handle = CreateFileW(
             path,
@@ -183,31 +217,48 @@ bool mmap_reader_base::open_checked(const wchar_t* path, std::error_code* ecp)
 /**
  * Constructor.
  *
- * @param fd         a file descriptor
+ * @param fd            a file descriptor
+ * @throw system_error  an error occurred when calling a system function, or
+ *                      when the file size is too big
  */
 mmap_reader_base::mmap_reader_base(int fd)
 {
-    open_checked(fd);
+    _open(fd);
 }
 
+/**
+ * Constructor.
+ *
+ * @param fd            a file descriptor
+ * @throw system_error  an error occurred when calling a system function, or
+ *                      when the file size is too big
+ */
 void mmap_reader_base::open(int fd)
 {
-    open_checked(fd);
+    _open(fd);
 }
 
+/**
+ * Opens a file.
+ *
+ * @param fd            a file descriptor
+ * @param ec            reference to the error_code
+ * @return              \c true if successful (\a ec is cleared); \c false
+ *                      otherwise (\a ec is updated)
+ */
 // NOLINTNEXTLINE(bugprone-exception-escape)
 bool mmap_reader_base::open(int fd, std::error_code& ec) noexcept
 {
-    return open_checked(fd, &ec);
+    return _open(fd, &ec);
 }
 
-bool mmap_reader_base::open_checked(int fd, std::error_code* ecp)
+bool mmap_reader_base::_open(int fd, std::error_code* ecp)
 {
     if (is_open()) {
         close();
     }
     _M_fd = fd;
-    return initialize(ecp);
+    return _initialize(ecp);
 }
 #endif
 
@@ -263,8 +314,11 @@ void mmap_reader_base::close() noexcept
 
 /**
  * Initializes the object.  It gets the file size and mmaps the whole file.
+ * This function can throw only if \a ecp is null.
+ *
+ * @param ecp           pointer to the error_code
  */
-bool mmap_reader_base::initialize(std::error_code* ecp)
+bool mmap_reader_base::_initialize(std::error_code* ecp)
 {
 #if NVWA_UNIX
     struct stat s;  // NOLINT(cppcoreguidelines-pro-type-member-init)

@@ -44,6 +44,7 @@
 
 NVWA_NAMESPACE_BEGIN
 
+/** Class to wrap the platform details of an mmapped file. */
 class mmap_reader_base {
 public:
     mmap_reader_base() = default;
@@ -86,13 +87,13 @@ public:
     }
 
 private:
-    bool initialize(std::error_code* ecp);
-    bool open_checked(const char* path, std::error_code* ecp = nullptr);
+    bool _initialize(std::error_code* ecp);
+    bool _open(const char* path, std::error_code* ecp = nullptr);
 #if NVWA_WINDOWS
-    bool open_checked(const wchar_t* path, std::error_code* ecp = nullptr);
+    bool _open(const wchar_t* path, std::error_code* ecp = nullptr);
 #endif
 #if NVWA_UNIX
-    bool open_checked(int fd, std::error_code* ecp = nullptr);
+    bool _open(int fd, std::error_code* ecp = nullptr);
 #endif
 
     char*         _M_mmap_ptr{};
