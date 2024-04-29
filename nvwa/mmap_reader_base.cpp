@@ -130,9 +130,7 @@ bool mmap_reader_base::open(const char* path, std::error_code& ec) noexcept
 
 bool mmap_reader_base::_open(const char* path, std::error_code* ecp)
 {
-    if (is_open()) {
-        close();
-    }
+    close();
 #if NVWA_UNIX
     _M_fd = ::open(path, O_RDONLY);
     if (_M_fd < 0) {
@@ -197,6 +195,7 @@ bool mmap_reader_base::open(const wchar_t* path, std::error_code& ec) noexcept
 
 bool mmap_reader_base::_open(const wchar_t* path, std::error_code* ecp)
 {
+    close();
     _M_file_handle = CreateFileW(
             path,
             GENERIC_READ,
@@ -254,9 +253,7 @@ bool mmap_reader_base::open(int fd, std::error_code& ec) noexcept
 
 bool mmap_reader_base::_open(int fd, std::error_code* ecp)
 {
-    if (is_open()) {
-        close();
-    }
+    close();
     _M_fd = fd;
     return _initialize(ecp);
 }
