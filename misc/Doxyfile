@@ -311,7 +311,8 @@ PREDEFINED             = __GNUC__ \
                          __inline=inline \
                          NVWA=nvwa \
                          NVWA_NAMESPACE_BEGIN="namespace nvwa {" \
-                         NVWA_NAMESPACE_END="}"
+                         NVWA_NAMESPACE_END="}" \
+                         NVWA_UNIX
 EXPAND_AS_DEFINED      =
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
