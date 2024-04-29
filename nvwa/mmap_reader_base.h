@@ -61,14 +61,14 @@ public:
     ~mmap_reader_base();
 
     void open(const char* path);
-    bool open(const char* path, std::error_code& ecp) noexcept;
+    bool open(const char* path, std::error_code& ec) noexcept;
 #if NVWA_WINDOWS
     void open(const wchar_t* path);
-    bool open(const wchar_t* path, std::error_code& ecp) noexcept;
+    bool open(const wchar_t* path, std::error_code& ec) noexcept;
 #endif
 #if NVWA_UNIX
     void open(int fd);
-    bool open(int fd, std::error_code& ecp) noexcept;
+    bool open(int fd, std::error_code& ec) noexcept;
 #endif
     void close();
     bool is_open() const
