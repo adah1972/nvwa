@@ -183,6 +183,12 @@ public:
         return _M_reader_base && _M_reader_base->is_open();
     }
 
+    void set_delimiter(char delimiter, strip_type strip = strip_delimiter)
+    {
+        _M_delimiter = delimiter;
+        _M_strip_delimiter = strip == strip_delimiter;
+    }
+
     iterator begin()
     {
         return iterator(this);
@@ -196,8 +202,8 @@ public:
 
 private:
     std::shared_ptr<mmap_reader_base> _M_reader_base;
-    char                              _M_delimiter{};
-    bool                              _M_strip_delimiter{};
+    char                              _M_delimiter{'\n'};
+    bool                              _M_strip_delimiter{true};
 };
 
 /**
