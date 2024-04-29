@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2014-2023 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2014-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2023-05-13
+ * @date  2024-04-29
  */
 
 #ifndef NVWA_FUNCTIONAL_H
@@ -131,7 +131,10 @@ constexpr decltype(auto) tuple_apply_impl(_Fn&& f, _Tuple&& t,
 template <typename _Fn>
 class y_combinator_result {
 public:
-    template <typename _Tp>
+    template <typename _Tp,
+              std::enable_if_t<
+                  !std::is_same_v<std::decay_t<_Tp>, y_combinator_result>,
+                  int> = 0>
     explicit y_combinator_result(_Tp&& f) : _M_fn(std::forward<_Tp>(f))
     {
     }
@@ -167,8 +170,13 @@ struct safe_wrapper {
 // Partial specialization that copies the object used by the reference.
 template <typename _Tp>
 struct safe_wrapper<_Tp, true> {
-    template <typename _Up>
-    explicit safe_wrapper(_Up&& x) : value(std::forward<_Up>(x)) {}
+    template <
+        typename _Up,
+        std::enable_if_t<!std::is_same_v<std::decay_t<_Up>, safe_wrapper>,
+                         int> = 0>
+    explicit safe_wrapper(_Up&& x) : value(std::forward<_Up>(x))
+    {
+    }
     _Tp get() const
     {
         return value;
@@ -757,7 +765,10 @@ constexpr _Rs reduce(_Fn&& f, _Rs&& value, _Iter begin, _Iter end)
  *                 and the input range shall support iteration.
  */
 template <typename _Rs, typename _Fn, class _Rng>
-constexpr decltype(auto) reduce(_Fn&& f, _Rng&& inputs, _Rs&& initval)
+constexpr auto reduce(_Fn&& f, _Rng&& inputs, _Rs&& initval)
+    -> decltype(detail::adl_begin(inputs), detail::adl_end(inputs),
+                reduce(std::forward<_Fn>(f), std::forward<_Rs>(initval),
+                       detail::begin(inputs), detail::end(inputs)))
 {
     using std::begin;
     using std::end;
