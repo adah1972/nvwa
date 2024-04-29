@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2019-2023 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2019-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -30,10 +30,10 @@
  * @file  mmap_line_view.h
  *
  * Header file for mmap_line_view, easy-to-use line-based file readers that
- * satisfies the View concept.  It is similar to mmap_line_reader_sv
- * otherwise, and using it requires a C++17-compliant compiler.
+ * satisfies the copyable concept.  It is similar to mmap_line_reader_sv
+ * otherwise.
  *
- * @date  2023-01-20
+ * @date  2024-04-29
  */
 
 #ifndef NVWA_MMAP_LINE_VIEW_H
@@ -104,8 +104,8 @@ public:
         }
 
     private:
-        basic_mmap_line_view* _M_reader{nullptr};
-        size_t                _M_offset{0};
+        basic_mmap_line_view* _M_reader{};
+        size_t                _M_offset{};
         value_type            _M_line;
     };
 
@@ -142,12 +142,6 @@ public:
     {
     }
 #endif
-    ~basic_mmap_line_view() = default;
-
-    basic_mmap_line_view(const basic_mmap_line_view&) = default;
-    basic_mmap_line_view& operator=(const basic_mmap_line_view&) = default;
-    basic_mmap_line_view(basic_mmap_line_view&&) = default;
-    basic_mmap_line_view& operator=(basic_mmap_line_view&&) = default;
 
     iterator begin()
     {
@@ -162,8 +156,8 @@ public:
 
 private:
     std::shared_ptr<mmap_reader_base> _M_reader_base;
-    char                              _M_delimiter;
-    bool                              _M_strip_delimiter;
+    char                              _M_delimiter{};
+    bool                              _M_strip_delimiter{};
 };
 
 /**
