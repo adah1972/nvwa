@@ -31,7 +31,7 @@
  *
  * Header file for mmap_line_view, easy-to-use line-based file readers that
  * satisfies the copyable concept.  It is similar to mmap_line_reader_sv
- * otherwise.
+ * otherwise (except some minor differences caused by free store usage).
  *
  * @date  2024-04-29
  */
@@ -142,6 +142,46 @@ public:
     {
     }
 #endif
+
+    void open(const char* path)
+    {
+        _M_reader_base = std::make_shared<mmap_reader_base>(path);
+    }
+    bool open(const char* path, std::error_code& ecp)
+    {
+        _M_reader_base = std::make_shared<mmap_reader_base>();
+        return _M_reader_base->open(path, ecp);
+    }
+#if NVWA_WINDOWS
+    void open(const wchar_t* path)
+    {
+        _M_reader_base = std::make_shared<mmap_reader_base>(path);
+    }
+    bool open(const wchar_t* path, std::error_code& ecp)
+    {
+        _M_reader_base = std::make_shared<mmap_reader_base>();
+        return _M_reader_base->open(path, ecp);
+    }
+#endif
+#if NVWA_UNIX
+    void open(int fd)
+    {
+        _M_reader_base = std::make_shared<mmap_reader_base>(fd);
+    }
+    bool open(int fd, std::error_code& ecp)
+    {
+        _M_reader_base = std::make_shared<mmap_reader_base>();
+        return _M_reader_base->open(fd, ecp);
+    }
+#endif
+    void close() noexcept
+    {
+        _M_reader_base.reset();
+    }
+    bool is_open() const noexcept
+    {
+        return _M_reader_base && _M_reader_base->is_open();
+    }
 
     iterator begin()
     {
