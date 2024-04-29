@@ -70,8 +70,8 @@ public:
     void open(int fd);
     bool open(int fd, std::error_code& ec) noexcept;
 #endif
-    void close();
-    bool is_open() const
+    void close() noexcept;
+    bool is_open() const noexcept
     {
         return _M_mmap_ptr != nullptr;
     }

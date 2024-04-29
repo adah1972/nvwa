@@ -246,7 +246,7 @@ mmap_reader_base::~mmap_reader_base()
     close();
 }
 
-void mmap_reader_base::close()
+void mmap_reader_base::close() noexcept
 {
     if (_M_mmap_ptr) {
 #if NVWA_UNIX
