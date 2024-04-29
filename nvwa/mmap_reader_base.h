@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Header file for mmap_reader_base, common base for mmap-based file
  * readers.  It currently supports POSIX and Win32.
  *
- * @date  2021-08-01
+ * @date  2024-04-29
  */
 
 #ifndef NVWA_MMAP_READER_BASE_H
@@ -45,6 +45,7 @@ NVWA_NAMESPACE_BEGIN
 
 class mmap_reader_base {
 public:
+    mmap_reader_base() = default;
     explicit mmap_reader_base(const char* path);
 #if NVWA_WINDOWS
     explicit mmap_reader_base(const wchar_t* path);
@@ -54,6 +55,8 @@ public:
 #endif
     mmap_reader_base(const mmap_reader_base&) = delete;
     mmap_reader_base& operator=(const mmap_reader_base&) = delete;
+    mmap_reader_base(mmap_reader_base&& rhs) noexcept;
+    mmap_reader_base& operator=(mmap_reader_base&& rhs) noexcept;
     ~mmap_reader_base();
 
     char* data() const noexcept
@@ -66,13 +69,13 @@ public:
     }
 
 protected:
-    char*         _M_mmap_ptr;
-    size_t        _M_size;
+    char*         _M_mmap_ptr{};
+    size_t        _M_size{};
 #if NVWA_UNIX
-    int           _M_fd;
+    int           _M_fd{-1};
 #else
-    void*         _M_file_handle;
-    void*         _M_map_handle;
+    void*         _M_file_handle{};
+    void*         _M_map_handle{};
 #endif
 
 private:

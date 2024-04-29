@@ -32,7 +32,7 @@
  * Code for mmap_reader_base, common base for memory-mapped file readers.
  * It is implemented with POSIX and Win32 APIs.
  *
- * @date  2024-04-28
+ * @date  2024-04-29
  */
 
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
@@ -40,6 +40,7 @@
 #include <stdexcept>            // std::runtime_error
 #include <string>               // std::string
 #include <system_error>         // std::errc/error_code/system_error
+#include <utility>              // std::exchange
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
 #if NVWA_UNIX
@@ -142,17 +143,48 @@ mmap_reader_base::mmap_reader_base(int fd) : _M_fd(fd)
 }
 #endif
 
+/** Move constructor. */
+mmap_reader_base::mmap_reader_base(mmap_reader_base&& rhs) noexcept
+    : _M_mmap_ptr(std::exchange(rhs._M_mmap_ptr, nullptr)),
+      _M_size(std::exchange(rhs._M_size, 0)),
+#if NVWA_UNIX
+      _M_fd(rhs._M_fd)
+#else
+      _M_file_handle(rhs._M_file_handle),
+      _M_map_handle(rhs._M_map_handle)
+#endif
+{
+}
+
+/** Move assignment operator. */
+mmap_reader_base& mmap_reader_base::operator=(mmap_reader_base&& rhs) noexcept
+{
+    if (this != &rhs) {
+        _M_mmap_ptr = std::exchange(rhs._M_mmap_ptr, nullptr);
+        _M_size = std::exchange(rhs._M_size, 0);
+#if NVWA_UNIX
+        _M_fd = rhs._M_fd;
+#else
+        _M_file_handle = rhs._M_file_handle;
+        _M_map_handle = rhs._M_map_handle;
+#endif
+    }
+    return *this;
+}
+
 /** Destructor. */
 mmap_reader_base::~mmap_reader_base()
 {
+    if (_M_mmap_ptr) {
 #if NVWA_UNIX
-    munmap(_M_mmap_ptr, _M_size);
-    close(_M_fd);
+        munmap(_M_mmap_ptr, _M_size);
+        close(_M_fd);
 #else
-    UnmapViewOfFile(_M_mmap_ptr);
-    CloseHandle(_M_map_handle);
-    CloseHandle(_M_file_handle);
+        UnmapViewOfFile(_M_mmap_ptr);
+        CloseHandle(_M_map_handle);
+        CloseHandle(_M_file_handle);
 #endif
+    }
 }
 
 /**
