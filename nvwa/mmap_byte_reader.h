@@ -40,8 +40,8 @@
 
 #include <stddef.h>             // ptrdiff_t/size_t
 #include <iterator>             // std::random_access_iterator_tag
-#include "c++_features.h"       // HAVE_CXX20_RANGES
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++_features.h"       // HAVE_CXX20_RANGES
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
 
 NVWA_NAMESPACE_BEGIN
@@ -170,6 +170,7 @@ public:
 
     typedef iterator const_iterator;
 
+    basic_mmap_byte_reader() = default;
     explicit basic_mmap_byte_reader(const char* path)
         : mmap_reader_base(path)
     {
@@ -183,9 +184,10 @@ public:
 #if NVWA_UNIX
     explicit basic_mmap_byte_reader(int fd) : mmap_reader_base(fd) {}
 #endif
-    basic_mmap_byte_reader(const basic_mmap_byte_reader&) = delete;
-    basic_mmap_byte_reader& operator=(const basic_mmap_byte_reader&) = delete;
-    ~basic_mmap_byte_reader() = default;
+
+    using mmap_reader_base::open;
+    using mmap_reader_base::close;
+    using mmap_reader_base::is_open;
 
     iterator begin() const noexcept
     {
@@ -207,5 +209,16 @@ typedef basic_mmap_byte_reader<char>          mmap_char_reader;
 typedef basic_mmap_byte_reader<unsigned char> mmap_byte_reader;
 
 NVWA_NAMESPACE_END
+
+#if HAVE_CXX20_RANGES
+#include <ranges>
+
+template <>
+inline constexpr bool std::ranges::enable_view<NVWA::mmap_char_reader> =
+    true;
+template <>
+inline constexpr bool std::ranges::enable_view<NVWA::mmap_byte_reader> =
+    true;
+#endif
 
 #endif // NVWA_MMAP_BYTE_READER_H

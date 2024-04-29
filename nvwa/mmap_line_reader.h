@@ -118,6 +118,7 @@ public:
         no_strip_delimiter,  ///< The delimiter should be retained
     };
 
+    basic_mmap_line_reader() = default;
     explicit basic_mmap_line_reader(const char* path,
                                     char        delimiter = '\n',
                                     strip_type  strip = strip_delimiter)
@@ -146,9 +147,16 @@ public:
     {
     }
 #endif
-    basic_mmap_line_reader(const basic_mmap_line_reader&) = delete;
-    basic_mmap_line_reader& operator=(const basic_mmap_line_reader&) = delete;
-    ~basic_mmap_line_reader() = default;
+
+    using mmap_reader_base::open;
+    using mmap_reader_base::close;
+    using mmap_reader_base::is_open;
+
+    void set_delimiter(char delimiter, strip_type strip = strip_delimiter)
+    {
+        _M_delimiter = delimiter;
+        _M_strip_delimiter = strip == strip_delimiter;
+    }
 
     iterator begin()
     {
@@ -162,8 +170,8 @@ public:
     bool read(_Tp& output, size_t& offset);
 
 private:
-    char  _M_delimiter;
-    bool  _M_strip_delimiter;
+    char  _M_delimiter{'\n'};
+    bool  _M_strip_delimiter{true};
 };
 
 /**
@@ -203,5 +211,16 @@ typedef basic_mmap_line_reader<std::string_view> mmap_line_reader_sv;
 #endif
 
 NVWA_NAMESPACE_END
+
+#if HAVE_CXX20_RANGES
+#include <ranges>
+
+template <>
+inline constexpr bool std::ranges::enable_view<NVWA::mmap_line_reader> =
+    true;
+template <>
+inline constexpr bool std::ranges::enable_view<NVWA::mmap_line_reader_sv> =
+    true;
+#endif
 
 #endif // NVWA_MMAP_LINE_READER_H

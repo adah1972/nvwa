@@ -39,6 +39,7 @@
 #define NVWA_MMAP_READER_BASE_H
 
 #include <stddef.h>             // size_t
+#include <system_error>         // std::error_code
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
 NVWA_NAMESPACE_BEGIN
@@ -59,6 +60,22 @@ public:
     mmap_reader_base& operator=(mmap_reader_base&& rhs) noexcept;
     ~mmap_reader_base();
 
+    bool open(const char* path);
+    bool open(const char* path, std::error_code& ecp) noexcept;
+#if NVWA_WINDOWS
+    bool open(const wchar_t* path);
+    bool open(const wchar_t* path, std::error_code& ecp) noexcept;
+#endif
+#if NVWA_UNIX
+    bool open(int fd);
+    bool open(int fd, std::error_code& ecp) noexcept;
+#endif
+    void close();
+    bool is_open() const
+    {
+        return _M_mmap_ptr != nullptr;
+    }
+
     char* data() const noexcept
     {
         return _M_mmap_ptr;
@@ -69,7 +86,14 @@ public:
     }
 
 private:
-    void initialize();
+    bool initialize(std::error_code* ecp);
+    bool open_checked(const char* path, std::error_code* ecp = nullptr);
+#if NVWA_WINDOWS
+    bool open_checked(const wchar_t* path, std::error_code* ecp = nullptr);
+#endif
+#if NVWA_UNIX
+    bool open_checked(int fd, std::error_code* ecp = nullptr);
+#endif
 
     char*         _M_mmap_ptr{};
     size_t        _M_size{};

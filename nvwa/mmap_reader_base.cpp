@@ -63,15 +63,28 @@ std::error_code get_last_error_code()
 #if NVWA_UNIX
     return std::error_code{errno, std::system_category()};
 #else
-    return std::error_code{GetLastError(), std::system_category()};
+    return std::error_code{static_cast<int>(GetLastError()),
+                           std::system_category()};
 #endif
 }
 
-void throw_system_error(const char* reason)
+void indicate_error(std::error_code* ecp, const std::error_code& ec,
+                    const char* reason)
 {
-    std::string msg(reason);
-    msg += " failed";
-    throw std::system_error(get_last_error_code(), msg);
+    if (!ecp) {
+        throw std::system_error(ec, reason);
+    }
+    *ecp = ec;
+}
+
+void indicate_last_op_failure(std::error_code* ecp, const char* op)
+{
+    if (!ecp) {
+        std::string msg(op);
+        msg += " failed";
+        throw std::system_error(get_last_error_code(), msg);
+    }
+    *ecp = get_last_error_code();
 }
 
 } /* unnamed namespace */
@@ -85,10 +98,30 @@ NVWA_NAMESPACE_BEGIN
  */
 mmap_reader_base::mmap_reader_base(const char* path)
 {
+    open_checked(path);
+}
+
+bool mmap_reader_base::open(const char* path)
+{
+    return open_checked(path);
+}
+
+// NOLINTNEXTLINE(bugprone-exception-escape)
+bool mmap_reader_base::open(const char* path, std::error_code& ec) noexcept
+{
+    return open_checked(path, &ec);
+}
+
+bool mmap_reader_base::open_checked(const char* path, std::error_code* ecp)
+{
+    if (is_open()) {
+        close();
+    }
 #if NVWA_UNIX
-    _M_fd = open(path, O_RDONLY);
+    _M_fd = ::open(path, O_RDONLY);
     if (_M_fd < 0) {
-        throw_system_error("open");
+        indicate_last_op_failure(ecp, "open");
+        return false;
     }
 #else // NVWA_UNIX
     _M_file_handle = CreateFileA(
@@ -100,10 +133,11 @@ mmap_reader_base::mmap_reader_base(const char* path)
             FILE_ATTRIBUTE_NORMAL,
             nullptr);
     if (_M_file_handle == INVALID_HANDLE_VALUE) {
-        throw_system_error("CreateFile");
+        indicate_last_op_failure(ecp, "CreateFile");
+        return false;
     }
 #endif // NVWA_UNIX
-    initialize();
+    return initialize(ecp);
 }
 
 #if NVWA_WINDOWS
@@ -114,6 +148,22 @@ mmap_reader_base::mmap_reader_base(const char* path)
  */
 mmap_reader_base::mmap_reader_base(const wchar_t* path)
 {
+    open_checked(path);
+}
+
+bool mmap_reader_base::open(const wchar_t* path)
+{
+    return open_checked(path);
+}
+
+// NOLINTNEXTLINE(bugprone-exception-escape)
+bool mmap_reader_base::open(const wchar_t* path, std::error_code& ec) noexcept
+{
+    return open_checked(path, &ec);
+}
+
+bool mmap_reader_base::open_checked(const wchar_t* path, std::error_code* ecp)
+{
     _M_file_handle = CreateFileW(
             path,
             GENERIC_READ,
@@ -123,9 +173,10 @@ mmap_reader_base::mmap_reader_base(const wchar_t* path)
             FILE_ATTRIBUTE_NORMAL,
             nullptr);
     if (_M_file_handle == INVALID_HANDLE_VALUE) {
-        throw_system_error("CreateFile");
+        indicate_last_op_failure(ecp, "CreateFile");
+        return false;
     }
-    initialize();
+    return initialize(ecp);
 }
 #endif // NVWA_WINDOWS
 
@@ -134,12 +185,30 @@ mmap_reader_base::mmap_reader_base(const wchar_t* path)
  * Constructor.
  *
  * @param fd         a file descriptor
- * @param delimiter  the delimiter between text `lines' (default to LF)
- * @param strip      enumerator about whether to strip the delimiter
  */
-mmap_reader_base::mmap_reader_base(int fd) : _M_fd(fd)
+mmap_reader_base::mmap_reader_base(int fd)
 {
-    initialize();
+    open_checked(fd);
+}
+
+bool mmap_reader_base::open(int fd)
+{
+    return open_checked(fd);
+}
+
+// NOLINTNEXTLINE(bugprone-exception-escape)
+bool mmap_reader_base::open(int fd, std::error_code& ec) noexcept
+{
+    return open_checked(fd, &ec);
+}
+
+bool mmap_reader_base::open_checked(int fd, std::error_code* ecp)
+{
+    if (is_open()) {
+        close();
+    }
+    _M_fd = fd;
+    return initialize(ecp);
 }
 #endif
 
@@ -175,42 +244,52 @@ mmap_reader_base& mmap_reader_base::operator=(mmap_reader_base&& rhs) noexcept
 /** Destructor. */
 mmap_reader_base::~mmap_reader_base()
 {
+    close();
+}
+
+void mmap_reader_base::close()
+{
     if (_M_mmap_ptr) {
 #if NVWA_UNIX
         munmap(_M_mmap_ptr, _M_size);
-        close(_M_fd);
+        ::close(_M_fd);
 #else
         UnmapViewOfFile(_M_mmap_ptr);
         CloseHandle(_M_map_handle);
         CloseHandle(_M_file_handle);
 #endif
+        _M_mmap_ptr = nullptr;
     }
 }
 
 /**
  * Initializes the object.  It gets the file size and mmaps the whole file.
  */
-void mmap_reader_base::initialize()
+bool mmap_reader_base::initialize(std::error_code* ecp)
 {
 #if NVWA_UNIX
-    struct stat s;
+    struct stat s;  // NOLINT(cppcoreguidelines-pro-type-member-init)
     if (fstat(_M_fd, &s) < 0) {
-        throw_system_error("fstat");
+        indicate_last_op_failure(ecp, "fstat");
+        return false;
     }
     if (sizeof s.st_size > sizeof(size_t) && s.st_size > SIZE_MAX) {
-        throw std::system_error(make_error_code(std::errc::file_too_large),
-                                "file size is too big");
+        indicate_error(ecp, make_error_code(std::errc::file_too_large),
+                       "file size is too big");
+        return false;
     }
     void* ptr = mmap(nullptr, s.st_size, PROT_READ, MAP_SHARED, _M_fd, 0);
     if (ptr == MAP_FAILED) {
-        throw_system_error("mmap");
+        indicate_last_op_failure(ecp, "mmap");
+        return false;
     }
     _M_mmap_ptr = static_cast<char*>(ptr);
     _M_size = s.st_size;
 #else
     LARGE_INTEGER file_size;
     if (!GetFileSizeEx(_M_file_handle, &file_size)) {
-        throw_system_error("GetFileSizeEx");
+        indicate_last_op_failure(ecp, "GetFileSizeEx");
+        return false;
     }
 #ifdef _WIN64
     _M_size = file_size.QuadPart;
@@ -218,8 +297,9 @@ void mmap_reader_base::initialize()
     if (file_size.HighPart == 0) {
         _M_size = file_size.LowPart;
     } else {
-        throw std::system_error(make_error_code(std::errc::file_too_large),
-                                "file size is too big");
+        indicate_error(ecp, make_error_code(std::errc::file_too_large),
+                       "file size is too big");
+        return false;
     }
 #endif
     _M_map_handle = CreateFileMapping(
@@ -230,7 +310,8 @@ void mmap_reader_base::initialize()
             file_size.LowPart,
             nullptr);
     if (_M_map_handle == nullptr) {
-        throw_system_error("CreateFileMapping");
+        indicate_last_op_failure(ecp, "CreateFileMapping");
+        return false;
     }
     _M_mmap_ptr = static_cast<char*>(MapViewOfFile(
             _M_map_handle,
@@ -239,9 +320,14 @@ void mmap_reader_base::initialize()
             0,
             _M_size));
     if (_M_mmap_ptr == nullptr) {
-        throw_system_error("MapViewOfFile");
+        indicate_last_op_failure(ecp, "MapViewOfFile");
+        return false;
     }
 #endif
+    if (ecp) {
+        *ecp = std::error_code{};
+    }
+    return true;
 }
 
 NVWA_NAMESPACE_END
