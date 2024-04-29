@@ -68,11 +68,10 @@ std::error_code get_last_error_code()
 #endif
 }
 
-void indicate_error(std::error_code* ecp, const std::error_code& ec,
-                    const char* reason)
+void indicate_error(std::error_code* ecp, const std::error_code& ec)
 {
     if (!ecp) {
-        throw std::system_error(ec, reason);
+        throw std::system_error(ec);
     }
     *ecp = ec;
 }
@@ -274,8 +273,7 @@ bool mmap_reader_base::initialize(std::error_code* ecp)
         return false;
     }
     if (sizeof s.st_size > sizeof(size_t) && s.st_size > SIZE_MAX) {
-        indicate_error(ecp, make_error_code(std::errc::file_too_large),
-                       "file size is too big");
+        indicate_error(ecp, make_error_code(std::errc::file_too_large));
         return false;
     }
     void* ptr = mmap(nullptr, s.st_size, PROT_READ, MAP_SHARED, _M_fd, 0);
@@ -297,8 +295,7 @@ bool mmap_reader_base::initialize(std::error_code* ecp)
     if (file_size.HighPart == 0) {
         _M_size = file_size.LowPart;
     } else {
-        indicate_error(ecp, make_error_code(std::errc::file_too_large),
-                       "file size is too big");
+        indicate_error(ecp, make_error_code(std::errc::file_too_large));
         return false;
     }
 #endif
