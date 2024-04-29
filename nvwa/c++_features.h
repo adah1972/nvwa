@@ -370,10 +370,7 @@
 #endif
 
 #if !defined(HAVE_CXX20_RANGES)
-// Loose requirements for basic ranges support
-#if (__cplusplus > 201703L || \
-     (defined(_MSC_VER) && _MSVC_LANG > 201703)) && \
-    defined(__cpp_lib_ranges)
+#if __cpp_lib_ranges >= 201911L
 #define HAVE_CXX20_RANGES 1
 #else
 #define HAVE_CXX20_RANGES 0
