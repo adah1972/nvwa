@@ -147,20 +147,20 @@ public:
     {
         _M_reader_base = std::make_shared<mmap_reader_base>(path);
     }
-    bool open(const char* path, std::error_code& ecp)
+    bool open(const char* path, std::error_code& ec)
     {
         _M_reader_base = std::make_shared<mmap_reader_base>();
-        return _M_reader_base->open(path, ecp);
+        return _M_reader_base->open(path, ec);
     }
 #if NVWA_WINDOWS
     void open(const wchar_t* path)
     {
         _M_reader_base = std::make_shared<mmap_reader_base>(path);
     }
-    bool open(const wchar_t* path, std::error_code& ecp)
+    bool open(const wchar_t* path, std::error_code& ec)
     {
         _M_reader_base = std::make_shared<mmap_reader_base>();
-        return _M_reader_base->open(path, ecp);
+        return _M_reader_base->open(path, ec);
     }
 #endif
 #if NVWA_UNIX
@@ -168,10 +168,10 @@ public:
     {
         _M_reader_base = std::make_shared<mmap_reader_base>(fd);
     }
-    bool open(int fd, std::error_code& ecp)
+    bool open(int fd, std::error_code& ec)
     {
         _M_reader_base = std::make_shared<mmap_reader_base>();
-        return _M_reader_base->open(fd, ecp);
+        return _M_reader_base->open(fd, ec);
     }
 #endif
     void close() noexcept
