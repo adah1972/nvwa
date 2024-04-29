@@ -101,9 +101,9 @@ mmap_reader_base::mmap_reader_base(const char* path)
     open_checked(path);
 }
 
-bool mmap_reader_base::open(const char* path)
+void mmap_reader_base::open(const char* path)
 {
-    return open_checked(path);
+    open_checked(path);
 }
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
@@ -151,9 +151,9 @@ mmap_reader_base::mmap_reader_base(const wchar_t* path)
     open_checked(path);
 }
 
-bool mmap_reader_base::open(const wchar_t* path)
+void mmap_reader_base::open(const wchar_t* path)
 {
-    return open_checked(path);
+    open_checked(path);
 }
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
@@ -191,9 +191,9 @@ mmap_reader_base::mmap_reader_base(int fd)
     open_checked(fd);
 }
 
-bool mmap_reader_base::open(int fd)
+void mmap_reader_base::open(int fd)
 {
-    return open_checked(fd);
+    open_checked(fd);
 }
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
