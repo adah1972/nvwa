@@ -53,6 +53,20 @@ void test_tree()
                     create_tree<Policy>(10))));
 
     std::ostringstream oss;
+    print_tree(root, oss);
+    BOOST_CHECK_EQUAL(oss.str(), "6\n"
+                                 "├── 4\n"
+                                 "│   ├── 2\n"
+                                 "│   │   ├── 1\n"
+                                 "│   │   └── 3\n"
+                                 "│   └── 5\n"
+                                 "└── 7\n"
+                                 "    ├── (null)\n"
+                                 "    └── 9\n"
+                                 "        ├── 8\n"
+                                 "        └── 10\n");
+
+    oss.str("");
     for (auto& node : traverse<breadth_first_iteration>(*root)) {
         oss << node.value() << ' ';
     }

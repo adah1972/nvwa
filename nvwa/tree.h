@@ -43,6 +43,7 @@
 #include <stddef.h>             // ptrdiff_t
 #include <iterator>             // std::begin/end/make_move_iterator
 #include <memory>               // std::unique_ptr/shared_ptr
+#include <ostream>              // std::ostream
 #include <stack>                // std::stack
 #include <tuple>                // std::tuple/make_tuple
 #include <type_traits>          // std::decay
@@ -151,6 +152,22 @@ public:
     const_iterator cend() const
     {
         return _M_children.end();
+    }
+    tree_ptr& front()
+    {
+        return _M_children.front();
+    }
+    const tree_ptr& front() const
+    {
+        return _M_children.front();
+    }
+    tree_ptr& back()
+    {
+        return _M_children.back();
+    }
+    const tree_ptr& back() const
+    {
+        return _M_children.back();
     }
     bool has_child() const
     {
@@ -309,6 +326,38 @@ create_tree(_Tp&& value, Args&&... args)
     return tree<typename std::decay<_Tp>::type, _Policy>::create(
         std::forward<_Tp>(value),
         tree<_Tp, _Policy>::make_children(std::forward<Args>(args)...));
+}
+
+template <typename _Tree>
+void print_tree(const typename _Tree::tree_ptr& ptr, std::ostream& os,
+                const std::string& prefix)
+{
+    if (ptr) {
+        os << ptr->value();
+    } else {
+        os << "(null)";
+    }
+    os << '\n';
+
+    if (ptr == nullptr) {
+        return;
+    }
+
+    for (const auto& child : *ptr) {
+        bool is_last = &child == &ptr->back();
+        os << prefix;
+        os << (is_last ? "└──" : "├──");
+        os << ' ';
+        print_tree<_Tree>(child, os, prefix + (is_last ? "    " : "│   "));
+    }
+}
+
+template <typename _TreePtr>
+auto print_tree(const _TreePtr& ptr, std::ostream& os)
+    -> decltype(typename std::decay_t<decltype(*ptr)>::tree_ptr(), void())
+{
+    using tree_type = std::decay_t<decltype(*ptr)>;
+    print_tree<tree_type>(ptr, os, "");
 }
 
 /**
