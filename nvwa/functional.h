@@ -50,6 +50,7 @@
 #include <utility>              // std::declval/forward/move/index_sequence
 #include <vector>               // std::vector
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++_features.h"       // NVWA_CXX11_REQUIRES
 
 NVWA_NAMESPACE_BEGIN
 
@@ -132,9 +133,8 @@ template <typename _Fn>
 class y_combinator_result {
 public:
     template <typename _Tp,
-              std::enable_if_t<
-                  !std::is_same_v<std::decay_t<_Tp>, y_combinator_result>,
-                  int> = 0>
+              NVWA_CXX11_REQUIRES(
+                  !std::is_same_v<std::decay_t<_Tp>, y_combinator_result>)>
     explicit y_combinator_result(_Tp&& f) : _M_fn(std::forward<_Tp>(f))
     {
     }
@@ -170,10 +170,9 @@ struct safe_wrapper {
 // Partial specialization that copies the object used by the reference.
 template <typename _Tp>
 struct safe_wrapper<_Tp, true> {
-    template <
-        typename _Up,
-        std::enable_if_t<!std::is_same_v<std::decay_t<_Up>, safe_wrapper>,
-                         int> = 0>
+    template <typename _Up,
+              NVWA_CXX11_REQUIRES(
+                  !std::is_same_v<std::decay_t<_Up>, safe_wrapper>)>
     explicit safe_wrapper(_Up&& x) : value(std::forward<_Up>(x))
     {
     }

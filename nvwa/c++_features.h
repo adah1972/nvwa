@@ -97,6 +97,10 @@
 #define NVWA_USES_CXX20 0
 #endif
 
+// A convenient macro for enable_if constraints
+#define NVWA_CXX11_REQUIRES(...)  \
+    typename std::enable_if<(__VA_ARGS__), int>::type = 0
+
 
 /* Feature checks */
 

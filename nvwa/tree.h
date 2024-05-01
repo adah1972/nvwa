@@ -49,6 +49,7 @@
 #include <utility>              // std::declval/forward/move/pair/...
 #include <vector>               // std::vector
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++_features.h"       // NVWA_CXX11_REQUIRES
 
 NVWA_NAMESPACE_BEGIN
 
@@ -92,7 +93,8 @@ public:
     typedef typename children_type::const_iterator  const_iterator;
 
     tree() = default;
-    template <typename _Up>
+    template <typename _Up,
+              NVWA_CXX11_REQUIRES(!std::is_same_v<std::decay_t<_Up>, tree>)>
     explicit tree(_Up&& value, children_type children = {})
         : _M_value(std::forward<_Up>(value)),
           _M_children(std::move(children))
