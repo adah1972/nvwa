@@ -563,8 +563,8 @@ public:
 
         iterator() : _M_current(nullptr) {}
         explicit iterator(pointer root)
+            : _M_current(find_leftmost_child(root))
         {
-            _M_current = find_leftmost_child(root);
         }
 
         reference operator*() const
