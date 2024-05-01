@@ -173,6 +173,10 @@ public:
     {
         return !_M_children.empty();
     }
+    size_t child_count() const
+    {
+        return _M_children.size();
+    }
 
     template <typename... Args>
     void set_children(Args&&... args)
