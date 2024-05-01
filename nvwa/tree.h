@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2023 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * A generic tree class template and the traversal utilities.  Using
  * this file requires a C++11-compliant compiler.
  *
- * @date  2023-03-25
+ * @date  2024-05-01
  */
 
 #ifndef NVWA_TREE_H
@@ -184,8 +184,9 @@ public:
 
     // Destroys node and removes children iteratively, in case the
     // recursive destruction of children causes stack problems.  It can
-    // be used when there are more than two children in a node, but is
-    // optimized for the two-child case.
+    // be used when there are more than two children in a node (space
+    // overhead would occur then), but is optimized for the two-child
+    // case.
     static void destroy(tree_ptr& ptr)
     {
         auto current = std::move(ptr);
@@ -214,16 +215,25 @@ public:
                  *                  / \
                  *                 3   5
                  */
-                if (current->_M_children.size() > 2) {
-                    std::copy(
-                        std::make_move_iterator(
-                            current->_M_children.begin() + 2),
-                        std::make_move_iterator(current->_M_children.end()),
-                        std::back_inserter(parent->_M_children));
+                assert(parent->_M_children.size() > 0 &&    // Ensured below
+                       parent->_M_children[0] == nullptr);  // Was current
+                if (parent->_M_children.size() > 1 &&
+                    parent->_M_children[1] != nullptr) {
+                    if (current->_M_children.size() > 2) {
+                        parent->_M_children.insert(
+                            parent->_M_children.end(),
+                            std::make_move_iterator(
+                                current->_M_children.begin() + 2),
+                            std::make_move_iterator(
+                                current->_M_children.end()));
+                    }
+                    avoid_sole(current->_M_children);
+                    parent->_M_children[0] = std::move(current->_M_children[1]);
+                    current->_M_children[1] = std::move(parent);
+                } else {
+                    // Safe to remove, as its children are nullptr
+                    parent = nullptr;
                 }
-                parent->_M_children[0] = std::move(current->_M_children[1]);
-                avoid_sole(current->_M_children);
-                current->_M_children[1] = std::move(parent);
             }
             // Now parent is null
             if (current->_M_children[0]) {
