@@ -653,11 +653,11 @@ public:
             return curr;
         }
 
-        pointer _M_current;
         std::stack<std::tuple<pointer,
                               typename _Tree::const_iterator,
                               typename _Tree::const_iterator>>
             _M_stack;
+        pointer _M_current;
     };
 
     explicit in_order_iteration(_Tree& root) : _M_root(&root) {}
