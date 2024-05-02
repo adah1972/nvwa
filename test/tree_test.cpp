@@ -118,6 +118,8 @@ void test_tree()
     BOOST_CHECK_EQUAL(oss.str(), "2 4 8 10 12 14 16 18 20 ");
 
     oss.str("");
+    root->remove_children();;
+    BOOST_CHECK(!root->has_child());
     root = create_tree<Policy>(1);
     root->set_children(create_tree<Policy>(2), create_tree<Policy>(3));
     for (auto& node : traverse<breadth_first_iteration>(*root)) {
@@ -126,8 +128,8 @@ void test_tree()
     BOOST_TEST_MESSAGE("Testing set_children");
     BOOST_CHECK_EQUAL(oss.str(), "1 2 3 ");
 
-    tree<int, Policy>::destroy(root);
-    BOOST_CHECK(!root);
+    root->remove_children();
+    BOOST_CHECK(!root->has_child());
 }
 
 } /* unnamed namespace */
@@ -152,6 +154,7 @@ BOOST_AUTO_TEST_CASE(tree_test)
             oss << node.value() << ' ';
         }
         BOOST_CHECK_EQUAL(oss.str(), "1 2 3 ");
+        root->remove_children();
     }
     {
         std::ostringstream oss;
@@ -164,6 +167,7 @@ BOOST_AUTO_TEST_CASE(tree_test)
             oss << node.value() << ' ';
         }
         BOOST_CHECK_EQUAL(oss.str(), "1 2 3 ");
+        root->remove_children();
     }
     {
         std::ostringstream oss;
@@ -175,6 +179,7 @@ BOOST_AUTO_TEST_CASE(tree_test)
         for (auto& node : traverse<in_order_iteration>(*root)) {
             oss << node.value() << ' ';
         }
+        root->remove_children();
         BOOST_CHECK_EQUAL(oss.str(), "1 2 3 ");
     }
 }

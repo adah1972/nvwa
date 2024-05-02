@@ -178,6 +178,24 @@ public:
         return _M_children.size();
     }
 
+    // Removes children iteratively, in case the recursive destruction
+    // of children causes problems to stack use.  This algorithm does
+    // not take extra space, but can possibly iterate through the nodes
+    // more than once.
+    void remove_children()
+    {
+        while (has_child()) {
+            children_type* children_ptr = &_M_children;
+            while (!children_ptr->empty()) {
+                while (children_ptr->back() &&
+                       children_ptr->back()->has_child()) {
+                    children_ptr = &children_ptr->back()->_M_children;
+                }
+                children_ptr->pop_back();
+            }
+        }
+    }
+
     template <typename... Args>
     void set_children(Args&&... args)
     {
@@ -210,6 +228,7 @@ public:
     // be used when there are more than two children in a node (space
     // overhead would occur then), but is optimized for the two-child
     // case.
+    [[deprecated("remove_children is probably a better alternative")]]
     static void destroy(tree_ptr& ptr)
     {
         auto current = std::move(ptr);
