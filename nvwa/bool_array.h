@@ -38,7 +38,6 @@
 #define NVWA_BOOL_ARRAY_H
 
 #include <assert.h>             // assert
-#include <stdlib.h>             // exit/free
 #include <iosfwd>               // std::ostream fwd declaration
 #include <stdexcept>            // std::out_of_range
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
@@ -205,9 +204,7 @@ inline bool_array::bool_array() noexcept = default;
  */
 inline bool_array::~bool_array()
 {
-    if (_M_byte_ptr != nullptr) {
-        free(_M_byte_ptr);
-    }
+    delete[] _M_byte_ptr;
 }
 
 /**

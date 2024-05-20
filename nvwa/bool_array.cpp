@@ -39,7 +39,7 @@
 #include <limits.h>             // UINT_MAX, ULONG_MAX
 #include <string.h>             // memset/memcpy/size_t
 #include <array>                // std::array
-#include <new>                  // std::bad_alloc
+#include <new>                  // std::bad_alloc/nothrow
 #include <ostream>              // std::ostream
 #include <type_traits>          // std::enable_if_t/is_same
 #include <utility>              // std::index_sequence/swap
@@ -277,14 +277,12 @@ bool bool_array::create(size_type size) noexcept
 #endif
 
     size_t byte_cnt = get_num_bytes_from_bits(size);
-    byte* byte_ptr = static_cast<byte*>(malloc(byte_cnt));
+    byte*  byte_ptr = new (std::nothrow) byte[byte_cnt];
     if (byte_ptr == nullptr) {
         return false;
     }
 
-    if (_M_byte_ptr) {
-        free(_M_byte_ptr);
-    }
+    delete[] _M_byte_ptr;
 
     _M_byte_ptr = byte_ptr;
     _M_length = size;
