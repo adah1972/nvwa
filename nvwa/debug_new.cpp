@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2022 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2023-08-20
+ * @date  2024-05-20
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t

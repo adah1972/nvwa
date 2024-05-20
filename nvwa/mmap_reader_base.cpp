@@ -32,12 +32,12 @@
  * Code for mmap_reader_base, common base for memory-mapped file readers.
  * It is implemented with POSIX and Win32 APIs.
  *
- * @date  2024-04-29
+ * @date  2024-05-20
  */
 
 #include "mmap_reader_base.h"   // nvwa::mmap_reader_base
+#include <stddef.h>             // size_t
 #include <stdint.h>             // SIZE_MAX
-#include <stdexcept>            // std::runtime_error
 #include <string>               // std::string
 #include <system_error>         // std::errc/error_code/system_error
 #include <utility>              // std::exchange

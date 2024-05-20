@@ -5,6 +5,7 @@
 #include <iterator>
 #include <list>
 #include <memory>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -133,7 +134,7 @@ struct Obj {
         BOOST_TEST_MESSAGE("Obj(const Obj&) :" << value);
         ++copied_;
     }
-    Obj(Obj&& rhs) : value(rhs.value)
+    Obj(Obj&& rhs) noexcept : value(rhs.value)
     {
         BOOST_TEST_MESSAGE("Obj(Obj&&) :" << value);
         rhs.value = -2;
@@ -151,6 +152,8 @@ struct Obj {
         }
         value = -1;
     }
+    Obj& operator=(const Obj&) = delete;
+    Obj& operator=(Obj&&) = delete;
 };
 
 int Obj::created_ = 0;

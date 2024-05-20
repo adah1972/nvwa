@@ -36,12 +36,13 @@
  */
 
 #include "bool_array.h"         // bool_array
+#include "assert.h"             // assert
 #include <limits.h>             // UINT_MAX, ULONG_MAX
 #include <string.h>             // memset/memcpy/size_t
 #include <array>                // std::array
 #include <new>                  // std::bad_alloc/nothrow
 #include <ostream>              // std::ostream
-#include <type_traits>          // std::enable_if_t/is_same
+#include <stdexcept>            // std::out_of_range
 #include <utility>              // std::index_sequence/swap
 #include "_nvwa.h"              // NVWA macros
 #include "c++_features.h"       // NVWA_USES_CXX20
@@ -64,7 +65,7 @@
 
 #if NVWA_USES_POPCOUNT
 #if NVWA_USES_CXX20 && __has_include(<bit>)
-#include <bit>
+#include <bit>                  // std::popcount
 namespace {
 
 constexpr int popcount(size_t x)
@@ -74,6 +75,7 @@ constexpr int popcount(size_t x)
 
 } /* unnamed namespace */
 #elif NVWA_GCC || NVWA_CLANG
+#include <type_traits>          // std::enable_if_t/is_same
 namespace {
 
 template <typename T = size_t>

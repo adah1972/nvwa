@@ -3,8 +3,6 @@
 #include <chrono>
 #include <functional>
 #include <thread>
-#include <type_traits>
-#include <typeinfo>
 #include <utility>
 #include <boost/core/demangle.hpp>
 #include <boost/test/unit_test.hpp>
@@ -79,7 +77,7 @@ void read_and_check_queue2(nvwa::fc_queue<int>& q)
 {
     int stop_count = 0;
     for (int i = 0; i < LOOPS; ++i) {
-        int value;
+        int value{};
         while (!q.read(value)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             ++stop_count;

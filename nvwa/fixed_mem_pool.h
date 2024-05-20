@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2005-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2005-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -49,7 +49,7 @@
  * - Optionally, call fixed_mem_pool<_Cls>::get_alloc_count to check
  *   memory usage when the program is running.
  *
- * @date  2019-10-10
+ * @date  2024-05-20
  */
 
 #ifndef NVWA_FIXED_MEM_POOL_H
@@ -159,7 +159,7 @@ inline void fixed_mem_pool<_Tp>::deallocate(void* block_ptr)
     lock guard;
     assert(_S_alloc_cnt != 0);
     --_S_alloc_cnt;
-    *(void**)block_ptr = _S_first_avail_ptr;
+    *static_cast<void**>(block_ptr) = _S_first_avail_ptr;
     _S_first_avail_ptr = block_ptr;
 }
 
@@ -188,10 +188,10 @@ bool fixed_mem_pool<_Tp>::initialize(size_t size)
     char* block = (char*)_S_mem_pool_ptr;
     while (--size != 0) {
         char* next = block + block_size::value;
-        *(void**)block = next;
+        *reinterpret_cast<void**>(block) = next;
         block = next;
     }
-    *(void**)block = _NULLPTR;
+    *reinterpret_cast<void**>(block) = _NULLPTR;
     return true;
 }
 

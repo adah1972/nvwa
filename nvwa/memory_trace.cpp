@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2022 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2022-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,16 +31,18 @@
  *
  * Implementation of memory tracing facilities.
  *
- * @date  2022-04-13
+ * @date  2024-05-20
  */
 
 #include "memory_trace.h"       // memory trace declarations
 #include <assert.h>             // assert
 #include <stddef.h>             // size_t
+#include <stdio.h>              // FILE
 #include <stdint.h>             // uint32_t/uintptr_t
 #include <stdlib.h>             // abort/malloc/free
 #include <string.h>             // strcmp
 #include <deque>                // std::deque
+#include <new>                  // operator new declarations
 #include "_nvwa.h"              // NVWA macros
 #include "aligned_memory.h"     // nvwa::aligned_malloc/aligned_free
 #include "fast_mutex.h"         // nvwa::fast_mutex/fast_mutex_autolock

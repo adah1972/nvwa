@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2019 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for the memory pool base.
  *
- * @date  2019-08-22
+ * @date  2024-05-20
  */
 
 #ifndef NVWA_MEM_POOL_BASE_H
@@ -39,6 +39,7 @@
 
 #include <stddef.h>             // size_t
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
+#include "c++_features.h"       // _DELETE
 
 NVWA_NAMESPACE_BEGIN
 
@@ -56,6 +57,10 @@ public:
     struct _Block_list {
         _Block_list* _M_next;   ///< Pointer to the next memory block
     };
+
+private:
+    mem_pool_base(const mem_pool_base&) _DELETED;
+    mem_pool_base& operator=(const mem_pool_base&) _DELETED;
 };
 
 NVWA_NAMESPACE_END

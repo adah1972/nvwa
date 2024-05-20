@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for class bool_array (packed boolean array).
  *
- * @date  2021-12-30
+ * @date  2024-05-20
  */
 
 #ifndef NVWA_BOOL_ARRAY_H
@@ -84,7 +84,7 @@ private:
     class _Element {
     public:
         _Element(_Byte_type* ptr, size_type pos);
-        bool operator=(bool value);
+        bool operator=(bool value);  // NOLINT
         operator bool() const;
     private:
         _Byte_type* _M_byte_ptr;
@@ -143,8 +143,8 @@ public:
 private:
     byte get_8bits(size_type offset, size_type end) const;
 
-    byte*      _M_byte_ptr{nullptr};
-    size_type  _M_length{0};
+    byte*      _M_byte_ptr{};
+    size_type  _M_length{};
 };
 
 
@@ -160,10 +160,8 @@ template <typename _Byte_type>
 inline bool_array::_Element<_Byte_type>::_Element(
         _Byte_type* ptr,
         size_type pos)
+    : _M_byte_ptr(ptr), _M_byte_pos(pos / 8), _M_bit_pos(pos % 8)
 {
-    _M_byte_ptr = ptr;
-    _M_byte_pos = pos / 8;
-    _M_bit_pos  = pos % 8;
 }
 
 /**
@@ -172,8 +170,8 @@ inline bool_array::_Element<_Byte_type>::_Element(
  * @param value  the new boolean value
  * @return       the assigned boolean value
  */
-template <typename _Byte_type>
-inline bool bool_array::_Element<_Byte_type>::operator=(bool value)
+template <typename _Byte_type>  // NOLINT
+inline bool bool_array::_Element<_Byte_type>::operator=(bool value)  // NOLINT
 {
     if (value) {
         *(_M_byte_ptr + _M_byte_pos) |= 1 << _M_bit_pos;

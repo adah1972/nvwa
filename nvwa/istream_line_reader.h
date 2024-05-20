@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2023 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -43,7 +43,7 @@
  * and has since been modified to make its iterator satisfy the
  * \c InputIterator concept, along with other minor changes.
  *
- * @date  2023-01-20
+ * @date  2024-05-20
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
@@ -143,8 +143,6 @@ public:
     explicit istream_line_reader(std::istream& is) noexcept : _M_stream(&is)
     {
     }
-    istream_line_reader(istream_line_reader&&) = default;
-    istream_line_reader& operator=(istream_line_reader&&) = default;
     iterator begin()
     {
         if (_M_stream->fail()) {

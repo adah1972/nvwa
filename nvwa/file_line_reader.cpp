@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2016-2023 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2016-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,10 +31,11 @@
  *
  * Code for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2023-11-03
+ * @date  2024-05-20
  */
 
 #include "file_line_reader.h"   // file_line_reader
+#include <stdio.h>              // fgets/fread/size_t
 #include <string.h>             // memcpy/strlen
 #include <utility>              // std::move/swap
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
@@ -49,10 +50,10 @@ const size_t BUFFER_SIZE = 256;
  * @param reader  pointer to the file_line_reader object
  */
 file_line_reader::iterator::iterator(file_line_reader* reader)
-    : _M_reader(reader)
+    : _M_reader(reader),
+      _M_line(new char[BUFFER_SIZE]),
+      _M_capacity(BUFFER_SIZE)
 {
-    _M_line = new char[BUFFER_SIZE];
-    _M_capacity = BUFFER_SIZE;
     ++*this;
 }
 
@@ -154,10 +155,7 @@ file_line_reader::file_line_reader(FILE* stream, char delimiter,
                                    strip_type strip)
     : _M_stream(stream),
       _M_delimiter(delimiter),
-      _M_strip_delimiter(strip == strip_delimiter),
-      _M_offset(0),
-      _M_read_pos(0),
-      _M_size(0)
+      _M_strip_delimiter(strip == strip_delimiter)
 {
     if (delimiter == '\n') {
         _M_buffer = nullptr;
@@ -172,7 +170,9 @@ file_line_reader::~file_line_reader()
     delete[] _M_buffer;
 }
 
-static char* expand(char* data, size_t size, size_t capacity)
+namespace {
+
+char* expand(char* data, size_t size, size_t capacity)
 {
     char* new_ptr = new char[capacity];
     memcpy(new_ptr, data, size);
@@ -180,11 +180,12 @@ static char* expand(char* data, size_t size, size_t capacity)
     return new_ptr;
 }
 
-static void get_line(char*& output, size_t& capacity, bool& found_delimiter,
-                     size_t& write_pos, FILE* stream)
+void get_line(char*& output, size_t& capacity, bool& found_delimiter,
+              size_t& write_pos, FILE* stream)
 {
     for (;;) {
-        if (!fgets(output + write_pos, capacity - write_pos, stream)) {
+        if (!fgets(output + write_pos,
+                   static_cast<int>(capacity - write_pos), stream)) {
             break;
         }
         size_t len = strlen(output + write_pos);
@@ -199,6 +200,8 @@ static void get_line(char*& output, size_t& capacity, bool& found_delimiter,
         }
     }
 }
+
+} // unnamed namespace
 
 /**
  * Reads content from the file stream.  If necessary, the receiving

@@ -1,5 +1,5 @@
 #include "nvwa/bool_array.h"
-#include <iostream>
+#include <stddef.h>
 #include <sstream>
 #include <stdexcept>
 #include <type_traits>

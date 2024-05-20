@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2016-2023 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2016-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Header file for file_line_reader, an easy-to-use line-based file reader.
  *
- * @date  2023-01-20
+ * @date  2024-05-20
  */
 
 #ifndef NVWA_FILE_LINE_READER_H
@@ -39,7 +39,7 @@
 
 #include <assert.h>             // assert
 #include <stddef.h>             // ptrdiff_t/size_t
-#include <stdio.h>              // file streams
+#include <stdio.h>              // FILE
 #include <iterator>             // std::input_iterator_tag
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 
@@ -126,6 +126,8 @@ public:
 
     explicit file_line_reader(FILE* stream, char delimiter = '\n',
                               strip_type strip = strip_delimiter);
+    file_line_reader(const file_line_reader&) = delete;
+    file_line_reader& operator=(const file_line_reader&) = delete;
     file_line_reader(file_line_reader&&) = default;
     file_line_reader& operator=(file_line_reader&&) = default;
     ~file_line_reader();
@@ -145,9 +147,9 @@ private:
     char   _M_delimiter;
     bool   _M_strip_delimiter;
     char*  _M_buffer;
-    size_t _M_offset;
-    size_t _M_read_pos;
-    size_t _M_size;
+    size_t _M_offset{};
+    size_t _M_read_pos{};
+    size_t _M_size{};
 };
 
 inline void swap(file_line_reader::iterator& lhs,

@@ -3,6 +3,8 @@
 #include <array>
 #include <string>
 #include <string_view>
+#include <system_error>
+#include <type_traits>
 #include <vector>
 #include <boost/test/unit_test.hpp>
 #include "nvwa/c++_features.h"

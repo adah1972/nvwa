@@ -24,17 +24,13 @@ private:
 BOOST_AUTO_TEST_CASE(fixed_mem_test)
 {
     BOOST_REQUIRE(nvwa::fixed_mem_pool<Obj>::initialize(4));
-    Obj* p1;
-    Obj* p2;
-    Obj* p3;
-    Obj* p4;
-    p1 = new Obj();
+    Obj* p1 = new Obj();
     BOOST_CHECK_EQUAL(nvwa::fixed_mem_pool<Obj>::deinitialize(), 1);
-    p2 = new Obj();
+    Obj* p2 = new Obj();
     BOOST_CHECK_EQUAL(nvwa::fixed_mem_pool<Obj>::deinitialize(), 2);
-    p3 = new Obj();
+    Obj* p3 = new Obj();
     BOOST_CHECK_EQUAL(nvwa::fixed_mem_pool<Obj>::deinitialize(), 3);
-    p4 = new Obj();
+    Obj* p4 = new Obj();
     BOOST_CHECK_EQUAL(nvwa::fixed_mem_pool<Obj>::deinitialize(), 4);
     BOOST_REQUIRE_THROW(new Obj(), std::bad_alloc);
     delete p1;
