@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2022 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2024 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Code for class bool_array (packed boolean array).  The current code
  * requires a C++14-compliant compiler.
  *
- * @date  2022-01-05
+ * @date  2024-05-20
  */
 
 #include "bool_array.h"         // bool_array
@@ -215,7 +215,7 @@ bool_array::bool_array(const void* ptr, size_type size)
 
     size_t byte_cnt = get_num_bytes_from_bits(_M_length);
     memcpy(_M_byte_ptr, ptr, byte_cnt);
-    int valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
+    unsigned valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
     _M_byte_ptr[byte_cnt - 1] &= ~(~0U << valid_bits_in_last_byte);
 }
 
@@ -277,7 +277,7 @@ bool bool_array::create(size_type size) noexcept
 #endif
 
     size_t byte_cnt = get_num_bytes_from_bits(size);
-    byte* byte_ptr = (byte*)malloc(byte_cnt);
+    byte* byte_ptr = static_cast<byte*>(malloc(byte_cnt));
     if (byte_ptr == nullptr) {
         return false;
     }
@@ -302,7 +302,7 @@ void bool_array::initialize(bool value) noexcept
     size_t byte_cnt = get_num_bytes_from_bits(_M_length);
     memset(_M_byte_ptr, value ? ~0 : 0, byte_cnt);
     if (value) {
-        int valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
+        unsigned valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
         _M_byte_ptr[byte_cnt - 1] &= ~(~0U << valid_bits_in_last_byte);
     }
 }
@@ -358,7 +358,7 @@ bool_array::size_type bool_array::count(size_type begin, size_type end) const
     size_type true_cnt = 0;
     size_t byte_pos_beg = begin / 8;
     size_t byte_pos_end = (end - 1) / 8;
-    int valid_bits_in_last_byte = (end - 1) % 8 + 1;
+    unsigned valid_bits_in_last_byte = (end - 1) % 8 + 1;
     if (begin % 8 != 0) {
         byte byte_val = _M_byte_ptr[byte_pos_beg];
         byte_val &= ~0U << (begin % 8);
@@ -473,7 +473,7 @@ void bool_array::flip() noexcept
     for (size_t i = 0; i < byte_cnt; ++i) {
         _M_byte_ptr[i] = ~_M_byte_ptr[i];
     }
-    int valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
+    unsigned valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
     _M_byte_ptr[byte_cnt - 1] &= ~(~0U << valid_bits_in_last_byte);
 }
 
@@ -519,7 +519,7 @@ void bool_array::merge_and(
 
     size_t byte_offset = offset / 8;
     size_t bit_offset = offset % 8;
-    byte value;
+    byte value{};
     if (bit_offset != 0 && begin + 8 - bit_offset <= end) {
         // Merge the first byte (in destination), if it is partial and
         // there are remaining bits
@@ -579,7 +579,7 @@ void bool_array::merge_or(
 
     size_t byte_offset = offset / 8;
     size_t bit_offset = offset % 8;
-    byte value;
+    byte value{};
     if (bit_offset != 0 && begin + 8 - bit_offset <= end) {
         // Merge the first byte (in destination), if it is partial and
         // there are remaining bits
@@ -634,7 +634,7 @@ void bool_array::copy_to_bitmap(void* dest, size_type begin, size_type end)
         memcpy(dest, _M_byte_ptr + begin / 8,
                get_num_bytes_from_bits(end - begin));
     } else {
-        byte* byte_ptr = (byte*)dest;
+        byte* byte_ptr = static_cast<byte*>(dest);
         size_type offset = begin;
         while (offset < end) {
             *byte_ptr++ = get_8bits(offset, end);
@@ -642,8 +642,8 @@ void bool_array::copy_to_bitmap(void* dest, size_type begin, size_type end)
         }
     }
 
-    if (int extra_bits = (end - begin) % 8) {
-        byte* last_byte_ptr = (byte*)dest +
+    if (unsigned extra_bits = (end - begin) % 8) {
+        byte* last_byte_ptr = static_cast<byte*>(dest) +
                               get_num_bytes_from_bits(end - begin) - 1;
         *last_byte_ptr &= ~(~0U << extra_bits);
     }
