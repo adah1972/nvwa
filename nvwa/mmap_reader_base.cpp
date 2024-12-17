@@ -208,7 +208,7 @@ bool mmap_reader_base::_open(const wchar_t* path, std::error_code* ecp)
         indicate_last_op_failure(ecp, "CreateFile");
         return false;
     }
-    return initialize(ecp);
+    return _initialize(ecp);
 }
 #endif // NVWA_WINDOWS
 
