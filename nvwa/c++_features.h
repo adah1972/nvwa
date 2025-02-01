@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2013-2023 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2013-2025 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Modern C++ feature detection macros and workarounds.
  *
- * @date  2023-08-19
+ * @date  2025-02-01
  */
 
 #ifndef NVWA_CXX_FEATURES_H
@@ -404,7 +404,9 @@
 
 #if HAVE_CXX11_NOEXCEPT
 #define _NOEXCEPT noexcept
+#if !(defined(_NOEXCEPT_) && defined(__clang__))
 #define _NOEXCEPT_(x) noexcept(x)
+#endif
 #else
 #ifdef _MSC_VER
 #define _NOEXCEPT throw ()
