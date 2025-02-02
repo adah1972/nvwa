@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2024 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2025 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,15 +32,15 @@
  * A generic tree class template and the traversal utilities.  Using
  * this file requires a C++11-compliant compiler.
  *
- * @date  2024-05-01
+ * @date  2025-02-02
  */
 
 #ifndef NVWA_TREE_H
 #define NVWA_TREE_H
 
-#include <algorithm>            // std::remove_if
 #include <assert.h>             // assert
 #include <stddef.h>             // ptrdiff_t
+#include <algorithm>            // std::remove_if
 #include <iterator>             // std::begin/end/make_move_iterator
 #include <memory>               // std::unique_ptr/shared_ptr
 #include <ostream>              // std::ostream
