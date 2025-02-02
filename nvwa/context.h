@@ -34,8 +34,8 @@
  * @date  2025-02-02
  */
 
-#ifndef NVWA_TRACE_H
-#define NVWA_TRACE_H
+#ifndef NVWA_CONTEXT_H
+#define NVWA_CONTEXT_H
 
 #include <stdio.h>              // FILE
 #include "_nvwa.h"              // NVWA macros
@@ -77,4 +77,4 @@ NVWA_NAMESPACE_END
         NVWA::context{__FILE__, __func__}}
 #endif
 
-#endif // NVWA_TRACE_H
+#endif // NVWA_CONTEXT_H
