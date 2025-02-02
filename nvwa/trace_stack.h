@@ -29,8 +29,8 @@
 /**
  * @file  trace_stack.h
  *
- * Definition of stack-like container adaptor, with the additional capability
- * of showing the last popped "stack trace".
+ * Definition of stack-like container adaptor, with the additional
+ * capability of showing the last popped "stack trace".
  *
  * @date  2025-02-02
  */
@@ -40,6 +40,7 @@
 
 #include <assert.h>             // assert
 #include <deque>                // std::deque
+#include <iterator>             // std::reverse_iterator
 #include <utility>              // std::forward/move
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++_features.h"       // HAVE_CXX20_RANGES
@@ -51,6 +52,7 @@ class trace_stack_subrange {
 public:
     using size_type = typename Container::size_type;
     using const_iterator = typename Container::const_iterator;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
     trace_stack_subrange(const_iterator first, const_iterator last)
         : _M_begin(first), _M_end(last)
@@ -72,6 +74,23 @@ public:
     const_iterator cend() const
     {
         return _M_end;
+    }
+
+    const_reverse_iterator rbegin() const
+    {
+        return const_reverse_iterator(_M_end);
+    }
+    const_reverse_iterator rend() const
+    {
+        return const_reverse_iterator(_M_begin);
+    }
+    const_reverse_iterator crbegin() const
+    {
+        return const_reverse_iterator(_M_end);
+    }
+    const_reverse_iterator crend() const
+    {
+        return const_reverse_iterator(_M_begin);
     }
 
     bool empty() const
