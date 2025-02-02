@@ -37,7 +37,7 @@ LD  = $(CXX) $(CXXFLAGS) $(TARGET_ARCH)
 
 INCLUDE  = -I..
 CFLAGS   = -g -Og -W -Wall -pthread
-CXXFLAGS = -std=c++17 -march=native $(CFLAGS)
+CXXFLAGS = -std=c++20 -march=native $(CFLAGS)
 CPPFLAGS = -D_DEBUG -DBOOST_TEST_DYN_LINK $(INCLUDE)
 VPATH    = ../nvwa
 
