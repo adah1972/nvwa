@@ -40,7 +40,6 @@
 #include <string.h>             // strcmp
 #include <deque>                // std::deque
 #include <exception>            // std::uncaught_exceptions
-#include <iterator>             // std::reverse_iterator
 #include "_nvwa.h"              // NVWA macros
 #include "malloc_allocator.h"   // nvwa::malloc_allocator
 #include "trace_stack.h"        // nvwa::trace_stack
@@ -107,8 +106,8 @@ void print_context(const context& ctx, FILE* fp)
 void print_exception_contexts(FILE* fp)
 {
     auto popped_items = context_stack.get_popped();
-    auto it = std::reverse_iterator(popped_items.end());
-    auto end = std::reverse_iterator(popped_items.begin());
+    auto it = popped_items.rbegin();
+    auto end = popped_items.rend();
     for (int i = 0; it != end; ++i, ++it) {
         fprintf(fp, "%d: %s/%s\n", i, it->file, it->func);
     }
