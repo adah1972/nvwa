@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2022-2024 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2022-2025 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Implementation of memory tracing facilities.
  *
- * @date  2024-05-20
+ * @date  2025-02-02
  */
 
 #include "memory_trace.h"       // memory trace declarations
@@ -42,11 +42,14 @@
 #include <stdlib.h>             // abort/malloc/free
 #include <string.h>             // strcmp
 #include <deque>                // std::deque
+#include <exception>            // std::uncaught_exceptions
+#include <iterator>             // std::reverse_iterator
 #include <new>                  // operator new declarations
 #include "_nvwa.h"              // NVWA macros
 #include "aligned_memory.h"     // nvwa::aligned_malloc/aligned_free
 #include "fast_mutex.h"         // nvwa::fast_mutex/fast_mutex_autolock
 #include "malloc_allocator.h"   // nvwa::malloc_allocator
+#include "trace_stack.h"        // nvwa::trace_stack
 
 #ifndef NVWA_CMT_ERROR_ACTION
 #define NVWA_CMT_ERROR_ACTION() abort()
@@ -68,14 +71,17 @@ enum is_array_t : uint32_t {
     alloc_is_array
 };
 
-thread_local std::deque<NVWA::context,
-                        NVWA::malloc_allocator<NVWA::context>>
-    context_stack{{"<UNKNOWN>", "<UNKNOWN>"}};
+thread_local NVWA::trace_stack<
+    NVWA::context,
+    std::deque<NVWA::context, NVWA::malloc_allocator<NVWA::context>>>
+    context_stack{
+        std::deque<NVWA::context, NVWA::malloc_allocator<NVWA::context>>{
+            {"<UNKNOWN>", "<UNKNOWN>"}}};
 
 const NVWA::context& get_current_context()
 {
     assert(!context_stack.empty());
-    return context_stack.back();
+    return context_stack.top();
 }
 
 void print_context(const NVWA::context& ctx, FILE* fp)
@@ -85,13 +91,16 @@ void print_context(const NVWA::context& ctx, FILE* fp)
 
 void save_context(const NVWA::context& ctx)
 {
-    context_stack.push_back(ctx);
+    context_stack.push(ctx);
 }
 
 void restore_context([[maybe_unused]] const NVWA::context& ctx)
 {
-    assert(!context_stack.empty() && context_stack.back() == ctx);
-    context_stack.pop_back();
+    assert(!context_stack.empty() && context_stack.top() == ctx);
+    context_stack.pop();
+    if (std::uncaught_exceptions() == 0) {
+        context_stack.discard_popped();
+    }
 }
 
 } /* unnamed namespace */
@@ -310,6 +319,16 @@ size_t get_current_mem_alloc()
 size_t get_total_mem_alloc_cnt()
 {
     return total_mem_alloc_cnt_accum;
+}
+
+void print_exception_contexts(FILE* fp)
+{
+    auto popped_items = context_stack.get_popped();
+    auto it = std::reverse_iterator(popped_items.end());
+    auto end = std::reverse_iterator(popped_items.begin());
+    for (int i = 0; it != end; ++i, ++it) {
+        fprintf(fp, "%d: %s/%s\n", i, it->file, it->func);
+    }
 }
 
 int memory_trace_counter::_S_count = 0;

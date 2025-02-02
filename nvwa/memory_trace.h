@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2022 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2022-2025 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Header file for tracing memory with contextual checkpoints.  The
  * current code requires a C++17-compliant compiler.
  *
- * @date  2022-04-07
+ * @date  2025-02-02
  */
 
 #ifndef NVWA_MEMORY_TRACE_H
@@ -52,6 +52,7 @@ NVWA_NAMESPACE_BEGIN
 int check_leaks();
 size_t get_current_mem_alloc();
 size_t get_total_mem_alloc_cnt();
+void print_exception_contexts(FILE* fp);
 
 extern bool new_autocheck_flag; // default to true: call check_leaks() on exit
 extern bool new_verbose_flag;   // default to false: no verbose information
