@@ -143,14 +143,15 @@ void* alloc_mem(size_t size, const context& ctx, is_array_t is_array,
     assert(alignment >= __STDCPP_DEFAULT_NEW_ALIGNMENT__);
 
     uint32_t aligned_list_node_size = align(alignment, sizeof(alloc_list_t));
-    alloc_list_t* ptr;
-    if (alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
-        ptr = static_cast<alloc_list_t*>(
-            aligned_malloc(size + aligned_list_node_size, alignment));
-    } else {
-        ptr = static_cast<alloc_list_t*>(
-            malloc(size + aligned_list_node_size));
-    }
+    alloc_list_t* ptr = [&] {
+        if (alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+            return static_cast<alloc_list_t*>(
+                aligned_malloc(size + aligned_list_node_size, alignment));
+        } else {
+            return static_cast<alloc_list_t*>(
+                malloc(size + aligned_list_node_size));
+        }
+    }();
     if (ptr == nullptr) {
         return nullptr;
     }
