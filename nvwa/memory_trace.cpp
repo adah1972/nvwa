@@ -40,16 +40,11 @@
 #include <stdio.h>              // FILE
 #include <stdint.h>             // uint32_t/uintptr_t
 #include <stdlib.h>             // abort/malloc/free
-#include <string.h>             // strcmp
-#include <deque>                // std::deque
-#include <exception>            // std::uncaught_exceptions
-#include <iterator>             // std::reverse_iterator
 #include <new>                  // operator new declarations
 #include "_nvwa.h"              // NVWA macros
 #include "aligned_memory.h"     // nvwa::aligned_malloc/aligned_free
+#include "context.h"            // nvwa::context/get_current_context/...
 #include "fast_mutex.h"         // nvwa::fast_mutex/fast_mutex_autolock
-#include "malloc_allocator.h"   // nvwa::malloc_allocator
-#include "trace_stack.h"        // nvwa::trace_stack
 
 #ifndef NVWA_CMT_ERROR_ACTION
 #define NVWA_CMT_ERROR_ACTION() abort()
@@ -71,38 +66,6 @@ enum is_array_t : uint32_t {
     alloc_is_array
 };
 
-thread_local NVWA::trace_stack<
-    NVWA::context,
-    std::deque<NVWA::context, NVWA::malloc_allocator<NVWA::context>>>
-    context_stack{
-        std::deque<NVWA::context, NVWA::malloc_allocator<NVWA::context>>{
-            {"<UNKNOWN>", "<UNKNOWN>"}}};
-
-const NVWA::context& get_current_context()
-{
-    assert(!context_stack.empty());
-    return context_stack.top();
-}
-
-void print_context(const NVWA::context& ctx, FILE* fp)
-{
-    fprintf(fp, "context: %s/%s", ctx.file, ctx.func);
-}
-
-void save_context(const NVWA::context& ctx)
-{
-    context_stack.push(ctx);
-}
-
-void restore_context([[maybe_unused]] const NVWA::context& ctx)
-{
-    assert(!context_stack.empty() && context_stack.top() == ctx);
-    context_stack.pop();
-    if (std::uncaught_exceptions() == 0) {
-        context_stack.discard_popped();
-    }
-}
-
 } /* unnamed namespace */
 
 NVWA_NAMESPACE_BEGIN
@@ -112,27 +75,6 @@ bool new_verbose_flag = false;
 FILE* new_output_fp = stderr;
 size_t current_mem_alloc = 0;
 size_t total_mem_alloc_cnt_accum = 0;
-
-bool operator==(const context& lhs, const context& rhs)
-{
-    return strcmp(lhs.file, rhs.file) == 0 &&
-           strcmp(lhs.func, rhs.func) == 0;
-}
-
-bool operator!=(const context& lhs, const context& rhs)
-{
-    return !(lhs == rhs);
-}
-
-checkpoint::checkpoint(const context& ctx) : ctx_(ctx)
-{
-    save_context(ctx);
-}
-
-checkpoint::~checkpoint()
-{
-    restore_context(ctx_);
-}
 
 constexpr uint32_t CMT_MAGIC = 0x4D'58'54'43;  // "CTXM";
 
@@ -321,16 +263,6 @@ size_t get_total_mem_alloc_cnt()
     return total_mem_alloc_cnt_accum;
 }
 
-void print_exception_contexts(FILE* fp)
-{
-    auto popped_items = context_stack.get_popped();
-    auto it = std::reverse_iterator(popped_items.end());
-    auto end = std::reverse_iterator(popped_items.begin());
-    for (int i = 0; it != end; ++i, ++it) {
-        fprintf(fp, "%d: %s/%s\n", i, it->file, it->func);
-    }
-}
-
 int memory_trace_counter::_S_count = 0;
 
 memory_trace_counter::memory_trace_counter()
@@ -351,45 +283,45 @@ NVWA_NAMESPACE_END
 
 void* operator new(size_t size)
 {
-    return operator new(size, get_current_context());
+    return operator new(size, NVWA::get_current_context());
 }
 
 void* operator new[](size_t size)
 {
-    return operator new[](size, get_current_context());
+    return operator new[](size, NVWA::get_current_context());
 }
 
 void* operator new(size_t size, const std::nothrow_t&) noexcept
 {
-    return alloc_mem(size, get_current_context(), alloc_is_not_array);
+    return alloc_mem(size, NVWA::get_current_context(), alloc_is_not_array);
 }
 
 void* operator new[](size_t size, const std::nothrow_t&) noexcept
 {
-    return alloc_mem(size, get_current_context(), alloc_is_array);
+    return alloc_mem(size, NVWA::get_current_context(), alloc_is_array);
 }
 
 void* operator new(size_t size, std::align_val_t align_val)
 {
-    return operator new(size, align_val, get_current_context());
+    return operator new(size, align_val, NVWA::get_current_context());
 }
 
 void* operator new[](size_t size, std::align_val_t align_val)
 {
-    return operator new[](size, align_val, get_current_context());
+    return operator new[](size, align_val, NVWA::get_current_context());
 }
 
 void* operator new(size_t size, std::align_val_t align_val,
                    const std::nothrow_t&) noexcept
 {
-    return alloc_mem(size, get_current_context(), alloc_is_not_array,
+    return alloc_mem(size, NVWA::get_current_context(), alloc_is_not_array,
                      size_t(align_val));
 }
 
 void* operator new[](size_t size, std::align_val_t align_val,
                      const std::nothrow_t&) noexcept
 {
-    return alloc_mem(size, get_current_context(), alloc_is_array,
+    return alloc_mem(size, NVWA::get_current_context(), alloc_is_array,
                      size_t(align_val));
 }
 
