@@ -31,7 +31,7 @@
  *
  * Implementation of contextual tracing.
  *
- * @date  2025-02-02
+ * @date  2025-02-06
  */
 
 #include "context.h"            // context declarations
@@ -39,12 +39,21 @@
 #include <stdio.h>              // FILE
 #include <string.h>             // strcmp
 #include <deque>                // std::deque
-#include <exception>            // std::uncaught_exceptions
+#include <exception>            // std::uncaught_exception(s)
 #include "_nvwa.h"              // NVWA macros
 #include "malloc_allocator.h"   // nvwa::malloc_allocator
 #include "trace_stack.h"        // nvwa::trace_stack
 
 namespace {
+
+#if __cplusplus >= 201703L
+bool uncaught_exception()
+{
+    return std::uncaught_exceptions() > 0;
+}
+#else
+using std::uncaught_exception;
+#endif
 
 thread_local NVWA::trace_stack<
     NVWA::context,
@@ -62,7 +71,7 @@ void restore_context([[maybe_unused]] const NVWA::context& ctx)
 {
     assert(!context_stack.empty() && context_stack.top() == ctx);
     context_stack.pop();
-    if (std::uncaught_exceptions() == 0) {
+    if (!uncaught_exception()) {
         context_stack.discard_popped();
     }
 }
