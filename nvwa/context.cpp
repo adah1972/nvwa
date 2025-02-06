@@ -55,19 +55,21 @@ bool uncaught_exception()
 using std::uncaught_exception;
 #endif
 
-thread_local NVWA::trace_stack<
-    NVWA::context,
-    std::deque<NVWA::context, NVWA::malloc_allocator<NVWA::context>>>
-    context_stack{
-        std::deque<NVWA::context, NVWA::malloc_allocator<NVWA::context>>{
-            {"<UNKNOWN>", "<UNKNOWN>"}}};
+using NVWA::context;
+using NVWA::malloc_allocator;
+using NVWA::trace_stack;
 
-void save_context(const NVWA::context& ctx)
+thread_local trace_stack<context,
+                         std::deque<context, malloc_allocator<context>>>
+    context_stack{std::deque<context, malloc_allocator<context>>{
+        {"<UNKNOWN>", "<UNKNOWN>"}}};
+
+void save_context(const context& ctx)
 {
     context_stack.push(ctx);
 }
 
-void restore_context([[maybe_unused]] const NVWA::context& ctx)
+void restore_context([[maybe_unused]] const context& ctx)
 {
     assert(!context_stack.empty() && context_stack.top() == ctx);
     context_stack.pop();
