@@ -75,6 +75,15 @@ scenarios.  Cf. *object\_level\_lock.h*.
 Utility functors for containers of pointers adapted from Scott Meyers'
 *Effective STL*.
 
+*context.cpp*  
+*context.h*
+
+Utilities for setting up and using thread-local context stacks.  It
+provides a generic `NVWA_CONTEXT_CHECKPOINT` macro, and several
+functions to work with the contexts.  They are used by
+*memory\_trace.cpp*.  Also, `print_exception_contexts` can be used in a
+`catch` handler to show the call path (independent of memory tracing).
+
 *debug\_new.cpp*  
 *debug\_new.h*
 
@@ -236,9 +245,9 @@ This is a new version of the memory leak detector, designed to use
 stackable memory checkpoints, instead of redefined `new` to record the
 context information.  Like *debug\_new*, it is quite easy to use, and
 has very low space/time overheads.  One needs to link in
-*memory\_trace.cpp* and *aligned\_memory.cpp* for leakage report, and
-include *memory\_trace.h* for adding a new checkpoint with the macro
-`NVWA_MEMORY_CHECKPOINT()`.
+*memory\_trace.cpp*, *aligned\_memory.cpp*, and *context.cpp* for
+leakage report, and include *memory\_trace.h* for adding a new
+checkpoint with the macro `NVWA_MEMORY_CHECKPOINT()`.
 
 See the following blog for its design:
 
@@ -315,6 +324,11 @@ use pooled new/delete.
 An article on its design and implementation is available at
 
 [Design and Implementation of a Static Memory Pool][lnk_static_mem_pool]
+
+*trace_stack.h*
+
+A stack-like container adaptor, with the additional capability of
+showing the last popped "stack trace".  It is used by *context.cpp*.
 
 *tree.h*
 
