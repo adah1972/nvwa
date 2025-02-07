@@ -31,7 +31,7 @@
  *
  * Header file for contextual tracing.
  *
- * @date  2025-02-02
+ * @date  2025-02-07
  */
 
 #ifndef NVWA_CONTEXT_H
@@ -62,8 +62,8 @@ private:
 };
 
 const context& get_current_context();
-void print_context(const context& ctx, FILE* fp);
-void print_exception_contexts(FILE* fp);
+void print_context(const context& ctx, FILE* fp = stdout);
+void print_exception_contexts(FILE* fp = stdout);
 
 NVWA_NAMESPACE_END
 
