@@ -32,7 +32,7 @@
  * Definition of stack-like container adaptor, with the additional
  * capability of showing the last popped "stack trace".
  *
- * @date  2025-02-02
+ * @date  2025-02-07
  */
 
 #ifndef NVWA_TRACE_STACK_H
@@ -47,6 +47,12 @@
 
 NVWA_NAMESPACE_BEGIN
 
+/**
+ * A class representing a subrange of a container, providing a range-like
+ * interface.
+ *
+ * @param Container  type of the container
+ */
 template <typename Container>
 class trace_stack_subrange {
 public:
@@ -54,6 +60,7 @@ public:
     using const_iterator = typename Container::const_iterator;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
+    // Constructor to initialize the subrange with iterators.
     trace_stack_subrange(const_iterator first, const_iterator last)
         : _M_begin(first), _M_end(last)
     {
@@ -108,6 +115,13 @@ private:
     const_iterator _M_end;
 };
 
+/**
+ * A stack-like container adaptor with additional functionalities for
+ * tracing and showing the last popped items.
+ *
+ * @param T          type of elements
+ * @param Container  type of the container (default to \c std::deque&lt;T&gt;)
+ */
 template <typename T, typename Container = std::deque<T>>
 class trace_stack {
 public:
@@ -123,6 +137,8 @@ public:
     {
     }
 
+    // Emplaces a new element at the top of the stack, discarding any
+    // previously popped elements.
     template <typename... Args>
     void emplace(Args&&... args)
     {
@@ -139,6 +155,7 @@ public:
         emplace(std::move(value));
     }
 
+    // Pops the top element from the stack, incrementing the trace count.
     void pop()
     {
         assert(!empty());
@@ -167,6 +184,8 @@ public:
         return _M_container.size() - _M_trace_count;
     }
 
+    // Discards the elements that have been "popped" but not actually
+    // removed from the container.
     void discard_popped()
     {
         if (_M_trace_count == 0) {
@@ -177,6 +196,8 @@ public:
         _M_trace_count = 0;
     }
 
+    // Returns a trace_stack_subrange object representing the range of
+    // recently popped items.
     trace_stack_subrange<Container> get_popped() const&
     {
         return {_M_container.end() - _M_trace_count, _M_container.end()};
@@ -192,6 +213,8 @@ NVWA_NAMESPACE_END
 #if HAVE_CXX20_RANGES
 #include <ranges>
 
+// Enable borrowed_range and view for trace_stack_subrange if C++20 ranges
+// are available.
 template <typename Container>
 inline constexpr bool std::ranges::enable_borrowed_range<
     NVWA::trace_stack_subrange<Container>> = true;
