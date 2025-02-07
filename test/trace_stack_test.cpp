@@ -1,4 +1,5 @@
 #include "nvwa/trace_stack.h"
+#include <utility>
 #include <boost/test/unit_test.hpp>
 #include "nvwa/c++_features.h"
 
@@ -42,8 +43,10 @@ BOOST_AUTO_TEST_CASE(trace_stack_test)
     }
     BOOST_TEST(sum == 6);
 
-    tst.push(4);
-    BOOST_TEST(tst.top() == 4);
-    BOOST_TEST(tst.get_popped().empty());
+    auto tst2 = std::move(tst);
+    BOOST_TEST(tst.empty());
+    tst2.push(4);
+    BOOST_TEST(tst2.top() == 4);
+    BOOST_TEST(tst2.get_popped().empty());
 }
 

@@ -131,7 +131,32 @@ public:
     using reference = typename Container::reference;
     using const_reference = typename Container::const_reference;
 
+    // Defaulted default constructor, copy constructor, copy assignment
+    // operator, and destructor.
     trace_stack() = default;
+    trace_stack(const trace_stack& rhs) = default;
+    trace_stack& operator=(const trace_stack& rhs) = default;
+    ~trace_stack() = default;
+
+    // Move constructor and move assignment operator should clear the
+    // trace count of the trace_stack being moved.
+    trace_stack(trace_stack&& rhs) noexcept
+        : _M_container(std::move(rhs._M_container)),
+          _M_trace_count(rhs._M_trace_count)
+    {
+        rhs._M_trace_count = 0;
+    }
+    trace_stack& operator=(trace_stack&& rhs) noexcept
+    {
+        if (this != &rhs) {
+            _M_container = std::move(rhs._M_container);
+            _M_trace_count = rhs._M_trace_count;
+            rhs._M_trace_count = 0;
+        }
+        return *this;
+    }
+
+    // Constructors that take an existing underlying container.
     trace_stack(const Container& container) : _M_container(container) {}
     trace_stack(Container&& container) : _M_container(std::move(container))
     {
