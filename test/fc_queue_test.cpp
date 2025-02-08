@@ -20,6 +20,18 @@ using namespace boost::unit_test_framework;
 
 namespace {
 
+class Obj {
+public:
+    explicit Obj(int n) : value_(n) {}
+    int value() const
+    {
+        return value_;
+    }
+
+private:
+    int value_;
+};
+
 const int LOOPS = 10'000'000;
 std::atomic<bool> parallel_test_failed{false};
 std::mutex output_mtx;
@@ -104,7 +116,7 @@ void read_and_check_queue2(nvwa::fc_queue<int>& q)
 
 } /* unnamed namespace */
 
-BOOST_AUTO_TEST_CASE(fc_queue_test)
+BOOST_AUTO_TEST_CASE(fc_queue_basic_test)
 {
     nvwa::fc_queue<int, test_alloc> q(4);
     BOOST_TEST_MESSAGE("sizeof fc_queue is " << sizeof q);
@@ -218,8 +230,20 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
     BOOST_CHECK_EQUAL(q.size(), 2U);
     BOOST_CHECK_EQUAL(s.front(), 5);
     BOOST_CHECK_EQUAL(s.back(), 5);
+}
+
+BOOST_AUTO_TEST_CASE(fc_queue_emplace_test)
+{
+    nvwa::fc_queue<Obj> q(4);
+    q.emplace(1);
+    q.emplace(2);
+    BOOST_CHECK(q.size() == 2U);
+    BOOST_CHECK(q.back().value() == 2);
+}
 
 #if __has_include(<memory_resource>)
+BOOST_AUTO_TEST_CASE(fc_queue_polymorphic_allocator_test)
+{
     nvwa::fc_queue<int, std::pmr::polymorphic_allocator<int>> t(4);
     BOOST_CHECK_EQUAL(t.capacity(), 4U);
     BOOST_CHECK_EQUAL(t.size(), 0U);
@@ -234,8 +258,8 @@ BOOST_AUTO_TEST_CASE(fc_queue_test)
     u = t;
     BOOST_CHECK_EQUAL(u.capacity(), 4U);
     BOOST_CHECK_EQUAL(u.size(), 1U);
-#endif
 }
+#endif
 
 BOOST_AUTO_TEST_CASE(fc_queue_parallel_test)
 {
