@@ -53,11 +53,11 @@ NVWA_NAMESPACE_BEGIN
  *
  * @param Container  type of the container
  */
-template <typename Container>
+template <typename _Container>
 class trace_stack_subrange {
 public:
-    using size_type = typename Container::size_type;
-    using const_iterator = typename Container::const_iterator;
+    using size_type = typename _Container::size_type;
+    using const_iterator = typename _Container::const_iterator;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
     // Constructor to initialize the subrange with iterators.
@@ -122,14 +122,14 @@ private:
  * @param T          type of elements
  * @param Container  type of the container (default to \c std::deque&lt;T&gt;)
  */
-template <typename T, typename Container = std::deque<T>>
+template <typename _T, typename _Container = std::deque<_T>>
 class trace_stack {
 public:
-    using container_type = Container;
-    using value_type = typename Container::value_type;
-    using size_type = typename Container::size_type;
-    using reference = typename Container::reference;
-    using const_reference = typename Container::const_reference;
+    using container_type = _Container;
+    using value_type = typename container_type::value_type;
+    using size_type = typename container_type::size_type;
+    using reference = typename container_type::reference;
+    using const_reference = typename container_type::const_reference;
 
     // Defaulted default constructor, copy constructor, copy assignment
     // operator, and destructor.
@@ -157,8 +157,12 @@ public:
     }
 
     // Constructors that take an existing underlying container.
-    trace_stack(const Container& container) : _M_container(container) {}
-    trace_stack(Container&& container) : _M_container(std::move(container))
+    trace_stack(const container_type& container)
+        : _M_container(container)
+    {
+    }
+    trace_stack(container_type&& container)
+        : _M_container(std::move(container))
     {
     }
 
@@ -168,11 +172,11 @@ public:
      *
      * @param args  arguments to construct a new element on the stack
      */
-    template <typename... Args>
-    void emplace(Args&&... args)
+    template <typename... _Targs>
+    void emplace(_Targs&&... args)
     {
         discard_popped();
-        _M_container.emplace_back(std::forward<Args>(args)...);
+        _M_container.emplace_back(std::forward<_Targs>(args)...);
     }
 
     /**
@@ -181,7 +185,7 @@ public:
      *
      * @param value  an lvalue to add
      */
-    void push(const T& value)
+    void push(const _T& value)
     {
         emplace(value);
     }
@@ -191,7 +195,7 @@ public:
      *
      * @param value  an rvalue to add
      */
-    void push(T&& value)
+    void push(_T&& value)
     {
         emplace(std::move(value));
     }
@@ -250,14 +254,14 @@ public:
      *
      * @return  a trace_stack_subrange of popped items
      */
-    trace_stack_subrange<Container> get_popped() const&
+    trace_stack_subrange<container_type> get_popped() const&
     {
         return {_M_container.end() - _M_trace_count, _M_container.end()};
     }
 
 private:
-    Container _M_container;
-    size_type _M_trace_count{};
+    container_type _M_container;
+    size_type      _M_trace_count{};
 };
 
 NVWA_NAMESPACE_END
@@ -267,12 +271,12 @@ NVWA_NAMESPACE_END
 
 // Enable borrowed_range and view for trace_stack_subrange if C++20 ranges
 // are available.
-template <typename Container>
+template <typename _Container>
 inline constexpr bool std::ranges::enable_borrowed_range<
-    NVWA::trace_stack_subrange<Container>> = true;
-template <typename Container>
+    NVWA::trace_stack_subrange<_Container>> = true;
+template <typename _Container>
 inline constexpr bool std::ranges::enable_view<
-    NVWA::trace_stack_subrange<Container>> = true;
+    NVWA::trace_stack_subrange<_Container>> = true;
 #endif
 
 #endif // NVWA_TRACE_STACK_H
