@@ -158,12 +158,12 @@ public:
     }
 
     /** Constructor that takes an existing underlying container. */
-    trace_stack(const container_type& container)
+    explicit trace_stack(const container_type& container)
         : _M_container(container)
     {
     }
     /** Constructor that takes a temporary underlying container. */
-    trace_stack(container_type&& container)
+    explicit trace_stack(container_type&& container)
         : _M_container(std::move(container))
     {
     }
