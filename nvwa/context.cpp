@@ -31,7 +31,7 @@
  *
  * Implementation of contextual tracing.
  *
- * @date  2025-02-06
+ * @date  2025-02-08
  */
 
 #include "context.h"            // context declarations
@@ -103,17 +103,34 @@ checkpoint::~checkpoint()
     restore_context(ctx_);
 }
 
+/**
+ * Gets the current thread-local context.
+ *
+ * @return  the last context pushed onto the thread-local context stack
+ */
 const context& get_current_context()
 {
     assert(!context_stack.empty());
     return context_stack.top();
 }
 
+/**
+ * Prints a context.
+ *
+ * @param ctx  the context to print
+ * @param fp   the file stream to print to
+ */
 void print_context(const context& ctx, FILE* fp)
 {
     fprintf(fp, "context: %s/%s", ctx.file, ctx.func);
 }
 
+/**
+ * Prints the context checkpoints along the exception propagation path.
+ * This function is supposed to be used in an exception handler.
+ *
+ * @param fp  the file stream to print to
+ */
 void print_exception_contexts(FILE* fp)
 {
     auto popped_items = context_stack.get_popped();

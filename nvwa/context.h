@@ -31,7 +31,7 @@
  *
  * Header file for contextual tracing.
  *
- * @date  2025-02-07
+ * @date  2025-02-08
  */
 
 #ifndef NVWA_CONTEXT_H
@@ -42,14 +42,20 @@
 
 NVWA_NAMESPACE_BEGIN
 
+/**
+ * Context information to store in checkpoints.
+ */
 struct context {
-    const char* file;
-    const char* func;
+    const char* file;  ///< File name
+    const char* func;  ///< Function name
 };
 
 bool operator==(const context& lhs, const context& rhs);
 bool operator!=(const context& lhs, const context& rhs);
 
+/**
+ * RAII object to push and pop thread-local contexts automatically.
+ */
 class checkpoint {
 public:
     explicit checkpoint(const context& ctx);
@@ -68,10 +74,12 @@ void print_exception_contexts(FILE* fp = stdout);
 NVWA_NAMESPACE_END
 
 #ifdef __GNUC__
+/** Macro for setting up a checkpoint.  GCC-specific version. */
 #define NVWA_CONTEXT_CHECKPOINT()                                \
     NVWA::checkpoint NVWA_UNIQUE_NAME(nvwa_context_checkpoint){  \
         NVWA::context{__FILE__, __PRETTY_FUNCTION__}}
 #else
+/** Macro for setting up a checkpoint.  Generic version. */
 #define NVWA_CONTEXT_CHECKPOINT()                                \
     NVWA::checkpoint NVWA_UNIQUE_NAME(nvwa_context_checkpoint){  \
         NVWA::context{__FILE__, __func__}}

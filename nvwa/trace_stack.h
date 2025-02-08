@@ -32,7 +32,7 @@
  * Definition of stack-like container adaptor, with the additional
  * capability of showing the last popped "stack trace".
  *
- * @date  2025-02-07
+ * @date  2025-02-08
  */
 
 #ifndef NVWA_TRACE_STACK_H
@@ -162,8 +162,12 @@ public:
     {
     }
 
-    // Emplaces a new element at the top of the stack, discarding any
-    // previously popped elements.
+    /**
+     * Constructs a new element in place at the top of the stack.  It
+     * discards any previously popped elements.
+     *
+     * @param args  arguments to construct a new element on the stack
+     */
     template <typename... Args>
     void emplace(Args&&... args)
     {
@@ -171,16 +175,32 @@ public:
         _M_container.emplace_back(std::forward<Args>(args)...);
     }
 
+    /**
+     * Pushes a given element to the top of the stack.  It discards any
+     * previously popped elements.
+     *
+     * @param value  an lvalue to add
+     */
     void push(const T& value)
     {
         emplace(value);
     }
+    /**
+     * Pushes a given element to the top of the stack.  It discards any
+     * previously popped elements.
+     *
+     * @param value  an rvalue to add
+     */
     void push(T&& value)
     {
         emplace(std::move(value));
     }
 
-    // Pops the top element from the stack, incrementing the trace count.
+    /**
+     * Removes the top element from the stack.  The element is not
+     * discarded, but the trace count is incremented to mark the number
+     * of popped elements.
+     */
     void pop()
     {
         assert(!empty());
@@ -209,8 +229,11 @@ public:
         return _M_container.size() - _M_trace_count;
     }
 
-    // Discards the elements that have been "popped" but not actually
-    // removed from the container.
+    /**
+     * Discards the elements that have been "popped" but not actually
+     * removed from the container.  #emplace and #push automatically call
+     * this member function.
+     */
     void discard_popped()
     {
         if (_M_trace_count == 0) {
@@ -221,8 +244,12 @@ public:
         _M_trace_count = 0;
     }
 
-    // Returns a trace_stack_subrange object representing the range of
-    // recently popped items.
+    /**
+     * Returns a trace_stack_subrange object representing the range of
+     * recently popped items.
+     *
+     * @return  a trace_stack_subrange of popped items
+     */
     trace_stack_subrange<Container> get_popped() const&
     {
         return {_M_container.end() - _M_trace_count, _M_container.end()};

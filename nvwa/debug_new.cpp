@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2004-2024 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2004-2025 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2024-05-20
+ * @date  2025-02-08
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -270,7 +270,7 @@ bool new_verbose_flag = false;
 
 /**
  * Pointer to the output stream.  The default output is \e stderr, and
- * one may change it to a user stream if needed (say, #new_verbose_flag
+ * one may change it to a user stream if needed (say, nvwa#new_verbose_flag
  * is \c true and there are a lot of (de)allocations).
  */
 FILE* new_output_fp = stderr;

@@ -116,9 +116,14 @@ INPUT                  = ../nvwa/c++_features.h \
                          ../nvwa/set_assign.h \
                          ../nvwa/pctimer.h \
                          ../nvwa/cont_ptr_utils.h \
+                         ../nvwa/aligned_memory.h \
+                         ../nvwa/aligned_memory.cpp \
                          ../nvwa/bool_array.h \
                          ../nvwa/bool_array.cpp \
+                         ../nvwa/context.h \
+                         ../nvwa/context.cpp \
                          ../nvwa/fc_queue.h \
+                         ../nvwa/trace_stack.h \
                          ../nvwa/istream_line_reader.h \
                          ../nvwa/file_line_reader.h \
                          ../nvwa/file_line_reader.cpp \
