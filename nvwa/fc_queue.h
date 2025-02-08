@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2009-2022 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2009-2025 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,7 +32,7 @@
  * Definition of a fixed-capacity queue.  Using this file requires a
  * C++17-compliant compiler.
  *
- * @date  2023-06-16
+ * @date  2025-02-08
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -397,9 +397,9 @@ public:
     };
 
     /**
-     * Inserts a new element at the end of the queue.  The first element
-     * will be discarded if the queue is full.  The behaviour is
-     * different from \c write().
+     * Constructs a new element in place at the end of the queue.  The
+     * first element will be discarded if the queue is full.  The
+     * behaviour is different from \c write().
      *
      * @param args  arguments to construct a new element
      * @pre         <code>capacity() > 0</code>
@@ -410,7 +410,7 @@ public:
      * @see write
      */
     template <typename... _Targs>
-    void push(_Targs&&... args)
+    void emplace(_Targs&&... args)
     {
         assert(capacity() > 0);
         allocator_traits::construct(get_alloc(), std::addressof(*_M_tail),
@@ -419,6 +419,42 @@ public:
             pop();
         }
         self_increment(_M_tail);
+    }
+
+    /**
+     * Inserts a given element at the end of the queue.  The first
+     * element will be discarded if the queue is full.  The behaviour is
+     * different from \c write().
+     *
+     * @param value  an lvalue to insert
+     * @pre          <code>capacity() > 0</code>
+     * @post         <code>size() <= capacity() && back() == value</code>,
+     *               unless an exception is thrown, in which case this
+     *               queue is unchanged (strong exception safety is
+     *               guaranteed).
+     * @see write
+     */
+    void push(const _Tp& value)
+    {
+        emplace(value);
+    }
+
+    /**
+     * Inserts a given element at the end of the queue.  The first
+     * element will be discarded if the queue is full.  The behaviour is
+     * different from \c write().
+     *
+     * @param value  an rvalue to insert
+     * @pre          <code>capacity() > 0</code>
+     * @post         <code>size() <= capacity() && back() == value</code>,
+     *               unless an exception is thrown, in which case this
+     *               queue is unchanged (strong exception safety is
+     *               guaranteed).
+     * @see write
+     */
+    void push(_Tp&& value)
+    {
+        emplace(std::move(value));
     }
 
     /**
@@ -438,8 +474,9 @@ public:
 
     /**
      * Inserts a new element at the end of the queue when the queue is
-     * not full.  This is more performant than separate calls to \c
-     * full() and \c push(), especially when C++11 atomics are used.
+     * not full.  This is more performant than separate calls to
+     * \c full() and \c push() (or \c emplace()), especially when C++11
+     * atomics are used.
      *
      * @param args  arguments to construct a new element
      * @return      \c true if the new element is successfully inserted;
