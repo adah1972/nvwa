@@ -51,7 +51,7 @@ NVWA_NAMESPACE_BEGIN
  * A class representing a subrange of a container, providing a range-like
  * interface.
  *
- * @param Container  type of the container
+ * @param _Container  type of the container
  */
 template <typename _Container>
 class trace_stack_subrange {
@@ -119,10 +119,11 @@ private:
  * A stack-like container adaptor with additional functionalities for
  * tracing and showing the last popped items.
  *
- * @param T          type of elements
- * @param Container  type of the container (default to \c std::deque&lt;T&gt;)
+ * @param _Tp         type of elements
+ * @param _Container  type of the container (default to
+ *                    \c std::deque&lt;_Tp&gt;)
  */
-template <typename _T, typename _Container = std::deque<_T>>
+template <typename _Tp, typename _Container = std::deque<_Tp>>
 class trace_stack {
 public:
     using container_type = _Container;
@@ -156,11 +157,12 @@ public:
         return *this;
     }
 
-    // Constructors that take an existing underlying container.
+    /** Constructor that takes an existing underlying container. */
     trace_stack(const container_type& container)
         : _M_container(container)
     {
     }
+    /** Constructor that takes a temporary underlying container. */
     trace_stack(container_type&& container)
         : _M_container(std::move(container))
     {
@@ -180,22 +182,22 @@ public:
     }
 
     /**
-     * Pushes a given element to the top of the stack.  It discards any
+     * Inserts a given element to the top of the stack.  It discards any
      * previously popped elements.
      *
      * @param value  an lvalue to add
      */
-    void push(const _T& value)
+    void push(const _Tp& value)
     {
         emplace(value);
     }
     /**
-     * Pushes a given element to the top of the stack.  It discards any
+     * Inserts a given element to the top of the stack.  It discards any
      * previously popped elements.
      *
      * @param value  an rvalue to add
      */
-    void push(_T&& value)
+    void push(_Tp&& value)
     {
         emplace(std::move(value));
     }
@@ -211,23 +213,27 @@ public:
         ++_M_trace_count;
     }
 
+    /** Gets the top element of the stack. */
     reference top()
     {
         assert(!empty());
         return *(_M_container.end() - _M_trace_count - 1);
     }
 
+    /** Gets the top element of the stack. */
     const_reference top() const
     {
         assert(!empty());
         return *(_M_container.end() - _M_trace_count - 1);
     }
 
+    /** Checks whether the stack is empty. */
     bool empty() const
     {
         return size() == 0;
     }
 
+    /** Gets the number of elements (excluding popped ones) in the stack. */
     size_type size() const
     {
         return _M_container.size() - _M_trace_count;
@@ -235,8 +241,8 @@ public:
 
     /**
      * Discards the elements that have been "popped" but not actually
-     * removed from the container.  #emplace and #push automatically call
-     * this member function.
+     * removed from the container.  \c emplace() and \c push()
+     * automatically call this member function.
      */
     void discard_popped()
     {
