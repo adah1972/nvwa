@@ -15,7 +15,7 @@ using namespace std;
     cout << setw(13) << #x << " is \"" << DEFINITION(x) << '"' << endl
 
 #define DISPLAY_FEATURE(x) \
-    cout << setw(34) << #x << " is " << x << endl
+    cout << setw(34) << #x << " is " << (x) << endl
 
 int main()
 {
@@ -55,12 +55,13 @@ int main()
 
 #if HAVE_CXX17_OPTIONAL
     std::optional<int> i;
+    bool optional_ok = false;
     try {
         (void)i.value();
-        assert(false);
     }
     catch (std::bad_optional_access& e) {
-        // std::optional does work
+        optional_ok = true;
     }
+    assert(optional_ok);
 #endif
 }
