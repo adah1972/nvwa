@@ -1,23 +1,4 @@
-#! /bin/sh
-
-# Recommended tool versions and notes:
-#
-#   * Graphviz 2.40
-#
-#     This new version works well for me
-#
-#   * Doxygen 1.5.1/1.5.2 for LaTeX output
-#
-#     1.5.3+ have wrong output in some diagrams
-#
-#   * Doxygen 1.5.8/1.6.2/1.8.13 for HTML output
-#
-#     1.5.9 has broken link on "More..."
-#     1.6.0/1 left-aligns the project name
-#     1.6.3 has issues with included-by graphs
-#
-#     Please notice that only Doxygen 1.8 has good support for C++11
-#
+#! /bin/bash
 
 case $(sed --version 2>&1) in
   *GNU*) sed_i () { sed -E -i "$@"; };;
