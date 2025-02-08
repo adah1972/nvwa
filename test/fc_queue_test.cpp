@@ -2,6 +2,7 @@
 #include <atomic>
 #include <chrono>
 #include <functional>
+#include <mutex>
 #include <thread>
 #include <utility>
 #include <boost/core/demangle.hpp>
@@ -21,13 +22,19 @@ namespace {
 
 const int LOOPS = 10'000'000;
 std::atomic<bool> parallel_test_failed{false};
+std::mutex output_mtx;
+
+void pause()
+{
+    std::this_thread::sleep_for(std::chrono::microseconds(100));
+}
 
 void add_to_queue(nvwa::fc_queue<int>& q)
 {
     int stop_count = 0;
     for (int i = 0; i < LOOPS; ++i) {
         while (q.full()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            pause();
             if (parallel_test_failed) {
                 return;
             }
@@ -35,6 +42,7 @@ void add_to_queue(nvwa::fc_queue<int>& q)
         }
         q.push(i);
     }
+    std::lock_guard guard{output_mtx};
     BOOST_TEST_MESSAGE(stop_count << " stops during enqueueing");
 }
 
@@ -43,7 +51,7 @@ void read_and_check_queue(nvwa::fc_queue<int>& q)
     int stop_count = 0;
     for (int i = 0; i < LOOPS; ++i) {
         while (q.empty()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            pause();
             ++stop_count;
         }
         if (i != q.front()) {
@@ -54,7 +62,7 @@ void read_and_check_queue(nvwa::fc_queue<int>& q)
         }
         q.pop();
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::lock_guard guard{output_mtx};
     BOOST_TEST_MESSAGE(stop_count << " stops during dequeueing");
 }
 
@@ -63,13 +71,14 @@ void add_to_queue2(nvwa::fc_queue<int>& q)
     int stop_count = 0;
     for (int i = 0; i < LOOPS; ++i) {
         while (!q.write(i)) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            pause();
             if (parallel_test_failed) {
                 return;
             }
             ++stop_count;
         }
     }
+    std::lock_guard guard{output_mtx};
     BOOST_TEST_MESSAGE(stop_count << " stops during enqueueing");
 }
 
@@ -79,7 +88,7 @@ void read_and_check_queue2(nvwa::fc_queue<int>& q)
     for (int i = 0; i < LOOPS; ++i) {
         int value{};
         while (!q.read(value)) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            pause();
             ++stop_count;
         }
         if (i != value) {
@@ -89,7 +98,7 @@ void read_and_check_queue2(nvwa::fc_queue<int>& q)
             break;
         }
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::lock_guard guard{output_mtx};
     BOOST_TEST_MESSAGE(stop_count << " stops during dequeueing");
 }
 
