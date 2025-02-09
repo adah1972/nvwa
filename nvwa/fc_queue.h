@@ -32,7 +32,7 @@
  * Definition of a fixed-capacity queue.  Using this file requires a
  * C++17-compliant compiler.
  *
- * @date  2025-02-08
+ * @date  2025-02-09
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -615,17 +615,9 @@ private:
     {
         ptr = increment(ptr);
     }
-    void self_decrement(pointer& ptr) const noexcept
-    {
-        ptr = decrement(ptr);
-    }
     void self_increment(atomic_pointer& ptr) const noexcept
     {
         ptr = increment(ptr.load(std::memory_order_relaxed));
-    }
-    void self_decrement(atomic_pointer& ptr) const noexcept
-    {
-        ptr = decrement(ptr.load(std::memory_order_relaxed));
     }
 
     void clear() noexcept
