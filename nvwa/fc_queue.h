@@ -617,7 +617,8 @@ private:
     }
     void self_increment(atomic_pointer& ptr) const noexcept
     {
-        ptr = increment(ptr.load(std::memory_order_relaxed));
+        ptr.store(increment(ptr.load(std::memory_order_relaxed)),
+                  std::memory_order_release);
     }
 
     void clear() noexcept
