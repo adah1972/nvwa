@@ -147,6 +147,11 @@ INPUT                  = ../nvwa/c++_features.h \
                          ../nvwa/number_range.h \
                          ../nvwa/split.h \
                          ../nvwa/tree.h \
+                         ../nvwa/stdio_wostream.h \
+                         ../nvwa/wcout.h \
+                         ../nvwa/wcout.cpp \
+                         ../nvwa/wcerr.h \
+                         ../nvwa/wcerr.cpp \
                          ../nvwa/functional.h
 INPUT_ENCODING         = UTF-8
 INPUT_FILE_ENCODING    =
@@ -326,6 +331,9 @@ SEARCH_INCLUDES        = YES
 INCLUDE_PATH           =
 INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = __GNUC__ \
+                         __GLIBCXX__ \
+                         __cpp_exceptions \
+                         __linux__ \
                          _DEBUG \
                          _DEBUG_NEW_REDEFINE_NEW=0 \
                          _DEBUG_NEW_REMEMBER_STACK_TRACE=1 \

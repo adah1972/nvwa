@@ -325,7 +325,13 @@ An article on its design and implementation is available at
 
 [Design and Implementation of a Static Memory Pool][lnk_static_mem_pool]
 
-*trace_stack.h*
+*stdio\_wostream.h*
+
+A workaround solution to address the limitation that `std::cout` and
+`std::wcout` may conflict on some platforms.  It is used by `wcout` and
+`wcerr`.
+
+*trace\_stack.h*
 
 A stack-like container adaptor, with the additional capability of
 showing the last popped "stack trace".  It is used by *context.cpp*.
@@ -338,6 +344,18 @@ of storage policy, which can be either *unique* or *shared*.  Traversal
 utility classes are provided so that traversing a tree can be simply
 done in a range-based for loop.  The test code, *test/test\_tree.cpp*,
 shows its basic usage.
+
+*wcerr.cpp*  
+*wcerr.h*
+
+This provides a working `nvwa::wcerr` object that can coexist with
+`std::cerr`.
+
+*wcout.cpp*  
+*wcout.h*
+
+This provides a working `nvwa::wcout` object that can coexist with
+`std::cout`.
 
 
 [lnk_leakage]:         http://wyw.dcweb.cn/leakage.htm
