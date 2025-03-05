@@ -32,7 +32,7 @@
  * Header file for a new \c wcout on Linux.  See comments in
  * stdio_wostream.h for details.
  *
- * @date  2025-03-04
+ * @date  2025-03-05
  */
 
 #ifndef NVWA_WCOUT_H
@@ -44,6 +44,8 @@
 NVWA_NAMESPACE_BEGIN
 
 #if defined(__linux__) && defined(__GLIBCXX__)
+
+namespace detail {
 
 class wcout_initializer {
 public:
@@ -61,6 +63,8 @@ public:
      */
     static std::wostream& get_instance();
 };
+
+} // namespace detail
 
 extern std::wostream& wcout;
 

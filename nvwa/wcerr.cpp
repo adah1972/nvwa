@@ -32,7 +32,7 @@
  * Implementation of a new \c wcerr for Linux.  See comments in
  * stdio_wostream.h for details.
  *
- * @date  2025-03-03
+ * @date  2025-03-05
  */
 
 #include "wcerr.h"              // nvwa::wcerr
@@ -66,7 +66,7 @@ void create_instance()
 {
     // wcerr ties to wcout, so wcout must not have a shorter lifetime
     // than wcerr.  We make sure wcout is created first here.
-    auto& wcout = wcout_t::get_instance();
+    auto& wcout = detail::wcout_t::get_instance();
 
 #ifdef __cpp_exceptions
     instance_ptr = new (storage)
@@ -88,6 +88,8 @@ void create_instance()
 
 } // unnamed namespace
 
+namespace detail {
+
 wcerr_initializer::wcerr_initializer()
 {
     wcerr_t::get_instance();
@@ -98,6 +100,8 @@ std::wostream& wcerr_t::get_instance()
     std::call_once(init_flag, create_instance);
     return *instance_ptr;
 }
+
+} // namespace detail
 
 /**
  * Name that references the new \c wcerr object.

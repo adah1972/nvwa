@@ -32,7 +32,7 @@
  * Implementation of a new \c wcout on Linux.  See comments in
  * stdio_wostream.h for details.
  *
- * @date  2025-03-04
+ * @date  2025-03-05
  */
 
 #include "wcout.h"              // nvwa::wcout
@@ -82,6 +82,8 @@ void create_instance()
 
 } // unnamed namespace
 
+namespace detail {
+
 wcout_initializer::wcout_initializer()
 {
     wcout_t::get_instance();
@@ -92,6 +94,8 @@ std::wostream& wcout_t::get_instance()
     std::call_once(init_flag, create_instance);
     return *instance_ptr;
 }
+
+} // namespace detail
 
 /**
  * Name that references the new \c wcout object.
