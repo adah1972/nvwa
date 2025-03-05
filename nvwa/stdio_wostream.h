@@ -47,7 +47,7 @@
  * standard-compliant but problematic behaviour on Linux.  Windows and
  * macOS do not seem to have this problem, nor does libc++ on Linux.
  *
- * @date  2025-03-04
+ * @date  2025-03-05
  */
 
 #ifndef NVWA_STDIO_WOSTREAM_H
@@ -163,34 +163,32 @@ private:
         _M_buf = std::make_unique<__gnu_cxx::stdio_sync_filebuf<_CharT>>(fp);
 
         // Set up buffering
-        int result{};
-        switch (mode) {
-        case stream_flush::platform:
-            break;
-        case stream_flush::manual:
-            result = setvbuf(fp, nullptr, _IOFBF, BUFSIZ);  // Fully buffered
-            break;
-        case stream_flush::on_tty_newline:
-            if (!isatty(fileno(fp))) {
-                result =
-                    setvbuf(fp, nullptr, _IOFBF, BUFSIZ);  // Fully buffered
-                break;
-            }
-            _FALLTHROUGH;
-        case stream_flush::on_newline:
-            result = setvbuf(fp, nullptr, _IOLBF, 0);  // Line buffered
-            break;
-        case stream_flush::always:
-            result = setvbuf(fp, nullptr, _IONBF, 0);  // Unbuffered
-            break;
-        }
-        if (result != 0) {
+        if (set_buffering_mode(fp, mode) != 0) {
             ec = std::error_code(errno, std::system_category());
             return;
         }
 
         // Use the new buffer
         this->rdbuf(_M_buf.get());
+    }
+
+    int set_buffering_mode(FILE* fp, stream_flush mode) {
+        switch (mode) {
+        case stream_flush::platform:
+            return 0;
+        case stream_flush::manual:
+            return setvbuf(fp, nullptr, _IOFBF, BUFSIZ);  // Fully buffered
+        case stream_flush::on_tty_newline:
+            if (!isatty(fileno(fp))) {
+                return setvbuf(fp, nullptr, _IOFBF, BUFSIZ);  // Fully buffered
+            }
+            _FALLTHROUGH;
+        case stream_flush::on_newline:
+            return setvbuf(fp, nullptr, _IOLBF, 0);  // Line buffered
+        case stream_flush::always:
+            return setvbuf(fp, nullptr, _IONBF, 0);  // Unbuffered
+        }
+        return 0;
     }
 
     std::unique_ptr<FILE, detail::file_closer>             _M_fp;
