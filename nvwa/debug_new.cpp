@@ -31,7 +31,7 @@
  *
  * Implementation of debug versions of new and delete to check leakage.
  *
- * @date  2025-02-08
+ * @date  2025-03-28
  */
 
 #include <new>                  // std::bad_alloc/nothrow_t
@@ -307,8 +307,7 @@ namespace {
  * @param alignment  alignment requested
  * @return           aligned size
  */
-inline constexpr uint32_t align(size_t s,
-                                size_t alignment = _DEBUG_NEW_ALIGNMENT)
+constexpr uint32_t align(size_t s, size_t alignment = _DEBUG_NEW_ALIGNMENT)
 {
     // 32 bits are enough for alignments
     return static_cast<uint32_t>((s + alignment - 1) & ~(alignment - 1));
@@ -628,7 +627,7 @@ void* debug_new_alloc(size_t size, size_t alignment = _DEBUG_NEW_ALIGNMENT)
 #if NVWA_WIN32
     return _aligned_malloc(size, alignment);
 #elif NVWA_UNIX
-    void* memptr;
+    void* memptr{};
     int result = posix_memalign(&memptr, alignment, size);
     if (result == 0) {
         return memptr;
@@ -797,12 +796,8 @@ void free_pointer(void* usr_ptr, void* addr, is_array_t is_array,
         _DEBUG_NEW_ERROR_ACTION;
     }
     if (is_array != ptr->is_array) {
-        const char* msg;
-        if (is_array) {
-            msg = "delete[] after new";
-        } else {
-            msg = "delete after new[]";
-        }
+        const char* msg =
+            is_array ? "delete[] after new" : "delete after new[]";
         fast_mutex_autolock lock(new_output_lock);
         fprintf(new_output_fp,
                 "%s: pointer %p (size %zu)\n\tat ",
