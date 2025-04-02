@@ -31,7 +31,7 @@
  *
  * Modern C++ feature detection macros and workarounds.
  *
- * @date  2025-02-01
+ * @date  2025-04-02
  */
 
 #ifndef NVWA_CXX_FEATURES_H
@@ -404,16 +404,14 @@
 
 #if HAVE_CXX11_NOEXCEPT
 #define _NOEXCEPT noexcept
-#if !(defined(_NOEXCEPT_) && defined(__clang__))
-#define _NOEXCEPT_(x) noexcept(x)
-#endif
+#define _NOEXCEPT_(...) noexcept(__VA_ARGS__)
 #else
 #ifdef _MSC_VER
 #define _NOEXCEPT throw ()
 #else
 #define _NOEXCEPT throw()
 #endif
-#define _NOEXCEPT_(x)
+#define _NOEXCEPT_(...)
 #endif
 
 #if HAVE_CXX11_NULLPTR
