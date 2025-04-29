@@ -32,7 +32,7 @@
  * Definition of a fixed-capacity queue.  Using this file requires a
  * C++17-compliant compiler.
  *
- * @date  2025-02-09
+ * @date  2025-04-29
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -51,22 +51,6 @@
 #endif
 
 NVWA_NAMESPACE_BEGIN
-
-namespace detail {
-
-template <typename _Alloc>
-inline void swap_allocator(_Alloc&, _Alloc&, std::false_type) noexcept
-{
-}
-
-template <typename _Alloc>
-inline void swap_allocator(_Alloc& lhs, _Alloc& rhs, std::true_type) noexcept
-{
-    using std::swap;
-    swap(lhs, rhs);
-}
-
-} /* namespace detail */
 
 /**
  * Class to represent a fixed-capacity queue.  This class has an
@@ -576,9 +560,11 @@ public:
     {
         assert(allocator_traits::propagate_on_container_swap::value ||
                get_alloc() == rhs.get_alloc());
-        detail::swap_allocator(
-            get_alloc(), rhs.get_alloc(),
-            typename allocator_traits::propagate_on_container_swap{});
+        if constexpr (allocator_traits::propagate_on_container_swap::
+                          value) {
+            using std::swap;
+            swap(get_alloc(), rhs.get_alloc());
+        }
         swap_pointer(_M_head,  rhs._M_head);
         swap_pointer(_M_tail,  rhs._M_tail);
         swap_pointer(_M_begin, rhs._M_begin);
