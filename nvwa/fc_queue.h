@@ -80,13 +80,12 @@ public:
     /**
      * Default-constructor that creates an empty queue.
      *
-     * It is not very useful, except as the target of an assignment.  Please
-     * notice that calling \c capacity() would not get the correct result at
-     * this moment.
+     * It is not very useful, except as the target of an assignment.
      *
      * @post            The following conditions will hold:
      *                  - <code>empty()</code>
      *                  - <code>full()</code>
+     *                  - <code>capacity() == 0</code>
      *                  - <code>size() == 0</code>
      */
     fc_queue() = default;
@@ -94,14 +93,13 @@ public:
     /**
      * Constructor that creates an empty queue.
      *
-     * It is not very useful, except as the target of an assignment.  Please
-     * notice that calling \c capacity() would not get the correct result at
-     * this moment.
+     * It is not very useful, except as the target of an assignment.
      *
      * @param alloc     the allocator to use
      * @post            The following conditions will hold:
      *                  - <code>empty()</code>
      *                  - <code>full()</code>
+     *                  - <code>capacity() == 0</code>
      *                  - <code>size() == 0</code>
      */
     constexpr explicit fc_queue(const allocator_type& alloc) noexcept
@@ -315,6 +313,12 @@ public:
      */
     size_type capacity() const noexcept
     {
+        if (_M_begin == nullptr) {
+            // We cannot initialize _M_end to _M_begin + 1 in the
+            // default constructor: compile-time pointer arithmetic
+            // on null pointer is forbidden.
+            return 0;
+        }
         return _M_end - _M_begin - 1;
     }
 
