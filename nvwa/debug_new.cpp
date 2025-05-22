@@ -713,7 +713,7 @@ void* alloc_mem(size_t size, const char* file, int line,
     if (line == 0)
 #endif
     {
-        void* buffer [255];
+        void*  buffer[255];
         size_t buffer_length = sizeof(buffer) / sizeof(*buffer);
 
 #if NVWA_UNIX
