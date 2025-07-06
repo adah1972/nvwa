@@ -32,7 +32,7 @@
  * A generic tree class template and the traversal utilities.  Using
  * this file requires a C++11-compliant compiler.
  *
- * @date  2025-02-02
+ * @date  2025-07-06
  */
 
 #ifndef NVWA_TREE_H
@@ -45,6 +45,7 @@
 #include <memory>               // std::unique_ptr/shared_ptr
 #include <ostream>              // std::ostream
 #include <stack>                // std::stack
+#include <string>               // std::string
 #include <tuple>                // std::tuple/make_tuple
 #include <type_traits>          // std::decay
 #include <utility>              // std::declval/forward/move/pair/...

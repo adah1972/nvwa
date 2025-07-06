@@ -32,7 +32,7 @@
  * Definition of a fixed-capacity queue.  Using this file requires a
  * C++17-compliant compiler.
  *
- * @date  2025-04-29
+ * @date  2025-07-06
  */
 
 #ifndef NVWA_FC_QUEUE_H
@@ -42,7 +42,6 @@
 #include <atomic>               // std::atomic
 #include <memory>               // std::addressof/allocator/allocator_traits
 #include <new>                  // std::bad_alloc
-#include <type_traits>          // std::integral_constant/false_type/true_type
 #include <utility>              // std::move/swap
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 

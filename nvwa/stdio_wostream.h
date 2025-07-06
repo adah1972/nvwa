@@ -47,7 +47,7 @@
  * standard-compliant but problematic behaviour on Linux.  Windows and
  * macOS do not seem to have this problem, nor does libc++ on Linux.
  *
- * @date  2025-03-05
+ * @date  2025-07-06
  */
 
 #ifndef NVWA_STDIO_WOSTREAM_H
@@ -65,6 +65,7 @@
 #include <unistd.h>             // close/dup/isatty
 #include <memory>               // std::unique_ptr/make_unique
 #include <ostream>              // std::basic_ostream
+#include <string>               // std::char_traits
 #include <system_error>         // std::error_code/system_error/...
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++_features.h"       // _FALLTHROUGH

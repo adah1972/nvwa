@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2014-2024 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2014-2025 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -32,13 +32,14 @@
  * Utility templates for functional programming style.  Using this file
  * requires a C++14-compliant compiler.
  *
- * @date  2024-04-29
+ * @date  2025-07-06
  */
 
 #ifndef NVWA_FUNCTIONAL_H
 #define NVWA_FUNCTIONAL_H
 
 #include <cassert>              // assert
+#include <cstddef>              // std::size_t
 #include <functional>           // std::function/ref
 #include <iterator>             // std::begin/iterator_traits
 #include <memory>               // std::allocator
@@ -62,8 +63,8 @@ template <class _T1, class _T2>
 struct can_reserve {
     struct good { char dummy; };
     struct bad { char dummy[2]; };
-    template <class _Up, void   (_Up::*)(size_t)> struct _SFINAE1 {};
-    template <class _Up, size_t (_Up::*)() const> struct _SFINAE2 {};
+    template <class _Up, void   (_Up::*)(std::size_t)> struct _SFINAE1 {};
+    template <class _Up, std::size_t (_Up::*)() const> struct _SFINAE2 {};
     template <class _Up> static good reserve(_SFINAE1<_Up, &_Up::reserve>*);
     template <class _Up> static bad  reserve(...);
     template <class _Up> static good size(_SFINAE2<_Up, &_Up::size>*);
