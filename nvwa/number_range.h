@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2019-2021 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2019-2025 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -33,7 +33,7 @@
  * InputRange concept.  A compiler that supports C++17 or later is
  * required.
  *
- * @date  2021-08-06
+ * @date  2025-07-06
  */
 
 #ifndef NVWA_NUMBER_RANGE_H
@@ -47,8 +47,8 @@ NVWA_NAMESPACE_BEGIN
 
 /**
  * Class template that allows iterating over a number range with a
- * step value other than one.  It is quite similar to the C++20 \c
- * iota_view, except for allowing non-integer types and custom step
+ * step value other than one.  It is quite similar to the C++20
+ * \c iota_view, except for allowing non-integer types and custom step
  * values.  It satisfies the InputRange concept, and can work with
  * std::ranges and range-v3.
  */
