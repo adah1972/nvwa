@@ -47,7 +47,7 @@
  * standard-compliant but problematic behaviour on Linux.  Windows and
  * macOS do not seem to have this problem, nor does libc++ on Linux.
  *
- * @date  2025-07-06
+ * @date  2025-07-10
  */
 
 #ifndef NVWA_STDIO_WOSTREAM_H
@@ -173,7 +173,8 @@ private:
         this->rdbuf(_M_buf.get());
     }
 
-    int set_buffering_mode(FILE* fp, stream_flush mode) {
+    int set_buffering_mode(FILE* fp, stream_flush mode)
+    {
         switch (mode) {
         case stream_flush::platform:
             return 0;
