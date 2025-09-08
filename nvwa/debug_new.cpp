@@ -122,10 +122,10 @@
 #ifndef _DEBUG_NEW_ERROR_CRASH
 #define _DEBUG_NEW_ERROR_ACTION abort()
 #else
-#define _DEBUG_NEW_ERROR_ACTION        \
-    do {                               \
-        *(static_cast<char*>(0)) = 0;  \
-        abort();                       \
+#define _DEBUG_NEW_ERROR_ACTION                 \
+    do {                                        \
+        *(static_cast<volatile char*>(0)) = 0;  \
+        abort();                                \
     } while (0)
 #endif
 #endif
