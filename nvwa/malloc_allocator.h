@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2022-2024 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2022-2025 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -33,7 +33,7 @@
  * It is necessary in the implementation of operator new/delete in order
  * to avoid dead loops.
  *
- * @date  2024-05-20
+ * @date  2025-09-23
  */
 
 #ifndef NVWA_MALLOC_ALLOCATOR_H
@@ -62,7 +62,6 @@ struct malloc_allocator {
 
     T* allocate(size_t n)
     {
-        // NOLINTNEXTLINE(bugprone-sizeof-expression)
         return static_cast<T*>(malloc(n * sizeof(T)));
     }
     void deallocate(T* p, size_t)
