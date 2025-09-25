@@ -31,7 +31,7 @@
  *
  * Implementation of memory tracing facilities.
  *
- * @date  2025-02-02
+ * @date  2025-09-25
  */
 
 #include "memory_trace.h"       // memory trace declarations
@@ -76,7 +76,7 @@ FILE* new_output_fp = stderr;
 size_t current_mem_alloc = 0;
 size_t total_mem_alloc_cnt_accum = 0;
 
-constexpr uint32_t CMT_MAGIC = 0x4D'58'54'43;  // "CTXM";
+constexpr uint32_t CMT_MAGIC = 0x4D585443;  // "CTXM";
 
 struct alloc_list_base {
     alloc_list_base* next;  ///< Pointer to the next memory block
