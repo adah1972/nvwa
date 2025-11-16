@@ -2,7 +2,7 @@
 // vim:tabstop=4:shiftwidth=4:expandtab:
 
 /*
- * Copyright (C) 2017-2024 Wu Yongwei <wuyongwei at gmail dot com>
+ * Copyright (C) 2017-2025 Wu Yongwei <wuyongwei at gmail dot com>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any
@@ -43,7 +43,7 @@
  * and has since been modified to make its iterator satisfy the
  * \c InputIterator concept, along with other minor changes.
  *
- * @date  2024-05-20
+ * @date  2025-11-16
  */
 
 #ifndef NVWA_ISTREAM_LINE_READER_H
@@ -51,9 +51,9 @@
 
 #include <assert.h>             // assert
 #include <stddef.h>             // ptrdiff_t
+#include <ios>                  // std::ios_base::failure
 #include <istream>              // std::istream
 #include <iterator>             // std::input_iterator_tag
-#include <stdexcept>            // std::runtime_error
 #include <string>               // std::string
 #include "_nvwa.h"              // NVWA_NAMESPACE_*
 #include "c++_features.h"       // HAVE_CXX20_RANGES
@@ -146,7 +146,7 @@ public:
     iterator begin()
     {
         if (_M_stream->fail()) {
-            throw std::runtime_error("input stream error");
+            throw std::ios_base::failure("input stream error");
         }
         return iterator(*_M_stream);
     }
